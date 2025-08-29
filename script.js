@@ -1,29 +1,33 @@
-document.getElementById("registro-form").addEventListener("submit", function(e) {
-  e.preventDefault();
+async function sendToBackend(nombre, apellido, cedula, motivo) {
+  const fecha = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  const hora = new Date().toLocaleTimeString("es-PA", { hour12: false }); // HH:mm:ss
 
-  const nombre = document.getElementById("nombre").value;
-  const apellido = document.getElementById("apellido").value;
-  const cedula = document.getElementById("cedula").value;
-  const motivo = document.getElementById("motivo").value;
+  const supabaseUrl = "https://qmzbqwwndsdsmdkrimwb.supabase.co";
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtemJxd3duZHNkc21ka3JpbXdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0OTExNDYsImV4cCI6MjA3MjA2NzE0Nn0.dfQdvfFbgXdun1kQ10gRsqh3treJRzOKdbkebpEQXWo";
 
-  const formData = new URLSearchParams();
-  formData.append("nombre", nombre);
-  formData.append("apellido", apellido);
-  formData.append("cedula", cedula);
-  formData.append("motivo", motivo);
-
-  fetch("https://script.google.com/macros/s/AKfycbzlooyMoHLkMYx0zdSSZ1LhEEF_2oAAa61774bbxYT_MGO1C2ggbVWlVwQsH7u24-jxag/exec", {
+  const response = await fetch(`${supabaseUrl}/rest/v1/visitantes`, {
     method: "POST",
-    body: formData
-  })
-  .then(response => response.text())
-  .then(data => {
-    console.log("Respuesta del servidor:", data);
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": supabaseKey,
+      "Authorization": `Bearer ${supabaseKey}`
+    },
+    body: JSON.stringify([{
+      nombre,
+      apellido,
+      cedula,
+      motivo,
+      fecha,
+      hora
+    }])
+  });
+
+  if (response.ok) {
     alert("Registro exitoso");
     document.getElementById("registro-form").reset();
-  })
-  .catch(error => {
+  } else {
+    const error = await response.text();
     console.error("Error al registrar:", error);
     alert("Error al registrar: " + error);
-  });
-});
+  }
+}
