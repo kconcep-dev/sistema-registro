@@ -54,3 +54,40 @@ document.getElementById("registro-form").addEventListener("submit", function(e) 
     alert("Por favor, completa todos los campos.");
   }
 });
+
+// Función para lector de QR
+function startScanner() {
+  const qrReader = new Html5Qrcode("qr-reader");
+
+  qrReader.start(
+    { facingMode: "environment" }, // Usa la cámara trasera
+    {
+      fps: 10,
+      qrbox: 250
+    },
+    (decodedText) => {
+      procesarQR(decodedText);
+      qrReader.stop(); // Detiene el escáner después de leer
+      document.getElementById("qr-reader").innerHTML = ""; // Limpia la vista
+    },
+    (errorMessage) => {
+      console.warn("QR no detectado:", errorMessage);
+    }
+  ).catch((err) => {
+    console.error("Error al iniciar el escáner:", err);
+  });
+}
+
+function procesarQR(textoQR) {
+  const partes = textoQR.split("|");
+
+  const cedula = partes[0]?.trim();
+  const nombre = partes[1]?.trim();
+  const apellido = partes[2]?.trim();
+
+  document.getElementById("cedula").value = cedula;
+  document.getElementById("nombre").value = nombre;
+  document.getElementById("apellido").value = apellido;
+
+  alert("Datos cargados desde el QR. Completa el motivo y registra.");
+}
