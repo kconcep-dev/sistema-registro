@@ -55,29 +55,38 @@ document.getElementById("registro-form").addEventListener("submit", function(e) 
   }
 });
 
-// Función para lector de QR
+// Función para iniciar el lector de QR con mejor selección de cámara
 function startScanner() {
-  const qrReader = new Html5Qrcode("qr-reader");
+  Html5Qrcode.getCameras().then(devices => {
+    if (devices && devices.length) {
+      const cameraId = devices[0].id; // Usa la primera cámara disponible
+      const qrReader = new Html5Qrcode("qr-reader");
 
-  qrReader.start(
-    { facingMode: "environment" }, // Usa la cámara trasera
-    {
-      fps: 10,
-      qrbox: 250
-    },
-    (decodedText) => {
-      procesarQR(decodedText);
-      qrReader.stop(); // Detiene el escáner después de leer
-      document.getElementById("qr-reader").innerHTML = ""; // Limpia la vista
-    },
-    (errorMessage) => {
-      console.warn("QR no detectado:", errorMessage);
+      qrReader.start(
+        cameraId,
+        { fps: 10, qrbox: 250 },
+        (decodedText) => {
+          procesarQR(decodedText);
+          qrReader.stop();
+          document.getElementById("qr-reader").innerHTML = "";
+        },
+        (errorMessage) => {
+          console.warn("QR no detectado:", errorMessage);
+        }
+      ).catch(err => {
+        console.error("Error al iniciar el escáner:", err);
+        alert("No se pudo iniciar la cámara.");
+      });
+    } else {
+      alert("No se encontraron cámaras disponibles.");
     }
-  ).catch((err) => {
-    console.error("Error al iniciar el escáner:", err);
+  }).catch(err => {
+    console.error("Error al obtener cámaras:", err);
+    alert("No se pudo acceder a la cámara.");
   });
 }
 
+// Procesar el texto escaneado del QR
 function procesarQR(textoQR) {
   const partes = textoQR.split("|");
 
