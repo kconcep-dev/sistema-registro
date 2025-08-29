@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Visitantes</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body>
+  <h1>Registro de Visitantes</h1>
+
+  <div id="reader" style="width:300px;"></div>
+  <div id="result"></div>
+
+  <form id="registro-form">
+    <label>Nombre:</label>
+    <input type="text" id="nombre"><br>
+
+    <label>Cédula:</label>
+    <input type="text" id="cedula"><br>
+
+    <label>Motivo de visita:</label>
+    <input type="text" id="motivo"><br>
+
+    <button type="submit">Registrar</button>
+  </form>
+
+  <script src="script.js"></script>
+</body>
+</html>
