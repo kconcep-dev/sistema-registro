@@ -13,20 +13,15 @@
   <h1>Registro de Visitantes</h1>
 
   <div>
-    <label for="camera-select">Selecciona cámara:</label>
-    <select id="camera-select"></select>
-  </div>
-
-  <div>
-    <label for="cedula-captura">Tomar foto de la cédula (con QR visible):</label>
+    <label for="cedula-captura">Tomar foto de la cédula:</label>
     <input type="file" id="cedula-captura" accept="image/*" capture="environment">
-    <button onclick="leerQRDesdeCaptura()">Leer QR desde foto</button>
+    <button onclick="extraerTextoDesdeCaptura()">Procesar Foto</button>
   </div>
 
   <div>
     <label for="cedula-img">O subir imagen desde galería:</label>
     <input type="file" id="cedula-img" accept="image/*">
-    <button onclick="leerQRDesdeArchivo()">Leer QR desde imagen</button>
+    <button onclick="extraerTextoDesdeArchivo()">Procesar Imagen Subida</button>
   </div>
 
   <form id="registro-form">
@@ -45,10 +40,10 @@
     <button type="submit">Registrar</button>
   </form>
 
-  <canvas id="qr-canvas" style="display:none;"></canvas>
-  <p id="resultado"></p>
+  <h3>Texto detectado por OCR:</h3>
+  <pre id="resultado" style="white-space: pre-wrap; background: #f9f9f9; padding: 10px; border: 1px solid #ccc;"></pre>
 
-  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

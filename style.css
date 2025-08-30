@@ -64,11 +64,17 @@ button:hover {
   background-color: #0056b3;
 }
 
-/* Área del lector QR */
-#qr-reader {
-  margin-top: 15px;
+/* Área de resultado OCR */
+#resultado {
+  white-space: pre-wrap;
+  background-color: #f9f9f9;
+  padding: 15px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 6px;
+  font-size: 0.95em;
+  color: #333;
+  max-width: 400px;
+  margin: 0 auto 20px auto;
 }
 
 /* Responsive para móviles */

@@ -55,77 +55,51 @@ document.getElementById("registro-form").addEventListener("submit", function(e) 
   }
 });
 
-// Cargar lista de cámaras disponibles
-Html5Qrcode.getCameras().then(devices => {
-  const select = document.getElementById("camera-select");
-  devices.forEach((device, index) => {
-    const option = document.createElement("option");
-    option.value = device.id;
-    option.text = device.label || `Cámara ${index + 1}`;
-    select.appendChild(option);
-  });
-}).catch(err => {
-  console.error("No se pudieron obtener las cámaras:", err);
-  alert("Error al acceder a la cámara.");
-});
-
-// Leer QR desde imagen capturada
-function leerQRDesdeCaptura() {
+// Procesar imagen capturada desde cámara
+function extraerTextoDesdeCaptura() {
   const archivo = document.getElementById("cedula-captura").files[0];
   if (!archivo) return alert("Toma una foto de la cédula primero.");
 
-  procesarImagenQR(archivo);
+  procesarImagenOCR(archivo);
 }
 
-// Leer QR desde imagen subida
-function leerQRDesdeArchivo() {
+// Procesar imagen subida desde galería
+function extraerTextoDesdeArchivo() {
   const archivo = document.getElementById("cedula-img").files[0];
   if (!archivo) return alert("Selecciona una imagen desde tu galería.");
 
-  procesarImagenQR(archivo);
+  procesarImagenOCR(archivo);
 }
 
-// Procesar imagen y extraer QR con jsQR
-function procesarImagenQR(archivo) {
-  const reader = new FileReader();
-  reader.onload = function () {
-    const img = new Image();
-    img.onload = function () {
-      const canvas = document.getElementById("qr-canvas");
-      const ctx = canvas.getContext("2d");
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+// Función OCR con Tesseract.js
+function procesarImagenOCR(archivo) {
+  Tesseract.recognize(archivo, 'spa', { logger: m => console.log(m) })
+    .then(({ data: { text } }) => {
+      // Mostrar el texto detectado en pantalla
+      document.getElementById("resultado").innerText = text;
 
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const code = jsQR(imageData.data, canvas.width, canvas.height);
+      // Reproducir sonido de confirmación
+      document.getElementById("scan-sound").play();
 
-      if (code) {
-        document.getElementById("resultado").innerText = code.data;
-        document.getElementById("scan-sound").play();
-        procesarQR(code.data);
-      } else {
-        alert("No se detectó ningún código QR en la imagen.");
+      // Intentar detectar campos automáticamente
+      const cedulaMatch = text.match(/\d{1,2}-\d{3,}-\d{4}/);
+      if (cedulaMatch) {
+        document.getElementById("cedula").value = cedulaMatch[0];
       }
-    };
-    img.src = reader.result;
-  };
-  reader.readAsDataURL(archivo);
-}
 
-// Procesar texto extraído del QR
-function procesarQR(textoQR) {
-  const partes = textoQR.split("|");
+      const nombreMatch = text.match(/[A-ZÁÉÍÓÚÑ]{2,}(?:\s+[A-ZÁÉÍÓÚÑ]{2,}){1,}/);
+      if (nombreMatch) {
+        const partes = nombreMatch[0].split(" ");
+        document.getElementById("nombre").value = partes.slice(0, -1).join(" ");
+        document.getElementById("apellido").value = partes.slice(-1).join(" ");
+      }
 
-  const cedula = partes[0]?.trim();
-  const nombre = partes[1]?.trim();
-  const apellido = partes[2]?.trim();
-
-  document.getElementById("cedula").value = cedula || "";
-  document.getElementById("nombre").value = nombre || "";
-  document.getElementById("apellido").value = apellido || "";
-
-  alert("Datos cargados desde el QR. Completa el motivo y registra.");
+      alert("Texto detectado. Revisa el área de resultado y ajusta los campos si es necesario.");
+    })
+    .catch(err => {
+      console.error("Error al procesar imagen:", err);
+      alert("No se pudo leer la imagen. Intenta con una foto más clara.");
+    });
 }
 
 // Registrar el Service Worker para PWA
