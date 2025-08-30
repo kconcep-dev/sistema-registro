@@ -1,25 +1,21 @@
 // --- CONFIGURACIÓN Y CLIENTE SUPABASE ---
 const supabaseUrl = "https://qmzbqwwndsdsmdkrimwb.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtemJxd3duZHNkc21ka3JpbXdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0OTExNDYsImV4cCI6MjA3MjA2NzE0Nn0.dfQdvfFbgXdun1kQ10gRsqh3treJRzOKdbkebpEQXWo";
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+// CORRECCIÓN: Usamos la variable global 'supabase' para crear nuestro cliente
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
 // --- PROTECCIÓN DE RUTA ---
-// Esta función verifica si el usuario ha iniciado sesión.
 async function checkSession() {
-    // Pide a Supabase la sesión actual del usuario.
-    const { data: { session } } = await supabase.auth.getSession();
+    // CORRECCIÓN: Usamos nuestro 'supabaseClient'
+    const { data: { session } } = await supabaseClient.auth.getSession();
     
-    // Si no hay una sesión activa...
     if (!session) {
-        // ...expulsamos al usuario a la página de login.
         window.location.href = 'login.html';
     }
 }
-// Ejecutamos la verificación tan pronto como el script se carga.
 checkSession();
 
 
-// El resto del código solo se ejecuta si la verificación de sesión es exitosa.
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- ELEMENTOS DEL DOM ---
@@ -78,12 +74,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchLastVisitor() {
         try {
-            const response = await fetch(`${supabaseUrl}/rest/v1/visitantes?select=*&order=id.desc&limit=1`, {
-                headers: { "apikey": supabaseKey, "Authorization": `Bearer ${supabaseKey}` }
-            });
-            if (!response.ok) throw new Error('Respuesta de red no fue exitosa.');
+            // CORRECCIÓN: Usamos nuestro 'supabaseClient' para hacer la consulta
+            const { data, error } = await supabaseClient
+                .from('visitantes')
+                .select('*')
+                .order('id', { ascending: false })
+                .limit(1);
+
+            if (error) throw error;
             
-            const data = await response.json();
             displayLastVisitor(data.length > 0 ? data[0] : null);
         } catch (error) {
             console.error("Error al obtener último visitante:", error);
@@ -110,27 +109,25 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const fechaActual = new Date().toISOString().split("T")[0];
             const horaActual = new Date().toLocaleTimeString("es-PA", { hour12: false });
-            const response = await fetch(`${supabaseUrl}/rest/v1/visitantes`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json", "apikey": supabaseKey, "Authorization": `Bearer ${supabaseKey}` },
-                body: JSON.stringify([{ nombre, apellido, cedula, motivo, fecha: fechaActual, hora: horaActual }])
-            });
+            
+            // CORRECCIÓN: Usamos nuestro 'supabaseClient' para insertar datos
+            const { error } = await supabaseClient
+                .from('visitantes')
+                .insert([{ nombre, apellido, cedula, motivo, fecha: fechaActual, hora: horaActual }]);
 
-            if (response.ok) {
-                showToast("¡Registro exitoso!", "success");
-                if (successSound) successSound.play();
-                
-                const nuevoVisitante = { nombre, apellido, cedula, motivo, fecha: fechaActual, hora: horaActual };
-                displayLastVisitor(nuevoVisitante);
+            if (error) throw error;
+            
+            showToast("¡Registro exitoso!", "success");
+            if (successSound) successSound.play();
+            
+            const nuevoVisitante = { nombre, apellido, cedula, motivo, fecha: fechaActual, hora: horaActual };
+            displayLastVisitor(nuevoVisitante);
 
-                form.reset();
-            } else {
-                const error = await response.text();
-                showToast(`Error al registrar: ${error}`, "error");
-            }
+            form.reset();
+
         } catch (err) {
-            showToast("Error de conexión. Revisa tu internet.", "error");
-            console.error("Error de conexión:", err);
+            showToast("Error al registrar los datos.", "error");
+            console.error("Error de Supabase al insertar:", err);
         } finally {
             submitBtn.disabled = false;
             submitBtn.textContent = "Registrar";
@@ -150,9 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ocrResultEl.innerText = 'Reconociendo texto en la imagen...';
 
         try {
-            const { data: { text } } = await Tesseract.recognize(file, 'spa', {
-                logger: m => console.log(m) 
-            });
+            const { data: { text } } = await Tesseract.recognize(file, 'spa');
             
             ocrResultEl.innerText = text || "No se detectó texto. Intenta con una imagen más clara.";
             if (scanSound) scanSound.play();
@@ -172,7 +167,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- INICIALIZACIÓN DE LA PÁGINA ---
     fetchLastVisitor();
-
 });
 
 // --- SERVICE WORKER ---
