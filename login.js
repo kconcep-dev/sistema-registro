@@ -1,43 +1,53 @@
-// --- CONFIGURACIÓN ---
-const supabaseUrl = "https://qmzbqwwndsdsmdkrimwb.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtemJxd3duZHNkc21ka3JpbXdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0OTExNDYsImV4cCI6MjA3MjA2NzE0Nn0.dfQdvfFbgXdun1kQ10gRsqh3treJRzOKdbkebpEQXWo";
-// CORRECCIÓN: Usamos la variable global 'supabase' para crear nuestro cliente
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Registro de Visitantes</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icon-192.png">
+</head>
+<body>
+    <div class="header-buttons">
+        <button id="theme-toggle" class="theme-btn" title="Cambiar Tema">🌙</button>
+    </div>
 
-// --- ELEMENTOS DEL DOM ---
-const loginForm = document.getElementById('login-form');
-const loginBtn = document.getElementById('login-btn');
-const loginError = document.getElementById('login-error');
+    <main id="main-content">
+        <div class="container" style="max-width: 400px;">
+            <h1>Iniciar Sesión</h1>
+            <form id="login-form" novalidate>
+                <div id="login-error" class="feedback error" style="display: none;"></div>
 
-// --- LÓGICA DE LOGIN ---
-loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+                <label for="email">Correo Electrónico:</label>
+                <input type="email" id="email" required>
+                
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" required>
+                
+                <button type="submit" id="login-btn">Ingresar</button>
+            </form>
+        </div>
+    </main>
 
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="login.js"></script>
 
-    loginBtn.disabled = true;
-    loginBtn.textContent = 'Ingresando...';
-    loginError.style.display = 'none';
-
-    try {
-        // CORRECCIÓN: Usamos nuestro 'supabaseClient'
-        const { data, error } = await supabaseClient.auth.signInWithPassword({
-            email: email,
-            password: password,
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggleBtn.textContent = '☀️';
+            }
+            themeToggleBtn.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                let theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+                themeToggleBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
+                localStorage.setItem('theme', theme);
+            });
         });
-
-        if (error) {
-            throw error;
-        }
-
-        window.location.href = 'index.html';
-
-    } catch (error) {
-        loginError.textContent = 'Correo o contraseña incorrectos.';
-        loginError.style.display = 'block';
-    } finally {
-        loginBtn.disabled = false;
-        loginBtn.textContent = 'Ingresar';
-    }
-});
+    </script>
+</body>
+</html>
