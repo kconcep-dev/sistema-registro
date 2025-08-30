@@ -28,248 +28,104 @@ body.dark-mode {
 }
 
 /* --- 2. Estilos Generales y Cargador --- */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
-
-body {
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    transition: background-color 0.2s ease-in-out; 
-}
-
-.loader-wrapper {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: var(--bg-color);
-    z-index: 9999;
-}
-
-.loader {
-    border: 8px solid var(--input-bg-color);
-    border-top: 8px solid var(--primary-color);
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+body { background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.2s ease-in-out; }
+.loader-wrapper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background-color: var(--bg-color); z-index: 9999; }
+.loader { border: 8px solid var(--input-bg-color); border-top: 8px solid var(--primary-color); border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 body.flash-success { background-color: #16A34A; } 
 body.flash-error { background-color: #DC2626; } 
 
 /* --- 3. Cabecera y Notificación Toast --- */
-.header-buttons {
-    position: fixed;
-    top: 15px;
-    right: 15px;
-    z-index: 1000;
-    display: flex;
-    gap: 10px;
-}
-
-.theme-btn, .header-btn {
-    position: static;
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    border: 1px solid var(--border-color);
-    background-color: var(--card-bg-color);
-    color: var(--text-color);
-    font-size: 1.5rem;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.header-btn {
-    font-size: 1.8rem;
-}
-
-.toast {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.9);
-    padding: 20px 30px;
-    border-radius: 10px;
-    color: white;
-    font-weight: bold;
-    font-size: 1.2rem; 
-    min-width: 320px; 
-    text-align: center;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    z-index: 2000;
-    opacity: 0;
-    border: 2px solid rgba(255, 255, 255, 0.7);
-    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-}
-
-.toast.show {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
-}
-
+.header-buttons { position: fixed; top: 15px; right: 15px; z-index: 1000; display: flex; gap: 10px; }
+.theme-btn, .header-btn { position: static; width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--border-color); background-color: var(--card-bg-color); color: var(--text-color); font-size: 1.5rem; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+.header-btn { font-size: 1.8rem; }
+.toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); padding: 20px 30px; border-radius: 10px; color: white; font-weight: bold; font-size: 1.2rem; min-width: 320px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 2000; opacity: 0; border: 2px solid rgba(255, 255, 255, 0.7); transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; }
+.toast.show { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 .toast.success { background-color: var(--success-color); }
 .toast.error { background-color: var(--error-color); }
 
-/* --- 4. Contenido Principal (CORREGIDO) --- */
-#main-content {
-    width: 100%;
-    min-height: 100vh;
-    display: flex; /* <-- CORRECCIÓN: Este es el contenedor que centra */
-    justify-content: center;
-    align-items: flex-start;
-    padding: 70px 20px 20px 20px;
-}
+/* --- 4. Contenido Principal y Navegación --- */
+#main-content { width: 100%; min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 20px; }
+.main-header { background-color: var(--card-bg-color); box-shadow: 0 2px 5px var(--shadow-color); padding: 0 20px; width: 100%; position: fixed; top: 0; left: 0; z-index: 999; }
+.nav-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; height: 60px; }
+.nav-brand { font-size: 1.2rem; font-weight: bold; color: var(--text-color); text-decoration: none; }
+.main-nav { display: flex; gap: 20px; }
+.main-nav a { text-decoration: none; color: var(--border-color); font-weight: bold; padding: 10px 5px; border-bottom: 2px solid transparent; transition: color 0.2s, border-bottom-color 0.2s; }
+.main-nav a:hover { color: var(--primary-color); }
+.main-nav a.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+#main-content.with-nav { padding-top: 80px; }
+.container { max-width: 500px; width: 100%; }
+h1 { text-align: center; margin-bottom: 10px; color: var(--primary-color); }
+h2, h3 { margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+.ocr-section, form { background-color: var(--card-bg-color); padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px var(--shadow-color); margin-bottom: 20px; }
 
-.container {
-    max-width: 500px;
-    width: 100%;
-}
+/* --- 5. Estilos de Página de Inicio (Dashboard) --- */
+.subtitle { text-align: center; margin-bottom: 40px; font-size: 1.1rem; color: var(--border-color); }
+.dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
 
-h1 {
-    text-align: center;
-    margin-bottom: 25px;
-    color: var(--primary-color);
-    transition: color 0.2s ease-in-out;
-}
-
-h2, h3 {
-    margin-bottom: 15px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 10px;
-}
-
-.ocr-section, form {
-    background-color: var(--card-bg-color);
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px var(--shadow-color);
-    margin-bottom: 20px;
-}
-
-/* --- 5. Formularios y Tarjetas --- */
-label {
-    display: block;
-    margin-top: 15px;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-input[type="text"],
-input[type="file"],
-input[type="email"],
-input[type="password"] {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    font-size: 1rem;
-    background-color: var(--input-bg-color);
-    color: var(--input-text-color);
-}
-
-input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent);
-}
-
-button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 20px;
+.card {
     background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.1rem;
-    font-weight: bold;
-    transition: background-color 0.2s;
+    padding: 40px 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.9);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
-button:hover {
-    background-color: var(--primary-hover-color);
+.card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 8px 20px var(--shadow-color);
 }
 
-button:disabled {
-    background-color: #a0a0a0;
+.card h2 {
+    color: #FFFFFF;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.6rem;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.card.disabled {
+    background-color: var(--input-bg-color);
+    color: var(--border-color);
     cursor: not-allowed;
 }
 
-#resultado {
-    white-space: pre-wrap;
-    background-color: var(--input-bg-color);
-    padding: 15px;
-    border: 1px dashed var(--border-color);
-    border-radius: 6px;
-    margin-top: 15px;
-    min-height: 50px;
-    color: var(--text-color);
-}
-
-.card-ultimo-visitante {
-    background-color: var(--card-bg-color);
-    border-left: 5px solid var(--primary-color);
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-top: 25px;
+.card.disabled:hover {
+    transform: none;
     box-shadow: 0 4px 12px var(--shadow-color);
 }
 
-.card-ultimo-visitante h4 {
-    margin-top: 0;
-    margin-bottom: 10px;
-    color: var(--primary-color);
+.card.disabled h2 {
+    color: var(--border-color);
 }
 
-.card-ultimo-visitante p {
-    margin: 8px 0;
-}
+/* --- 6. Formularios y Tarjetas de Registro --- */
+label { display: block; margin-top: 15px; margin-bottom: 5px; font-weight: bold; }
+input[type="text"], input[type="file"], input[type="email"], input[type="password"] { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1rem; background-color: var(--input-bg-color); color: var(--input-text-color); }
+input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent); }
+button { width: 100%; padding: 12px; margin-top: 20px; background-color: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1.1rem; font-weight: bold; transition: background-color 0.2s; }
+button:hover { background-color: var(--primary-hover-color); }
+button:disabled { background-color: #a0a0a0; cursor: not-allowed; }
+#resultado { white-space: pre-wrap; background-color: var(--input-bg-color); padding: 15px; border: 1px dashed var(--border-color); border-radius: 6px; margin-top: 15px; min-height: 50px; color: var(--text-color); }
+.card-ultimo-visitante { background-color: var(--card-bg-color); border-left: 5px solid var(--primary-color); padding: 15px 20px; border-radius: 8px; margin-top: 25px; box-shadow: 0 4px 12px var(--shadow-color); }
+.card-ultimo-visitante h4 { margin-top: 0; margin-bottom: 10px; color: var(--primary-color); }
+.card-ultimo-visitante p { margin: 8px 0; }
+.feedback.error { background-color: #f8d7da; color: #842029; padding: 12px; margin-bottom: 15px; border-radius: 6px; text-align: center; font-weight: bold; }
 
-.feedback.error {
-    background-color: #f8d7da;
-    color: #842029;
-    padding: 12px;
-    margin-bottom: 15px;
-    border-radius: 6px;
-    text-align: center;
-    font-weight: bold;
-}
-
-/* --- 6. Estilos Responsivos y Efectos --- */
+/* --- 7. Estilos Responsivos y Efectos --- */
 @media (min-width: 768px) {
-    .container {
-        max-width: 1000px;
-    }
-    .layout-wrapper {
-        display: flex;
-        gap: 25px;
-        align-items: flex-start;
-    }
-    .ocr-section, #registro-form {
-        flex: 1;
-        margin-bottom: 0;
-    }
+    .container { max-width: 1000px; }
+    .layout-wrapper { display: flex; gap: 25px; align-items: flex-start; }
+    .ocr-section, #registro-form { flex: 1; margin-bottom: 0; }
+    .dashboard-grid { grid-template-columns: repeat(3, 1fr); }
 }
-
-body.flash-success h1,
-body.flash-error h1 {
-    color: #FFFFFF;
-}
+body.flash-success h1, body.flash-error h1 { color: #FFFFFF; }
