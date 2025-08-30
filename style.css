@@ -1,26 +1,30 @@
-/* --- 1. Variables de Color (Visibilidad Mejorada en Inputs) --- */
+/* --- 1. Variables de Color --- */
 :root {
     --bg-color: #F8F9FA;
     --card-bg-color: #FFFFFF;
-    --input-bg-color: #F3F4F6; /* <-- NUEVO: Fondo gris claro para inputs */
+    --input-bg-color: #F3F4F6;
     --text-color: #1F2937;
     --input-text-color: #111827;
     --primary-color: #2563EB;
     --primary-hover-color: #1D4ED8;
-    --border-color: #9CA3AF; /* <-- BORDE más oscuro para mayor visibilidad */
+    --border-color: #9CA3AF;
     --shadow-color: rgba(0, 0, 0, 0.05);
+    --success-color: #16A34A; /* Verde para éxito */
+    --error-color: #DC2626; /* Rojo para error */
 }
 
 body.dark-mode {
     --bg-color: #111827;
     --card-bg-color: #1F2937;
-    --input-bg-color: #111827; /* En modo oscuro, mantiene el fondo oscuro que te gusta */
+    --input-bg-color: #111827;
     --text-color: #E5E7EB;
     --input-text-color: #FFFFFF;
     --primary-color: #3B82F6;
     --primary-hover-color: #60A5FA;
     --border-color: #4B5563;
     --shadow-color: rgba(0, 0, 0, 0.2);
+    --success-color: #22C55E;
+    --error-color: #EF4444;
 }
 
 /* --- 2. Estilos Generales --- */
@@ -29,7 +33,6 @@ body.dark-mode {
     margin: 0;
     padding: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    transition: background-color 0.3s, color 0.3s;
 }
 
 body {
@@ -39,9 +42,40 @@ body {
     justify-content: center;
     padding: 20px;
     padding-top: 70px; 
+    transition: background-color 0.2s ease-in-out; /* Transición para el flash */
 }
 
-/* --- 3. Componentes Principales --- */
+/* Efectos de Flash en el fondo */
+body.flash-success { background-color: var(--success-color); }
+body.flash-error { background-color: var(--error-color); }
+
+
+/* --- Notificación Toast --- */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(150%);
+    padding: 16px 24px;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 2000;
+    opacity: 0;
+    transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
+}
+
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.toast.success { background-color: var(--success-color); }
+.toast.error { background-color: var(--error-color); }
+
+
+/* --- Resto de los estilos (sin cambios) --- */
 .theme-btn {
     position: fixed;
     top: 15px;
@@ -60,132 +94,21 @@ body {
     align-items: center;
 }
 
-.container {
-    max-width: 500px;
-    width: 100%;
-}
+.container { max-width: 500px; width: 100%; }
+h1 { text-align: center; margin-bottom: 25px; color: var(--primary-color); }
+h2, h3 { margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+.ocr-section, form { background-color: var(--card-bg-color); padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px var(--shadow-color); margin-bottom: 20px; }
+label { display: block; margin-top: 15px; margin-bottom: 5px; font-weight: bold; }
+input[type="text"], input[type="file"] { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1rem; background-color: var(--input-bg-color); color: var(--input-text-color); }
+input[type="text"]::placeholder { color: var(--border-color); }
+input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent); }
+button { width: 100%; padding: 12px; margin-top: 20px; background-color: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1.1rem; font-weight: bold; transition: background-color 0.2s; }
+button:hover { background-color: var(--primary-hover-color); }
+button:disabled { background-color: #a0a0a0; cursor: not-allowed; }
+#resultado { white-space: pre-wrap; background-color: var(--input-bg-color); padding: 15px; border: 1px dashed var(--border-color); border-radius: 6px; margin-top: 15px; min-height: 50px; color: var(--text-color); }
 
-h1 {
-    text-align: center;
-    margin-bottom: 25px;
-    color: var(--primary-color);
-}
-
-h2, h3 {
-    margin-bottom: 15px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 10px;
-}
-
-.ocr-section,
-form {
-    background-color: var(--card-bg-color);
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px var(--shadow-color);
-    margin-bottom: 20px;
-}
-
-/* --- 4. Estilos de Formulario (CON CAMBIOS) --- */
-label {
-    display: block;
-    margin-top: 15px;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-input[type="text"],
-input[type="file"] {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    font-size: 1rem;
-    background-color: var(--input-bg-color); /* <-- CAMBIO CLAVE: Usamos el nuevo color de fondo */
-    color: var(--input-text-color);
-}
-
-input[type="text"]::placeholder {
-    color: var(--border-color);
-}
-
-input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent);
-}
-
-button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 20px;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.1rem;
-    font-weight: bold;
-    transition: background-color 0.2s;
-}
-
-button:hover {
-    background-color: var(--primary-hover-color);
-}
-
-button:disabled {
-    background-color: #a0a0a0;
-    cursor: not-allowed;
-}
-
-/* --- 5. Elementos de Feedback --- */
-.feedback {
-    padding: 12px;
-    margin-bottom: 15px;
-    border-radius: 6px;
-    text-align: center;
-    font-weight: bold;
-    display: none;
-}
-
-.feedback.success {
-    background-color: #d1e7dd;
-    color: #0f5132;
-    display: block;
-}
-
-.feedback.error {
-    background-color: #f8d7da;
-    color: #842029;
-    display: block;
-}
-
-#resultado {
-    white-space: pre-wrap;
-    background-color: var(--input-bg-color); /* Lo ponemos igual que los inputs para consistencia */
-    padding: 15px;
-    border: 1px dashed var(--border-color);
-    border-radius: 6px;
-    margin-top: 15px;
-    min-height: 50px;
-    color: var(--text-color);
-}
-
-/* --- 6. Estilos Responsivos para Pantallas Grandes --- */
 @media (min-width: 768px) {
-    .container {
-        max-width: 1000px;
-    }
-
-    .layout-wrapper {
-        display: flex;
-        gap: 25px;
-        align-items: flex-start;
-    }
-
-    .ocr-section,
-    #registro-form {
-        flex: 1;
-        margin-bottom: 0;
-    }
+    .container { max-width: 1000px; }
+    .layout-wrapper { display: flex; gap: 25px; align-items: flex-start; }
+    .ocr-section, #registro-form { flex: 1; margin-bottom: 0; }
 }
