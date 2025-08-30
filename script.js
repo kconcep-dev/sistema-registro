@@ -69,43 +69,49 @@ Html5Qrcode.getCameras().then(devices => {
   alert("Error al acceder a la cámara.");
 });
 
-// Iniciar escáner con la cámara seleccionada
-function startScanner() {
-  const cameraId = document.getElementById("camera-select").value;
-  const qrReader = new Html5Qrcode("qr-reader");
+// Procesar imagen capturada desde cámara
+function extraerTextoDesdeCaptura() {
+  const archivo = document.getElementById("cedula-captura").files[0];
+  if (!archivo) return alert("Toma una foto de la cédula primero.");
 
-  qrReader.start(
-    cameraId,
-    { fps: 10, qrbox: 250 },
-    (decodedText) => {
-      procesarQR(decodedText);
-      qrReader.stop();
-      document.getElementById("qr-reader").innerHTML = "";
-    },
-    (errorMessage) => {
-      console.warn("QR no detectado:", errorMessage);
-    }
-  ).catch(err => {
-    console.error("Error al iniciar el escáner:", err);
-    alert("No se pudo iniciar la cámara.");
-  });
+  procesarImagenOCR(archivo);
 }
 
-// Procesar el texto escaneado del QR
-function procesarQR(textoQR) {
-  const partes = textoQR.split("|");
+// Procesar imagen subida desde galería
+function extraerTextoDesdeArchivo() {
+  const archivo = document.getElementById("cedula-img").files[0];
+  if (!archivo) return alert("Selecciona una imagen desde tu galería.");
 
-  const cedula = partes[0]?.trim();
-  const nombre = partes[1]?.trim();
-  const apellido = partes[2]?.trim();
+  procesarImagenOCR(archivo);
+}
 
-  document.getElementById("cedula").value = cedula;
-  document.getElementById("nombre").value = nombre;
-  document.getElementById("apellido").value = apellido;
+// Función OCR con Tesseract.js
+function procesarImagenOCR(archivo) {
+  Tesseract.recognize(archivo, 'spa', { logger: m => console.log(m) })
+    .then(({ data: { text } }) => {
+      document.getElementById("resultado").innerText = text;
 
-  document.getElementById("scan-sound").play();
-  
-  alert("Datos cargados desde el QR. Completa el motivo y registra.");
+      // Buscar cédula (formato panameño)
+      const cedulaMatch = text.match(/\d{1,2}-\d{3,}-\d{4}/);
+      if (cedulaMatch) {
+        document.getElementById("cedula").value = cedulaMatch[0];
+      }
+
+      // Buscar nombre completo (mayúsculas con espacios)
+      const nombreMatch = text.match(/[A-ZÁÉÍÓÚÑ]{2,}(?:\s+[A-ZÁÉÍÓÚÑ]{2,}){1,}/);
+      if (nombreMatch) {
+        const partes = nombreMatch[0].split(" ");
+        document.getElementById("nombre").value = partes.slice(0, -1).join(" ");
+        document.getElementById("apellido").value = partes.slice(-1).join(" ");
+      }
+
+      document.getElementById("scan-sound").play();
+      alert("Datos extraídos desde la imagen. Completa el motivo y registra.");
+    })
+    .catch(err => {
+      console.error("Error al procesar imagen:", err);
+      alert("No se pudo leer la imagen. Intenta con una foto más clara.");
+    });
 }
 
 // Registrar el Service Worker para PWA

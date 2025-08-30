@@ -6,20 +6,28 @@
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icon-192.png">
-  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <audio id="scan-sound" src="beep.mp3" preload="auto"></audio>
-  
+
   <h1>Registro de Visitantes</h1>
 
   <div>
     <label for="camera-select">Selecciona cámara:</label>
     <select id="camera-select"></select>
-    <button onclick="startScanner()">Escanear Cédula</button>
   </div>
 
-  <div id="qr-reader" style="width: 300px; margin-top: 10px;"></div>
+  <div>
+    <label for="cedula-captura">Tomar foto de la cédula:</label>
+    <input type="file" id="cedula-captura" accept="image/*" capture="environment">
+    <button onclick="extraerTextoDesdeCaptura()">Procesar Foto</button>
+  </div>
+
+  <div>
+    <label for="cedula-img">O subir imagen desde galería:</label>
+    <input type="file" id="cedula-img" accept="image/*">
+    <button onclick="extraerTextoDesdeArchivo()">Procesar Imagen Subida</button>
+  </div>
 
   <form id="registro-form">
     <label>Nombre:</label>
@@ -37,7 +45,9 @@
     <button type="submit">Registrar</button>
   </form>
 
-  <script src="https://unpkg.com/html5-qrcode"></script>
+  <p id="resultado"></p>
+
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
