@@ -1,23 +1,54 @@
 // --- CONFIGURACIÓN Y CLIENTE SUPABASE ---
 const supabaseUrl = "https://qmzbqwwndsdsmdkrimwb.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtemJxd3duZHNkc21ka3JpbXdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0OTExNDYsImV4cCI6MjA3MjA2NzE0Nn0.dfQdvfFbgXdun1kQ10gRsqh3treJRzOKdbkebpEQXWo";
-// CORRECCIÓN: Usamos la variable global 'supabase' para crear nuestro cliente
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-// --- PROTECCIÓN DE RUTA ---
+// --- PROTECCIÓN DE RUTA Y CARGADOR ---
 async function checkSession() {
-    // CORRECCIÓN: Usamos nuestro 'supabaseClient'
     const { data: { session } } = await supabaseClient.auth.getSession();
-    
     if (!session) {
         window.location.href = 'login.html';
+    } else {
+        // Si hay sesión, ocultamos el cargador y mostramos el contenido principal
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
     }
 }
 checkSession();
 
-
+// Todo el código de la aplicación se ejecuta después de que el DOM esté listo.
 document.addEventListener('DOMContentLoaded', () => {
 
+    // --- TEMPORIZADOR DE INACTIVIDAD Y CIERRE DE SESIÓN ---
+    let inactivityTimer;
+    const INACTIVITY_TIMEOUT = 15 * 60 * 1000; // 15 minutos
+
+    async function logoutUser() {
+        showToast("Cerrando sesión por inactividad...", "error");
+        await supabaseClient.auth.signOut();
+        // Esperamos un momento para que el usuario vea el mensaje antes de redirigir
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 2000);
+    }
+
+    function resetInactivityTimer() {
+        clearTimeout(inactivityTimer);
+        inactivityTimer = setTimeout(logoutUser, INACTIVITY_TIMEOUT);
+    }
+
+    // Reinicia el temporizador con cualquier actividad del usuario
+    window.onload = resetInactivityTimer;
+    document.onmousemove = resetInactivityTimer;
+    document.onkeydown = resetInactivityTimer;
+    document.onclick = resetInactivityTimer;
+
+    const logoutBtn = document.getElementById('logout-btn');
+    logoutBtn.addEventListener('click', async () => {
+        await supabaseClient.auth.signOut();
+        window.location.href = 'login.html';
+    });
+    
     // --- ELEMENTOS DEL DOM ---
     const themeToggleBtn = document.getElementById('theme-toggle');
     const form = document.getElementById('registro-form');
@@ -74,7 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchLastVisitor() {
         try {
-            // CORRECCIÓN: Usamos nuestro 'supabaseClient' para hacer la consulta
             const { data, error } = await supabaseClient
                 .from('visitantes')
                 .select('*')
@@ -82,11 +112,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 .limit(1);
 
             if (error) throw error;
-            
             displayLastVisitor(data.length > 0 ? data[0] : null);
         } catch (error) {
             console.error("Error al obtener último visitante:", error);
-            ultimoVisitanteCard.innerHTML = '<h4>No se pudo cargar el último registro. Revisa la conexión y los permisos de la tabla.</h4>';
+            ultimoVisitanteCard.innerHTML = '<h4>No se pudo cargar el último registro.</h4>';
         }
     }
 
@@ -110,7 +139,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const fechaActual = new Date().toISOString().split("T")[0];
             const horaActual = new Date().toLocaleTimeString("es-PA", { hour12: false });
             
-            // CORRECCIÓN: Usamos nuestro 'supabaseClient' para insertar datos
             const { error } = await supabaseClient
                 .from('visitantes')
                 .insert([{ nombre, apellido, cedula, motivo, fecha: fechaActual, hora: horaActual }]);
@@ -122,7 +150,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const nuevoVisitante = { nombre, apellido, cedula, motivo, fecha: fechaActual, hora: horaActual };
             displayLastVisitor(nuevoVisitante);
-
             form.reset();
 
         } catch (err) {
@@ -141,23 +168,18 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast("Primero selecciona una foto de la cédula.", "error");
             return;
         }
-
         ocrBtn.disabled = true;
         ocrBtn.textContent = "Procesando...";
-        ocrResultEl.innerText = 'Reconociendo texto en la imagen...';
-
+        ocrResultEl.innerText = 'Reconociendo texto...';
         try {
             const { data: { text } } = await Tesseract.recognize(file, 'spa');
-            
-            ocrResultEl.innerText = text || "No se detectó texto. Intenta con una imagen más clara.";
+            ocrResultEl.innerText = text || "No se detectó texto.";
             if (scanSound) scanSound.play();
-
             const cedulaMatch = text.match(/\d{1,2}-?\d{3,4}-?\d{3,4}/);
             if (cedulaMatch) document.getElementById("cedula").value = cedulaMatch[0];
-            
         } catch (err) {
             showToast("No se pudo procesar la imagen.", "error");
-            ocrResultEl.innerText = 'Error al procesar la imagen. Revisa la consola para más detalles.';
+            ocrResultEl.innerText = 'Error al procesar.';
             console.error("Error de Tesseract:", err);
         } finally {
             ocrBtn.disabled = false;
@@ -172,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- SERVICE WORKER ---
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-        navigator.serviceWorker.register("service-worker.js")
+        navigator.service-worker.js.register("service-worker.js")
             .then(reg => console.log("Service Worker registrado"))
             .catch(err => console.error("Error al registrar Service Worker:", err));
     });

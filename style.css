@@ -1,61 +1,42 @@
-/* --- 1. Variables de Color --- */
-:root {
-    --bg-color: #F8F9FA;
-    --card-bg-color: #FFFFFF;
-    --input-bg-color: #F3F4F6;
-    --text-color: #1F2937;
-    --input-text-color: #111827;
-    --primary-color: #2563EB;
-    --primary-hover-color: #1D4ED8;
-    --border-color: #9CA3AF;
-    --shadow-color: rgba(0, 0, 0, 0.05);
-    /* Colores sólidos para notificaciones */
-    --success-color: #28A745; 
-    --error-color: #DC3545;   
-}
+/* ... Todas tus variables y estilos anteriores ... */
 
-body.dark-mode {
-    --bg-color: #111827;
-    --card-bg-color: #1F2937;
-    --input-bg-color: #111827;
-    --text-color: #E5E7EB;
-    --input-text-color: #FFFFFF;
-    --primary-color: #3B82F6;
-    --primary-hover-color: #60A5FA;
-    --border-color: #4B5563;
-    --shadow-color: rgba(0, 0, 0, 0.2);
-    /* Colores sólidos para notificaciones */
-    --success-color: #28A745;
-    --error-color: #DC3545;
-}
-
-/* --- 2. Estilos Generales --- */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
-
-body {
-    background-color: var(--bg-color);
-    color: var(--text-color);
+/* --- Estilos para el Cargador (Loader) --- */
+.loader-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     display: flex;
     justify-content: center;
-    padding: 20px;
-    padding-top: 70px; 
-    transition: background-color 0.2s ease-in-out; 
+    align-items: center;
+    background-color: var(--bg-color);
+    z-index: 9999;
+}
+.loader {
+    border: 8px solid var(--input-bg-color);
+    border-top: 8px solid var(--primary-color);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
-/* Efectos de Flash en el fondo */
-body.flash-success { background-color: #16A34A; } 
-body.flash-error { background-color: #DC2626; } 
-
-/* --- 3. Componentes Principales y Notificación Toast --- */
-.theme-btn {
+/* --- Estilos para Botones de Cabecera --- */
+.header-buttons {
     position: fixed;
     top: 15px;
     right: 15px;
+    z-index: 1000;
+    display: flex;
+    gap: 10px;
+}
+.theme-btn, .header-btn {
+    position: static; /* Quitamos la posición fija individual */
     width: 45px;
     height: 45px;
     border-radius: 50%;
@@ -64,83 +45,26 @@ body.flash-error { background-color: #DC2626; }
     color: var(--text-color);
     font-size: 1.5rem;
     cursor: pointer;
-    z-index: 1000;
     display: flex;
     justify-content: center;
     align-items: center;
 }
-
-.toast {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.9);
-    padding: 20px 30px;
-    border-radius: 10px;
-    color: white;
-    font-weight: bold;
-    font-size: 1.2rem; 
-    min-width: 320px; 
-    text-align: center;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    z-index: 2000;
-    opacity: 0;
-    border: 2px solid rgba(255, 255, 255, 0.7);
-    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+.header-btn {
+    font-size: 1.8rem;
 }
 
-.toast.show {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
-}
 
-.toast.success { background-color: var(--success-color); }
-.toast.error { background-color: var(--error-color); }
-
-.container { max-width: 500px; width: 100%; }
-h1 { text-align: center; margin-bottom: 25px; color: var(--primary-color); transition: color 0.2s ease-in-out; }
-h2, h3 { margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-.ocr-section, form { background-color: var(--card-bg-color); padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px var(--shadow-color); margin-bottom: 20px; }
-
-/* --- 4. Estilos de Formulario --- */
-label { display: block; margin-top: 15px; margin-bottom: 5px; font-weight: bold; }
-input[type="text"], input[type="file"] { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1rem; background-color: var(--input-bg-color); color: var(--input-text-color); }
-input[type="text"]::placeholder { color: var(--border-color); }
-input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent); }
-button { width: 100%; padding: 12px; margin-top: 20px; background-color: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1.1rem; font-weight: bold; transition: background-color 0.2s; }
-button:hover { background-color: var(--primary-hover-color); }
-button:disabled { background-color: #a0a0a0; cursor: not-allowed; }
-#resultado { white-space: pre-wrap; background-color: var(--input-bg-color); padding: 15px; border: 1px dashed var(--border-color); border-radius: 6px; margin-top: 15px; min-height: 50px; color: var(--text-color); }
-
-/* --- 5. Estilos para la tarjeta de Último Visitante --- */
-.card-ultimo-visitante {
-    background-color: var(--card-bg-color);
-    border-left: 5px solid var(--primary-color);
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-top: 25px; /* <-- CAMBIO: Ahora tiene margen superior */
-    box-shadow: 0 4px 12px var(--shadow-color);
-}
-
-.card-ultimo-visitante h4 {
-    margin-top: 0;
-    margin-bottom: 10px;
-    color: var(--primary-color);
-}
-
-.card-ultimo-visitante p {
-    margin: 8px 0; /* Un poco más de espacio entre líneas */
-}
-
-/* --- 6. Estilos Responsivos y de Efectos --- */
-@media (min-width: 768px) {
-    .container { max-width: 1000px; }
-    .layout-wrapper { display: flex; gap: 25px; align-items: flex-start; }
-    .ocr-section, #registro-form { flex: 1; margin-bottom: 0; }
-}
-
-/* Regla para cambiar el color del título durante el flash */
-body.flash-success h1,
-body.flash-error h1 {
-    color: #FFFFFF;
+/* ... Todos tus otros estilos (toast, container, form, etc.) ... */
+/* Asegúrate que los inputs de tipo email y password también tengan el estilo */
+input[type="text"],
+input[type="file"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    background-color: var(--input-bg-color);
+    color: var(--input-text-color);
 }
