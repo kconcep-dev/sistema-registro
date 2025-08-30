@@ -100,3 +100,29 @@ function procesarQR(textoQR) {
 
   alert("Datos cargados desde el QR. Completa el motivo y registra.");
 }
+
+// ...todo tu código anterior...
+
+// Procesar el texto escaneado del QR
+function procesarQR(textoQR) {
+  const partes = textoQR.split("|");
+
+  const cedula = partes[0]?.trim();
+  const nombre = partes[1]?.trim();
+  const apellido = partes[2]?.trim();
+
+  document.getElementById("cedula").value = cedula;
+  document.getElementById("nombre").value = nombre;
+  document.getElementById("apellido").value = apellido;
+
+  alert("Datos cargados desde el QR. Completa el motivo y registra.");
+}
+
+// Registrar el Service Worker para PWA
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("service-worker.js")
+      .then(reg => console.log("Service Worker registrado"))
+      .catch(err => console.error("Error al registrar Service Worker:", err));
+  });
+}
