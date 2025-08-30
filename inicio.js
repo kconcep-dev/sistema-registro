@@ -14,7 +14,8 @@ async function checkSession() {
         
         // Mostrar contenido
         document.getElementById('loader').style.display = 'none';
-        document.getElementById('main-content').style.display = 'block';
+        document.getElementById('main-content').style.display = 'flex'; // Muestra el contenido
+        document.getElementById('header-buttons').style.display = 'flex'; // Muestra los botones
     }
 }
 checkSession();

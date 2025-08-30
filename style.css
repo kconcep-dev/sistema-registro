@@ -7,7 +7,7 @@
     --input-text-color: #111827;
     --primary-color: #2563EB;
     --primary-hover-color: #1D4ED8;
-    --border-color: #6B7280; /* Gris con mejor contraste */
+    --border-color: #6B7280;
     --shadow-color: rgba(0, 0, 0, 0.05);
     --success-color: #28A745; 
     --error-color: #DC3545;   
@@ -21,7 +21,7 @@ body.dark-mode {
     --input-text-color: #FFFFFF;
     --primary-color: #3B82F6;
     --primary-hover-color: #60A5FA;
-    --border-color: #9CA3AF; /* Gris con mejor contraste */
+    --border-color: #9CA3AF;
     --shadow-color: rgba(0, 0, 0, 0.2);
     --success-color: #28A745;
     --error-color: #DC3545;
