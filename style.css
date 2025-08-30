@@ -39,6 +39,10 @@ body {
     background-color: var(--bg-color);
     color: var(--text-color);
     transition: background-color 0.2s ease-in-out; 
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
 }
 
 .loader-wrapper {
@@ -129,11 +133,10 @@ body.flash-error { background-color: #DC2626; }
 
 /* --- 4. Contenido Principal --- */
 #main-content {
-    padding: 20px;
-    padding-top: 70px;
+    width: 100%;
+    padding: 70px 20px 20px 20px;
     display: flex;
     justify-content: center;
-    width: 100%;
 }
 
 .container {
@@ -254,10 +257,6 @@ button:disabled {
 
 /* --- 6. Estilos Responsivos y Efectos --- */
 @media (min-width: 768px) {
-    #main-content {
-        padding-left: 0;
-        padding-right: 0;
-    }
     .container {
         max-width: 1000px;
     }

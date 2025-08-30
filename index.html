@@ -13,20 +13,17 @@
         <div class="loader"></div>
     </div>
 
-    <div id="main-content" style="display: none;">
-        <div class="header-buttons">
-            <button id="logout-btn" class="header-btn" title="Cerrar Sesión">🚪</button>
-            <button id="theme-toggle" class="theme-btn" title="Cambiar Tema">🌙</button>
-        </div>
+    <div id="header-buttons" class="header-buttons" style="display: none;">
+        <button id="logout-btn" class="header-btn" title="Cerrar Sesión">🚪</button>
+        <button id="theme-toggle" class="theme-btn" title="Cambiar Tema">🌙</button>
+    </div>
 
-        <audio id="scan-sound" src="beep.mp3" preload="auto"></audio>
-        <audio id="success-sound" src="success.mp3" preload="auto"></audio>
-
-        <main class="container">
+    <main id="main-content" style="display: none;">
+        
+        <div class="container">
             <h1>Registro de Visitantes</h1>
 
             <div class="layout-wrapper">
-            
                 <div class="ocr-section">
                     <h3>Automatización (Opcional)</h3>
                     <div>
@@ -39,23 +36,19 @@
                 
                 <form id="registro-form" novalidate>
                     <h2>Datos del Visitante</h2>
-
                     <label for="nombre">Nombre:</label>
                     <input type="text" id="nombre" required>
-
                     <label for="apellido">Apellido:</label>
                     <input type="text" id="apellido" required>
-
                     <label for="cedula">Cédula:</label>
                     <input type="text" id="cedula" placeholder="Ej: 8-123-456" required>
-
                     <label for="motivo">Motivo de visita:</label>
                     <input type="text" id="motivo" required>
-
                     <button type="submit" id="submit-btn">Registrar</button>
                 </form>
+            </div>
 
-            </div> <div id="ultimo-visitante-card" class="card-ultimo-visitante">
+            <div id="ultimo-visitante-card" class="card-ultimo-visitante">
                 <h4>Último Visitante Registrado</h4>
                 <p><strong>Nombre:</strong> <span id="ultimo-nombre"></span></p>
                 <p><strong>Apellido:</strong> <span id="ultimo-apellido"></span></p>
@@ -64,13 +57,12 @@
                 <p><strong>Fecha:</strong> <span id="ultimo-fecha"></span></p>
                 <p><strong>Hora:</strong> <span id="ultimo-hora"></span></p>
             </div>
+        </div>
 
-            <div id="toast-notification" class="toast">
-                <span id="toast-message"></span>
-            </div>
-
-        </main>
-    </div>
+        <div id="toast-notification" class="toast">
+            <span id="toast-message"></span>
+        </div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
