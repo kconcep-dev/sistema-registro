@@ -10,7 +10,7 @@
     --border-color: #9CA3AF;
     --shadow-color: rgba(0, 0, 0, 0.05);
     --success-color: #16A34A; /* Verde para éxito */
-    --error-color: #DC2626; /* Rojo para error */
+    --error-color: #DC2626;   /* Rojo para error */
 }
 
 body.dark-mode {
@@ -50,7 +50,25 @@ body.flash-success { background-color: var(--success-color); }
 body.flash-error { background-color: var(--error-color); }
 
 
-/* --- Notificación Toast --- */
+/* --- 3. Componentes Principales y Notificación Toast --- */
+.theme-btn {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg-color);
+    color: var(--text-color);
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .toast {
     position: fixed;
     bottom: 20px;
@@ -74,30 +92,13 @@ body.flash-error { background-color: var(--error-color); }
 .toast.success { background-color: var(--success-color); }
 .toast.error { background-color: var(--error-color); }
 
-
-/* --- Resto de los estilos (sin cambios) --- */
-.theme-btn {
-    position: fixed;
-    top: 15px;
-    right: 15px;
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    border: 1px solid var(--border-color);
-    background-color: var(--card-bg-color);
-    color: var(--text-color);
-    font-size: 1.5rem;
-    cursor: pointer;
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
 .container { max-width: 500px; width: 100%; }
 h1 { text-align: center; margin-bottom: 25px; color: var(--primary-color); }
 h2, h3 { margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
 .ocr-section, form { background-color: var(--card-bg-color); padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px var(--shadow-color); margin-bottom: 20px; }
+small { color: var(--border-color); font-weight: normal; margin-top: -10px; margin-bottom: 10px; display: block; }
+
+/* --- 4. Estilos de Formulario --- */
 label { display: block; margin-top: 15px; margin-bottom: 5px; font-weight: bold; }
 input[type="text"], input[type="file"] { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1rem; background-color: var(--input-bg-color); color: var(--input-text-color); }
 input[type="text"]::placeholder { color: var(--border-color); }
@@ -107,6 +108,7 @@ button:hover { background-color: var(--primary-hover-color); }
 button:disabled { background-color: #a0a0a0; cursor: not-allowed; }
 #resultado { white-space: pre-wrap; background-color: var(--input-bg-color); padding: 15px; border: 1px dashed var(--border-color); border-radius: 6px; margin-top: 15px; min-height: 50px; color: var(--text-color); }
 
+/* --- 5. Estilos Responsivos --- */
 @media (min-width: 768px) {
     .container { max-width: 1000px; }
     .layout-wrapper { display: flex; gap: 25px; align-items: flex-start; }

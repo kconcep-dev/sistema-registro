@@ -1,6 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- LÓGICA DEL TEMA OSCURO/CLARO ---
+
+    // --- ELEMENTOS DEL DOM ---
     const themeToggleBtn = document.getElementById('theme-toggle');
+    const form = document.getElementById('registro-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const ocrBtn = document.getElementById('process-ocr-btn');
+    const ocrFileInput = document.getElementById('cedula-captura');
+    const ocrResultEl = document.getElementById('resultado');
+    const toastEl = document.getElementById('toast-notification');
+    const toastMessageEl = document.getElementById('toast-message');
+    const successSound = document.getElementById('success-sound');
+    const scanSound = document.getElementById('scan-sound');
+
+    // --- CONFIGURACIÓN ---
+    const supabaseUrl = "https://qmzbqwwndsdsmdkrimwb.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtemJxd3duZHNkc21ka3JpbXdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0OTExNDYsImV4cCI6MjA3MjA2NzE0Nn0.dfQdvfFbgXdun1kQ10gRsqh3treJRzOKdbkebpEQXWo";
+
+    // --- LÓGICA DEL TEMA ---
     const currentTheme = localStorage.getItem('theme');
     if (currentTheme === 'dark') {
         document.body.classList.add('dark-mode');
@@ -13,30 +29,22 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('theme', theme);
     });
 
-    // --- CONFIGURACIÓN DE LA APLICACIÓN ---
-    const supabaseUrl = "https://qmzbqwwndsdsmdkrimwb.supabase.co";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtemJxd3duZHNkc21ka3JpbXdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0OTExNDYsImV4cCI6MjA3MjA2NzE0Nn0.dfQdvfFbgXdun1kQ10gRsqh3treJRzOKdbkebpEQXWo";
-    const form = document.getElementById("registro-form");
-    const submitBtn = document.getElementById("submit-btn");
-    const successSound = document.getElementById("success-sound");
-
-    // --- NUEVA FUNCIÓN DE NOTIFICACIÓN (TOAST) ---
+    // --- SISTEMA DE NOTIFICACIONES (TOAST) ---
+    let toastTimeout;
     function showToast(message, type = 'success') {
-        const toast = document.getElementById('toast-notification');
-        const toastMessage = document.getElementById('toast-message');
-
-        toastMessage.textContent = message;
-        toast.className = `toast show ${type}`;
+        clearTimeout(toastTimeout);
+        toastMessageEl.textContent = message;
+        toastEl.className = `toast show ${type}`;
         document.body.classList.add(`flash-${type}`);
 
-        setTimeout(() => {
-            toast.className = toast.className.replace('show', '');
-            document.body.classList.remove(`flash-${type}`);
-        }, 3000); // La notificación dura 3 segundos
+        toastTimeout = setTimeout(() => {
+            toastEl.className = toastEl.className.replace('show', '');
+            document.body.classList.remove(`flash-success`, `flash-error`);
+        }, 3000);
     }
 
-    // --- LÓGICA DE REGISTRO DEL FORMULARIO ---
-    form.addEventListener("submit", async function(e) {
+    // --- LÓGICA DEL FORMULARIO DE REGISTRO ---
+    form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const nombre = document.getElementById("nombre").value.trim();
         const apellido = document.getElementById("apellido").value.trim();
@@ -51,18 +59,15 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.disabled = true;
         submitBtn.textContent = "Registrando...";
         
-        await sendToBackend(nombre, apellido, cedula, motivo);
-
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Registrar";
-    });
-
-    async function sendToBackend(nombre, apellido, cedula, motivo) {
-        // ... (resto de la función igual)
         try {
-            const response = await fetch(`${supabaseUrl}/rest/v1/visitantes`, { /* ... */ });
+            const response = await fetch(`${supabaseUrl}/rest/v1/visitantes`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "apikey": supabaseKey, "Authorization": `Bearer ${supabaseKey}` },
+                body: JSON.stringify([{ nombre, apellido, cedula, motivo, fecha: new Date().toISOString().split("T")[0], hora: new Date().toLocaleTimeString("es-PA", { hour12: false }) }])
+            });
+
             if (response.ok) {
-                showToast("¡Registro exitoso!");
+                showToast("¡Registro exitoso!", "success");
                 if (successSound) successSound.play();
                 form.reset();
             } else {
@@ -71,49 +76,54 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (err) {
             showToast("Error de conexión. Revisa tu internet.", "error");
+            console.error("Error de conexión:", err);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Registrar";
         }
-    }
+    });
+
+    // --- LÓGICA DEL OCR ---
+    ocrBtn.addEventListener('click', async () => {
+        const file = ocrFileInput.files[0];
+        if (!file) {
+            showToast("Primero selecciona una foto de la cédula.", "error");
+            return;
+        }
+
+        ocrBtn.disabled = true;
+        ocrBtn.textContent = "Procesando...";
+        ocrResultEl.innerText = 'Reconociendo texto en la imagen...';
+
+        try {
+            const { data: { text } } = await Tesseract.recognize(file, 'spa', {
+                logger: m => console.log(m) 
+            });
+            
+            ocrResultEl.innerText = text || "No se detectó texto. Intenta con una imagen más clara.";
+            if (scanSound) scanSound.play();
+
+            // Intentar autocompletar campos
+            const cedulaMatch = text.match(/\d{1,2}-?\d{3,4}-?\d{3,4}/);
+            if (cedulaMatch) document.getElementById("cedula").value = cedulaMatch[0];
+            
+        } catch (err) {
+            showToast("No se pudo procesar la imagen.", "error");
+            ocrResultEl.innerText = 'Error al procesar la imagen. Revisa la consola para más detalles.';
+            console.error("Error de Tesseract:", err);
+        } finally {
+            ocrBtn.disabled = false;
+            ocrBtn.textContent = "Procesar Foto";
+        }
+    });
+
 });
 
-
-// --- FUNCIONES OCR (MODIFICADAS) ---
-async function procesarImagenOCR(file, button) {
-    button.disabled = true;
-    button.textContent = "Procesando...";
-    document.getElementById("resultado").innerText = 'Procesando imagen...';
-
-    try {
-        const { data: { text } } = await Tesseract.recognize(file, 'spa');
-        document.getElementById("resultado").innerText = text;
-        document.getElementById("scan-sound").play();
-        // Lógica de autocompletado...
-    } catch (err) {
-        console.error("Error al procesar imagen:", err);
-        document.getElementById("resultado").innerText = 'Error al leer la imagen.';
-        // Usamos el Toast para el error
-        document.getElementById('toast-notification').className = 'toast show error';
-        document.getElementById('toast-message').textContent = 'No se pudo leer la imagen.';
-        setTimeout(() => {
-            document.getElementById('toast-notification').className = 'toast';
-        }, 3000);
-    } finally {
-        button.disabled = false;
-        button.textContent = "Procesar Foto";
-    }
+// --- SERVICE WORKER (se mantiene igual) ---
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+        navigator.serviceWorker.register("service-worker.js")
+            .then(reg => console.log("Service Worker registrado"))
+            .catch(err => console.error("Error al registrar Service Worker:", err));
+    });
 }
-
-function extraerTextoDesdeCaptura(event) {
-    const file = document.getElementById("cedula-captura").files[0];
-    if (!file) {
-        // Usamos el Toast
-        document.getElementById('toast-notification').className = 'toast show error';
-        document.getElementById('toast-message').textContent = 'Toma una foto primero.';
-        setTimeout(() => {
-            document.getElementById('toast-notification').className = 'toast';
-        }, 3000);
-        return;
-    }
-    procesarImagenOCR(file, event.target);
-}
-
-// ... (El resto de funciones como service worker quedan igual) ...
