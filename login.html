@@ -7,21 +7,25 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <button id="theme-toggle" class="theme-btn" title="Cambiar Tema">🌙</button>
+    <div class="header-buttons">
+        <button id="theme-toggle" class="theme-btn" title="Cambiar Tema">🌙</button>
+    </div>
 
-    <main class="container" style="max-width: 400px; margin-top: 10vh;">
-        <h1>Iniciar Sesión</h1>
-        <form id="login-form" novalidate>
-            <div id="login-error" class="feedback error" style="display: none;"></div>
+    <main id="main-content">
+        <div class="container" style="max-width: 400px;">
+            <h1>Iniciar Sesión</h1>
+            <form id="login-form" novalidate>
+                <div id="login-error" class="feedback error" style="display: none;"></div>
 
-            <label for="email">Correo Electrónico:</label>
-            <input type="email" id="email" required>
-            
-            <label for="password">Contraseña:</label>
-            <input type="password" id="password" required>
-            
-            <button type="submit" id="login-btn">Ingresar</button>
-        </form>
+                <label for="email">Correo Electrónico:</label>
+                <input type="email" id="email" required>
+                
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" required>
+                
+                <button type="submit" id="login-btn">Ingresar</button>
+            </form>
+        </div>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
