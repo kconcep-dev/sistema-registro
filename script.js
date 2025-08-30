@@ -54,23 +54,23 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('ultimo-fecha').textContent = visitor.fecha;
             document.getElementById('ultimo-hora').textContent = visitor.hora;
         } else {
-            // Si no hay visitantes, puedes ocultar la tarjeta o mostrar un mensaje
             ultimoVisitanteCard.innerHTML = '<h4>Aún no hay visitantes registrados.</h4>';
         }
     }
 
     async function fetchLastVisitor() {
         try {
-            const response = await fetch(`${supabaseUrl}/rest/v1/visitantes?select=*&order=created_at.desc&limit=1`, {
+            // 👇 AQUÍ ESTÁ EL CAMBIO CLAVE: order=id.desc en lugar de created_at.desc 👇
+            const response = await fetch(`${supabaseUrl}/rest/v1/visitantes?select=*&order=id.desc&limit=1`, {
                 headers: { "apikey": supabaseKey, "Authorization": `Bearer ${supabaseKey}` }
             });
-            if (!response.ok) throw new Error('No se pudo obtener el último visitante.');
+            if (!response.ok) throw new Error('Respuesta de red no fue exitosa.');
             
             const data = await response.json();
             displayLastVisitor(data.length > 0 ? data[0] : null);
         } catch (error) {
-            console.error(error.message);
-            ultimoVisitanteCard.innerHTML = '<h4>No se pudo cargar el último registro.</h4>';
+            console.error("Error al obtener último visitante:", error);
+            ultimoVisitanteCard.innerHTML = '<h4>No se pudo cargar el último registro. Revisa la conexión y los permisos de la tabla.</h4>';
         }
     }
 
