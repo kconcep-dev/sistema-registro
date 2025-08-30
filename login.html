@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Registro de Visitantes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="container" style="max-width: 400px; margin-top: 10vh;">
+        <h1>Iniciar Sesión</h1>
+        <form id="login-form" novalidate>
+            <div id="login-error" class="feedback error" style="display: none;"></div>
+
+            <label for="email">Correo Electrónico:</label>
+            <input type="email" id="email" required>
+            
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" required>
+            
+            <button type="submit" id="login-btn">Ingresar</button>
+        </form>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script src="login.js"></script>
+</body>
+</html>

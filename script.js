@@ -1,3 +1,25 @@
+// --- CONFIGURACIÓN Y CLIENTE SUPABASE ---
+const supabaseUrl = "https://qmzbqwwndsdsmdkrimwb.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtemJxd3duZHNkc21ka3JpbXdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0OTExNDYsImV4cCI6MjA3MjA2NzE0Nn0.dfQdvfFbgXdun1kQ10gRsqh3treJRzOKdbkebpEQXWo";
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+// --- PROTECCIÓN DE RUTA ---
+// Esta función verifica si el usuario ha iniciado sesión.
+async function checkSession() {
+    // Pide a Supabase la sesión actual del usuario.
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    // Si no hay una sesión activa...
+    if (!session) {
+        // ...expulsamos al usuario a la página de login.
+        window.location.href = 'login.html';
+    }
+}
+// Ejecutamos la verificación tan pronto como el script se carga.
+checkSession();
+
+
+// El resto del código solo se ejecuta si la verificación de sesión es exitosa.
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- ELEMENTOS DEL DOM ---
@@ -12,10 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const successSound = document.getElementById('success-sound');
     const scanSound = document.getElementById('scan-sound');
     const ultimoVisitanteCard = document.getElementById('ultimo-visitante-card');
-
-    // --- CONFIGURACIÓN ---
-    const supabaseUrl = "https://qmzbqwwndsdsmdkrimwb.supabase.co";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtemJxd3duZHNkc21ka3JpbXdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0OTExNDYsImV4cCI6MjA3MjA2NzE0Nn0.dfQdvfFbgXdun1kQ10gRsqh3treJRzOKdbkebpEQXWo";
 
     // --- LÓGICA DEL TEMA ---
     const currentTheme = localStorage.getItem('theme');
@@ -60,7 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchLastVisitor() {
         try {
-            // 👇 AQUÍ ESTÁ EL CAMBIO CLAVE: order=id.desc en lugar de created_at.desc 👇
             const response = await fetch(`${supabaseUrl}/rest/v1/visitantes?select=*&order=id.desc&limit=1`, {
                 headers: { "apikey": supabaseKey, "Authorization": `Bearer ${supabaseKey}` }
             });
