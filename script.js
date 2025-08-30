@@ -69,49 +69,63 @@ Html5Qrcode.getCameras().then(devices => {
   alert("Error al acceder a la cámara.");
 });
 
-// Procesar imagen capturada desde cámara
-function extraerTextoDesdeCaptura() {
+// Leer QR desde imagen capturada
+function leerQRDesdeCaptura() {
   const archivo = document.getElementById("cedula-captura").files[0];
   if (!archivo) return alert("Toma una foto de la cédula primero.");
 
-  procesarImagenOCR(archivo);
+  procesarImagenQR(archivo);
 }
 
-// Procesar imagen subida desde galería
-function extraerTextoDesdeArchivo() {
+// Leer QR desde imagen subida
+function leerQRDesdeArchivo() {
   const archivo = document.getElementById("cedula-img").files[0];
   if (!archivo) return alert("Selecciona una imagen desde tu galería.");
 
-  procesarImagenOCR(archivo);
+  procesarImagenQR(archivo);
 }
 
-// Función OCR con Tesseract.js
-function procesarImagenOCR(archivo) {
-  Tesseract.recognize(archivo, 'spa', { logger: m => console.log(m) })
-    .then(({ data: { text } }) => {
-      document.getElementById("resultado").innerText = text;
+// Procesar imagen y extraer QR con jsQR
+function procesarImagenQR(archivo) {
+  const reader = new FileReader();
+  reader.onload = function () {
+    const img = new Image();
+    img.onload = function () {
+      const canvas = document.getElementById("qr-canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-      // Buscar cédula (formato panameño)
-      const cedulaMatch = text.match(/\d{1,2}-\d{3,}-\d{4}/);
-      if (cedulaMatch) {
-        document.getElementById("cedula").value = cedulaMatch[0];
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, canvas.width, canvas.height);
+
+      if (code) {
+        document.getElementById("resultado").innerText = code.data;
+        document.getElementById("scan-sound").play();
+        procesarQR(code.data);
+      } else {
+        alert("No se detectó ningún código QR en la imagen.");
       }
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(archivo);
+}
 
-      // Buscar nombre completo (mayúsculas con espacios)
-      const nombreMatch = text.match(/[A-ZÁÉÍÓÚÑ]{2,}(?:\s+[A-ZÁÉÍÓÚÑ]{2,}){1,}/);
-      if (nombreMatch) {
-        const partes = nombreMatch[0].split(" ");
-        document.getElementById("nombre").value = partes.slice(0, -1).join(" ");
-        document.getElementById("apellido").value = partes.slice(-1).join(" ");
-      }
+// Procesar texto extraído del QR
+function procesarQR(textoQR) {
+  const partes = textoQR.split("|");
 
-      document.getElementById("scan-sound").play();
-      alert("Datos extraídos desde la imagen. Completa el motivo y registra.");
-    })
-    .catch(err => {
-      console.error("Error al procesar imagen:", err);
-      alert("No se pudo leer la imagen. Intenta con una foto más clara.");
-    });
+  const cedula = partes[0]?.trim();
+  const nombre = partes[1]?.trim();
+  const apellido = partes[2]?.trim();
+
+  document.getElementById("cedula").value = cedula || "";
+  document.getElementById("nombre").value = nombre || "";
+  document.getElementById("apellido").value = apellido || "";
+
+  alert("Datos cargados desde el QR. Completa el motivo y registra.");
 }
 
 // Registrar el Service Worker para PWA

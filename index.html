@@ -18,15 +18,15 @@
   </div>
 
   <div>
-    <label for="cedula-captura">Tomar foto de la cédula:</label>
+    <label for="cedula-captura">Tomar foto de la cédula (con QR visible):</label>
     <input type="file" id="cedula-captura" accept="image/*" capture="environment">
-    <button onclick="extraerTextoDesdeCaptura()">Procesar Foto</button>
+    <button onclick="leerQRDesdeCaptura()">Leer QR desde foto</button>
   </div>
 
   <div>
     <label for="cedula-img">O subir imagen desde galería:</label>
     <input type="file" id="cedula-img" accept="image/*">
-    <button onclick="extraerTextoDesdeArchivo()">Procesar Imagen Subida</button>
+    <button onclick="leerQRDesdeArchivo()">Leer QR desde imagen</button>
   </div>
 
   <form id="registro-form">
@@ -45,9 +45,10 @@
     <button type="submit">Registrar</button>
   </form>
 
+  <canvas id="qr-canvas" style="display:none;"></canvas>
   <p id="resultado"></p>
 
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
