@@ -10,9 +10,14 @@
 <body>
   <h1>Registro de Visitantes</h1>
 
-  <div id="qr-reader" style="width: 300px;"></div>
-  <button onclick="startScanner()">Escanear Cédula</button>
-  
+  <div>
+    <label for="camera-select">Selecciona cámara:</label>
+    <select id="camera-select"></select>
+    <button onclick="startScanner()">Escanear Cédula</button>
+  </div>
+
+  <div id="qr-reader" style="width: 300px; margin-top: 10px;"></div>
+
   <form id="registro-form">
     <label>Nombre:</label>
     <input type="text" id="nombre" required><br>
