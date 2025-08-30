@@ -34,6 +34,7 @@ body {
     display: flex;
     justify-content: center;
     padding: 20px;
+    padding-top: 70px;
 }
 
 /* --- Botón de Tema (ESTO ES LO MÁS IMPORTANTE) --- */
@@ -172,5 +173,28 @@ button:disabled {
     }
     .ocr-section, form {
         padding: 15px;
+    }
+}
+
+/* --- ESTILOS PARA PANTALLAS GRANDES (Computadoras / Tablets) --- */
+@media (min-width: 768px) {
+    
+    /* Aumentamos el ancho máximo del contenedor principal */
+    .container {
+        max-width: 1000px;
+    }
+
+    /* Convertimos el contenedor en un layout flexible (lado a lado) */
+    .layout-wrapper {
+        display: flex;
+        gap: 25px; /* Espacio entre las dos columnas */
+        align-items: flex-start; /* Alinea las columnas en la parte superior */
+    }
+
+    /* Hacemos que cada columna ocupe el mismo espacio */
+    .ocr-section,
+    #registro-form {
+        flex: 1;
+        margin-bottom: 0; /* Quitamos el margen inferior que ya no es necesario */
     }
 }

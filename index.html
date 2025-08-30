@@ -17,36 +17,39 @@
     <main class="container">
         <h1>Registro de Visitantes</h1>
 
-        <div class="ocr-section">
-            <h3>Automatización (Opcional)</h3>
-            <div>
-                <label for="cedula-captura">1. Tomar foto de la cédula:</label>
-                <input type="file" id="cedula-captura" accept="image/*" capture="environment">
-                <button onclick="extraerTextoDesdeCaptura()">Procesar Foto</button>
-            </div>
-            <pre id="resultado"></pre>
-        </div>
+        <div class="layout-wrapper">
         
-        <form id="registro-form">
-            <h2>Datos del Visitante</h2>
+            <div class="ocr-section">
+                <h3>Automatización (Opcional)</h3>
+                <div>
+                    <label for="cedula-captura">1. Tomar foto de la cédula:</label>
+                    <input type="file" id="cedula-captura" accept="image/*" capture="environment">
+                    <button onclick="extraerTextoDesdeCaptura()">Procesar Foto</button>
+                </div>
+                <pre id="resultado"></pre>
+            </div>
             
-            <div id="feedback-message" class="feedback" aria-live="polite"></div>
+            <form id="registro-form">
+                <h2>Datos del Visitante</h2>
+                
+                <div id="feedback-message" class="feedback" aria-live="polite"></div>
 
-            <label for="nombre">Nombre:</label>
-            <input type="text" id="nombre" required>
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" required>
 
-            <label for="apellido">Apellido:</label>
-            <input type="text" id="apellido" required>
+                <label for="apellido">Apellido:</label>
+                <input type="text" id="apellido" required>
 
-            <label for="cedula">Cédula:</label>
-            <input type="text" id="cedula" placeholder="Ej: 8-123-456" required>
+                <label for="cedula">Cédula:</label>
+                <input type="text" id="cedula" placeholder="Ej: 8-123-456" required>
 
-            <label for="motivo">Motivo de visita:</label>
-            <input type="text" id="motivo" required>
+                <label for="motivo">Motivo de visita:</label>
+                <input type="text" id="motivo" required>
 
-            <button type="submit" id="submit-btn">Registrar</button>
-        </form>
-    </main>
+                <button type="submit" id="submit-btn">Registrar</button>
+            </form>
+
+        </div> </main>
 
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
     <script src="script.js"></script>
