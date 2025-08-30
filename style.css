@@ -9,8 +9,9 @@
     --primary-hover-color: #1D4ED8;
     --border-color: #9CA3AF;
     --shadow-color: rgba(0, 0, 0, 0.05);
-    --success-color: #16A34A; /* Verde para éxito */
-    --error-color: #DC2626;   /* Rojo para error */
+    /* Colores sólidos para notificaciones */
+    --success-color: #28A745; 
+    --error-color: #DC3545;   
 }
 
 body.dark-mode {
@@ -23,8 +24,9 @@ body.dark-mode {
     --primary-hover-color: #60A5FA;
     --border-color: #4B5563;
     --shadow-color: rgba(0, 0, 0, 0.2);
-    --success-color: #22C55E;
-    --error-color: #EF4444;
+    /* Colores sólidos para notificaciones */
+    --success-color: #28A745;
+    --error-color: #DC3545;
 }
 
 /* --- 2. Estilos Generales --- */
@@ -42,15 +44,14 @@ body {
     justify-content: center;
     padding: 20px;
     padding-top: 70px; 
-    transition: background-color 0.2s ease-in-out; /* Transición para el flash */
+    transition: background-color 0.2s ease-in-out; 
 }
 
 /* Efectos de Flash en el fondo */
-body.flash-success { background-color: var(--success-color); }
-body.flash-error { background-color: var(--error-color); }
+body.flash-success { background-color: #16A34A; } 
+body.flash-error { background-color: #DC2626; } 
 
-
-/* --- 3. Componentes Principales y Notificación Toast --- */
+/* --- 3. Componentes Principales y Notificación Toast (MODIFICADO) --- */
 .theme-btn {
     position: fixed;
     top: 15px;
@@ -71,21 +72,25 @@ body.flash-error { background-color: var(--error-color); }
 
 .toast {
     position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%) translateY(150%);
-    padding: 16px 24px;
-    border-radius: 8px;
+    top: 50%; /* <-- CAMBIO: Centrado verticalmente */
+    left: 50%; /* <-- CAMBIO: Centrado horizontalmente */
+    transform: translate(-50%, -50%) scale(0.9); /* <-- CAMBIO: Centrado y escalado para animación */
+    padding: 20px 30px;
+    border-radius: 10px;
     color: white;
     font-weight: bold;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    font-size: 1.2rem; 
+    min-width: 320px; 
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     z-index: 2000;
     opacity: 0;
-    transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
+    border: 2px solid rgba(255, 255, 255, 0.7); /* <-- NUEVO: Borde de contraste */
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
 }
 
 .toast.show {
-    transform: translateX(-50%) translateY(0);
+    transform: translate(-50%, -50%) scale(1); /* <-- CAMBIO: Animación de "pop-in" */
     opacity: 1;
 }
 
@@ -93,7 +98,7 @@ body.flash-error { background-color: var(--error-color); }
 .toast.error { background-color: var(--error-color); }
 
 .container { max-width: 500px; width: 100%; }
-h1 { text-align: center; margin-bottom: 25px; color: var(--primary-color); }
+h1 { text-align: center; margin-bottom: 25px; color: var(--primary-color); transition: color 0.2s ease-in-out; }
 h2, h3 { margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
 .ocr-section, form { background-color: var(--card-bg-color); padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px var(--shadow-color); margin-bottom: 20px; }
 small { color: var(--border-color); font-weight: normal; margin-top: -10px; margin-bottom: 10px; display: block; }
@@ -108,9 +113,15 @@ button:hover { background-color: var(--primary-hover-color); }
 button:disabled { background-color: #a0a0a0; cursor: not-allowed; }
 #resultado { white-space: pre-wrap; background-color: var(--input-bg-color); padding: 15px; border: 1px dashed var(--border-color); border-radius: 6px; margin-top: 15px; min-height: 50px; color: var(--text-color); }
 
-/* --- 5. Estilos Responsivos --- */
+/* --- 5. Estilos Responsivos y de Efectos --- */
 @media (min-width: 768px) {
     .container { max-width: 1000px; }
     .layout-wrapper { display: flex; gap: 25px; align-items: flex-start; }
     .ocr-section, #registro-form { flex: 1; margin-bottom: 0; }
+}
+
+/* Regla para cambiar el color del título durante el flash */
+body.flash-success h1,
+body.flash-error h1 {
+    color: #FFFFFF;
 }
