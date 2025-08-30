@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio - Sistema de Registro</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icon-192.png">
+</head>
+<body>
+    <div id="loader" class="loader-wrapper">
+        <div class="loader"></div>
+    </div>
+
+    <div id="main-content" style="display: none;">
+        <div class="header-buttons">
+            <button id="logout-btn" class="header-btn" title="Cerrar Sesión">🚪</button>
+            <button id="theme-toggle" class="theme-btn" title="Cambiar Tema">🌙</button>
+        </div>
+
+        <main class="container">
+            <h1 id="welcome-message">Bienvenido</h1>
+            <p class="subtitle">Selecciona una opción para comenzar.</p>
+
+            <div class="dashboard-grid">
+                <a href="index.html" class="card">
+                    <h2>📝 Registrar</h2>
+                    <p>Registrar un nuevo visitante en el sistema.</p>
+                </a>
+                <a href="#" class="card disabled">
+                    <h2>📊 Consultar</h2>
+                    <p>Buscar, editar y ver todos los registros.</p>
+                </a>
+                <a href="#" class="card disabled">
+                    <h2>🗑️ Descartes</h2>
+                    <p>Administrar registros descartados (próximamente).</p>
+                </a>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="inicio.js"></script>
+</body>
+</html>
