@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const toastMessageEl = document.getElementById('toast-message');
     const successSound = document.getElementById('success-sound');
     const scanSound = document.getElementById('scan-sound');
+    const ultimoVisitanteCard = document.getElementById('ultimo-visitante-card');
 
     // --- CONFIGURACIÓN ---
     const supabaseUrl = "https://qmzbqwwndsdsmdkrimwb.supabase.co";
@@ -43,6 +44,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
+    // --- LÓGICA PARA MOSTRAR ÚLTIMO VISITANTE ---
+    function displayLastVisitor(visitor) {
+        if (visitor) {
+            document.getElementById('ultimo-nombre').textContent = `${visitor.nombre} ${visitor.apellido}`;
+            document.getElementById('ultimo-cedula').textContent = visitor.cedula;
+            document.getElementById('ultimo-hora').textContent = visitor.hora;
+            ultimoVisitanteCard.style.display = 'block';
+        }
+    }
+
+    async function fetchLastVisitor() {
+        try {
+            const response = await fetch(`${supabaseUrl}/rest/v1/visitantes?select=*&order=created_at.desc&limit=1`, {
+                headers: { "apikey": supabaseKey, "Authorization": `Bearer ${supabaseKey}` }
+            });
+            if (!response.ok) throw new Error('No se pudo obtener el último visitante.');
+            
+            const data = await response.json();
+            if (data.length > 0) {
+                displayLastVisitor(data[0]);
+            }
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
     // --- LÓGICA DEL FORMULARIO DE REGISTRO ---
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -60,15 +87,20 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.textContent = "Registrando...";
         
         try {
+            const horaActual = new Date().toLocaleTimeString("es-PA", { hour12: false });
             const response = await fetch(`${supabaseUrl}/rest/v1/visitantes`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "apikey": supabaseKey, "Authorization": `Bearer ${supabaseKey}` },
-                body: JSON.stringify([{ nombre, apellido, cedula, motivo, fecha: new Date().toISOString().split("T")[0], hora: new Date().toLocaleTimeString("es-PA", { hour12: false }) }])
+                body: JSON.stringify([{ nombre, apellido, cedula, motivo, fecha: new Date().toISOString().split("T")[0], hora: horaActual }])
             });
 
             if (response.ok) {
                 showToast("¡Registro exitoso!", "success");
                 if (successSound) successSound.play();
+                
+                const nuevoVisitante = { nombre, apellido, cedula, hora: horaActual };
+                displayLastVisitor(nuevoVisitante);
+
                 form.reset();
             } else {
                 const error = await response.text();
@@ -103,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
             ocrResultEl.innerText = text || "No se detectó texto. Intenta con una imagen más clara.";
             if (scanSound) scanSound.play();
 
-            // Intentar autocompletar campos
             const cedulaMatch = text.match(/\d{1,2}-?\d{3,4}-?\d{3,4}/);
             if (cedulaMatch) document.getElementById("cedula").value = cedulaMatch[0];
             
@@ -117,9 +148,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- INICIALIZACIÓN DE LA PÁGINA ---
+    fetchLastVisitor();
+
 });
 
-// --- SERVICE WORKER (se mantiene igual) ---
+// --- SERVICE WORKER ---
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
         navigator.serviceWorker.register("service-worker.js")

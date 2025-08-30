@@ -51,7 +51,7 @@ body {
 body.flash-success { background-color: #16A34A; } 
 body.flash-error { background-color: #DC2626; } 
 
-/* --- 3. Componentes Principales y Notificación Toast (MODIFICADO) --- */
+/* --- 3. Componentes Principales y Notificación Toast --- */
 .theme-btn {
     position: fixed;
     top: 15px;
@@ -72,9 +72,9 @@ body.flash-error { background-color: #DC2626; }
 
 .toast {
     position: fixed;
-    top: 50%; /* <-- CAMBIO: Centrado verticalmente */
-    left: 50%; /* <-- CAMBIO: Centrado horizontalmente */
-    transform: translate(-50%, -50%) scale(0.9); /* <-- CAMBIO: Centrado y escalado para animación */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
     padding: 20px 30px;
     border-radius: 10px;
     color: white;
@@ -85,12 +85,12 @@ body.flash-error { background-color: #DC2626; }
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     z-index: 2000;
     opacity: 0;
-    border: 2px solid rgba(255, 255, 255, 0.7); /* <-- NUEVO: Borde de contraste */
+    border: 2px solid rgba(255, 255, 255, 0.7);
     transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
 }
 
 .toast.show {
-    transform: translate(-50%, -50%) scale(1); /* <-- CAMBIO: Animación de "pop-in" */
+    transform: translate(-50%, -50%) scale(1);
     opacity: 1;
 }
 
@@ -113,7 +113,27 @@ button:hover { background-color: var(--primary-hover-color); }
 button:disabled { background-color: #a0a0a0; cursor: not-allowed; }
 #resultado { white-space: pre-wrap; background-color: var(--input-bg-color); padding: 15px; border: 1px dashed var(--border-color); border-radius: 6px; margin-top: 15px; min-height: 50px; color: var(--text-color); }
 
-/* --- 5. Estilos Responsivos y de Efectos --- */
+/* --- 5. Estilos para la tarjeta de Último Visitante --- */
+.card-ultimo-visitante {
+    background-color: var(--card-bg-color);
+    border-left: 5px solid var(--primary-color);
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.card-ultimo-visitante h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+}
+
+.card-ultimo-visitante p {
+    margin: 5px 0;
+}
+
+/* --- 6. Estilos Responsivos y de Efectos --- */
 @media (min-width: 768px) {
     .container { max-width: 1000px; }
     .layout-wrapper { display: flex; gap: 25px; align-items: flex-start; }
