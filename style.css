@@ -1,18 +1,20 @@
-/* --- 1. Variables de Color (Paleta Moderna y Accesible) --- */
+/* --- 1. Variables de Color (Visibilidad Mejorada en Inputs) --- */
 :root {
     --bg-color: #F8F9FA;
     --card-bg-color: #FFFFFF;
+    --input-bg-color: #F3F4F6; /* <-- NUEVO: Fondo gris claro para inputs */
     --text-color: #1F2937;
     --input-text-color: #111827;
     --primary-color: #2563EB;
     --primary-hover-color: #1D4ED8;
-    --border-color: #D1D5DB;
+    --border-color: #9CA3AF; /* <-- BORDE más oscuro para mayor visibilidad */
     --shadow-color: rgba(0, 0, 0, 0.05);
 }
 
 body.dark-mode {
     --bg-color: #111827;
     --card-bg-color: #1F2937;
+    --input-bg-color: #111827; /* En modo oscuro, mantiene el fondo oscuro que te gusta */
     --text-color: #E5E7EB;
     --input-text-color: #FFFFFF;
     --primary-color: #3B82F6;
@@ -36,7 +38,7 @@ body {
     display: flex;
     justify-content: center;
     padding: 20px;
-    padding-top: 70px; /* Espacio para el botón de tema en móviles */
+    padding-top: 70px; 
 }
 
 /* --- 3. Componentes Principales --- */
@@ -84,7 +86,7 @@ form {
     margin-bottom: 20px;
 }
 
-/* --- 4. Estilos de Formulario --- */
+/* --- 4. Estilos de Formulario (CON CAMBIOS) --- */
 label {
     display: block;
     margin-top: 15px;
@@ -99,7 +101,7 @@ input[type="file"] {
     border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 1rem;
-    background-color: var(--bg-color);
+    background-color: var(--input-bg-color); /* <-- CAMBIO CLAVE: Usamos el nuevo color de fondo */
     color: var(--input-text-color);
 }
 
@@ -160,7 +162,7 @@ button:disabled {
 
 #resultado {
     white-space: pre-wrap;
-    background-color: var(--bg-color);
+    background-color: var(--input-bg-color); /* Lo ponemos igual que los inputs para consistencia */
     padding: 15px;
     border: 1px dashed var(--border-color);
     border-radius: 6px;
