@@ -9,9 +9,10 @@ async function checkSession() {
     if (!session) {
         window.location.href = 'login.html';
     } else {
-        // Si hay sesión, ocultamos el cargador y mostramos el contenido principal
+        // Si hay sesión, ocultamos el cargador y mostramos el contenido.
         document.getElementById('loader').style.display = 'none';
-        document.getElementById('main-content').style.display = 'block';
+        document.getElementById('main-content').style.display = 'flex'; // Muestra el contenido principal
+        document.getElementById('header-buttons').style.display = 'flex'; // Muestra los botones
     }
 }
 checkSession();
@@ -26,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
     async function logoutUser() {
         showToast("Cerrando sesión por inactividad...", "error");
         await supabaseClient.auth.signOut();
-        // Esperamos un momento para que el usuario vea el mensaje antes de redirigir
         setTimeout(() => {
             window.location.href = 'login.html';
         }, 2000);
@@ -37,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
         inactivityTimer = setTimeout(logoutUser, INACTIVITY_TIMEOUT);
     }
 
-    // Reinicia el temporizador con cualquier actividad del usuario
     window.onload = resetInactivityTimer;
     document.onmousemove = resetInactivityTimer;
     document.onkeydown = resetInactivityTimer;
@@ -194,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- SERVICE WORKER ---
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-        navigator.service-worker.js.register("service-worker.js")
+        navigator.serviceWorker.register("service-worker.js")
             .then(reg => console.log("Service Worker registrado"))
             .catch(err => console.error("Error al registrar Service Worker:", err));
     });

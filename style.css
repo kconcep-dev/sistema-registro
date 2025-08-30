@@ -39,10 +39,6 @@ body {
     background-color: var(--bg-color);
     color: var(--text-color);
     transition: background-color 0.2s ease-in-out; 
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
 }
 
 .loader-wrapper {
@@ -131,12 +127,14 @@ body.flash-error { background-color: #DC2626; }
 .toast.success { background-color: var(--success-color); }
 .toast.error { background-color: var(--error-color); }
 
-/* --- 4. Contenido Principal --- */
+/* --- 4. Contenido Principal (CORREGIDO) --- */
 #main-content {
     width: 100%;
-    padding: 70px 20px 20px 20px;
-    display: flex;
+    min-height: 100vh;
+    display: flex; /* <-- CORRECCIÓN: Este es el contenedor que centra */
     justify-content: center;
+    align-items: flex-start;
+    padding: 70px 20px 20px 20px;
 }
 
 .container {
