@@ -103,6 +103,8 @@ function procesarQR(textoQR) {
   document.getElementById("nombre").value = nombre;
   document.getElementById("apellido").value = apellido;
 
+  document.getElementById("scan-sound").play();
+  
   alert("Datos cargados desde el QR. Completa el motivo y registra.");
 }
 
