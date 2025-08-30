@@ -13,13 +13,13 @@
         <div class="loader"></div>
     </div>
 
-    <div id="main-content" style="display: none;">
-        <div class="header-buttons">
-            <button id="logout-btn" class="header-btn" title="Cerrar Sesión">🚪</button>
-            <button id="theme-toggle" class="theme-btn" title="Cambiar Tema">🌙</button>
-        </div>
+    <div id="header-buttons" class="header-buttons" style="display: none;">
+        <button id="logout-btn" class="header-btn" title="Cerrar Sesión">🚪</button>
+        <button id="theme-toggle" class="theme-btn" title="Cambiar Tema">🌙</button>
+    </div>
 
-        <main class="container">
+    <main id="main-content" style="display: none;">
+        <div class="container">
             <h1 id="welcome-message">Bienvenido</h1>
             <p class="subtitle">Selecciona una opción para comenzar.</p>
 
@@ -38,7 +38,7 @@
                 </a>
             </div>
         </main>
-    </div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="inicio.js"></script>
