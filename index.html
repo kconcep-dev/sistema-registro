@@ -17,20 +17,12 @@
     <main class="container">
         <h1>Registro de Visitantes</h1>
 
-        <div id="ultimo-visitante-card" class="card-ultimo-visitante" style="display: none;">
-            <h4>Último Visitante Registrado</h4>
-            <p><strong>Nombre:</strong> <span id="ultimo-nombre"></span></p>
-            <p><strong>Cédula:</strong> <span id="ultimo-cedula"></span></p>
-            <p><strong>Hora:</strong> <span id="ultimo-hora"></span></p>
-        </div>
-
         <div class="layout-wrapper">
         
             <div class="ocr-section">
                 <h3>Automatización (Opcional)</h3>
                 <div>
                     <label for="cedula-captura">1. Tomar foto de la cédula:</label>
-                    <small>Para mejores resultados: use buena luz, sin sombras ni reflejos.</small>
                     <input type="file" id="cedula-captura" accept="image/*" capture="environment">
                     <button id="process-ocr-btn">Procesar Foto</button>
                 </div>
@@ -55,7 +47,17 @@
                 <button type="submit" id="submit-btn">Registrar</button>
             </form>
 
-        </div> <div id="toast-notification" class="toast">
+        </div> <div id="ultimo-visitante-card" class="card-ultimo-visitante">
+            <h4>Último Visitante Registrado</h4>
+            <p><strong>Nombre:</strong> <span id="ultimo-nombre"></span></p>
+            <p><strong>Apellido:</strong> <span id="ultimo-apellido"></span></p>
+            <p><strong>Cédula:</strong> <span id="ultimo-cedula"></span></p>
+            <p><strong>Motivo:</strong> <span id="ultimo-motivo"></span></p>
+            <p><strong>Fecha:</strong> <span id="ultimo-fecha"></span></p>
+            <p><strong>Hora:</strong> <span id="ultimo-hora"></span></p>
+        </div>
+
+        <div id="toast-notification" class="toast">
             <span id="toast-message"></span>
         </div>
 

@@ -101,7 +101,6 @@ body.flash-error { background-color: #DC2626; }
 h1 { text-align: center; margin-bottom: 25px; color: var(--primary-color); transition: color 0.2s ease-in-out; }
 h2, h3 { margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
 .ocr-section, form { background-color: var(--card-bg-color); padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px var(--shadow-color); margin-bottom: 20px; }
-small { color: var(--border-color); font-weight: normal; margin-top: -10px; margin-bottom: 10px; display: block; }
 
 /* --- 4. Estilos de Formulario --- */
 label { display: block; margin-top: 15px; margin-bottom: 5px; font-weight: bold; }
@@ -119,7 +118,7 @@ button:disabled { background-color: #a0a0a0; cursor: not-allowed; }
     border-left: 5px solid var(--primary-color);
     padding: 15px 20px;
     border-radius: 8px;
-    margin-bottom: 25px;
+    margin-top: 25px; /* <-- CAMBIO: Ahora tiene margen superior */
     box-shadow: 0 4px 12px var(--shadow-color);
 }
 
@@ -130,7 +129,7 @@ button:disabled { background-color: #a0a0a0; cursor: not-allowed; }
 }
 
 .card-ultimo-visitante p {
-    margin: 5px 0;
+    margin: 8px 0; /* Un poco más de espacio entre líneas */
 }
 
 /* --- 6. Estilos Responsivos y de Efectos --- */

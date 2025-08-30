@@ -47,10 +47,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- LÓGICA PARA MOSTRAR ÚLTIMO VISITANTE ---
     function displayLastVisitor(visitor) {
         if (visitor) {
-            document.getElementById('ultimo-nombre').textContent = `${visitor.nombre} ${visitor.apellido}`;
+            document.getElementById('ultimo-nombre').textContent = visitor.nombre;
+            document.getElementById('ultimo-apellido').textContent = visitor.apellido;
             document.getElementById('ultimo-cedula').textContent = visitor.cedula;
+            document.getElementById('ultimo-motivo').textContent = visitor.motivo;
+            document.getElementById('ultimo-fecha').textContent = visitor.fecha;
             document.getElementById('ultimo-hora').textContent = visitor.hora;
-            ultimoVisitanteCard.style.display = 'block';
+        } else {
+            // Si no hay visitantes, puedes ocultar la tarjeta o mostrar un mensaje
+            ultimoVisitanteCard.innerHTML = '<h4>Aún no hay visitantes registrados.</h4>';
         }
     }
 
@@ -62,11 +67,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error('No se pudo obtener el último visitante.');
             
             const data = await response.json();
-            if (data.length > 0) {
-                displayLastVisitor(data[0]);
-            }
+            displayLastVisitor(data.length > 0 ? data[0] : null);
         } catch (error) {
             console.error(error.message);
+            ultimoVisitanteCard.innerHTML = '<h4>No se pudo cargar el último registro.</h4>';
         }
     }
 
@@ -87,18 +91,19 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.textContent = "Registrando...";
         
         try {
+            const fechaActual = new Date().toISOString().split("T")[0];
             const horaActual = new Date().toLocaleTimeString("es-PA", { hour12: false });
             const response = await fetch(`${supabaseUrl}/rest/v1/visitantes`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "apikey": supabaseKey, "Authorization": `Bearer ${supabaseKey}` },
-                body: JSON.stringify([{ nombre, apellido, cedula, motivo, fecha: new Date().toISOString().split("T")[0], hora: horaActual }])
+                body: JSON.stringify([{ nombre, apellido, cedula, motivo, fecha: fechaActual, hora: horaActual }])
             });
 
             if (response.ok) {
                 showToast("¡Registro exitoso!", "success");
                 if (successSound) successSound.play();
                 
-                const nuevoVisitante = { nombre, apellido, cedula, hora: horaActual };
+                const nuevoVisitante = { nombre, apellido, cedula, motivo, fecha: fechaActual, hora: horaActual };
                 displayLastVisitor(nuevoVisitante);
 
                 form.reset();
