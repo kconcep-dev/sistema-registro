@@ -1,11 +1,13 @@
+// login.js
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- ELEMENTOS DEL DOM ---
     const loginForm = document.getElementById('login-form');
     const loginError = document.getElementById('login-error');
-    
+    const loadingOverlay = document.getElementById('loading-overlay'); // <-- NUEVO
+
     const stepEmail = document.getElementById('step-email');
     const stepPassword = document.getElementById('step-password');
-
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
 
@@ -14,11 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginBtn = document.getElementById('login-btn');
 
     // --- LÓGICA DEL FORMULARIO MULTI-PASO ---
-
-    // 1. Evento para el botón "Siguiente"
     nextBtn.addEventListener('click', () => {
         const email = emailInput.value.trim();
-        // Validación simple de que el correo no esté vacío
         if (email === '' || !email.includes('@')) {
             loginError.textContent = 'Por favor, introduce un correo válido.';
             loginError.style.display = 'block';
@@ -26,25 +25,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         loginError.style.display = 'none';
 
-        // Oculta el paso del correo y muestra el de la contraseña
         stepEmail.style.display = 'none';
         stepPassword.style.display = 'block';
-        passwordInput.focus(); // Pone el cursor en el campo de contraseña
+        passwordInput.focus();
     });
 
-    // 2. Evento para el botón "Atrás"
     backBtn.addEventListener('click', () => {
-        // Oculta el paso de la contraseña y muestra el del correo
         stepPassword.style.display = 'none';
         stepEmail.style.display = 'block';
-        emailInput.focus(); // Pone el cursor en el campo de correo
+        emailInput.focus();
     });
 
-    // 3. Evento para el envío final del formulario
+    // --- LÓGICA DE ENVÍO FINAL (MODIFICADA) ---
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // Obtenemos los valores de ambos inputs
         const email = emailInput.value.trim();
         const password = passwordInput.value.trim();
 
@@ -54,12 +49,14 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        loginBtn.disabled = true;
-        loginBtn.textContent = 'Ingresando...';
-        backBtn.disabled = true; // Deshabilitamos también el de "atrás"
+        // 1. MOSTRAMOS LA PANTALLA DE CARGA
+        loadingOverlay.classList.add('visible');
         loginError.style.display = 'none';
 
         try {
+            // Simulamos una pequeña demora para que la animación sea visible
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
             const { data, error } = await supabaseClient.auth.signInWithPassword({
                 email: email,
                 password: password,
@@ -69,18 +66,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw error;
             }
 
+            // Si el login es exitoso, la redirección se encargará de todo.
+            // No necesitamos ocultar la pantalla de carga manualmente.
             window.location.href = 'inicio.html';
 
         } catch (error) {
+            // 2. SI HAY ERROR, OCULTAMOS LA PANTALLA DE CARGA
+            loadingOverlay.classList.remove('visible');
             loginError.textContent = 'Correo o contraseña incorrectos.';
             loginError.style.display = 'block';
-            // Si hay un error, volvemos al paso del email por si se equivocó allí
             stepPassword.style.display = 'none';
             stepEmail.style.display = 'block';
-        } finally {
-            loginBtn.disabled = false;
-            loginBtn.textContent = 'Acceder';
-            backBtn.disabled = false;
         }
+        // No necesitamos un bloque 'finally' porque el éxito lleva a otra página
+        // y el error ya se maneja en el 'catch'.
     });
 });
