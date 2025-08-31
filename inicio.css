@@ -1,0 +1,15 @@
+/* --- Estilos de Página de Inicio (Dashboard) --- */
+.subtitle { text-align: center; margin-bottom: 40px; font-size: 1.1rem; color: var(--border-color); }
+.dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+.card { background-color: var(--primary-color); padding: 40px 25px; border-radius: 10px; box-shadow: 0 4px 12px var(--shadow-color); text-decoration: none; color: rgba(255, 255, 255, 0.9); transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+.card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 8px 20px var(--shadow-color); }
+.card h2 { color: #FFFFFF; margin-top: 0; margin-bottom: 10px; font-size: 1.6rem; border-bottom: none; padding-bottom: 0; }
+.card.disabled { background-color: var(--input-bg-color); color: var(--border-color); cursor: not-allowed; }
+.card.disabled:hover { transform: none; box-shadow: 0 4px 12px var(--shadow-color); }
+.card.disabled h2 { color: var(--border-color); }
+
+/* --- Responsivo --- */
+@media (min-width: 768px) {
+    .container { max-width: 1000px; }
+    .dashboard-grid { grid-template-columns: repeat(3, 1fr); }
+}

@@ -1,0 +1,122 @@
+/* --- Estilos de Login Multi-paso y Ajustes --- */
+
+/* Contenedor principal de la página de login */
+.login-page-main {
+    display: flex;
+    flex-direction: column; /* Apila el título y la cápsula verticalmente */
+    justify-content: center; /* Centra todo horizontalmente */
+    align-items: center;     /* Centra todo verticalmente */
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Título principal sobre la cápsula */
+.page-main-title {
+    text-align: center;
+    color: var(--text-color);
+    margin-bottom: 30px; /* Espacio entre el título y la cápsula */
+    font-size: 1.8rem;
+    font-weight: 300; /* Un estilo de fuente más fino y moderno */
+}
+
+/* La cápsula de login (más grande y con más sombra) */
+.login-container {
+    display: flex;
+    max-width: 950px; /* Aumentamos el tamaño */
+    width: 100%;
+    background-color: var(--card-bg-color);
+    border-radius: 16px; /* Bordes más redondeados */
+    /* Sombra más pronunciada para el efecto "resaltado" */
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12); 
+}
+
+body.dark-mode .login-container {
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+}
+
+/* Columna izquierda con más espacio interno */
+.login-info {
+    flex-basis: 45%;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: var(--input-bg-color);
+}
+
+/* Logo más grande y visible */
+.login-logo {
+    width: 150px;
+    height: 150px;
+    margin-bottom: 25px;
+}
+
+.login-form-wrapper {
+    flex-basis: 55%;
+    padding: 40px;
+}
+
+/* Estilos para los botones del formulario */
+.form-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.btn-primary, #login-form button {
+    width: auto;
+    flex-grow: 1;
+    padding: 12px 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.2s;
+    margin-top: 20px;
+}
+#step-email #next-btn {
+    width: 100%;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover-color);
+}
+
+.btn-secondary {
+    width: auto;
+    flex-grow: 1;
+    padding: 12px 20px;
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.2s, color 0.2s;
+    margin-top: 20px;
+}
+
+.btn-secondary:hover {
+    background-color: color-mix(in srgb, var(--primary-color) 10%, transparent);
+}
+
+/* --- Responsivo --- */
+@media (max-width: 768px) {
+    .page-main-title {
+        font-size: 1.3rem;
+        margin-bottom: 25px;
+    }
+    .login-container {
+        flex-direction: column;
+        max-width: 400px;
+    }
+    .login-info {
+        text-align: center;
+        align-items: center;
+    }
+}
