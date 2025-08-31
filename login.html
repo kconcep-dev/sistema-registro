@@ -12,20 +12,34 @@
         <button id="theme-toggle" class="theme-btn" title="Cambiar Tema">🌙</button>
     </div>
 
-    <main id="main-content">
-        <div class="container" style="max-width: 400px;">
-            <h1>Iniciar Sesión</h1>
-            <form id="login-form" novalidate>
-                <div id="login-error" class="feedback error" style="display: none;"></div>
+    <main id="main-content" class="login-page-main">
+        <div class="login-container">
+            <div class="login-info">
+                <img src="icon-192.png" alt="Logo de la Aplicación" class="login-logo">
+                <h1>Iniciar Sesión</h1>
+                <p class="login-subtitle">Sistema de Registro - Soporte Técnico de Informática</p>
+            </div>
 
-                <label for="email">Correo Electrónico:</label>
-                <input type="email" id="email" required>
-                
-                <label for="password">Contraseña:</label>
-                <input type="password" id="password" required>
-                
-                <button type="submit" id="login-btn">Ingresar</button>
-            </form>
+            <div class="login-form-wrapper">
+                <form id="login-form" novalidate>
+                    <div id="login-error" class="feedback error" style="display: none;"></div>
+
+                    <div id="step-email">
+                        <label for="email">Correo Electrónico:</label>
+                        <input type="email" id="email" required autocomplete="email">
+                        <button type="button" id="next-btn" class="btn-primary">Siguiente</button>
+                    </div>
+
+                    <div id="step-password" style="display: none;">
+                        <label for="password">Contraseña:</label>
+                        <input type="password" id="password" required>
+                        <div class="form-buttons">
+                            <button type="button" id="back-btn" class="btn-secondary">Atrás</button>
+                            <button type="submit" id="login-btn" class="btn-primary">Acceder</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
     </main>
 

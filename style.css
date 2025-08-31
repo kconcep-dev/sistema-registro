@@ -90,3 +90,116 @@ button:disabled { background-color: #a0a0a0; cursor: not-allowed; }
     .dashboard-grid { grid-template-columns: repeat(3, 1fr); }
 }
 body.flash-success h1, body.flash-error h1 { color: #FFFFFF; }
+
+/* --- 8. Estilos de Login Multi-paso --- */
+
+.login-page-main {
+    align-items: center; /* Centra el contenedor verticalmente */
+}
+
+.login-container {
+    display: flex;
+    max-width: 800px;
+    width: 100%;
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
+    box-shadow: 0 8px 30px var(--shadow-color);
+    overflow: hidden; /* Para que el borde redondeado se aplique a las columnas */
+}
+
+.login-info {
+    flex-basis: 45%; /* La columna izquierda ocupa el 45% */
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: var(--input-bg-color); /* Un color de fondo sutil */
+}
+
+.login-logo {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 20px;
+}
+
+.login-subtitle {
+    color: var(--border-color);
+}
+
+.login-form-wrapper {
+    flex-basis: 55%; /* La columna derecha ocupa el 55% */
+    padding: 40px;
+}
+
+/* Estilos para los botones del formulario */
+.form-buttons {
+    display: flex;
+    justify-content: space-between; /* Alinea los botones */
+    gap: 15px; /* Espacio entre botones */
+    margin-top: 20px;
+}
+
+/* El botón principal de "Acceder" o "Siguiente" */
+.btn-primary {
+    width: auto;
+    flex-grow: 1; /* Hace que el botón crezca si hay espacio */
+    padding: 12px 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.2s;
+    margin-top: 20px;
+}
+/* Reemplazamos el estilo de button para que no afecte a estos nuevos botones */
+#login-form button {
+    width: auto;
+}
+#step-email #next-btn {
+    width: 100%;
+}
+
+
+.btn-primary:hover {
+    background-color: var(--primary-hover-color);
+}
+.btn-primary:disabled {
+    background-color: #a0a0a0;
+    cursor: not-allowed;
+}
+
+/* El botón secundario de "Atrás" */
+.btn-secondary {
+    width: auto;
+    flex-grow: 1;
+    padding: 12px 20px;
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.2s, color 0.2s;
+    margin-top: 20px;
+}
+
+.btn-secondary:hover {
+    background-color: color-mix(in srgb, var(--primary-color) 10%, transparent);
+}
+
+
+/* --- Responsive para el Login --- */
+@media (max-width: 768px) {
+    .login-container {
+        flex-direction: column; /* Apila las columnas una encima de la otra */
+        max-width: 400px;
+    }
+    .login-info {
+        text-align: center;
+        align-items: center;
+    }
+}
