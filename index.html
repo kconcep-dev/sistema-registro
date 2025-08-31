@@ -27,7 +27,7 @@
                 <div class="ocr-section">
                     <h3>Automatización (Opcional)</h3>
                     <div>
-                        <label for="cedula-captura">1. Tomar foto de la cédula:</label>
+                        <label for="cedula-captura">1. Tomar foto de la cédula (OCR):</label>
                         <input type="file" id="cedula-captura" accept="image/*" capture="environment">
                         <button id="process-ocr-btn" class="btn-principal">Procesar Foto</button>
                     </div>
@@ -36,9 +36,10 @@
                 
                 <div id="qr-section" class="qr-section">
                     <h3>Escanear Cédula (QR)</h3>
-                    <canvas id="qr-canvas" style="width: 100%; border-radius: 8px; display: none;"></canvas>
-                    
-                    <button type="button" id="start-scan-btn" class="btn-principal">📸 Iniciar Escáner</button>
+                    <label for="qr-captura">1. Tomar foto del QR:</label>
+                    <input type="file" id="qr-captura" accept="image/*" capture="environment">
+                    <button id="process-qr-btn" class="btn-principal">Procesar Foto del QR</button>
+                    <canvas id="qr-canvas" style="display: none;"></canvas>
                 </div>
 
                 <form id="registro-form" novalidate>
@@ -73,9 +74,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
-    
     <script src="assets/plugins/qrCode.min.js"></script> 
-    
     <script src="common.js"></script>
     <script src="script.js"></script>
 </body>

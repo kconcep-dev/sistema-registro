@@ -52,11 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchLastVisitor() {
         try {
-            const { data, error } = await supabaseClient
-                .from('visitantes')
-                .select('*')
-                .order('id', { ascending: false })
-                .limit(1);
+            const { data, error } = await supabaseClient.from('visitantes').select('*').order('id', { ascending: false }).limit(1);
             if (error) throw error;
             displayLastVisitor(data.length > 0 ? data[0] : null);
         } catch (error) {
@@ -81,9 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const fechaActual = new Date().toISOString().split("T")[0];
             const horaActual = new Date().toLocaleTimeString("es-PA", { hour12: false });
-            const { error } = await supabaseClient
-                .from('visitantes')
-                .insert([{ nombre, apellido, cedula, motivo, fecha: fechaActual, hora: horaActual }]);
+            const { error } = await supabaseClient.from('visitantes').insert([{ nombre, apellido, cedula, motivo, fecha: fechaActual, hora: horaActual }]);
             if (error) throw error;
             showToast("¡Registro exitoso!", "success");
             const nuevoVisitante = { nombre, apellido, cedula, motivo, fecha: fechaActual, hora: horaActual };
@@ -127,101 +121,67 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchLastVisitor();
 
     // ===================================================================
-    // --- LÓGICA DEL LECTOR DE QR (CON CONTROLES AVANZADOS DE CÁMARA) ---
+    // --- LÓGICA DEL LECTOR DE QR (PLAN B: BASADO EN FOTO) ---
     // ===================================================================
 
-    const startScanBtn = document.getElementById('start-scan-btn');
+    const qrFileInput = document.getElementById('qr-captura');
+    const processQrBtn = document.getElementById('process-qr-btn');
     const qrCanvasElement = document.getElementById("qr-canvas");
     const qrCanvas = qrCanvasElement.getContext("2d");
-    const videoElement = document.createElement("video");
 
-    let scanning = false;
-    let stream = null; 
-
-    function stopCamera() {
-        if (stream) {
-            stream.getTracks().forEach(track => {
-                track.stop(); // Apaga la cámara y la linterna
-            });
-        }
-        scanning = false;
-        qrCanvasElement.style.display = 'none';
-        startScanBtn.style.display = 'block';
-    }
-
+    // El callback se define una sola vez. Se llamará cuando qrcode.decode() tenga éxito.
     qrcode.callback = (respuesta) => {
         if (respuesta) {
-            scanning = false;
             const parts = respuesta.split('|');
             if (parts.length >= 3) {
-                const cedula = parts[0].trim();
-                const nombres = parts[1].trim();
-                const apellidos = parts[2].trim();
-                document.getElementById('cedula').value = cedula;
-                document.getElementById('nombre').value = nombres;
-                document.getElementById('apellido').value = apellidos;
+                document.getElementById('cedula').value = parts[0].trim();
+                document.getElementById('nombre').value = parts[1].trim();
+                document.getElementById('apellido').value = parts[2].trim();
                 showToast("Datos de QR cargados correctamente.", "success");
             } else {
                 showToast("El formato del QR no es el esperado.", "error");
             }
-            stopCamera();
+        } else {
+            showToast("No se pudo leer un código QR en la imagen.", "error");
         }
+        // Reactivamos el botón después de procesar
+        processQrBtn.disabled = false;
+        processQrBtn.textContent = "Procesar Foto del QR";
     };
 
-    function tick() {
-        if (videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
-            qrCanvasElement.height = videoElement.videoHeight;
-            qrCanvasElement.width = videoElement.videoWidth;
-            qrCanvas.drawImage(videoElement, 0, 0, qrCanvasElement.width, qrCanvasElement.height);
-            try {
-                qrcode.decode();
-            } catch (e) {
-                // Fallo esperado hasta que encuentre un QR
-            }
+    // El botón ahora dispara el procesamiento del archivo seleccionado
+    processQrBtn.addEventListener('click', () => {
+        const file = qrFileInput.files[0];
+        if (!file) {
+            showToast("Primero toma una foto del código QR.", "error");
+            return;
         }
-        if (scanning) {
-            requestAnimationFrame(tick);
-        }
-    }
 
-    startScanBtn.addEventListener('click', async () => {
-        // --- AQUÍ ESTÁ LA MAGIA ---
-        const constraints = {
-            video: {
-                facingMode: "environment", // Cámara trasera
-                // Peticiones avanzadas al navegador
-                advanced: [
-                    { torch: true },         // Pedir que encienda la linterna
-                    { zoom: 5.0 },            // Pedir un zoom de 2x
-                    { focusMode: 'continuous' } // Pedir que intente enfocar continuamente
-                ]
-            }
+        processQrBtn.disabled = true;
+        processQrBtn.textContent = "Procesando...";
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const imageUrl = e.target.result;
+            const img = new Image();
+            img.onload = () => {
+                // Dibujamos la foto en el canvas oculto
+                qrCanvas.width = img.width;
+                qrCanvas.height = img.height;
+                qrCanvas.drawImage(img, 0, 0, img.width, img.height);
+                
+                // Intentamos decodificar la imagen del canvas
+                try {
+                    qrcode.decode();
+                } catch (error) {
+                    console.error("Error al decodificar QR:", error);
+                    showToast("No se pudo leer un código QR en la imagen.", "error");
+                    processQrBtn.disabled = false;
+                    processQrBtn.textContent = "Procesar Foto del QR";
+                }
+            };
+            img.src = imageUrl;
         };
-
-        try {
-            stream = await navigator.mediaDevices.getUserMedia(constraints);
-            
-            // Si el navegador soporta estas funciones, las aplicamos
-            const track = stream.getVideoTracks()[0];
-            const capabilities = track.getCapabilities();
-
-            // Encender la linterna (torch) si está disponible
-            if (capabilities.torch) {
-                track.applyConstraints({
-                    advanced: [{ torch: true }]
-                });
-            }
-
-            scanning = true;
-            startScanBtn.style.display = 'none';
-            qrCanvasElement.style.display = 'block';
-            videoElement.srcObject = stream;
-            videoElement.setAttribute("playsinline", true);
-            videoElement.play();
-            requestAnimationFrame(tick);
-        } catch (err) {
-            console.error("Error al acceder a la cámara con constraints avanzados:", err);
-            showToast("No se pudo iniciar la cámara avanzada.", "error");
-        }
+        reader.readAsDataURL(file);
     });
 });
