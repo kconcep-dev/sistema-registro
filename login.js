@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- ELEMENTOS DEL DOM ---
     const loginForm = document.getElementById('login-form');
     const loginError = document.getElementById('login-error');
-    const loadingOverlay = document.getElementById('loading-overlay'); // <-- NUEVO
+    const loadingOverlay = document.getElementById('loading-overlay'); 
 
     const stepEmail = document.getElementById('step-email');
     const stepPassword = document.getElementById('step-password');
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
         emailInput.focus();
     });
 
-    // --- LÓGICA DE ENVÍO FINAL (MODIFICADA) ---
+    // --- LÓGICA DE ENVÍO FINAL (CORREGIDA) ---
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -49,9 +49,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 1. MOSTRAMOS LA PANTALLA DE CARGA
+        // 1. MOSTRAMOS LA RETROALIMENTACIÓN VISUAL
         loadingOverlay.classList.add('visible');
         loginError.style.display = 'none';
+        
+        // --- AÑADIDO DE VUELTA ---
+        // Cambiamos el estado de los botones para que el usuario no pueda hacer doble clic
+        loginBtn.disabled = true;
+        backBtn.disabled = true;
+        loginBtn.textContent = 'Ingresando...';
 
         try {
             // Simulamos una pequeña demora para que la animación sea visible
@@ -66,19 +72,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw error;
             }
 
-            // Si el login es exitoso, la redirección se encargará de todo.
-            // No necesitamos ocultar la pantalla de carga manualmente.
+            // Si el login es exitoso, la redirección se encarga de todo.
             window.location.href = 'inicio.html';
 
         } catch (error) {
-            // 2. SI HAY ERROR, OCULTAMOS LA PANTALLA DE CARGA
+            // 2. SI HAY ERROR, OCULTAMOS LA PANTALLA DE CARGA Y RESTAURAMOS TODO
             loadingOverlay.classList.remove('visible');
             loginError.textContent = 'Correo o contraseña incorrectos.';
             loginError.style.display = 'block';
             stepPassword.style.display = 'none';
             stepEmail.style.display = 'block';
+            
+            // --- AÑADIDO DE VUELTA ---
+            // Restauramos los botones para que el usuario pueda intentar de nuevo
+            loginBtn.disabled = false;
+            backBtn.disabled = false;
+            loginBtn.textContent = 'Acceder';
         }
-        // No necesitamos un bloque 'finally' porque el éxito lleva a otra página
-        // y el error ya se maneja en el 'catch'.
     });
 });
