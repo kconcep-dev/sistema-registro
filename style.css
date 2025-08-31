@@ -203,3 +203,62 @@ body.flash-success h1, body.flash-error h1 { color: #FFFFFF; }
         align-items: center;
     }
 }
+
+/* --- 9. AJUSTES DE DISEÑO PARA LOGIN --- */
+
+/* Contenedor principal de la página de login */
+.login-page-main {
+    display: flex;
+    flex-direction: column; /* Apila el título y la cápsula verticalmente */
+    justify-content: center; /* Centra todo horizontalmente */
+    align-items: center;     /* Centra todo verticalmente */
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Título principal sobre la cápsula */
+.page-main-title {
+    text-align: center;
+    color: var(--text-color);
+    margin-bottom: 30px; /* Espacio entre el título y la cápsula */
+    font-size: 1.8rem;
+    font-weight: 300; /* Un estilo de fuente más fino y moderno */
+}
+
+/* La cápsula de login (más grande y con más sombra) */
+.login-container {
+    max-width: 950px; /* Aumentamos el tamaño */
+    border-radius: 16px; /* Bordes más redondeados */
+    /* Sombra más pronunciada para el efecto "resaltado" */
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12); 
+}
+
+body.dark-mode .login-container {
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+}
+
+
+/* Columna izquierda con más espacio interno */
+.login-info {
+    padding: 50px;
+}
+
+/* Logo más grande y visible */
+.login-logo {
+    width: 150px;
+    height: 150px;
+    margin-bottom: 25px;
+}
+
+/* Ya no necesitamos este estilo, el título está afuera */
+.login-subtitle {
+    display: none;
+}
+
+/* Ajustes responsivos para el nuevo título */
+@media (max-width: 768px) {
+    .page-main-title {
+        font-size: 1.3rem;
+        margin-bottom: 25px;
+    }
+}
