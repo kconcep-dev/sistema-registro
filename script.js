@@ -138,68 +138,96 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- INICIALIZACIÓN DE LA PÁGINA ---
     fetchLastVisitor();
 
-    // --- LÓGICA DEL LECTOR DE QR ---
-    function onScanSuccess(decodedText, decodedResult) {
-        const resultElement = document.getElementById('qr-result');
-        resultElement.textContent = `Resultado: ${decodedText}`;
-        resultElement.style.display = 'block';
-        
-        console.log(`Resultado del QR: ${decodedText}`);
+    // ===================================================================
+    // --- LÓGICA DEL LECTOR DE QR (NUEVA IMPLEMENTACIÓN) ---
+    // ===================================================================
 
-        // Basado en el formato: "9-762-2281|Kevin Elieser|Concepcion Rodriguez||M|..."
-        const parts = decodedText.split('|');
-        
-        // Verificamos que el QR tenga al menos los 3 campos que necesitamos
-        if (parts.length >= 3) {
-            const cedula = parts[0].trim();
-            const nombres = parts[1].trim(); // El segundo campo contiene todos los nombres
-            const apellidos = parts[2].trim(); // El tercer campo contiene todos los apellidos
+    // 1. Elementos del DOM para el nuevo lector
+    const startScanBtn = document.getElementById('start-scan-btn');
+    const qrCanvasElement = document.getElementById("qr-canvas");
+    const qrCanvas = qrCanvasElement.getContext("2d");
+    const videoElement = document.createElement("video"); // Video en memoria
 
-            // Rellenamos el formulario con los datos correctos
-            document.getElementById('cedula').value = cedula;
-            document.getElementById('nombre').value = nombres;
-            document.getElementById('apellido').value = apellidos;
+    let scanning = false;
+    let stream = null; // Para poder detener la cámara
+
+    // 2. Función para detener la cámara limpiamente
+    function stopCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+        scanning = false;
+        qrCanvasElement.style.display = 'none';
+        startScanBtn.style.display = 'block';
+    }
+
+    // 3. Callback que se ejecuta cuando el QR es leído con éxito
+    qrcode.callback = (respuesta) => {
+        if (respuesta) {
+            scanning = false; // Detenemos el bucle de escaneo
+
+            // Procesamos la respuesta igual que lo hacías antes
+            const parts = respuesta.split('|');
+            if (parts.length >= 3) {
+                const cedula = parts[0].trim();
+                const nombres = parts[1].trim();
+                const apellidos = parts[2].trim();
+
+                document.getElementById('cedula').value = cedula;
+                document.getElementById('nombre').value = nombres;
+                document.getElementById('apellido').value = apellidos;
+                
+                showToast("Datos de QR cargados correctamente.", "success");
+            } else {
+                showToast("El formato del QR no es el esperado.", "error");
+            }
             
-            showToast("Datos de QR cargados correctamente.", "success");
-            
-            // Detenemos el escáner para evitar que siga funcionando
-            html5QrcodeScanner.clear().catch(error => {
-                console.error("Fallo al detener el escáner.", error);
-            });
-            document.getElementById('qr-reader').style.display = 'none';
+            // Detenemos la cámara
+            stopCamera();
+        }
+    };
 
-        } else {
-            showToast("El formato del QR no es el esperado.", "error");
+    // 4. Bucle principal para dibujar en el canvas y escanear
+    function tick() {
+        if (videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
+            qrCanvasElement.height = videoElement.videoHeight;
+            qrCanvasElement.width = videoElement.videoWidth;
+            qrCanvas.drawImage(videoElement, 0, 0, qrCanvasElement.width, qrCanvasElement.height);
+            
+            try {
+                // La librería intentará decodificar la imagen del canvas
+                qrcode.decode();
+            } catch (e) {
+                // Es normal que falle en cada fotograma hasta que encuentre un QR
+            }
+        }
+        // Si el escaneo sigue activo, pedimos el siguiente fotograma
+        if (scanning) {
+            requestAnimationFrame(tick);
         }
     }
 
-    function onScanFailure(error) {
-      // No hacemos nada en caso de fallo para que el usuario pueda seguir intentando
-    }
-    
-    // Creamos la instancia del escáner con la configuración mejorada
-    let html5QrcodeScanner = new Html5QrcodeScanner(
-        "qr-reader", 
-        { 
-            fps: 15,
-            qrbox: { 
-                width: 225,
-                height: 225 
-            },
-            rememberLastUsedCamera: true,
-            supportedScanTypes: [
-                Html5QrcodeScanType.SCAN_TYPE_CAMERA
-            ],
-            videoConstraints: {
-                facingMode: "environment",
-                focusMode: "continuous",
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
-            }
-        },
-        /* verbose= */ false);
-    
-    // Iniciamos el escáner
-    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-    
+    // 5. Evento en el botón para encender la cámara
+    startScanBtn.addEventListener('click', async () => {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: "environment" } 
+            });
+            
+            scanning = true;
+            startScanBtn.style.display = 'none';
+            qrCanvasElement.style.display = 'block';
+
+            videoElement.srcObject = stream;
+            videoElement.setAttribute("playsinline", true);
+            videoElement.play();
+            
+            // Iniciar el bucle de escaneo
+            requestAnimationFrame(tick);
+
+        } catch (err) {
+            console.error("Error al acceder a la cámara:", err);
+            showToast("No se pudo acceder a la cámara.", "error");
+        }
+    });
 });

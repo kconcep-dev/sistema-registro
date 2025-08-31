@@ -36,8 +36,9 @@
                 
                 <div id="qr-section" class="qr-section">
                     <h3>Escanear Cédula (QR)</h3>
-                    <div id="qr-reader"></div>
-                    <div id="qr-result" class="qr-result"></div>
+                    <canvas id="qr-canvas" style="width: 100%; border-radius: 8px; display: none;"></canvas>
+                    
+                    <button type="button" id="start-scan-btn" class="btn-principal">📸 Iniciar Escáner</button>
                 </div>
 
                 <form id="registro-form" novalidate>
@@ -72,7 +73,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script> <script src="common.js"></script>
+    
+    <script src="assets/plugins/qrCode.min.js"></script> 
+    
     <script src="common.js"></script>
     <script src="script.js"></script>
 </body>
