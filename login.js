@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Restauramos los botones para que el usuario pueda intentar de nuevo
             loginBtn.disabled = false;
             backBtn.disabled = false;
-            loginBtn.textContent = 'Acceder';
+            loginBtn.textContent = 'Ingresar';
         }
     });
 });
