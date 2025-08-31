@@ -50,9 +50,9 @@ body.dark-mode .login-container {
 
 /* Logo más grande y visible */
 .login-logo {
-    width: 150px;
-    height: 150px;
-    margin-bottom: 25px;
+    width: 200px;
+    height: 200px;
+    margin-bottom: 30px;
 }
 
 .login-form-wrapper {
