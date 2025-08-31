@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchLastVisitor();
 
     // ===================================================================
-    // --- LÓGICA DEL LECTOR DE QR (USANDO LIBRERÍA MODERNA jsQR) ---
+    // --- LÓGICA DEL LECTOR DE QR (DECODIFICACIÓN MANUAL) ---
     // ===================================================================
 
     const qrFileInput = document.getElementById('qr-captura');
@@ -149,14 +149,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 qrCanvas.drawImage(img, 0, 0, img.width, img.height);
                 
                 const imageData = qrCanvas.getImageData(0, 0, qrCanvasElement.width, qrCanvasElement.height);
-                
                 const code = jsQR(imageData.data, imageData.width, imageData.height);
 
-                // ! CAMBIO IMPORTANTE: Mostramos el objeto 'code' completo !
-                console.log("Objeto completo devuelto por jsQR:", code);
+                if (code) {
+                    // --- ¡AQUÍ ESTÁ LA SOLUCIÓN! ---
+                    // Decodificamos manualmente los bytes crudos a texto UTF-8.
+                    const decoder = new TextDecoder('utf-8');
+                    const decodedData = decoder.decode(new Uint8Array(code.binaryData));
+                    
+                    console.log("Datos decodificados manualmente:", decodedData);
 
-                if (code && code.data) { // Verificamos que code y code.data no sean nulos o vacíos
-                    const parts = code.data.split('|');
+                    // Ahora usamos los datos decodificados por nosotros.
+                    const parts = decodedData.split('|');
                     if (parts.length >= 3) {
                         document.getElementById('cedula').value = parts[0].trim();
                         document.getElementById('nombre').value = parts[1].trim();
