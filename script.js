@@ -153,12 +153,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const imageData = qrCanvas.getImageData(0, 0, qrCanvasElement.width, qrCanvasElement.height);
                 
                 // Usamos jsQR para decodificar
-                const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                    inversionAttempts: "dontInvert",
-                });
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
 
                 if (code) {
-                    // Si encontró un código, procesamos el resultado
+                    // ! LA LÍNEA MÁS IMPORTANTE PARA DEPURAR !
+                    // Esto nos mostrará en la consola el texto exacto del QR
+                    console.log("Datos crudos del QR:", code.data);
+
                     const parts = code.data.split('|');
                     if (parts.length >= 3) {
                         document.getElementById('cedula').value = parts[0].trim();
@@ -166,6 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         document.getElementById('apellido').value = parts[2].trim();
                         showToast("Datos de QR cargados correctamente.", "success");
                     } else {
+                        // Este es el error que estás viendo
                         showToast("El formato del QR no es el esperado.", "error");
                     }
                 } else {
