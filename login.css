@@ -62,6 +62,9 @@ body.dark-mode .login-container {
 .login-form-wrapper {
     flex-basis: 55%;
     padding: 40px;
+    display: flex; /* <-- AÑADIDO: Convierte la columna en un contenedor flexible */
+    flex-direction: column; /* <-- AÑADIDO: Apila el contenido verticalmente */
+    justify-content: center; /* <-- AÑADIDO: Centra el formulario verticalmente */
 }
 
 /* Estilos para los botones del formulario */
@@ -126,5 +129,10 @@ body.dark-mode .login-container {
     .login-info {
         text-align: center;
         align-items: center;
+    }
+
+    .login-logo {
+        width: 120px;
+        height: 120px;
     }
 }
