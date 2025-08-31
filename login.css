@@ -12,11 +12,11 @@
 
 /* Título principal sobre la cápsula */
 .page-main-title {
-    text-align: center;
+    text-align: center; /* Asegura que el texto esté centrado */
     color: var(--text-color);
-    margin-bottom: 30px; /* Espacio entre el título y la cápsula */
+    margin-bottom: 30px; 
     font-size: 1.8rem;
-    font-weight: 300; /* Un estilo de fuente más fino y moderno */
+    font-weight: normal; /* Cambiamos a una fuente más estándar */
 }
 
 /* La cápsula de login (más grande y con más sombra) */
@@ -41,6 +41,8 @@ body.dark-mode .login-container {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center; /* <<-- AÑADIDO: Centra el contenido horizontalmente */
+    text-align: center;  /* <<-- AÑADIDO: Centra el texto de "Iniciar Sesión" */
     background-color: var(--input-bg-color);
 }
 
