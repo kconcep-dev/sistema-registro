@@ -16,13 +16,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- ELEMENTOS DEL DOM ---
     const form = document.getElementById('registro-form');
     const submitBtn = document.getElementById('submit-btn');
-    const ocrBtn = document.getElementById('process-ocr-btn');
-    const ocrFileInput = document.getElementById('cedula-captura');
-    const ocrResultEl = document.getElementById('resultado');
     const toastEl = document.getElementById('toast-notification');
     const toastMessageEl = document.getElementById('toast-message');
     const ultimoVisitanteCard = document.getElementById('ultimo-visitante-card');
     
+    // --- NUEVOS ELEMENTOS DEL DOM PARA QR ---
+    const qrFileInput = document.getElementById('qr-captura');
+    const qrFileNameDisplay = document.getElementById('qr-file-name');
+    const qrResultDisplay = document.getElementById('qr-result-display');
+    const qrCanvasElement = document.getElementById("qr-canvas");
+    const qrCanvas = qrCanvasElement.getContext("2d");
+
     // --- SISTEMA DE NOTIFICACIONES (TOAST) ---
     let toastTimeout;
     function showToast(message, type = 'success') {
@@ -92,52 +96,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- LÓGICA DEL OCR ---
-    ocrBtn.addEventListener('click', async () => {
-        const file = ocrFileInput.files[0];
-        if (!file) {
-            showToast("Primero selecciona una foto de la cédula.", "error");
-            return;
-        }
-        ocrBtn.disabled = true;
-        ocrBtn.textContent = "Procesando...";
-        ocrResultEl.innerText = 'Reconociendo texto...';
-        try {
-            const { data: { text } } = await Tesseract.recognize(file, 'spa');
-            ocrResultEl.innerText = text || "No se detectó texto.";
-            const cedulaMatch = text.match(/\d{1,2}-?\d{3,4}-?\d{3,4}/);
-            if (cedulaMatch) document.getElementById("cedula").value = cedulaMatch[0];
-        } catch (err) {
-            showToast("No se pudo procesar la imagen.", "error");
-            ocrResultEl.innerText = 'Error al procesar.';
-            console.error("Error de Tesseract:", err);
-        } finally {
-            ocrBtn.disabled = false;
-            ocrBtn.textContent = "Procesar Foto";
-        }
-    });
-
     // --- INICIALIZACIÓN DE LA PÁGINA ---
     fetchLastVisitor();
 
     // ===================================================================
-    // --- LÓGICA DEL LECTOR DE QR (DECODIFICACIÓN MANUAL) ---
+    // --- LÓGICA DEL LECTOR DE QR (CON MEJORAS VISUALES) ---
     // ===================================================================
 
-    const qrFileInput = document.getElementById('qr-captura');
-    const processQrBtn = document.getElementById('process-qr-btn');
-    const qrCanvasElement = document.getElementById("qr-canvas");
-    const qrCanvas = qrCanvasElement.getContext("2d");
-
-    processQrBtn.addEventListener('click', () => {
-        const file = qrFileInput.files[0];
-        if (!file) {
-            showToast("Primero toma una foto del código QR.", "error");
-            return;
+    qrFileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        
+        qrResultDisplay.textContent = 'Procesando...'; // Limpiar y mostrar estado
+        if (file) {
+            qrFileNameDisplay.textContent = file.name; // Mostrar el nombre del archivo
+            showToast("Procesando imagen...", "success");
+        } else {
+            qrFileNameDisplay.textContent = 'Ningún archivo seleccionado';
+            qrResultDisplay.textContent = ''; // Limpiar si se cancela
+            return; // No hacer nada si el usuario cancela
         }
-
-        processQrBtn.disabled = true;
-        processQrBtn.textContent = "Procesando...";
 
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -152,32 +129,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 const code = jsQR(imageData.data, imageData.width, imageData.height);
 
                 if (code) {
-                    // --- ¡AQUÍ ESTÁ LA SOLUCIÓN! ---
-                    // Decodificamos manualmente los bytes crudos a texto UTF-8.
                     const decoder = new TextDecoder('utf-8');
                     const decodedData = decoder.decode(new Uint8Array(code.binaryData));
                     
-                    console.log("Datos decodificados manualmente:", decodedData);
-
-                    // Ahora usamos los datos decodificados por nosotros.
+                    qrResultDisplay.textContent = decodedData; // Mostrar el texto crudo del QR
+                    
                     const parts = decodedData.split('|');
                     if (parts.length >= 3) {
                         document.getElementById('cedula').value = parts[0].trim();
                         document.getElementById('nombre').value = parts[1].trim();
                         document.getElementById('apellido').value = parts[2].trim();
-                        showToast("Datos de QR cargados correctamente.", "success");
+                        showToast("Datos de QR cargados.", "success");
                     } else {
-                        showToast("El formato del QR no es el esperado.", "error");
+                        showToast("Formato del QR no esperado.", "error");
+                        qrResultDisplay.textContent += "\nError: Formato no reconocido (esperado: cedula|nombre|apellido)"; // Añadir error al recuadro
                     }
                 } else {
-                    showToast("No se pudo leer un código QR en la imagen.", "error");
+                    showToast("No se encontró un QR en la imagen.", "error");
+                    qrResultDisplay.textContent = 'No se detectó ningún código QR en la foto.'; // Informar en el recuadro
                 }
-
-                processQrBtn.disabled = false;
-                processQrBtn.textContent = "Procesar Foto del QR";
             };
             img.src = imageUrl;
         };
         reader.readAsDataURL(file);
+
+        // Limpiar el valor del input para permitir tomar la misma foto de nuevo si hay un error o se quiere repetir
+        event.target.value = '';
     });
 });

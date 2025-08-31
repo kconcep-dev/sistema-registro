@@ -26,14 +26,18 @@
             <div class="layout-wrapper">
                 
                 <div id="qr-section" class="qr-section">
-                    <h3>Escanear Cédula (QR)</h3>
-                    <p class="section-subtitle">Toma una foto nítida para autocompletar los datos.</p>
+                    <h3>Obtener Datos por QR</h3>
+                    <p class="section-subtitle">Toma una foto de la cédula para autocompletar los datos del visitante.</p>
                     
                     <label for="qr-captura" class="btn-principal btn-captura">
-                        📸 Escanear con Foto
+                        📸 Capturar Foto
                     </label>
                     <input type="file" id="qr-captura" accept="image/*" capture="environment" style="display: none;">
                     
+                    <span id="qr-file-name" class="file-name-display">Ningún archivo seleccionado</span>
+
+                    <pre id="qr-result-display" class="qr-result-box"></pre>
+
                     <canvas id="qr-canvas" style="display: none;"></canvas>
                 </div>
 

@@ -40,6 +40,35 @@
     background-color: var(--primary-hover-color);
 }
 
+/* Estilo para mostrar el nombre del archivo seleccionado */
+.file-name-display {
+    display: block; /* Para que ocupe su propia línea */
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: var(--text-color);
+    text-align: center;
+    padding: 8px;
+    border: 1px dashed var(--border-color);
+    border-radius: 4px;
+    background-color: var(--input-bg-color);
+}
+
+/* Estilo para el recuadro que muestra el resultado del QR */
+.qr-result-box {
+    background-color: var(--input-bg-color);
+    color: var(--input-text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px;
+    margin-top: 20px;
+    font-size: 0.85rem;
+    white-space: pre-wrap; /* Para que respete saltos de línea y se ajuste */
+    word-wrap: break-word; /* Rompe palabras largas para evitar desbordamiento */
+    min-height: 80px; /* Altura mínima para que siempre se vea el recuadro */
+    overflow-y: auto; /* Permite scroll si el texto es muy largo */
+}
+
+
 .card-ultimo-visitante {
     background-color: var(--card-bg-color);
     border-left: 5px solid var(--primary-color);
