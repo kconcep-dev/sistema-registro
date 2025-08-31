@@ -1,11 +1,11 @@
-/* --- Estilos de Login Multi-paso y Ajustes --- */
+/* --- Estilos para la Página de Login --- */
 
 /* Contenedor principal de la página de login */
 .login-page-main {
     display: flex;
-    flex-direction: column; /* Apila el título y la cápsula verticalmente */
-    justify-content: center; /* Centra todo horizontalmente */
-    align-items: center;     /* Centra todo verticalmente */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     min-height: 100vh;
     padding: 20px;
 }
@@ -14,29 +14,28 @@
 .page-main-title {
     text-align: center;
     color: var(--text-color);
-    margin-bottom: 40px; /* Aumentamos el espacio para darle más aire */
-    font-family: 'Poppins', sans-serif; /* <-- NUEVA FUENTE */
-    font-size: 2.2rem; /* <-- MÁS GRANDE */
-    font-weight: 700; /* <-- MÁS "GORDA" (NEGRITA) */
-    letter-spacing: -1px; /* <-- Un toque de diseño para juntar las letras */
+    margin-bottom: 40px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -1px;
 }
 
-/* La cápsula de login (más grande y con más sombra) */
+/* La cápsula de login */
 .login-container {
     display: flex;
-    max-width: 950px; /* Aumentamos el tamaño */
+    max-width: 950px;
     width: 100%;
     background-color: var(--card-bg-color);
-    border-radius: 16px; /* Bordes más redondeados */
-    /* Sombra más pronunciada para el efecto "resaltado" */
-    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12); 
+    border-radius: 16px;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
 }
 
 body.dark-mode .login-container {
     box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
 }
 
-/* Columna izquierda con más espacio interno */
+/* Columna izquierda con contenido centrado y padding ajustado */
 .login-info {
     flex-basis: 45%;
     display: flex;
@@ -45,12 +44,10 @@ body.dark-mode .login-container {
     align-items: center;
     text-align: center;
     background-color: var(--input-bg-color);
-
-    /* Controlamos cada lado individualmente */
-    padding-top: 20px;     /* <-- Reduce el espacio de arriba */
-    padding-bottom: 20px;  /* <-- Reduce el espacio de abajo */
-    padding-left: 50px;    /* <-- Mantiene el espacio a la izquierda */
-    padding-right: 50px;   /* <-- Mantiene el espacio a la derecha */
+    padding-top: 20px;
+    padding-bottom: 20px;
+    padding-left: 50px;
+    padding-right: 50px;
 }
 
 /* Logo más grande y visible */
@@ -59,12 +56,13 @@ body.dark-mode .login-container {
     height: 250px;
 }
 
+/* Columna derecha con formulario centrado verticalmente */
 .login-form-wrapper {
     flex-basis: 55%;
     padding: 40px;
-    display: flex; /* <-- AÑADIDO: Convierte la columna en un contenedor flexible */
-    flex-direction: column; /* <-- AÑADIDO: Apila el contenido verticalmente */
-    justify-content: center; /* <-- AÑADIDO: Centra el formulario verticalmente */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 /* Estilos para los botones del formulario */
@@ -89,6 +87,7 @@ body.dark-mode .login-container {
     transition: background-color 0.2s;
     margin-top: 20px;
 }
+
 #step-email #next-btn {
     width: 100%;
 }
@@ -116,6 +115,60 @@ body.dark-mode .login-container {
     background-color: color-mix(in srgb, var(--primary-color) 10%, transparent);
 }
 
+
+/* --- Estilos para la Pantalla de Carga (Overlay) --- */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(25, 35, 50, 0.85);
+    backdrop-filter: blur(5px);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.loading-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.loading-content .spinner {
+    width: 60px;
+    height: 60px;
+    border: 5px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #FFFFFF;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.loading-content p {
+    color: #FFFFFF;
+    font-size: 1.2rem;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
 /* --- Responsivo --- */
 @media (max-width: 768px) {
     .page-main-title {
@@ -130,7 +183,6 @@ body.dark-mode .login-container {
         text-align: center;
         align-items: center;
     }
-
     .login-logo {
         width: 120px;
         height: 120px;
