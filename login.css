@@ -12,11 +12,13 @@
 
 /* Título principal sobre la cápsula */
 .page-main-title {
-    text-align: center; /* Asegura que el texto esté centrado */
+    text-align: center;
     color: var(--text-color);
-    margin-bottom: 30px; 
-    font-size: 1.8rem;
-    font-weight: normal; /* Cambiamos a una fuente más estándar */
+    margin-bottom: 40px; /* Aumentamos el espacio para darle más aire */
+    font-family: 'Poppins', sans-serif; /* <-- NUEVA FUENTE */
+    font-size: 2.2rem; /* <-- MÁS GRANDE */
+    font-weight: 700; /* <-- MÁS "GORDA" (NEGRITA) */
+    letter-spacing: -1px; /* <-- Un toque de diseño para juntar las letras */
 }
 
 /* La cápsula de login (más grande y con más sombra) */
