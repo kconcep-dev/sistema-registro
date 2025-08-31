@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchLastVisitor();
 
     // ===================================================================
-    // --- LÓGICA DEL LECTOR DE QR (PLAN B: BASADO EN FOTO) ---
+    // --- LÓGICA DEL LECTOR DE QR (USANDO LIBRERÍA MODERNA jsQR) ---
     // ===================================================================
 
     const qrFileInput = document.getElementById('qr-captura');
@@ -129,27 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const qrCanvasElement = document.getElementById("qr-canvas");
     const qrCanvas = qrCanvasElement.getContext("2d");
 
-    // El callback se define una sola vez. Se llamará cuando qrcode.decode() tenga éxito.
-    qrcode.callback = (respuesta) => {
-        if (respuesta) {
-            const parts = respuesta.split('|');
-            if (parts.length >= 3) {
-                document.getElementById('cedula').value = parts[0].trim();
-                document.getElementById('nombre').value = parts[1].trim();
-                document.getElementById('apellido').value = parts[2].trim();
-                showToast("Datos de QR cargados correctamente.", "success");
-            } else {
-                showToast("El formato del QR no es el esperado.", "error");
-            }
-        } else {
-            showToast("No se pudo leer un código QR en la imagen.", "error");
-        }
-        // Reactivamos el botón después de procesar
-        processQrBtn.disabled = false;
-        processQrBtn.textContent = "Procesar Foto del QR";
-    };
-
-    // El botón ahora dispara el procesamiento del archivo seleccionado
     processQrBtn.addEventListener('click', () => {
         const file = qrFileInput.files[0];
         if (!file) {
@@ -166,19 +145,37 @@ document.addEventListener('DOMContentLoaded', () => {
             const img = new Image();
             img.onload = () => {
                 // Dibujamos la foto en el canvas oculto
-                qrCanvas.width = img.width;
-                qrCanvas.height = img.height;
+                qrCanvasElement.width = img.width;
+                qrCanvasElement.height = img.height;
                 qrCanvas.drawImage(img, 0, 0, img.width, img.height);
                 
-                // Intentamos decodificar la imagen del canvas
-                try {
-                    qrcode.decode();
-                } catch (error) {
-                    console.error("Error al decodificar QR:", error);
+                // Obtenemos los datos de la imagen del canvas
+                const imageData = qrCanvas.getImageData(0, 0, qrCanvasElement.width, qrCanvasElement.height);
+                
+                // Usamos jsQR para decodificar
+                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: "dontInvert",
+                });
+
+                if (code) {
+                    // Si encontró un código, procesamos el resultado
+                    const parts = code.data.split('|');
+                    if (parts.length >= 3) {
+                        document.getElementById('cedula').value = parts[0].trim();
+                        document.getElementById('nombre').value = parts[1].trim();
+                        document.getElementById('apellido').value = parts[2].trim();
+                        showToast("Datos de QR cargados correctamente.", "success");
+                    } else {
+                        showToast("El formato del QR no es el esperado.", "error");
+                    }
+                } else {
+                    // Si no encontró nada
                     showToast("No se pudo leer un código QR en la imagen.", "error");
-                    processQrBtn.disabled = false;
-                    processQrBtn.textContent = "Procesar Foto del QR";
                 }
+
+                // Reactivamos el botón
+                processQrBtn.disabled = false;
+                processQrBtn.textContent = "Procesar Foto del QR";
             };
             img.src = imageUrl;
         };
