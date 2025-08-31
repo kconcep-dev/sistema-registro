@@ -144,22 +144,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const imageUrl = e.target.result;
             const img = new Image();
             img.onload = () => {
-                // Dibujamos la foto en el canvas oculto
                 qrCanvasElement.width = img.width;
                 qrCanvasElement.height = img.height;
                 qrCanvas.drawImage(img, 0, 0, img.width, img.height);
                 
-                // Obtenemos los datos de la imagen del canvas
                 const imageData = qrCanvas.getImageData(0, 0, qrCanvasElement.width, qrCanvasElement.height);
                 
-                // Usamos jsQR para decodificar
                 const code = jsQR(imageData.data, imageData.width, imageData.height);
 
-                if (code) {
-                    // ! LA LÍNEA MÁS IMPORTANTE PARA DEPURAR !
-                    // Esto nos mostrará en la consola el texto exacto del QR
-                    console.log("Datos crudos del QR:", code.data);
+                // ! CAMBIO IMPORTANTE: Mostramos el objeto 'code' completo !
+                console.log("Objeto completo devuelto por jsQR:", code);
 
+                if (code && code.data) { // Verificamos que code y code.data no sean nulos o vacíos
                     const parts = code.data.split('|');
                     if (parts.length >= 3) {
                         document.getElementById('cedula').value = parts[0].trim();
@@ -167,15 +163,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         document.getElementById('apellido').value = parts[2].trim();
                         showToast("Datos de QR cargados correctamente.", "success");
                     } else {
-                        // Este es el error que estás viendo
                         showToast("El formato del QR no es el esperado.", "error");
                     }
                 } else {
-                    // Si no encontró nada
                     showToast("No se pudo leer un código QR en la imagen.", "error");
                 }
 
-                // Reactivamos el botón
                 processQrBtn.disabled = false;
                 processQrBtn.textContent = "Procesar Foto del QR";
             };
