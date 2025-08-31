@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- TEMPORIZADOR DE INACTIVIDAD Y CIERRE DE SESIÓN ---
     let inactivityTimer;
-    const INACTIVITY_TIMEOUT = 10 * 1000; // 15 minutos
+    const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 15 minutos
 
     async function logoutUser() {
         showToast("Cerrando sesión por inactividad...", "error");
@@ -191,6 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // --- SERVICE WORKER ---
+/*
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
         navigator.serviceWorker.register("service-worker.js")
@@ -198,3 +199,4 @@ if ("serviceWorker" in navigator) {
             .catch(err => console.error("Error al registrar Service Worker:", err));
     });
 }
+*/
