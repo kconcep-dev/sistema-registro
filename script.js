@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Peticiones avanzadas al navegador
                 advanced: [
                     { torch: true },         // Pedir que encienda la linterna
-                    { zoom: 3.0 },            // Pedir un zoom de 2x
+                    { zoom: 5.0 },            // Pedir un zoom de 2x
                     { focusMode: 'continuous' } // Pedir que intente enfocar continuamente
                 ]
             }
