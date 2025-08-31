@@ -192,18 +192,20 @@ body.dark-mode .login-container {
 /* --- REGLAS NUEVAS PARA MEJORAR EL ESPACIADO EN ESCRITORIO --- */
 @media (min-width: 769px) {
     .login-form-wrapper label {
-      margin-bottom: 10px; /* Aumenta el espacio entre la etiqueta y el input */
+      font-size: 1.1rem;      /* AUMENTADO EL TAMAÑO DE LA FUENTE */
+      font-weight: 600;         /* AÑADIDO UN POCO DE GROSOR */
+      margin-bottom: 12px; 
     }
     
     .login-form-wrapper input {
-      padding: 14px; /* Hace el campo de texto un poco más alto */
-      margin-bottom: 10px; /* Añade un pequeño espacio debajo del input */
+      padding: 14px;
+      margin-bottom: 10px;
     }
   
     .login-form-wrapper .btn-primary,
     .login-form-wrapper .btn-secondary,
     .login-form-wrapper #step-email button {
-      margin-top: 30px; /* Aumenta significativamente el espacio sobre los botones */
+      margin-top: 30px;
       padding: 14px;
     }
 }
