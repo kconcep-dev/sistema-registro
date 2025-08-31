@@ -137,4 +137,80 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- INICIALIZACIÓN DE LA PÁGINA ---
     fetchLastVisitor();
+
+    // --- LÓGICA DEL LECTOR DE QR ---
+    function onScanSuccess(decodedText, decodedResult) {
+        // Muestra el resultado crudo del QR para feedback
+        const resultElement = document.getElementById('qr-result');
+        resultElement.textContent = `Resultado: ${decodedText}`;
+        resultElement.style.display = 'block';
+        
+        console.log(`Resultado del QR: ${decodedText}`);
+
+        // --- Procesamiento de datos de la cédula panameña ---
+        // El formato suele ser: NÚMERO_CÉDULA|APELLIDO1|APELLIDO2|NOMBRE1|NOMBRE2|SEXO|...
+        // Aquí asumimos ese formato y lo separamos por el caracter "|"
+        const parts = decodedText.split('|');
+        
+        if (parts.length >= 4) {
+            const cedula = parts[0].trim();
+            const apellido1 = parts[1].trim();
+            const apellido2 = parts[2].trim();
+            const nombre1 = parts[3].trim();
+            const nombre2 = parts.length > 4 ? parts[4].trim() : '';
+
+            // Rellenamos el formulario con los datos extraídos
+            document.getElementById('cedula').value = cedula;
+            document.getElementById('apellido').value = `${apellido1} ${apellido2}`;
+            document.getElementById('nombre').value = `${nombre1} ${nombre2}`;
+            
+            showToast("Datos de QR cargados correctamente.", "success");
+            
+            // Opcional: Detener el escáner y ocultarlo después de una lectura exitosa
+            html5QrcodeScanner.clear().catch(error => {
+                console.error("Fallo al detener el escáner.", error);
+            });
+            document.getElementById('qr-reader').style.display = 'none';
+        } else {
+            showToast("El formato del QR no es el esperado.", "error");
+        }
+    }
+
+    function onScanFailure(error) {
+      // No hacemos nada en caso de fallo para que el usuario pueda seguir intentando
+      // console.warn(`Error de escaneo de QR = ${error}`);
+    }
+
+    // --- Configuración del Escáner ---
+    const qrboxFunction = function(viewfinderWidth, viewfinderHeight) {
+        let minEdgePercentage = 0.7; // 70% del menor de los lados
+        let minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
+        let qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
+        return {
+            width: qrboxSize,
+            height: qrboxSize
+        };
+    }
+    
+    // Creamos la instancia del escáner con la configuración de alta calidad
+    let html5QrcodeScanner = new Html5QrcodeScanner(
+        "qr-reader", 
+        { 
+            fps: 10, // Frames por segundo
+            qrbox: qrboxFunction, // Tamaño del cuadro de escaneo
+            experimentalFeatures: {
+              useBarCodeDetectorIfSupported: true
+            },
+            videoConstraints: { // <-- La clave para la alta calidad
+                facingMode: "environment", // Usa la cámara trasera por defecto
+                focusMode: "continuous",   // Autofoco contínuo
+                width: { ideal: 1280 },    // Pide una resolución HD
+                height: { ideal: 720 }
+            }
+        },
+        /* verbose= */ false);
+    
+    // Iniciamos el escáner
+    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+    
 });

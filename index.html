@@ -34,6 +34,12 @@
                     <pre id="resultado"></pre>
                 </div>
                 
+                <div id="qr-section" class="qr-section">
+                    <h3>Escanear Cédula (QR)</h3>
+                    <div id="qr-reader"></div>
+                    <div id="qr-result" class="qr-result"></div>
+                </div>
+
                 <form id="registro-form" novalidate>
                     <h2>Datos del Visitante</h2>
                     <label for="nombre">Nombre:</label>
@@ -66,6 +72,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script> <script src="common.js"></script>
     <script src="common.js"></script>
     <script src="script.js"></script>
 </body>
