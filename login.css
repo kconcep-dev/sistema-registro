@@ -14,7 +14,7 @@
 .page-main-title {
     text-align: center;
     color: var(--text-color);
-    margin-bottom: 40px;
+    margin-bottom: 60px; /* AUMENTADO de 40px a 60px para más espacio */
     font-family: 'Poppins', sans-serif;
     font-size: 2.2rem;
     font-weight: 700;
@@ -62,7 +62,7 @@ body.dark-mode .login-container {
     padding: 40px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: center; /* Mantenemos esto para centrar el bloque del formulario */
 }
 
 /* Estilos para los botones del formulario */
@@ -186,5 +186,24 @@ body.dark-mode .login-container {
     .login-logo {
         width: 120px;
         height: 120px;
+    }
+}
+
+/* --- REGLAS NUEVAS PARA MEJORAR EL ESPACIADO EN ESCRITORIO --- */
+@media (min-width: 769px) {
+    .login-form-wrapper label {
+      margin-bottom: 10px; /* Aumenta el espacio entre la etiqueta y el input */
+    }
+    
+    .login-form-wrapper input {
+      padding: 14px; /* Hace el campo de texto un poco más alto */
+      margin-bottom: 10px; /* Añade un pequeño espacio debajo del input */
+    }
+  
+    .login-form-wrapper .btn-primary,
+    .login-form-wrapper .btn-secondary,
+    .login-form-wrapper #step-email button {
+      margin-top: 30px; /* Aumenta significativamente el espacio sobre los botones */
+      padding: 14px;
     }
 }
