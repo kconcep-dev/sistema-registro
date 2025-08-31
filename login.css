@@ -39,20 +39,24 @@ body.dark-mode .login-container {
 /* Columna izquierda con más espacio interno */
 .login-info {
     flex-basis: 45%;
-    padding: 50px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center; /* <<-- AÑADIDO: Centra el contenido horizontalmente */
-    text-align: center;  /* <<-- AÑADIDO: Centra el texto de "Iniciar Sesión" */
+    align-items: center;
+    text-align: center;
     background-color: var(--input-bg-color);
+
+    /* Controlamos cada lado individualmente */
+    padding-top: 20px;     /* <-- Reduce el espacio de arriba */
+    padding-bottom: 20px;  /* <-- Reduce el espacio de abajo */
+    padding-left: 50px;    /* <-- Mantiene el espacio a la izquierda */
+    padding-right: 50px;   /* <-- Mantiene el espacio a la derecha */
 }
 
 /* Logo más grande y visible */
 .login-logo {
     width: 250px;
     height: 250px;
-    margin-bottom: 15px;
 }
 
 .login-form-wrapper {
