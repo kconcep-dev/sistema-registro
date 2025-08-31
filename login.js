@@ -1,8 +1,3 @@
-// --- CONFIGURACIÓN ---
-const supabaseUrl = "https://qmzbqwwndsdsmdkrimwb.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtemJxd3duZHNkc21ka3JpbXdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0OTExNDYsImV4cCI6MjA3MjA2NzE0Nn0.dfQdvfFbgXdun1kQ10gRsqh3treJRzOKdbkebpEQXWo";
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-
 // --- ELEMENTOS DEL DOM ---
 const loginForm = document.getElementById('login-form');
 const loginBtn = document.getElementById('login-btn');
@@ -29,7 +24,7 @@ loginForm.addEventListener('submit', async (e) => {
             throw error;
         }
 
-        // Redirige a la nueva página de inicio.
+        // Redirige a la página de inicio.
         window.location.href = 'inicio.html';
 
     } catch (error) {
