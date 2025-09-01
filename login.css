@@ -29,6 +29,7 @@
     background-color: var(--card-bg-color);
     border-radius: 16px;
     box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
+    align-items: center; /* <<<--- ESTA ES LA REGLA CLAVE AÑADIDA */
 }
 
 body.dark-mode .login-container {
@@ -44,10 +45,7 @@ body.dark-mode .login-container {
     align-items: center;
     text-align: center;
     background-color: var(--input-bg-color);
-    padding-top: 20px;
-    padding-bottom: 20px;
-    padding-left: 50px;
-    padding-right: 50px;
+    padding: 40px 50px; /* Padding vertical y horizontal ajustado */
 }
 
 /* Logo más grande y visible */
@@ -56,14 +54,13 @@ body.dark-mode .login-container {
     height: 250px;
 }
 
-/* --- CAMBIO PRINCIPAL AQUÍ --- */
-/* Columna derecha con formulario */
+/* Columna derecha con formulario centrado verticalmente */
 .login-form-wrapper {
     flex-basis: 55%;
-    padding: 80px 40px 40px 40px; /* Aumentado el padding SUPERIOR a 80px */
+    padding: 40px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* CAMBIADO de 'center' a 'flex-start' */
+    justify-content: center; /* Devuelto a 'center' para que funcione con la nueva alineación */
 }
 
 /* Estilos para los botones del formulario */
@@ -172,6 +169,9 @@ body.dark-mode .login-container {
 
 /* --- Responsivo --- */
 @media (max-width: 768px) {
+    .login-container {
+        align-items: stretch; /* Revertimos a stretch en móvil */
+    }
     .page-main-title {
         font-size: 1.3rem;
         margin-bottom: 25px;
@@ -190,26 +190,4 @@ body.dark-mode .login-container {
     }
 }
 
-/* --- REGLAS PARA MEJORAR EL ESPACIADO EN ESCRITORIO --- */
-@media (min-width: 769px) {
-    .login-form-wrapper label {
-      text-align: center;
-      font-family: 'Poppins', sans-serif;
-      font-size: 1.6rem;
-      font-weight: 700;
-      margin-bottom: 25px;
-      display: block;
-    }
-    
-    .login-form-wrapper input {
-      padding: 14px;
-      text-align: center;
-    }
-  
-    .login-form-wrapper .btn-primary,
-    .login-form-wrapper .btn-secondary,
-    .login-form-wrapper #step-email button {
-      margin-top: 35px;
-      padding: 14px;
-    }
-}
+/* Eliminamos las reglas específicas de espaciado para PC, ya que la nueva alineación lo soluciona */
