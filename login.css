@@ -60,10 +60,10 @@ body.dark-mode .login-container {
 /* Columna derecha con formulario */
 .login-form-wrapper {
     flex-basis: 55%;
-    padding: 80px 40px 40px 40px; /* Aumentado el padding SUPERIOR a 80px */
+    padding: 40px; /* mismo padding en todos los lados o ajusta según necesites */
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* CAMBIADO de 'center' a 'flex-start' */
+    justify-content: center; /* centra verticalmente */
 }
 
 /* Estilos para los botones del formulario */
