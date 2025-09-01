@@ -44,7 +44,10 @@ body.dark-mode .login-container {
     align-items: center;
     text-align: center;
     background-color: var(--input-bg-color);
-    padding: 20px 50px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    padding-left: 50px;
+    padding-right: 50px;
 }
 
 /* Logo más grande y visible */
@@ -53,32 +56,24 @@ body.dark-mode .login-container {
     height: 250px;
 }
 
-/* Columna derecha con formulario centrado */
+/* --- CAMBIO PRINCIPAL AQUÍ --- */
+/* Columna derecha con formulario */
 .login-form-wrapper {
     flex-basis: 55%;
-    padding: 40px; /* mismo padding arriba y abajo */
+    padding: 40px; /* mismo padding en todos los lados */
     display: flex;
     flex-direction: column;
     justify-content: center; /* centra verticalmente */
-    align-items: center; /* centra horizontalmente */
-    gap: 25px; /* espaciado uniforme entre elementos */
-    height: 100%;
+    height: 100%; /* asegura que use toda la altura de la cápsula */
 }
 
-/* Eliminamos márgenes verticales que rompen la simetría */
-.login-form-wrapper label,
-.login-form-wrapper input,
-.login-form-wrapper .btn-primary,
-.login-form-wrapper .btn-secondary {
-    margin: 0;
-}
 
 /* Estilos para los botones del formulario */
 .form-buttons {
     display: flex;
     justify-content: space-between;
     gap: 15px;
-    width: 100%;
+    margin-top: 20px;
 }
 
 .btn-primary, #login-form button {
@@ -93,6 +88,7 @@ body.dark-mode .login-container {
     font-size: 1rem;
     font-weight: bold;
     transition: background-color 0.2s;
+    margin-top: 20px;
 }
 
 #step-email #next-btn {
@@ -115,11 +111,13 @@ body.dark-mode .login-container {
     font-size: 1rem;
     font-weight: bold;
     transition: background-color 0.2s, color 0.2s;
+    margin-top: 20px;
 }
 
 .btn-secondary:hover {
     background-color: color-mix(in srgb, var(--primary-color) 10%, transparent);
 }
+
 
 /* --- Estilos para la Pantalla de Carga (Overlay) --- */
 .loading-overlay {
@@ -173,6 +171,7 @@ body.dark-mode .login-container {
     }
 }
 
+
 /* --- Responsivo --- */
 @media (max-width: 768px) {
     .page-main-title {
@@ -200,6 +199,7 @@ body.dark-mode .login-container {
       font-family: 'Poppins', sans-serif;
       font-size: 1.6rem;
       font-weight: 700;
+      margin-bottom: 25px;
       display: block;
     }
     
@@ -211,6 +211,7 @@ body.dark-mode .login-container {
     .login-form-wrapper .btn-primary,
     .login-form-wrapper .btn-secondary,
     .login-form-wrapper #step-email button {
+      margin-top: 35px;
       padding: 14px;
     }
 }
