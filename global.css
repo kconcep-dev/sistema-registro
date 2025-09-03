@@ -56,3 +56,150 @@ input[type="text"], input[type="file"], input[type="email"], input[type="passwor
 input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent); }
 button:disabled { background-color: #a0a0a0; cursor: not-allowed; }
 .feedback.error { background-color: #f8d7da; color: #842029; padding: 12px; margin-bottom: 15px; border-radius: 6px; text-align: center; font-weight: bold; }
+
+/* --- 5. Barra de Navegación --- */
+
+/* Contenedor principal de la barra */
+.navbar {
+    background-color: var(--card-bg-color);
+    box-shadow: 0 2px 8px var(--shadow-color);
+    padding: 0 20px;
+    position: fixed; /* La dejamos fija en la parte superior */
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 999; /* Por debajo de los botones de header y toast */
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 60px; /* Altura de la barra */
+}
+
+.nav-brand {
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+/* --- Menú de enlaces (Móvil primero) --- */
+.nav-links {
+    list-style: none;
+    position: fixed;
+    top: 60px; /* Debajo de la barra */
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 60px);
+    background-color: var(--bg-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    transform: translateX(-100%); /* Oculto por defecto */
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Cuando el menú está abierto */
+body.nav-open .nav-links {
+    transform: translateX(0);
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 1.5rem; /* Letra grande para móvil */
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+/* --- Icono de Hamburguesa --- */
+.hamburger {
+    display: flex; /* Visible en móvil */
+    flex-direction: column;
+    justify-content: space-around;
+    width: 30px;
+    height: 25px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 10;
+}
+
+.hamburger span {
+    width: 100%;
+    height: 3px;
+    background-color: var(--text-color);
+    border-radius: 5px;
+    transition: all 0.3s linear;
+}
+
+/* Animación de la hamburguesa a "X" */
+body.nav-open .hamburger span:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px);
+}
+body.nav-open .hamburger span:nth-child(2) {
+    opacity: 0;
+}
+body.nav-open .hamburger span:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* --- Estilos para Escritorio (a partir de 768px) --- */
+@media (min-width: 768px) {
+    .hamburger {
+        display: none; /* Ocultamos la hamburguesa */
+    }
+
+    .nav-links {
+        position: static; /* Devolvemos al flujo normal */
+        flex-direction: row;
+        height: auto;
+        width: auto;
+        background-color: transparent;
+        transform: none; /* Quitamos la transformación */
+        gap: 10px;
+    }
+
+    .nav-link {
+        font-size: 1rem; /* Tamaño normal para escritorio */
+    }
+
+    .nav-container {
+        justify-content: center; /* Centramos el contenido */
+    }
+    
+    .nav-brand {
+        position: absolute; /* Posicionamos la marca a la izquierda */
+        left: 20px;
+    }
+}
+
+/* --- Estilos de los enlaces (comunes para ambas vistas) --- */
+.nav-link:hover {
+    background-color: var(--input-bg-color);
+}
+
+.nav-link.disabled {
+    color: var(--border-color);
+    cursor: not-allowed;
+    background-color: transparent;
+}
+
+.nav-link.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Ajuste para que el contenido no quede debajo de la barra fija */
+body {
+    padding-top: 80px;
+}

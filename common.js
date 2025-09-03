@@ -34,6 +34,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- LÓGICA DE NAVEGACIÓN MÓVIL (HAMBURGUESA) ---
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    if (hamburgerBtn) { // Verificamos que el botón exista
+        hamburgerBtn.addEventListener('click', () => {
+            document.body.classList.toggle('nav-open');
+        });
+    }
+
+    // --- LÓGICA PARA MARCAR ENLACE ACTIVO ---
+    const currentPage = window.location.pathname.split('/').pop(); // Obtiene "inicio.html" o "index.html"
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    navLinks.forEach(link => {
+        const linkPage = link.getAttribute('href').split('/').pop();
+        if (linkPage === currentPage) {
+            link.classList.add('active');
+        }
+    });
+
     // --- TEMPORIZADOR DE INACTIVIDAD (Ahora en todas las páginas protegidas) ---
     let inactivityTimer;
     const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutos
