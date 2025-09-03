@@ -14,7 +14,7 @@
 .page-main-title {
     text-align: center;
     color: var(--text-color);
-    margin-bottom: 60px; 
+    margin-bottom: 60px;
     font-family: 'Poppins', sans-serif;
     font-size: 2.2rem;
     font-weight: 700;
@@ -44,10 +44,7 @@ body.dark-mode .login-container {
     align-items: center;
     text-align: center;
     background-color: var(--input-bg-color);
-    padding-top: 20px;
-    padding-bottom: 20px;
-    padding-left: 50px;
-    padding-right: 50px;
+    padding: 50px;
 }
 
 /* Logo más grande y visible */
@@ -56,15 +53,26 @@ body.dark-mode .login-container {
     height: 250px;
 }
 
-/* --- CAMBIO PRINCIPAL AQUÍ --- */
 /* Columna derecha con formulario */
 .login-form-wrapper {
     flex-basis: 55%;
-    padding: 40px; /* mismo padding en todos los lados */
+    padding: 40px;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* centra verticalmente */
-    height: 100%; /* asegura que use toda la altura de la cápsula */
+    justify-content: center;
+    height: 100%;
+}
+
+/* --- ESTILO UNIFICADO Y CORREGIDO PARA LAS ETIQUETAS --- */
+/* Este es el estilo base (móvil primero) para las etiquetas */
+.login-form-wrapper label {
+    display: block;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    margin-bottom: 15px;
+    font-size: 1.2rem; /* Tamaño de fuente para móvil */
+    color: var(--text-color); /* Aseguramos consistencia de color */
 }
 
 
@@ -185,6 +193,7 @@ body.dark-mode .login-container {
     .login-info {
         text-align: center;
         align-items: center;
+        padding: 20px;
     }
     .login-logo {
         width: 120px;
@@ -192,26 +201,23 @@ body.dark-mode .login-container {
     }
 }
 
-/* --- REGLAS PARA MEJORAR EL ESPACIADO EN ESCRITORIO --- */
+/* --- REGLAS PARA ESCRITORIO --- */
 @media (min-width: 769px) {
+    /* Sobrescribimos solo lo necesario para escritorio */
     .login-form-wrapper label {
-      text-align: center;
-      font-family: 'Poppins', sans-serif;
-      font-size: 1.6rem;
-      font-weight: 700;
-      margin-bottom: 25px;
-      display: block;
+        font-size: 1.6rem;   /* Hacemos la fuente más grande */
+        margin-bottom: 25px; /* Aumentamos el margen */
     }
-    
+
     .login-form-wrapper input {
-      padding: 14px;
-      text-align: center;
+        padding: 14px;
+        text-align: center;
     }
-  
+
     .login-form-wrapper .btn-primary,
     .login-form-wrapper .btn-secondary,
     .login-form-wrapper #step-email button {
-      margin-top: 35px;
-      padding: 14px;
+        margin-top: 35px;
+        padding: 14px;
     }
 }
