@@ -1,6 +1,14 @@
 // login.js
 
 document.addEventListener('DOMContentLoaded', () => {
+    // --- LÓGICA DE LA PANTALLA DE BIENVENIDA ---
+    const welcomeScreen = document.getElementById('welcome-screen');
+
+    // Ocultamos la pantalla después de 2.5 segundos (2500 ms)
+    setTimeout(() => {
+        welcomeScreen.classList.add('hidden');
+    }, 2500);
+    
     // --- ELEMENTOS DEL DOM ---
     const loginForm = document.getElementById('login-form');
     const loginError = document.getElementById('login-error');

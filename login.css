@@ -221,3 +221,39 @@ body.dark-mode .login-container {
         padding: 14px;
     }
 }
+
+/* --- Pantalla de Bienvenida (Splash Screen) --- */
+#welcome-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #2563EB; /* Usamos el color primario de tu paleta */
+    z-index: 10001; /* Debe estar por encima de todo lo demás */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 25px;
+    transition: opacity 0.7s ease-out; /* La transición para el desvanecido */
+}
+
+.welcome-logo {
+    width: 180px; /* Ajusta el tamaño si es necesario */
+    height: 180px;
+}
+
+.welcome-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2rem;
+    color: #FFFFFF;
+    font-weight: 700;
+    text-align: center;
+}
+
+/* Esta clase hará que la pantalla se desvanezca */
+#welcome-screen.hidden {
+    opacity: 0;
+    pointer-events: none; /* Muy importante para que no bloquee los clics en el login */
+}
