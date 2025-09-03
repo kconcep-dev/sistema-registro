@@ -63,18 +63,16 @@ body.dark-mode .login-container {
     height: 100%;
 }
 
-/* --- ESTILO UNIFICADO Y CORREGIDO PARA LAS ETIQUETAS --- */
-/* Este es el estilo base (móvil primero) para las etiquetas */
+/* ESTILO UNIFICADO Y CORREGIDO PARA LAS ETIQUETAS */
 .login-form-wrapper label {
     display: block;
     text-align: center;
     font-family: 'Poppins', sans-serif;
     font-weight: 700;
     margin-bottom: 15px;
-    font-size: 1.2rem; /* Tamaño de fuente para móvil */
-    color: var(--text-color); /* Aseguramos consistencia de color */
+    font-size: 1.2rem;
+    color: var(--text-color);
 }
-
 
 /* Estilos para los botones del formulario */
 .form-buttons {
@@ -126,134 +124,57 @@ body.dark-mode .login-container {
     background-color: color-mix(in srgb, var(--primary-color) 10%, transparent);
 }
 
-
-/* --- Estilos para la Pantalla de Carga (Overlay) --- */
+/* Estilos para la Pantalla de Carga (Overlay) */
 .loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(25, 35, 50, 0.85);
-    backdrop-filter: blur(5px);
-    z-index: 10000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(25, 35, 50, 0.85); backdrop-filter: blur(5px);
+    z-index: 10000; display: flex; justify-content: center; align-items: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
 }
 
-.loading-overlay.visible {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.loading-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-}
-
+.loading-overlay.visible { opacity: 1; pointer-events: auto; }
+.loading-content { display: flex; flex-direction: column; align-items: center; gap: 20px; }
 .loading-content .spinner {
-    width: 60px;
-    height: 60px;
-    border: 5px solid rgba(255, 255, 255, 0.3);
-    border-top-color: #FFFFFF;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+    width: 60px; height: 60px; border: 5px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #FFFFFF; border-radius: 50%; animation: spin 1s linear infinite;
 }
+.loading-content p { color: #FFFFFF; font-size: 1.2rem; font-family: 'Poppins', sans-serif; font-weight: 400; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.loading-content p {
-    color: #FFFFFF;
-    font-size: 1.2rem;
-    font-family: 'Poppins', sans-serif;
-    font-weight: 400;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-
-/* --- Responsivo --- */
+/* Responsivo */
 @media (max-width: 768px) {
-    .page-main-title {
-        font-size: 1.3rem;
-        margin-bottom: 25px;
-    }
-    .login-container {
-        flex-direction: column;
-        max-width: 400px;
-    }
-    .login-info {
-        text-align: center;
-        align-items: center;
-        padding: 20px;
-    }
-    .login-logo {
-        width: 120px;
-        height: 120px;
-    }
+    .page-main-title { font-size: 1.3rem; margin-bottom: 25px; }
+    .login-container { flex-direction: column; max-width: 400px; }
+    .login-info { text-align: center; align-items: center; padding: 20px; }
+    .login-logo { width: 120px; height: 120px; }
 }
 
-/* --- REGLAS PARA ESCRITORIO --- */
+/* REGLAS PARA ESCRITORIO */
 @media (min-width: 769px) {
-    /* Sobrescribimos solo lo necesario para escritorio */
-    .login-form-wrapper label {
-        font-size: 1.6rem;   /* Hacemos la fuente más grande */
-        margin-bottom: 25px; /* Aumentamos el margen */
-    }
-
-    .login-form-wrapper input {
-        padding: 14px;
-        text-align: center;
-    }
-
-    .login-form-wrapper .btn-primary,
-    .login-form-wrapper .btn-secondary,
-    .login-form-wrapper #step-email button {
-        margin-top: 35px;
-        padding: 14px;
-    }
+    .login-form-wrapper label { font-size: 1.6rem; margin-bottom: 25px; }
+    .login-form-wrapper input { padding: 14px; text-align: center; }
+    .login-form-wrapper .btn-primary, .login-form-wrapper .btn-secondary,
+    .login-form-wrapper #step-email button { margin-top: 35px; padding: 14px; }
 }
 
 /* --- Pantalla de Bienvenida (Splash Screen) --- */
 #welcome-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #2563EB; /* Usamos el color primario de tu paleta */
-    z-index: 10001; /* Debe estar por encima de todo lo demás */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: #2563EB;
+    z-index: 10001;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
     gap: 25px;
-    transition: opacity 0.7s ease-out; /* La transición para el desvanecido */
+    transition: opacity 0.7s ease-out, visibility 0.7s;
 }
 
-.welcome-logo {
-    width: 180px; /* Ajusta el tamaño si es necesario */
-    height: 180px;
-}
-
+.welcome-logo { width: 180px; height: 180px; }
 .welcome-title {
-    font-family: 'Poppins', sans-serif;
-    font-size: 2rem;
-    color: #FFFFFF;
-    font-weight: 700;
-    text-align: center;
+    font-family: 'Poppins', sans-serif; font-size: 2rem;
+    color: #FFFFFF; font-weight: 700; text-align: center;
 }
 
-/* Esta clase hará que la pantalla se desvanezca */
 #welcome-screen.hidden {
     opacity: 0;
-    pointer-events: none; /* Muy importante para que no bloquee los clics en el login */
+    visibility: hidden;
+    pointer-events: none;
 }

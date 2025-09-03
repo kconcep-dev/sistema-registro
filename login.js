@@ -1,24 +1,29 @@
 // login.js
 
 document.addEventListener('DOMContentLoaded', () => {
+    
     // --- LÓGICA DE LA PANTALLA DE BIENVENIDA ---
     const welcomeScreen = document.getElementById('welcome-screen');
+    const mainContent = document.getElementById('login-main-content');
 
-    // Ocultamos la pantalla después de 2.5 segundos (2500 ms)
+    // Esperamos un tiempo y luego intercambiamos la visibilidad
     setTimeout(() => {
+        // 1. Ocultamos la pantalla de bienvenida
         welcomeScreen.classList.add('hidden');
-    }, 2500);
+        
+        // 2. Mostramos el contenido principal
+        mainContent.style.visibility = 'visible';
+    }, 2500); // 2.5 segundos de duración
+
     
     // --- ELEMENTOS DEL DOM ---
     const loginForm = document.getElementById('login-form');
     const loginError = document.getElementById('login-error');
-    const loadingOverlay = document.getElementById('loading-overlay'); 
-
+    const loadingOverlay = document.getElementById('loading-overlay');
     const stepEmail = document.getElementById('step-email');
     const stepPassword = document.getElementById('step-password');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
-
     const nextBtn = document.getElementById('next-btn');
     const backBtn = document.getElementById('back-btn');
     const loginBtn = document.getElementById('login-btn');
@@ -32,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         loginError.style.display = 'none';
-
         stepEmail.style.display = 'none';
         stepPassword.style.display = 'block';
         passwordInput.focus();
@@ -47,7 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- LÓGICA DE ENVÍO FINAL (CORREGIDA) ---
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-
         const email = emailInput.value.trim();
         const password = passwordInput.value.trim();
 
@@ -57,42 +60,31 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 1. MOSTRAMOS LA RETROALIMENTACIÓN VISUAL
         loadingOverlay.classList.add('visible');
         loginError.style.display = 'none';
         
-        // --- AÑADIDO DE VUELTA ---
-        // Cambiamos el estado de los botones para que el usuario no pueda hacer doble clic
         loginBtn.disabled = true;
         backBtn.disabled = true;
         loginBtn.textContent = 'Ingresando...';
 
         try {
-            // Simulamos una pequeña demora para que la animación sea visible
             await new Promise(resolve => setTimeout(resolve, 1000));
-
             const { data, error } = await supabaseClient.auth.signInWithPassword({
                 email: email,
                 password: password,
             });
 
-            if (error) {
-                throw error;
-            }
+            if (error) { throw error; }
 
-            // Si el login es exitoso, la redirección se encarga de todo.
             window.location.href = 'inicio.html';
 
         } catch (error) {
-            // 2. SI HAY ERROR, OCULTAMOS LA PANTALLA DE CARGA Y RESTAURAMOS TODO
             loadingOverlay.classList.remove('visible');
             loginError.textContent = 'Correo o contraseña incorrectos.';
             loginError.style.display = 'block';
             stepPassword.style.display = 'none';
             stepEmail.style.display = 'block';
             
-            // --- AÑADIDO DE VUELTA ---
-            // Restauramos los botones para que el usuario pueda intentar de nuevo
             loginBtn.disabled = false;
             backBtn.disabled = false;
             loginBtn.textContent = 'Ingresar';
