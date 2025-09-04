@@ -327,13 +327,13 @@ body.nav-open .nav-links {
 /* --- 6. Estilos para Iconos Personalizados --- */
 .nav-control-btn img,
 .hamburger img {
-    width: 28px;
-    height: 28px;
+    /* --- CAMBIO REALIZADO AQUÍ --- */
+    width: 30px;
+    height: 30px;
     vertical-align: middle;
 }
 
-/* --- LÓGICA DE ICONOS CORREGIDA --- */
-/* Por defecto (tema claro), mostramos el icono OSCURO para contraste */
+/* Lógica de iconos claro/oscuro */
 .icon-dark {
     display: block;
 }
@@ -341,7 +341,6 @@ body.nav-open .nav-links {
     display: none;
 }
 
-/* En modo oscuro, mostramos el icono CLARO para contraste */
 body.dark-mode .icon-dark {
     display: none;
 }
@@ -349,7 +348,7 @@ body.dark-mode .icon-light {
     display: block;
 }
 
-/* Lógica para icono de menú (sin cambios) */
+/* Lógica para icono de menú */
 .icon-close {
     display: none;
 }
