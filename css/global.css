@@ -190,7 +190,7 @@ button:disabled {
 .navbar {
     background-color: var(--card-bg-color);
     box-shadow: 0 2px 8px var(--shadow-color);
-    padding: 0 15px; /* <-- CAMBIO REALIZADO AQUÍ */
+    padding: 0 15px;
     position: fixed;
     top: 0;
     left: 0;
@@ -332,34 +332,33 @@ body.nav-open .nav-links {
     vertical-align: middle;
 }
 
+/* --- LÓGICA DE ICONOS CORREGIDA --- */
+/* Por defecto (tema claro), mostramos el icono OSCURO para contraste */
 .icon-dark {
-    display: none;
+    display: block;
 }
-
 .icon-light {
-    display: block;
-}
-
-body.dark-mode .icon-dark {
-    display: block;
-}
-
-body.dark-mode .icon-light {
     display: none;
 }
 
+/* En modo oscuro, mostramos el icono CLARO para contraste */
+body.dark-mode .icon-dark {
+    display: none;
+}
+body.dark-mode .icon-light {
+    display: block;
+}
+
+/* Lógica para icono de menú (sin cambios) */
 .icon-close {
     display: none;
 }
-
 .icon-menu {
     display: block;
 }
-
 body.nav-open .icon-close {
     display: block;
 }
-
 body.nav-open .icon-menu {
     display: none;
 }
