@@ -4,17 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inicio - Sistema de Registro</title>
-    <link rel="stylesheet" href="global.css">
-    <link rel="stylesheet" href="inicio.css">
-    <link rel="icon" href="icon-192.png">
+
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/inicio.css">
+
+    <link rel="icon" href="assets/icons/icon-192.png">
 </head>
 <body>
+    <div id="navbar-placeholder"></div>
+
     <div id="loader" class="loader-wrapper">
         <div class="loader"></div>
     </div>
 
     <div id="header-buttons" class="header-buttons" style="display: none;">
-        <button id="logout-btn" class="header-btn" title="Cerrar Sesión">🚪</button>
+        <button id="logout-btn" class="header-btn" title="Cerrar Sesión">
+            <img src="assets/images/icono-logout-light.png" alt="Cerrar Sesión" class="icon-light">
+            <img src="assets/images/icono-logout-dark.png" alt="Cerrar Sesión" class="icon-dark">
+        </button>
         <button id="theme-toggle" class="theme-btn" title="Cambiar Tema">🌙</button>
     </div>
 
@@ -41,7 +48,7 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="common.js"></script>
-    <script src="inicio.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/inicio.js"></script>
 </body>
 </html>
