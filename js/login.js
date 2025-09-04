@@ -1,4 +1,4 @@
-// login.js
+// js/login.js
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -8,15 +8,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Esperamos un tiempo y luego intercambiamos la visibilidad
     setTimeout(() => {
-        // 1. Ocultamos la pantalla de bienvenida
         welcomeScreen.classList.add('hidden');
-        
-        // 2. Mostramos el contenido principal
         mainContent.style.visibility = 'visible';
     }, 2500); // 2.5 segundos de duración
 
-    
-    // --- ELEMENTOS DEL DOM ---
+    // --- LÓGICA DEL TEMA (ESPECÍFICA PARA LOGIN.HTML) ---
+    const loginThemeToggleBtn = document.getElementById('login-theme-toggle');
+    if (loginThemeToggleBtn) {
+        // Aplicar tema guardado al cargar la página
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            loginThemeToggleBtn.textContent = '☀️';
+        }
+        // Evento para cambiar el tema
+        loginThemeToggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            let theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+            loginThemeToggleBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
+            localStorage.setItem('theme', theme);
+        });
+    }
+
+    // --- ELEMENTOS DEL DOM DEL FORMULARIO ---
     const loginForm = document.getElementById('login-form');
     const loginError = document.getElementById('login-error');
     const loadingOverlay = document.getElementById('loading-overlay');
@@ -48,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
         emailInput.focus();
     });
 
-    // --- LÓGICA DE ENVÍO FINAL (CORREGIDA) ---
+    // --- LÓGICA DE ENVÍO FINAL ---
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = emailInput.value.trim();
@@ -82,8 +95,11 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingOverlay.classList.remove('visible');
             loginError.textContent = 'Correo o contraseña incorrectos.';
             loginError.style.display = 'block';
-            stepPassword.style.display = 'none';
-            stepEmail.style.display = 'block';
+            
+            // **MEJORA DE UX:** No regresamos al paso del correo.
+            // Mantenemos al usuario en la pantalla de contraseña.
+            passwordInput.value = ''; // Limpiamos la contraseña
+            passwordInput.focus();   // Ponemos el foco para que pueda reintentar
             
             loginBtn.disabled = false;
             backBtn.disabled = false;

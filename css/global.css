@@ -9,8 +9,8 @@
     --primary-hover-color: #1D4ED8;
     --border-color: #6B7280;
     --shadow-color: rgba(0, 0, 0, 0.05);
-    --success-color: #28A745; 
-    --error-color: #DC3545;   
+    --success-color: #28A745;
+    --error-color: #DC3545;  
 }
 
 body.dark-mode {
@@ -27,29 +27,39 @@ body.dark-mode {
 
 /* --- 2. Estilos Generales y Cargador --- */
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-body { background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.2s ease-in-out; }
+
+body { 
+    background-color: var(--bg-color); 
+    color: var(--text-color); 
+    transition: background-color 0.2s ease-in-out; 
+    padding-top: 80px; /* Ajuste para que el contenido no quede debajo de la barra fija */
+}
+
 .loader-wrapper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background-color: var(--bg-color); z-index: 9999; }
 .loader { border: 8px solid var(--input-bg-color); border-top: 8px solid var(--primary-color); border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-body.flash-success { background-color: #16A34A; } 
-body.flash-error { background-color: #DC2626; } 
 
-/* --- 3. Cabecera y Notificación Toast --- */
-.header-buttons { position: fixed; top: 15px; right: 15px; z-index: 1000; display: flex; gap: 10px; }
-.theme-btn, .header-btn { position: static; width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--border-color); background-color: var(--card-bg-color); color: var(--text-color); font-size: 1.5rem; cursor: pointer; display: flex; justify-content: center; align-items: center; }
-.header-btn { font-size: 1.8rem; }
+body.flash-success { background-color: #16A34A; }
+body.flash-error { background-color: #DC2626; }
+
+/* Corrección para el contraste del título durante el flash */
+body.flash-success h1,
+body.flash-error h1 {
+    color: white;
+}
+
+
+/* --- 3. Notificación Toast --- */
 .toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); padding: 20px 30px; border-radius: 10px; color: white; font-weight: bold; font-size: 1.2rem; min-width: 320px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 2000; opacity: 0; border: 2px solid rgba(255, 255, 255, 0.7); transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; }
 .toast.show { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 .toast.success { background-color: var(--success-color); }
 .toast.error { background-color: var(--error-color); }
 
+
 /* --- 4. Contenido Principal y Formularios Base --- */
-#main-content { width: 100%; min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 80px 20px 20px 20px; }
+#main-content { width: 100%; min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 20px; }
 .container { max-width: 500px; width: 100%; }
-
-/* --- CAMBIO REALIZADO AQUÍ --- */
-h1 { text-align: center; margin-bottom: 30px; color: var(--primary-color); } /* Margen aumentado de 10px a 30px */
-
+h1 { text-align: center; margin-bottom: 30px; color: var(--primary-color); }
 h2, h3 { margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
 label { display: block; margin-top: 15px; margin-bottom: 5px; font-weight: bold; }
 input[type="text"], input[type="file"], input[type="email"], input[type="password"] { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1rem; background-color: var(--input-bg-color); color: var(--input-text-color); }
@@ -57,149 +67,40 @@ input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0
 button:disabled { background-color: #a0a0a0; cursor: not-allowed; }
 .feedback.error { background-color: #f8d7da; color: #842029; padding: 12px; margin-bottom: 15px; border-radius: 6px; text-align: center; font-weight: bold; }
 
+
 /* --- 5. Barra de Navegación --- */
+.navbar { background-color: var(--card-bg-color); box-shadow: 0 2px 8px var(--shadow-color); padding: 0 20px; position: fixed; top: 0; left: 0; width: 100%; z-index: 999; }
+.nav-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; height: 60px; }
+.nav-brand { font-weight: 700; font-size: 1.3rem; color: var(--primary-color); text-decoration: none; }
+.nav-links { list-style: none; position: fixed; top: 60px; left: 0; width: 100%; height: calc(100vh - 60px); background-color: var(--bg-color); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; transform: translateX(-100%); transition: transform 0.3s ease-in-out; }
+body.nav-open .nav-links { transform: translateX(0); }
+.nav-link { text-decoration: none; color: var(--text-color); font-size: 1.5rem; font-weight: 500; padding: 10px 20px; border-radius: 8px; transition: background-color 0.2s, color 0.2s; }
+.hamburger { display: flex; flex-direction: column; justify-content: space-around; width: 30px; height: 25px; background: transparent; border: none; cursor: pointer; padding: 0; z-index: 10; }
+.nav-controls { display: flex; align-items: center; gap: 10px; }
+.nav-control-btn { background: transparent; border: none; cursor: pointer; padding: 5px; border-radius: 5px; transition: background-color 0.2s; display: flex; align-items: center; justify-content: center; }
+.nav-control-btn:hover { background-color: var(--input-bg-color); }
+#theme-toggle.theme-btn { font-size: 1.5rem; line-height: 1; }
 
-/* Contenedor principal de la barra */
-.navbar {
-    background-color: var(--card-bg-color);
-    box-shadow: 0 2px 8px var(--shadow-color);
-    padding: 0 20px;
-    position: fixed; /* La dejamos fija en la parte superior */
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 999; /* Por debajo de los botones de header y toast */
-}
-
-.nav-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-    height: 60px; /* Altura de la barra */
-}
-
-.nav-brand {
-    font-weight: 700;
-    font-size: 1.3rem;
-    color: var(--primary-color);
-    text-decoration: none;
-}
-
-/* --- Menú de enlaces (Móvil primero) --- */
-.nav-links {
-    list-style: none;
-    position: fixed;
-    top: 60px; /* Debajo de la barra */
-    left: 0;
-    width: 100%;
-    height: calc(100vh - 60px);
-    background-color: var(--bg-color);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    transform: translateX(-100%); /* Oculto por defecto */
-    transition: transform 0.3s ease-in-out;
-}
-
-/* Cuando el menú está abierto */
-body.nav-open .nav-links {
-    transform: translateX(0);
-}
-
-.nav-link {
-    text-decoration: none;
-    color: var(--text-color);
-    font-size: 1.5rem; /* Letra grande para móvil */
-    font-weight: 500;
-    padding: 10px 20px;
-    border-radius: 8px;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-/* --- Icono de Hamburguesa --- */
-.hamburger {
-    display: flex; /* Visible en móvil */
-    flex-direction: column;
-    justify-content: space-around;
-    width: 30px;
-    height: 25px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    z-index: 10;
-}
-
-.hamburger span {
-    width: 100%;
-    height: 3px;
-    background-color: var(--text-color);
-    border-radius: 5px;
-    transition: all 0.3s linear;
-}
-
-/* Animación de la hamburguesa a "X" */
-body.nav-open .hamburger span:nth-child(1) {
-    transform: rotate(45deg) translate(6px, 6px);
-}
-body.nav-open .hamburger span:nth-child(2) {
-    opacity: 0;
-}
-body.nav-open .hamburger span:nth-child(3) {
-    transform: rotate(-45deg) translate(6px, -6px);
-}
-
-/* --- Estilos para Escritorio (a partir de 768px) --- */
 @media (min-width: 768px) {
-    .hamburger {
-        display: none; /* Ocultamos la hamburguesa */
-    }
-
-    .nav-links {
-        position: static; /* Devolvemos al flujo normal */
-        flex-direction: row;
-        height: auto;
-        width: auto;
-        background-color: transparent;
-        transform: none; /* Quitamos la transformación */
-        gap: 10px;
-    }
-
-    .nav-link {
-        font-size: 1rem; /* Tamaño normal para escritorio */
-    }
-
-    .nav-container {
-        justify-content: center; /* Centramos el contenido */
-    }
-    
-    .nav-brand {
-        position: absolute; /* Posicionamos la marca a la izquierda */
-        left: 20px;
-    }
+    .hamburger { display: none; }
+    .nav-links { position: static; flex-direction: row; height: auto; width: auto; background-color: transparent; transform: none; gap: 10px; }
+    .nav-link { font-size: 1rem; }
+    .nav-container { justify-content: space-between; }
+    .nav-brand { position: static; }
 }
 
-/* --- Estilos de los enlaces (comunes para ambas vistas) --- */
-.nav-link:hover {
-    background-color: var(--input-bg-color);
-}
+.nav-link:hover:not(.disabled) { background-color: var(--input-bg-color); }
+.nav-link.disabled { color: var(--border-color); cursor: not-allowed; background-color: transparent; }
+.nav-link.active { background-color: var(--primary-color); color: white; }
 
-.nav-link.disabled {
-    color: var(--border-color);
-    cursor: not-allowed;
-    background-color: transparent;
-}
 
-.nav-link.active {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-/* Ajuste para que el contenido no quede debajo de la barra fija */
-body {
-    padding-top: 80px;
-}
+/* --- 6. Estilos para Iconos Personalizados --- */
+.nav-control-btn img, .hamburger img { width: 28px; height: 28px; vertical-align: middle; }
+.icon-dark { display: none; }
+.icon-light { display: block; }
+body.dark-mode .icon-dark { display: block; }
+body.dark-mode .icon-light { display: none; }
+.icon-close { display: none; }
+.icon-menu { display: block; }
+body.nav-open .icon-close { display: block; }
+body.nav-open .icon-menu { display: none; }
