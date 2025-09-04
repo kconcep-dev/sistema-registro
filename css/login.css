@@ -178,3 +178,33 @@ body.dark-mode .login-container {
     visibility: hidden;
     pointer-events: none;
 }
+
+/* === AJUSTES FINALES PARA LOGIN.HTML === */
+
+/* 1. Corregimos el espacio superior innecesario */
+body {
+    padding-top: 0;
+}
+
+/* 2. Posicionamos correctamente el contenedor de botones */
+.header-buttons {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 1000;
+}
+
+/* 3. Le damos el tamaño y estilo correctos al botón de tema */
+#login-theme-toggle {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg-color);
+    color: var(--text-color);
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
