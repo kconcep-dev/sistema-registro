@@ -10,7 +10,6 @@ const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 const navbarHTML = `
     <nav class="navbar">
         <div class="nav-container">
-            <a href="inicio.html" class="nav-brand">Registro STI</a>
             
             <ul class="nav-links" id="nav-menu">
                 <li class="nav-item"><a href="inicio.html" class="nav-link">🏠 Inicio</a></li>

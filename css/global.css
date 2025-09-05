@@ -317,6 +317,13 @@ body.nav-open .nav-links {
         padding-top: 0; /* Reseteamos el padding */
     }
     
+    /* Ajustamos el tamaño de los iconos solo para escritorio */
+    .nav-control-btn img,
+    .hamburger img {
+        width: 32px; /* <-- Nuevo tamaño para PC */
+        height: 32px; /* <-- Nuevo tamaño para PC */
+    }
+
     .nav-link {
         font-size: 1rem;
     }
