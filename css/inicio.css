@@ -13,3 +13,13 @@
     .container { max-width: 1000px; }
     .dashboard-grid { grid-template-columns: repeat(3, 1fr); }
 }
+
+/* --- Estilos solo para Escritorio --- */
+@media (min-width: 768px) {
+    #main-content {
+        /* Ajusta este valor para cambiar el espacio 
+           superior en la página de INICIO.
+        */
+        padding-top: 40px;
+    }
+}

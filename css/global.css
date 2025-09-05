@@ -297,11 +297,6 @@ body.nav-open .nav-links {
         padding-top: 80px;
     }
 
-    #main-content {
-        /* CAMBIO: Eliminamos el padding superior extra solo en escritorio */
-        padding-top: 0;
-    }
-
     .navbar {
         top: 15px;
         height: 60px;
