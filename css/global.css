@@ -187,27 +187,9 @@ button:disabled {
 }
 
 /* --- CONTENEDOR PARA ICONOS DE LOGOUT Y TEMA --- */
+/* CAMBIO: Ocultamos los botones por defecto (en móvil) */
 #header-buttons {
-    position: fixed;
-    top: 15px;
-    right: 15px;
-    z-index: 1000;
-    display: flex;
-    gap: 10px;
-}
-
-.header-btn, .theme-btn {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    border: 1px solid var(--border-color);
-    background-color: var(--card-bg-color);
-    color: var(--text-color);
-    font-size: 1.5rem;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: none;
 }
 
 /* --- 5. Barra de Navegación --- */
@@ -291,6 +273,30 @@ body.nav-open .nav-links {
         padding-top: 20px;
     }
 
+    /* CAMBIO: Mostramos los botones de logout/tema solo en escritorio */
+    #header-buttons {
+        display: flex; /* <-- Lo hacemos visible */
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        z-index: 1000;
+        gap: 10px;
+    }
+
+    .header-btn, .theme-btn {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        border: 1px solid var(--border-color);
+        background-color: var(--card-bg-color);
+        color: var(--text-color);
+        font-size: 1.5rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
     .navbar {
         top: 15px;
         height: 60px;
@@ -354,7 +360,6 @@ body.nav-open .nav-links {
 .icon-dark {
     display: block;
 }
-
 .icon-light {
     display: none;
 }
@@ -362,7 +367,6 @@ body.nav-open .nav-links {
 body.dark-mode .icon-dark {
     display: none;
 }
-
 body.dark-mode .icon-light {
     display: block;
 }
@@ -370,7 +374,6 @@ body.dark-mode .icon-light {
 .icon-close {
     display: none;
 }
-
 .icon-menu {
     display: block;
 }
