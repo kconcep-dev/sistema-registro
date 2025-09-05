@@ -214,6 +214,7 @@ button:disabled {
     text-decoration: none;
 }
 
+/* --- Estilos del Menú Móvil --- */
 .nav-links {
     list-style: none;
     position: fixed;
@@ -225,7 +226,7 @@ button:disabled {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    padding-top: 40px; /* Damos espacio arriba */
     gap: 20px;
     transform: translateX(-100%);
     transition: transform 0.3s ease-in-out;
@@ -243,6 +244,20 @@ body.nav-open .nav-links {
     padding: 10px 20px;
     border-radius: 8px;
     transition: background-color 0.2s, color 0.2s;
+}
+
+/* --- NUEVOS ESTILOS --- */
+.nav-separator {
+    border-bottom: 1px solid var(--border-color);
+    width: 80%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.nav-item-controls {
+    display: flex;
+    gap: 20px;
+    align-items: center;
 }
 
 .hamburger {
@@ -285,10 +300,12 @@ body.nav-open .nav-links {
     line-height: 1;
 }
 
+/* --- Estilos para Escritorio --- */
 @media (min-width: 768px) {
     .hamburger {
-        display: none;
+        display: none; /* Ocultamos la hamburguesa */
     }
+    
     .nav-links {
         position: static;
         flex-direction: row;
@@ -297,15 +314,25 @@ body.nav-open .nav-links {
         background-color: transparent;
         transform: none;
         gap: 10px;
+        padding-top: 0; /* Reseteamos el padding */
     }
+    
     .nav-link {
         font-size: 1rem;
     }
+    
     .nav-container {
         justify-content: space-between;
     }
-    .nav-brand {
-        position: static;
+
+    /* --- NUEVOS ESTILOS PARA ESCRITORIO --- */
+    .nav-separator {
+        display: none; /* Ocultamos el separador en escritorio */
+    }
+
+    .nav-item-controls {
+        margin-left: auto; /* Magia de Flexbox: empuja esto y lo que le sigue a la derecha */
+        padding-left: 20px; /* Damos un poco de espacio */
     }
 }
 
@@ -327,13 +354,11 @@ body.nav-open .nav-links {
 /* --- 6. Estilos para Iconos Personalizados --- */
 .nav-control-btn img,
 .hamburger img {
-    /* --- CAMBIO REALIZADO AQUÍ --- */
-    width: 45px;
-    height: 45px;
+    width: 30px;
+    height: 30px;
     vertical-align: middle;
 }
 
-/* Lógica de iconos claro/oscuro */
 .icon-dark {
     display: block;
 }
@@ -348,7 +373,6 @@ body.dark-mode .icon-light {
     display: block;
 }
 
-/* Lógica para icono de menú */
 .icon-close {
     display: none;
 }
