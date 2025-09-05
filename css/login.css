@@ -196,13 +196,13 @@ body {
 
 /* 3. Le damos el tamaño y estilo correctos al botón de tema */
 #login-theme-toggle {
-    width: 43px;
-    height: 43px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     border: 1px solid var(--border-color);
     background-color: var(--card-bg-color);
     color: var(--text-color);
-    font-size: 1.7rem;
+    font-size: 1.5rem;
     cursor: pointer;
     display: flex;
     justify-content: center;
