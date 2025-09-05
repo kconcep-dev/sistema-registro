@@ -37,7 +37,8 @@ body {
     background-color: var(--bg-color);
     color: var(--text-color);
     transition: background-color 0.2s ease-in-out;
-    padding-top: 80px;
+    /* CAMBIO: Eliminamos el padding superior por defecto para la vista móvil */
+    padding-top: 0;
 }
 
 .loader-wrapper {
@@ -124,7 +125,8 @@ body.flash-error h1 {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    padding: 20px;
+    /* CAMBIO: Añadimos padding aquí para que el contenido no quede pegado al borde superior */
+    padding: 80px 20px 20px 20px;
 }
 
 .container {
@@ -187,20 +189,23 @@ button:disabled {
 }
 
 /* --- 5. Barra de Navegación --- */
+/* CAMBIO: Barra transparente y sin sombra en móvil */
 .navbar {
-    background-color: var(--card-bg-color);
-    box-shadow: 0 2px 8px var(--shadow-color);
+    background-color: transparent;
+    box-shadow: none;
     padding: 0 15px;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     z-index: 999;
+    transition: background-color 0.3s ease;
 }
 
+/* CAMBIO: Alinea la hamburguesa a la derecha en móvil */
 .nav-container {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end; 
     align-items: center;
     max-width: 1200px;
     margin: 0 auto;
@@ -214,7 +219,6 @@ button:disabled {
     text-decoration: none;
 }
 
-/* --- Estilos del Menú Móvil --- */
 .nav-links {
     list-style: none;
     position: fixed;
@@ -226,7 +230,7 @@ button:disabled {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 40px; /* Damos espacio arriba */
+    padding-top: 40px;
     gap: 20px;
     transform: translateX(-100%);
     transition: transform 0.3s ease-in-out;
@@ -246,7 +250,6 @@ body.nav-open .nav-links {
     transition: background-color 0.2s, color 0.2s;
 }
 
-/* --- NUEVOS ESTILOS --- */
 .nav-separator {
     border-bottom: 1px solid var(--border-color);
     width: 80%;
@@ -302,10 +305,31 @@ body.nav-open .nav-links {
 
 /* --- Estilos para Escritorio --- */
 @media (min-width: 768px) {
-    .hamburger {
-        display: none; /* Ocultamos la hamburguesa */
+    /* CAMBIO: Devolvemos el padding superior solo en escritorio */
+    body {
+        padding-top: 80px;
+    }
+
+    /* CAMBIO: El contenido principal ya no necesita el padding extra en escritorio */
+    #main-content {
+        padding-top: 20px;
+    }
+
+    /* CAMBIO: Devolvemos el fondo y la sombra a la barra en escritorio */
+    .navbar {
+        background-color: var(--card-bg-color);
+        box-shadow: 0 2px 8px var(--shadow-color);
     }
     
+    /* CAMBIO: Restauramos la alineación para escritorio (para cuando vuelvas a poner el brand) */
+    .nav-container {
+        justify-content: space-between;
+    }
+
+    .hamburger {
+        display: none;
+    }
+
     .nav-links {
         position: static;
         flex-direction: row;
@@ -314,32 +338,26 @@ body.nav-open .nav-links {
         background-color: transparent;
         transform: none;
         gap: 10px;
-        padding-top: 0; /* Reseteamos el padding */
+        padding-top: 0;
     }
-    
-    /* Ajustamos el tamaño de los iconos solo para escritorio */
+
     .nav-control-btn img,
     .hamburger img {
-        width: 32px; /* <-- Nuevo tamaño para PC */
-        height: 32px; /* <-- Nuevo tamaño para PC */
+        width: 32px;
+        height: 32px;
     }
 
     .nav-link {
         font-size: 1rem;
     }
-    
-    .nav-container {
-        justify-content: space-between;
-    }
 
-    /* --- NUEVOS ESTILOS PARA ESCRITORIO --- */
     .nav-separator {
-        display: none; /* Ocultamos el separador en escritorio */
+        display: none;
     }
 
     .nav-item-controls {
-        margin-left: auto; /* Magia de Flexbox: empuja esto y lo que le sigue a la derecha */
-        padding-left: 20px; /* Damos un poco de espacio */
+        margin-left: auto;
+        padding-left: 20px;
     }
 }
 
@@ -359,17 +377,15 @@ body.nav-open .nav-links {
 }
 
 /* --- 6. Estilos para Iconos Personalizados --- */
-/* Estilo para el icono de logout (y otros botones de control) */
 .nav-control-btn img {
-    width: 30px; /* Este es el tamaño ideal que te gusta */
+    width: 30px;
     height: 30px;
     vertical-align: middle;
 }
 
-/* Estilo INDEPENDIENTE para la hamburguesa y la 'X' */
 .hamburger img {
-    width: 26px; /* <-- Aquí puedes poner el nuevo tamaño */
-    height: 26px; /* <-- y aquí */
+    width: 26px;
+    height: 26px;
     vertical-align: middle;
 }
 
