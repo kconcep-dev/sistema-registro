@@ -123,7 +123,7 @@ body.flash-error h1 {
     min-height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
     padding: 80px 20px 20px 20px;
 }
 
@@ -186,12 +186,6 @@ button:disabled {
     font-weight: bold;
 }
 
-/* --- CONTENEDOR PARA ICONOS DE LOGOUT Y TEMA --- */
-/* CAMBIO: Ocultamos los botones por defecto (en móvil) */
-#header-buttons {
-    display: none;
-}
-
 /* --- 5. Barra de Navegación --- */
 .navbar {
     background-color: transparent;
@@ -244,6 +238,19 @@ body.nav-open .nav-links {
     transition: background-color 0.2s, color 0.2s;
 }
 
+.nav-separator {
+    border-bottom: 1px solid var(--border-color);
+    width: 80%;
+    margin: 10px 0;
+}
+
+.nav-item-controls {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-top: 20px;
+}
+
 .hamburger {
     display: flex;
     flex-direction: column;
@@ -260,41 +267,34 @@ body.nav-open .nav-links {
 .nav-controls {
     display: flex;
     align-items: center;
-    gap: 10px;
+}
+
+.nav-control-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-control-btn:hover {
+    background-color: var(--input-bg-color);
+}
+
+#theme-toggle.theme-btn {
+    font-size: 2rem;
+    width: 45px;
+    height: 45px;
 }
 
 /* --- Estilos para Escritorio --- */
 @media (min-width: 768px) {
     body {
         padding-top: 80px;
-    }
-
-    #main-content {
-        padding-top: 20px;
-    }
-
-    /* CAMBIO: Mostramos los botones de logout/tema solo en escritorio */
-    #header-buttons {
-        display: flex; /* <-- Lo hacemos visible */
-        position: fixed;
-        top: 15px;
-        right: 15px;
-        z-index: 1000;
-        gap: 10px;
-    }
-
-    .header-btn, .theme-btn {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        border: 1px solid var(--border-color);
-        background-color: var(--card-bg-color);
-        color: var(--text-color);
-        font-size: 1.5rem;
-        cursor: pointer;
-        display: flex;
-        justify-content: center;
-        align-items: center;
     }
 
     .navbar {
@@ -305,6 +305,7 @@ body.nav-open .nav-links {
     .nav-container {
         justify-content: center;
         height: 100%;
+        position: relative;
     }
 
     .nav-links {
@@ -327,6 +328,26 @@ body.nav-open .nav-links {
     .nav-controls {
         display: none;
     }
+
+    .nav-separator {
+        display: none;
+    }
+
+    .nav-item-controls {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        margin-top: 0;
+    }
+
+    #theme-toggle.theme-btn {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        border: 1px solid var(--border-color);
+        background-color: var(--card-bg-color);
+    }
 }
 
 .nav-link:hover:not(.disabled) {
@@ -345,9 +366,9 @@ body.nav-open .nav-links {
 }
 
 /* --- 6. Estilos para Iconos Personalizados --- */
-#header-buttons img {
-    width: 28px;
-    height: 28px;
+.nav-control-btn img {
+    width: 30px;
+    height: 30px;
     vertical-align: middle;
 }
 
@@ -360,6 +381,7 @@ body.nav-open .nav-links {
 .icon-dark {
     display: block;
 }
+
 .icon-light {
     display: none;
 }
@@ -367,6 +389,7 @@ body.nav-open .nav-links {
 body.dark-mode .icon-dark {
     display: none;
 }
+
 body.dark-mode .icon-light {
     display: block;
 }
@@ -374,6 +397,7 @@ body.dark-mode .icon-light {
 .icon-close {
     display: none;
 }
+
 .icon-menu {
     display: block;
 }

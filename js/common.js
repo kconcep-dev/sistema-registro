@@ -6,7 +6,6 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
 // --- 2. INYECTOR DE BARRA DE NAVEGACIÓN (CENTRALIZADO) ---
-// El HTML de nuestro navbar vive aquí, en un solo lugar.
 const navbarHTML = `
     <nav class="navbar">
         <div class="nav-container">
@@ -15,6 +14,16 @@ const navbarHTML = `
                 <li class="nav-item"><a href="index.html" class="nav-link">📝 Registrar</a></li>
                 <li class="nav-item"><a href="#" class="nav-link disabled">🗑️ Descartes</a></li>
                 <li class="nav-item"><a href="#" class="nav-link disabled">📊 Consultar</a></li>
+                
+                <li class="nav-separator"></li>
+
+                <li class="nav-item nav-item-controls">
+                    <button id="theme-toggle" class="theme-btn nav-control-btn" title="Cambiar Tema">🌙</button>
+                    <button id="logout-btn" class="header-btn nav-control-btn" title="Cerrar Sesión">
+                        <img src="assets/images/icono-logout-dark.png" alt="Cerrar Sesión" class="icon-dark">
+                        <img src="assets/images/icono-logout-light.png" alt="Cerrar Sesión" class="icon-light">
+                    </button>
+                </li>
             </ul>
 
             <div class="nav-controls">
@@ -25,7 +34,7 @@ const navbarHTML = `
                     </div>
                     <div class="icon-close">
                         <img src="assets/images/icono-cerrar-light.png" alt="Cerrar menú" class="icon-light">
-                        <img src="assets-images/icono-cerrar-dark.png" alt="Cerrar menú" class="icon-dark">
+                        <img src="assets/images/icono-cerrar-dark.png" alt="Cerrar menú" class="icon-dark">
                     </div>
                 </button>
             </div>
