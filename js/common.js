@@ -11,18 +11,25 @@ const navbarHTML = `
     <nav class="navbar">
         <div class="nav-container">
             <a href="inicio.html" class="nav-brand">Registro STI</a>
+            
             <ul class="nav-links" id="nav-menu">
                 <li class="nav-item"><a href="inicio.html" class="nav-link">🏠 Inicio</a></li>
                 <li class="nav-item"><a href="index.html" class="nav-link">📝 Registrar</a></li>
                 <li class="nav-item"><a href="#" class="nav-link disabled">🗑️ Descartes</a></li>
                 <li class="nav-item"><a href="#" class="nav-link disabled">📊 Consultar</a></li>
+                
+                <li class="nav-separator"></li>
+
+                <li class="nav-item nav-item-controls">
+                    <button id="theme-toggle" class="theme-btn nav-control-btn" title="Cambiar Tema">🌙</button>
+                    <button id="logout-btn" class="header-btn nav-control-btn" title="Cerrar Sesión">
+                        <img src="assets/images/icono-logout-dark.png" alt="Cerrar Sesión" class="icon-dark">
+                        <img src="assets/images/icono-logout-light.png" alt="Cerrar Sesión" class="icon-light">
+                    </button>
+                </li>
             </ul>
+
             <div class="nav-controls">
-                <button id="logout-btn" class="header-btn nav-control-btn" title="Cerrar Sesión">
-                    <img src="assets/images/icono-logout-light.png" alt="Cerrar Sesión" class="icon-light">
-                    <img src="assets/images/icono-logout-dark.png" alt="Cerrar Sesión" class="icon-dark">
-                </button>
-                <button id="theme-toggle" class="theme-btn nav-control-btn" title="Cambiar Tema">🌙</button>
                 <button class="hamburger" id="hamburger-btn" aria-label="Abrir menú">
                     <div class="icon-menu">
                         <img src="assets/images/icono-menu-light.png" alt="Abrir menú" class="icon-light">
