@@ -37,7 +37,6 @@ body {
     background-color: var(--bg-color);
     color: var(--text-color);
     transition: background-color 0.2s ease-in-out;
-    /* CAMBIO: Eliminamos el padding superior por defecto para la vista móvil */
     padding-top: 0;
 }
 
@@ -125,7 +124,6 @@ body.flash-error h1 {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    /* CAMBIO: Añadimos padding aquí para que el contenido no quede pegado al borde superior */
     padding: 80px 20px 20px 20px;
 }
 
@@ -188,8 +186,31 @@ button:disabled {
     font-weight: bold;
 }
 
+/* --- CONTENEDOR PARA ICONOS DE LOGOUT Y TEMA --- */
+#header-buttons {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 1000;
+    display: flex;
+    gap: 10px;
+}
+
+.header-btn, .theme-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg-color);
+    color: var(--text-color);
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 /* --- 5. Barra de Navegación --- */
-/* CAMBIO: Barra transparente y sin sombra en móvil */
 .navbar {
     background-color: transparent;
     box-shadow: none;
@@ -199,38 +220,29 @@ button:disabled {
     left: 0;
     width: 100%;
     z-index: 999;
-    transition: background-color 0.3s ease;
 }
 
-/* CAMBIO: Alinea la hamburguesa a la derecha en móvil */
 .nav-container {
     display: flex;
-    justify-content: flex-end; 
+    justify-content: flex-end;
     align-items: center;
     max-width: 1200px;
     margin: 0 auto;
     height: 60px;
 }
 
-.nav-brand {
-    font-weight: 700;
-    font-size: 1.3rem;
-    color: var(--primary-color);
-    text-decoration: none;
-}
-
 .nav-links {
     list-style: none;
     position: fixed;
-    top: 60px;
+    top: 0;
     left: 0;
     width: 100%;
-    height: calc(100vh - 60px);
+    height: 100vh;
     background-color: var(--bg-color);
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 40px;
+    justify-content: center;
     gap: 20px;
     transform: translateX(-100%);
     transition: transform 0.3s ease-in-out;
@@ -248,19 +260,6 @@ body.nav-open .nav-links {
     padding: 10px 20px;
     border-radius: 8px;
     transition: background-color 0.2s, color 0.2s;
-}
-
-.nav-separator {
-    border-bottom: 1px solid var(--border-color);
-    width: 80%;
-    margin-top: 20px;
-    margin-bottom: 20px;
-}
-
-.nav-item-controls {
-    display: flex;
-    gap: 20px;
-    align-items: center;
 }
 
 .hamburger {
@@ -282,52 +281,24 @@ body.nav-open .nav-links {
     gap: 10px;
 }
 
-.nav-control-btn {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 5px;
-    transition: background-color 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.nav-control-btn:hover {
-    background-color: var(--input-bg-color);
-}
-
-#theme-toggle.theme-btn {
-    font-size: 1.5rem;
-    line-height: 1;
-}
-
 /* --- Estilos para Escritorio --- */
 @media (min-width: 768px) {
-    /* CAMBIO: Devolvemos el padding superior solo en escritorio */
     body {
         padding-top: 80px;
     }
 
-    /* CAMBIO: El contenido principal ya no necesita el padding extra en escritorio */
     #main-content {
         padding-top: 20px;
     }
 
-    /* CAMBIO: Devolvemos el fondo y la sombra a la barra en escritorio */
     .navbar {
-        background-color: var(--card-bg-color);
-        box-shadow: 0 2px 8px var(--shadow-color);
-    }
-    
-    /* CAMBIO: Restauramos la alineación para escritorio (para cuando vuelvas a poner el brand) */
-    .nav-container {
-        justify-content: space-between;
+        top: 15px;
+        height: 60px;
     }
 
-    .hamburger {
-        display: none;
+    .nav-container {
+        justify-content: center;
+        height: 100%;
     }
 
     .nav-links {
@@ -335,29 +306,20 @@ body.nav-open .nav-links {
         flex-direction: row;
         height: auto;
         width: auto;
-        background-color: transparent;
         transform: none;
         gap: 10px;
-        padding-top: 0;
+        background-color: var(--card-bg-color);
+        box-shadow: 0 4px 12px var(--shadow-color);
+        padding: 10px;
+        border-radius: 999px;
     }
-
-    .nav-control-btn img,
-    .hamburger img {
-        width: 32px;
-        height: 32px;
-    }
-
+    
     .nav-link {
         font-size: 1rem;
     }
 
-    .nav-separator {
+    .nav-controls {
         display: none;
-    }
-
-    .nav-item-controls {
-        margin-left: auto;
-        padding-left: 20px;
     }
 }
 
@@ -377,9 +339,9 @@ body.nav-open .nav-links {
 }
 
 /* --- 6. Estilos para Iconos Personalizados --- */
-.nav-control-btn img {
-    width: 30px;
-    height: 30px;
+#header-buttons img {
+    width: 28px;
+    height: 28px;
     vertical-align: middle;
 }
 
@@ -392,6 +354,7 @@ body.nav-open .nav-links {
 .icon-dark {
     display: block;
 }
+
 .icon-light {
     display: none;
 }
@@ -399,6 +362,7 @@ body.nav-open .nav-links {
 body.dark-mode .icon-dark {
     display: none;
 }
+
 body.dark-mode .icon-light {
     display: block;
 }
@@ -406,12 +370,15 @@ body.dark-mode .icon-light {
 .icon-close {
     display: none;
 }
+
 .icon-menu {
     display: block;
 }
+
 body.nav-open .icon-close {
     display: block;
 }
+
 body.nav-open .icon-menu {
     display: none;
 }

@@ -10,22 +10,11 @@ const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 const navbarHTML = `
     <nav class="navbar">
         <div class="nav-container">
-            
             <ul class="nav-links" id="nav-menu">
                 <li class="nav-item"><a href="inicio.html" class="nav-link">🏠 Inicio</a></li>
                 <li class="nav-item"><a href="index.html" class="nav-link">📝 Registrar</a></li>
                 <li class="nav-item"><a href="#" class="nav-link disabled">🗑️ Descartes</a></li>
                 <li class="nav-item"><a href="#" class="nav-link disabled">📊 Consultar</a></li>
-                
-                <li class="nav-separator"></li>
-
-                <li class="nav-item nav-item-controls">
-                    <button id="theme-toggle" class="theme-btn nav-control-btn" title="Cambiar Tema">🌙</button>
-                    <button id="logout-btn" class="header-btn nav-control-btn" title="Cerrar Sesión">
-                        <img src="assets/images/icono-logout-dark.png" alt="Cerrar Sesión" class="icon-dark">
-                        <img src="assets/images/icono-logout-light.png" alt="Cerrar Sesión" class="icon-light">
-                    </button>
-                </li>
             </ul>
 
             <div class="nav-controls">
@@ -36,7 +25,7 @@ const navbarHTML = `
                     </div>
                     <div class="icon-close">
                         <img src="assets/images/icono-cerrar-light.png" alt="Cerrar menú" class="icon-light">
-                        <img src="assets/images/icono-cerrar-dark.png" alt="Cerrar menú" class="icon-dark">
+                        <img src="assets-images/icono-cerrar-dark.png" alt="Cerrar menú" class="icon-dark">
                     </div>
                 </button>
             </div>
@@ -55,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- LÓGICA DEL TEMA ---
     const themeToggleBtn = document.getElementById('theme-toggle');
-    if (themeToggleBtn) { 
+    if (themeToggleBtn) {
         // Aplicar tema guardado al cargar la página
         if (localStorage.getItem('theme') === 'dark') {
             document.body.classList.add('dark-mode');
@@ -78,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'login.html';
         });
     }
-    
+
     // --- LÓGICA DE NAVEGACIÓN (HAMBURGUESA) ---
     const hamburgerBtn = document.getElementById('hamburger-btn');
     if (hamburgerBtn) {
@@ -100,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- TEMPORIZADOR DE INACTIVIDAD ---
     let inactivityTimer;
     const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutos
-    
+
     async function logoutUser() {
         alert("Cerrando sesión por inactividad...");
         await supabaseClient.auth.signOut();
@@ -111,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTimeout(inactivityTimer);
         inactivityTimer = setTimeout(logoutUser, INACTIVITY_TIMEOUT);
     }
-    
+
     if (window.location.pathname.includes('index.html') || window.location.pathname.includes('inicio.html')) {
         window.onload = resetInactivityTimer;
         document.onmousemove = resetInactivityTimer;
