@@ -352,10 +352,17 @@ body.nav-open .nav-links {
 }
 
 /* --- 6. Estilos para Iconos Personalizados --- */
-.nav-control-btn img,
-.hamburger img {
-    width: 30px;
+/* Estilo para el icono de logout (y otros botones de control) */
+.nav-control-btn img {
+    width: 30px; /* Este es el tamaño ideal que te gusta */
     height: 30px;
+    vertical-align: middle;
+}
+
+/* Estilo INDEPENDIENTE para la hamburguesa y la 'X' */
+.hamburger img {
+    width: 26px; /* <-- Aquí puedes poner el nuevo tamaño */
+    height: 26px; /* <-- y aquí */
     vertical-align: middle;
 }
 
