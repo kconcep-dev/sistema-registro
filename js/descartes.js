@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSessionId = null;
     let equiposCounter = 0;
     let toastTimeout;
-    const VIEW_STORAGE_KEY = 'descarteViewActive'; // Bandera para la vista
+    const VIEW_STORAGE_KEY = 'descarteViewActive';
 
     // --- 3. FUNCIONES AUXILIARES ---
 
@@ -37,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
-    // NUEVO: Lógica refinada para 'trabajo en progreso'
     function updateWorkInProgress() {
         const hasInputText = Array.from(formInputs).some(input => input.value.trim() !== '') || observacionInput.value.trim() !== '';
         window.isWorkInProgress = equiposCounter > 0 || hasInputText;
@@ -46,15 +45,16 @@ document.addEventListener('DOMContentLoaded', () => {
     window.clearWorkInProgress = () => {
         window.isWorkInProgress = false;
         sessionStorage.removeItem(VIEW_STORAGE_KEY);
-        // Resetea la UI a su estado inicial
-        currentSessionId = null;
-        equiposCounter = 0;
-        contadorEquiposSpan.textContent = '0';
-        tablaEquiposBody.innerHTML = '';
-        formEquipo.reset();
-        observacionInput.value = '';
-        inicioSection.style.display = 'flex';
-        registroSection.style.display = 'none';
+        if (window.location.pathname.includes('descartes.html')) {
+            currentSessionId = null;
+            equiposCounter = 0;
+            contadorEquiposSpan.textContent = '0';
+            tablaEquiposBody.innerHTML = '';
+            formEquipo.reset();
+            observacionInput.value = '';
+            inicioSection.style.display = 'flex';
+            registroSection.style.display = 'none';
+        }
     };
 
     function renderEquipoEnTabla(equipo, numero) {
@@ -85,6 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modalSesion.style.display = 'none';
     });
 
+    // CORRECCIÓN DEFINITIVA AQUÍ
     formNuevaSesion.addEventListener('submit', async (e) => {
         e.preventDefault();
         const unidadAdministrativa = inputUA.value.trim();
@@ -95,18 +96,37 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.textContent = 'Creando Sesión...';
 
         try {
-            // Lógica para crear la sesión en Supabase...
-            const { data, error } = await supabaseClient.from('descartes_sesiones').insert({ unidad_administrativa: unidadAdministrativa }).select().single();
-            if (error) throw error;
-            currentSessionId = data.id;
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) throw new Error("No se pudo obtener el usuario.");
+            
+            const tecnico = await (async () => {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) return 'Desconocido';
+                const userMappings = { 'concepcion.kelieser@gmail.com': 'Kevin' };
+                return userMappings[user.email] || user.email.split('@')[0];
+            })();
+            
+            const fecha = new Date().toISOString().split('T')[0];
+            
+            // Este es el objeto completo que la base de datos necesita
+            const nuevaSesion = {
+                unidad_administrativa: unidadAdministrativa,
+                tecnico_encargado: tecnico,
+                fecha: fecha,
+                user_id: user.id
+            };
 
-            sessionStorage.setItem(VIEW_STORAGE_KEY, 'true'); // Activa la bandera de la vista
+            const { data, error } = await supabaseClient.from('descartes_sesiones').insert(nuevaSesion).select().single();
+            if (error) throw error;
+
+            currentSessionId = data.id;
+            sessionStorage.setItem(VIEW_STORAGE_KEY, 'true');
             
             inicioSection.style.display = 'none';
             registroSection.style.display = 'flex';
             modalSesion.style.display = 'none';
             formNuevaSesion.reset();
-            updateWorkInProgress(); // Verifica el estado inicial (que será 'false')
+            updateWorkInProgress();
         } catch (error) {
             console.error('Error creando la sesión:', error);
             showToast('No se pudo crear la sesión.', 'error');
@@ -115,6 +135,8 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.textContent = 'Crear Sesión';
         }
     });
+    
+    // ... (El resto del código permanece igual)
     
     formEquipo.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -147,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
             formEquipo.reset();
             document.getElementById('descripcion').focus();
             showToast('Equipo añadido con éxito.', 'success');
-            updateWorkInProgress(); // Actualiza el estado
+            updateWorkInProgress();
         } catch (error) {
             console.error('Error añadiendo equipo:', error);
             showToast('No se pudo añadir el equipo.', 'error');
@@ -169,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     equiposCounter--;
                     contadorEquiposSpan.textContent = equiposCounter;
                     showToast('Equipo eliminado.', 'success');
-                    updateWorkInProgress(); // Actualiza el estado
+                    updateWorkInProgress();
                 } catch (error) {
                     showToast('No se pudo eliminar el equipo.', 'error');
                 }
@@ -183,12 +205,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const confirmado = await window.showConfirmationModal('Finalizar Descarte', '¿Has terminado de registrar todos los equipos?');
 
         if (confirmado) {
-            const observacion = observacionInput.value.trim();
+            const observacion = document.getElementById('observacion').value.trim();
             btnFinalizar.disabled = true;
             btnFinalizar.textContent = 'Finalizando...';
             try {
                 await supabaseClient.from('descartes_sesiones').update({ observacion }).eq('id', currentSessionId);
-                clearWorkInProgress(); // Limpia estado y bandera de vista
+                clearWorkInProgress();
                 showToast('Descarte finalizado y guardado.', 'success');
                 setTimeout(() => window.location.href = 'inicio.html', 1500);
             } catch (error) {
@@ -201,7 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 5. GUARDIANES Y ESTADO INICIAL ---
 
-    // Guardián para recargar o cerrar la pestaña
     window.addEventListener('beforeunload', (event) => {
         if (window.isWorkInProgress) {
             event.preventDefault();
@@ -209,23 +230,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Listeners para actualizar el estado mientras se escribe
-    [...formInputs, observacionInput].forEach(input => {
+    [...formEquipo.querySelectorAll('input'), document.getElementById('observacion')].forEach(input => {
         input.addEventListener('input', updateWorkInProgress);
     });
 
-    // Función de inicialización
     (async function initializePage() {
         await supabaseClient.auth.getSession();
         
-        // CORRECCIÓN: Comprueba la bandera de vista al cargar
         if (sessionStorage.getItem(VIEW_STORAGE_KEY) === 'true') {
             inicioSection.style.display = 'none';
             registroSection.style.display = 'flex';
-            // Nota: El ID de sesión y los equipos no se restauran, la sesión se considera "perdida"
-            // pero el usuario permanece en la vista del formulario para empezar de nuevo si lo desea.
-            // Para restaurar, necesitaríamos guardar también el `currentSessionId`.
-            // Por ahora, al recargar se pierde la sesión pero no la VISTA.
             showToast("Listo para continuar o iniciar una nueva sesión.", "success");
         }
 
