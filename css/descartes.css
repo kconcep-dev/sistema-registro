@@ -1,0 +1,208 @@
+/* --- 1. Estilo del Estado Inicial --- */
+#inicio-descarte-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh; /* Centra el botón verticalmente */
+}
+
+.btn-iniciar {
+    padding: 20px 40px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 5px 15px var(--shadow-color);
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.btn-iniciar:hover {
+    transform: translateY(-5px);
+    background-color: var(--primary-hover-color);
+}
+
+
+/* --- 2. Estilos del Modal (Pop-up) --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+}
+
+.modal-content {
+    background-color: var(--card-bg-color);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    text-align: center;
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 2rem;
+    color: var(--border-color);
+    cursor: pointer;
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    color: var(--primary-color);
+}
+
+.modal-content p {
+    margin-bottom: 20px;
+    color: var(--text-color);
+}
+
+
+/* --- 3. Estilos de la Interfaz Principal de Registro --- */
+.card-sesion-info {
+    background-color: var(--card-bg-color);
+    border-left: 5px solid var(--primary-color);
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.card-sesion-info h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.card-sesion-info p {
+    margin: 5px 0;
+    font-size: 0.9rem;
+}
+
+.form-equipo {
+    background-color: var(--card-bg-color);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    margin-bottom: 30px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* Una columna en móvil */
+    gap: 15px;
+}
+
+.form-group, .form-group-full {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-equipo .btn-principal {
+    margin-top: 20px;
+    width: 100%;
+}
+
+
+/* --- 4. Estilos de la Tabla de Equipos --- */
+.tabla-equipos-wrapper {
+    background-color: var(--card-bg-color);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    margin-bottom: 30px;
+}
+
+.table-container {
+    overflow-x: auto; /* Permite scroll horizontal en móviles */
+}
+
+#tabla-equipos {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+#tabla-equipos th, #tabla-equipos td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#tabla-equipos th {
+    background-color: var(--input-bg-color);
+    font-size: 0.9rem;
+}
+
+#tabla-equipos tbody tr:nth-child(even) {
+    background-color: var(--input-bg-color);
+}
+
+.btn-eliminar {
+    background-color: var(--error-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+
+/* --- 5. Estilos de la Sección Final --- */
+.finalizar-seccion {
+    background-color: var(--card-bg-color);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.finalizar-seccion textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    background-color: var(--input-bg-color);
+    color: var(--input-text-color);
+    resize: vertical;
+}
+
+.btn-finalizar {
+    width: 100%;
+    padding: 15px;
+    margin-top: 20px;
+    background-color: var(--success-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+
+/* --- 6. Media Queries para Escritorio --- */
+@media (min-width: 768px) {
+    .container {
+        max-width: 900px; /* Un poco más de espacio */
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr 1fr; /* Dos columnas en escritorio */
+    }
+}

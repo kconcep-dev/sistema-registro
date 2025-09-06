@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Descartes - Sistema</title>
+
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/descartes.css">
+
+    <link rel="icon" href="assets/icons/icon-192.png">
+</head>
+<body>
+    <div id="navbar-placeholder"></div>
+
+    <div id="loader" class="loader-wrapper">
+        <div class="loader"></div>
+    </div>
+
+    <main id="main-content" style="display: none;">
+        <div class="container">
+            <h1>Registro de Descartes</h1>
+
+            <div id="inicio-descarte-section">
+                <button id="btn-iniciar-descarte" class="btn-iniciar">
+                    ➕ Iniciar Nuevo Descarte
+                </button>
+            </div>
+
+            <div id="registro-equipos-section" style="display: none;">
+
+                <div class="card-sesion-info">
+                    <h4>Información de la Sesión</h4>
+                    <p><strong>Cuadro Nº:</strong> <span id="sesion-id"></span></p>
+                    <p><strong>Unidad Administrativa:</strong> <span id="sesion-ua"></span></p>
+                    <p><strong>Técnico:</strong> <span id="sesion-tecnico"></span></p>
+                    <p><strong>Fecha:</strong> <span id="sesion-fecha"></span></p>
+                </div>
+
+                <form id="form-equipo" class="form-equipo" novalidate>
+                    <h2>Añadir Equipo</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="descripcion">Descripción:</label>
+                            <input type="text" id="descripcion" placeholder="Ej: CPU, Monitor...">
+                        </div>
+                        <div class="form-group">
+                            <label for="marca">Marca:</label>
+                            <input type="text" id="marca" placeholder="Ej: Dell, HP...">
+                        </div>
+                        <div class="form-group">
+                            <label for="modelo">Modelo:</label>
+                            <input type="text" id="modelo" placeholder="Ej: Optiplex 7010">
+                        </div>
+                        <div class="form-group">
+                            <label for="serie">Serie:</label>
+                            <input type="text" id="serie" placeholder="Número de serie">
+                        </div>
+                        <div class="form-group">
+                            <label for="marbete">Marbete:</label>
+                            <input type="text" id="marbete" placeholder="Número de marbete">
+                        </div>
+                    </div>
+                    <div class="form-group-full">
+                        <label for="estado_equipo">Estado del Equipo:</label>
+                        <input type="text" id="estado_equipo" placeholder="Describe la condición física">
+                    </div>
+                    <div class="form-group-full">
+                        <label for="motivo_descarte">Motivo del Descarte (Evaluación):</label>
+                        <input type="text" id="motivo_descarte" placeholder="Describe la falla técnica">
+                    </div>
+                    <button type="submit" id="btn-anadir-equipo" class="btn-principal">Añadir Equipo</button>
+                </form>
+
+                <div class="tabla-equipos-wrapper">
+                    <h3>Equipos Registrados (<span id="contador-equipos">0</span>)</h3>
+                    <div class="table-container">
+                        <table id="tabla-equipos">
+                            <thead>
+                                <tr>
+                                    <th>Nº</th>
+                                    <th>Descripción</th>
+                                    <th>Marca</th>
+                                    <th>Serie</th>
+                                    <th>Marbete</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+                 <div class="finalizar-seccion">
+                    <label for="observacion">Observación General:</label>
+                    <textarea id="observacion" rows="3" placeholder="Añade cualquier observación relevante para este descarte..."></textarea>
+                    <button id="btn-finalizar-descarte" class="btn-finalizar">Finalizar Descarte</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="modal-nueva-sesion" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button id="btn-cerrar-modal" class="modal-close-btn">&times;</button>
+            <h2>Crear Nueva Sesión de Descarte</h2>
+            <p>Introduce el nombre de la escuela o departamento.</p>
+            <form id="form-nueva-sesion" novalidate>
+                <label for="unidad_administrativa">Unidad Administrativa:</label>
+                <input type="text" id="unidad_administrativa" required>
+                <button type="submit" class="btn-principal">Crear Sesión</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast-notification" class="toast">
+        <span id="toast-message"></span>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/common.js"></script>
+    <script src="js/descartes.js"></script>
+</body>
+</html>
