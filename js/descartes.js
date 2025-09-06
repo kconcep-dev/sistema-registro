@@ -99,52 +99,64 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Crear una nueva sesión de descarte
-    formNuevaSesion.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const unidadAdministrativa = inputUA.value.trim();
-        if (!unidadAdministrativa) {
-            showToast('Por favor, introduce la unidad administrativa.', 'error');
-            return;
-        }
+formNuevaSesion.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const unidadAdministrativa = inputUA.value.trim();
+    if (!unidadAdministrativa) {
+        showToast('Por favor, introduce la unidad administrativa.', 'error');
+        return;
+    }
 
-        try {
-            const tecnico = await getUserName();
-            const fecha = new Date().toISOString().split('T')[0];
+    try {
+        // --- INICIO DE LA CORRECCIÓN ---
 
-            const { data, error } = await supabaseClient
-                .from('descartes_sesiones')
-                .insert([{
-                    unidad_administrativa: unidadAdministrativa,
-                    tecnico_encargado: tecnico,
-                    fecha: fecha
-                }])
-                .select()
-                .single();
+        // 1. Obtenemos la información completa del usuario actual
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (!user) throw new Error("No se pudo obtener el usuario.");
 
-            if (error) throw error;
+        // 2. Preparamos los datos, incluyendo el user.id
+        const tecnico = await getUserName();
+        const fecha = new Date().toISOString().split('T')[0];
+        
+        const nuevaSesion = {
+            unidad_administrativa: unidadAdministrativa,
+            tecnico_encargado: tecnico,
+            fecha: fecha,
+            user_id: user.id // <-- ESTA ES LA LÍNEA CLAVE
+        };
 
-            // Guardar el ID de la sesión actual
-            currentSessionId = data.id;
+        // --- FIN DE LA CORRECCIÓN ---
 
-            // Actualizar la interfaz
-            document.getElementById('sesion-id').textContent = data.id;
-            document.getElementById('sesion-ua').textContent = data.unidad_administrativa;
-            document.getElementById('sesion-tecnico').textContent = data.tecnico_encargado;
-            document.getElementById('sesion-fecha').textContent = new Date(data.fecha).toLocaleDateString('es-PA');
+        const { data, error } = await supabaseClient
+            .from('descartes_sesiones')
+            .insert(nuevaSesion) // <-- Enviamos el nuevo objeto completo
+            .select()
+            .single();
 
-            // Cambiar de vista
-            inicioSection.style.display = 'none';
-            registroSection.style.display = 'block';
-            modal.style.display = 'none';
-            formNuevaSesion.reset();
+        if (error) throw error;
 
-            showToast('Sesión creada con éxito. Ya puedes añadir equipos.', 'success');
+        // Guardar el ID de la sesión actual
+        currentSessionId = data.id;
 
-        } catch (error) {
-            console.error('Error creando la sesión:', error);
-            showToast('No se pudo crear la sesión.', 'error');
-        }
-    });
+        // Actualizar la interfaz (esto no cambia)
+        document.getElementById('sesion-id').textContent = data.id;
+        document.getElementById('sesion-ua').textContent = data.unidad_administrativa;
+        document.getElementById('sesion-tecnico').textContent = data.tecnico_encargado;
+        document.getElementById('sesion-fecha').textContent = new Date(data.fecha).toLocaleDateString('es-PA');
+
+        // Cambiar de vista
+        inicioSection.style.display = 'none';
+        registroSection.style.display = 'block';
+        modal.style.display = 'none';
+        formNuevaSesion.reset();
+
+        showToast('Sesión creada con éxito. Ya puedes añadir equipos.', 'success');
+
+    } catch (error) {
+        console.error('Error creando la sesión:', error);
+        showToast('No se pudo crear la sesión.', 'error');
+    }
+});
 
     // Añadir un nuevo equipo
     formEquipo.addEventListener('submit', async (e) => {
