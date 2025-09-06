@@ -9,12 +9,11 @@
     margin-bottom: 20px;
 }
 
-/* CORRECCIÓN: Se añade z-index para asegurar que el formulario esté por encima de la sección QR */
+/* CORRECCIÓN: Se aumenta el z-index para asegurar que el formulario esté siempre por encima */
 #registro-form {
-    position: relative; /* z-index necesita que la posición no sea estática */
-    z-index: 2;
+    position: relative;
+    z-index: 10;
 }
-
 
 /* Estilo para el texto de ayuda debajo del título de la sección */
 .section-subtitle {
@@ -75,7 +74,6 @@
     overflow-y: auto;
 }
 
-
 .card-ultimo-visitante {
     background-color: var(--card-bg-color);
     border-left: 5px solid var(--primary-color);
@@ -93,6 +91,42 @@
 
 .card-ultimo-visitante p {
     margin: 8px 0;
+}
+
+/* NUEVO: Estilos para el Modal de Confirmación (para que funcionen en esta página) */
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.btn-secondary, .btn-danger {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-secondary {
+    background-color: var(--input-bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+.btn-secondary:hover {
+    background-color: var(--border-color);
+    color: var(--bg-color);
+}
+
+.btn-danger {
+    background-color: var(--error-color);
+    color: white;
+}
+.btn-danger:hover {
+    background-color: #b02a37;
 }
 
 /* --- Responsivo --- */
