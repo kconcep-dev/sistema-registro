@@ -3,48 +3,35 @@
 // --- 0. EJECUCIÓN CUANDO EL DOM ESTÁ LISTO ---
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 1. PROTECCIÓN DE RUTA Y CARGADOR ---
-    async function checkSessionAndInitialize() {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (!session) {
-            window.location.href = 'login.html';
-            return;
-        }
-        document.getElementById('loader').style.display = 'none';
-        document.getElementById('main-content').style.display = 'block';
-    }
-
-    // --- 2. ELEMENTOS DEL DOM ---
+    // --- 1. ELEMENTOS DEL DOM ---
     const inicioSection = document.getElementById('inicio-descarte-section');
     const registroSection = document.getElementById('registro-equipos-section');
     const btnIniciar = document.getElementById('btn-iniciar-descarte');
     const btnAnadirEquipo = document.getElementById('btn-anadir-equipo');
     const btnFinalizar = document.getElementById('btn-finalizar-descarte');
-
-    // Modales
     const modalSesion = document.getElementById('modal-nueva-sesion');
     const btnCerrarModalSesion = document.getElementById('btn-cerrar-modal');
     const formNuevaSesion = document.getElementById('form-nueva-sesion');
     const inputUA = document.getElementById('unidad_administrativa');
-    
     const modalConfirmacion = document.getElementById('modal-confirmacion');
     const confirmTitle = document.getElementById('confirm-title');
     const confirmMessage = document.getElementById('confirm-message');
     const btnConfirmarAceptar = document.getElementById('btn-confirmar-aceptar');
     const btnConfirmarCancelar = document.getElementById('btn-confirmar-cancelar');
-
     const formEquipo = document.getElementById('form-equipo');
     const tablaEquiposBody = document.querySelector('#tabla-equipos tbody');
     const contadorEquiposSpan = document.getElementById('contador-equipos');
     const toastEl = document.getElementById('toast-notification');
     const toastMessageEl = document.getElementById('toast-message');
 
-    // --- 3. ESTADO DE LA APLICACIÓN ---
-    let currentSessionId = null;
+    // --- 2. ESTADO DE LA APLICACIÓN ---
     let equiposCounter = 0;
     let toastTimeout;
     
-    // --- 4. FUNCIONES AUXILIARES ---
+    // NUEVO: La clave para la persistencia en sessionStorage
+    const SESSION_STORAGE_KEY = 'activeDescarteSessionId';
+
+    // --- 3. FUNCIONES AUXILIARES ---
 
     function showToast(message, type = 'success') {
         clearTimeout(toastTimeout);
@@ -55,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
-    // CORRECCIÓN: Renderiza la tabla con todas las columnas
     function renderEquipoEnTabla(equipo, numero) {
         const tr = document.createElement('tr');
         tr.setAttribute('data-id', equipo.id);
@@ -79,8 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const userMappings = { 'concepcion.kelieser@gmail.com': 'Kevin' };
         return userMappings[user.email] || user.email.split('@')[0];
     }
-
-    function showConfirmationModal(title, message) {
+    
+    // NUEVO: Se expone la función showConfirmationModal globalmente para que common.js pueda usarla
+    window.showConfirmationModal = (title, message) => {
         confirmTitle.textContent = title;
         confirmMessage.textContent = message;
         modalConfirmacion.style.display = 'flex';
@@ -97,7 +84,67 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 5. LÓGICA PRINCIPAL Y MANEJADORES DE EVENTOS ---
+    // NUEVO: Función para limpiar el estado de trabajo
+    window.clearWorkInProgress = () => {
+        sessionStorage.removeItem(SESSION_STORAGE_KEY);
+        window.isWorkInProgress = false;
+    };
+
+    // NUEVO: Función para mostrar la UI de registro
+    function showRegistroUI(sesionData) {
+        const sesionUASpan = document.getElementById('sesion-ua');
+        
+        document.getElementById('sesion-id').textContent = sesionData.id;
+        sesionUASpan.textContent = sesionData.unidad_administrativa;
+        sesionUASpan.title = sesionData.unidad_administrativa; // Añade tooltip
+        document.getElementById('sesion-tecnico').textContent = sesionData.tecnico_encargado;
+        document.getElementById('sesion-fecha').textContent = new Date(sesionData.fecha + 'T00:00:00').toLocaleDateString('es-PA');
+
+        inicioSection.style.display = 'none';
+        registroSection.style.display = 'flex';
+        window.isWorkInProgress = true; // Activa el "guardián"
+    }
+
+    // --- 4. LÓGICA PRINCIPAL ---
+
+    // NUEVO: Función para restaurar una sesión desde sessionStorage
+    async function restoreSession(sessionId) {
+        try {
+            // 1. Obtener datos de la sesión
+            const { data: sesionData, error: sesionError } = await supabaseClient
+                .from('descartes_sesiones')
+                .select('*')
+                .eq('id', sessionId)
+                .single();
+            if (sesionError) throw sesionError;
+
+            // 2. Obtener equipos de esa sesión
+            const { data: equiposData, error: equiposError } = await supabaseClient
+                .from('equipos_descartados')
+                .select('*')
+                .eq('sesion_id', sessionId)
+                .order('created_at', { ascending: true });
+            if (equiposError) throw equiposError;
+            
+            // 3. Renderizar la UI
+            showRegistroUI(sesionData);
+            tablaEquiposBody.innerHTML = ''; // Limpiar tabla antes de rellenar
+            equiposData.forEach((equipo, index) => {
+                renderEquipoEnTabla(equipo, index + 1);
+            });
+            equiposCounter = equiposData.length;
+            contadorEquiposSpan.textContent = equiposCounter;
+            
+            showToast('Sesión anterior restaurada.', 'success');
+
+        } catch (error) {
+            console.error("Error restaurando la sesión:", error);
+            showToast("No se pudo restaurar la sesión anterior. Empezando de nuevo.", "error");
+            clearWorkInProgress();
+        }
+    }
+    
+    // --- 5. MANEJADORES DE EVENTOS ---
 
     btnIniciar.addEventListener('click', () => {
         modalSesion.style.display = 'flex';
@@ -136,14 +183,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const { data, error } = await supabaseClient.from('descartes_sesiones').insert(nuevaSesion).select().single();
             if (error) throw error;
 
-            currentSessionId = data.id;
-            document.getElementById('sesion-id').textContent = data.id;
-            document.getElementById('sesion-ua').textContent = data.unidad_administrativa;
-            document.getElementById('sesion-tecnico').textContent = data.tecnico_encargado;
-            document.getElementById('sesion-fecha').textContent = new Date(data.fecha + 'T00:00:00').toLocaleDateString('es-PA');
-
-            inicioSection.style.display = 'none';
-            registroSection.style.display = 'flex';
+            sessionStorage.setItem(SESSION_STORAGE_KEY, data.id); // Guarda la sesión
+            showRegistroUI(data);
+            
             modalSesion.style.display = 'none';
             formNuevaSesion.reset();
             showToast('Sesión creada. Ya puedes añadir equipos.', 'success');
@@ -158,6 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     formEquipo.addEventListener('submit', async (e) => {
         e.preventDefault();
+        const currentSessionId = sessionStorage.getItem(SESSION_STORAGE_KEY);
         if (!currentSessionId) {
             showToast('Error: No hay una sesión activa.', 'error');
             return;
@@ -174,7 +217,6 @@ document.addEventListener('DOMContentLoaded', () => {
             motivo_descarte: document.getElementById('motivo_descarte').value.trim(),
         };
 
-        // CORRECCIÓN: Verifica si todos los campos están vacíos
         const isFormEmpty = Object.values(nuevoEquipo).slice(1).every(value => value === '');
         if (isFormEmpty) {
             showToast('Por favor, rellena al menos un campo del equipo.', 'error');
@@ -206,18 +248,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.classList.contains('btn-eliminar')) {
             const equipoId = e.target.dataset.id;
             
-            const confirmado = await showConfirmationModal(
+            const confirmado = await window.showConfirmationModal(
                 'Eliminar Equipo', 
                 '¿Estás seguro de que quieres eliminar este equipo? Esta acción no se puede deshacer.'
             );
 
             if (confirmado) {
+                // Implementación futura: se podría añadir un estado de carga aquí
                 try {
                     const { error } = await supabaseClient.from('equipos_descartados').delete().eq('id', equipoId);
                     if (error) throw error;
                     
-                    const filaParaEliminar = document.querySelector(`tr[data-id='${equipoId}']`);
-                    filaParaEliminar.remove();
+                    document.querySelector(`tr[data-id='${equipoId}']`).remove();
                     
                     equiposCounter--;
                     contadorEquiposSpan.textContent = equiposCounter;
@@ -231,26 +273,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     btnFinalizar.addEventListener('click', async () => {
-        // CORRECCIÓN: Verifica si se ha añadido al menos un equipo
         if (equiposCounter === 0) {
             showToast('Debes añadir al menos un equipo antes de finalizar.', 'error');
             return;
         }
 
-        const confirmado = await showConfirmationModal(
+        const confirmado = await window.showConfirmationModal(
             'Finalizar Descarte',
             '¿Has terminado de registrar todos los equipos para esta sesión?'
         );
 
         if (confirmado) {
             const observacion = document.getElementById('observacion').value.trim();
+            const currentSessionId = sessionStorage.getItem(SESSION_STORAGE_KEY);
             btnFinalizar.disabled = true;
             btnFinalizar.textContent = 'Finalizando...';
             try {
                 const { error } = await supabaseClient.from('descartes_sesiones').update({ observacion: observacion }).eq('id', currentSessionId);
                 if (error) throw error;
-
+                
+                clearWorkInProgress(); // Limpia el estado de trabajo
                 showToast('Descarte finalizado y guardado.', 'success');
+                
                 setTimeout(() => {
                     window.location.href = 'inicio.html';
                 }, 1500);
@@ -264,5 +308,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- 6. INICIALIZACIÓN ---
-    checkSessionAndInitialize();
+    async function initializePage() {
+        await supabaseClient.auth.getSession(); // Asegura que la sesión esté cargada
+        const activeSessionId = sessionStorage.getItem(SESSION_STORAGE_KEY);
+
+        if (activeSessionId) {
+            await restoreSession(activeSessionId);
+        }
+
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+    }
+
+    initializePage();
 });

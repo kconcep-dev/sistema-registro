@@ -6,8 +6,7 @@
     width: 100%;
 }
 
-/* Aplica a los contenedores principales dentro de la sección centrada */
-.content-center > div {
+.content-center > div, .content-center > form {
     width: 100%;
 }
 
@@ -102,7 +101,7 @@
 
 /* --- 3. Estilos de la Interfaz Principal de Registro --- */
 
-/* CORRECCIÓN: Tarjeta de sesión horizontal */
+/* CORRECCIÓN: Tarjeta de sesión horizontal con manejo de texto largo */
 .card-sesion-info {
     background-color: var(--card-bg-color);
     padding: 15px 20px;
@@ -110,18 +109,34 @@
     margin-bottom: 30px;
     box-shadow: 0 4px 12px var(--shadow-color);
     display: flex;
-    flex-wrap: wrap; /* Permite que los items pasen a la siguiente línea si no caben */
+    flex-wrap: wrap; 
     justify-content: space-around;
+    align-items: center;
     gap: 15px;
 }
 
 .info-item {
     font-size: 0.9rem;
     color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap; /* Evita que el título se parta */
 }
 
 .info-item strong {
     color: var(--primary-color);
+}
+
+/* Estilo para el span que contiene el valor, especialmente para la Unidad Administrativa */
+.info-item span {
+    display: inline-block;
+    max-width: 150px; /* Límite de ancho inicial para móviles */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: bottom; /* Alinea mejor el texto cortado */
+    cursor: help; /* Indica que se puede interactuar para ver el tooltip */
 }
 
 .form-equipo {
@@ -183,7 +198,7 @@
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
-    white-space: nowrap; /* Evita que el texto se parta en varias líneas */
+    white-space: nowrap; 
 }
 
 #tabla-equipos th {
@@ -280,11 +295,11 @@
 /* --- 7. Media Queries para Escritorio --- */
 @media (min-width: 768px) {
     .container {
-        max-width: 1100px; /* Más espacio para la tabla ancha */
+        max-width: 1100px; 
     }
 
     .form-grid {
-        grid-template-columns: repeat(3, 1fr); /* Tres columnas para el formulario */
+        grid-template-columns: repeat(3, 1fr); 
     }
     
     .form-grid .form-group:nth-child(1) { grid-column: 1 / 2; }
@@ -292,5 +307,9 @@
     .form-grid .form-group:nth-child(3) { grid-column: 3 / 4; }
     .form-grid .form-group:nth-child(4) { grid-column: 1 / 2; }
     .form-grid .form-group:nth-child(5) { grid-column: 2 / 3; }
-
+    
+    /* Aumenta el ancho máximo del span en escritorio */
+    .info-item span {
+        max-width: 300px; 
+    }
 }
