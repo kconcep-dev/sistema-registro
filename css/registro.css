@@ -9,12 +9,19 @@
     margin-bottom: 20px;
 }
 
+/* CORRECCIÓN: Se añade z-index para asegurar que el formulario esté por encima de la sección QR */
+#registro-form {
+    position: relative; /* z-index necesita que la posición no sea estática */
+    z-index: 2;
+}
+
+
 /* Estilo para el texto de ayuda debajo del título de la sección */
 .section-subtitle {
     font-size: 0.9rem;
     color: var(--border-color);
     text-align: center;
-    margin-top: -10px; /* Un pequeño ajuste para que esté más cerca del título */
+    margin-top: -10px;
     margin-bottom: 20px;
 }
 
@@ -31,9 +38,9 @@
     font-size: 1.1rem;
     font-weight: bold;
     transition: background-color 0.2s;
-    text-align: center; /* Asegura que el texto y el emoji estén centrados */
-    display: block;      /* Hace que la etiqueta ocupe todo el ancho y respete el padding */
-    text-decoration: none; /* Por si acaso se usa en una etiqueta <a> */
+    text-align: center;
+    display: block;
+    text-decoration: none;
 }
 
 .btn-principal:hover {
@@ -42,7 +49,7 @@
 
 /* Estilo para mostrar el nombre del archivo seleccionado */
 .file-name-display {
-    display: block; /* Para que ocupe su propia línea */
+    display: block;
     margin-top: 15px;
     font-size: 0.9em;
     color: var(--text-color);
@@ -62,10 +69,10 @@
     padding: 10px;
     margin-top: 20px;
     font-size: 0.85rem;
-    white-space: pre-wrap; /* Para que respete saltos de línea y se ajuste */
-    word-wrap: break-word; /* Rompe palabras largas para evitar desbordamiento */
-    min-height: 80px; /* Altura mínima para que siempre se vea el recuadro */
-    overflow-y: auto; /* Permite scroll si el texto es muy largo */
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    min-height: 80px;
+    overflow-y: auto;
 }
 
 
@@ -107,9 +114,6 @@
 /* --- Estilos solo para Escritorio --- */
 @media (min-width: 768px) {
     #main-content {
-        /* Ajusta este valor para cambiar el espacio 
-           superior en la página de REGISTRO.
-        */
         padding-top: 50px;
     }
 }
