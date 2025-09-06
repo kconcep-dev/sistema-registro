@@ -1,11 +1,19 @@
-/* --- 1. Estilo del Estado Inicial --- */
-#inicio-descarte-section {
+/* --- 1. Estilos Generales y de Centrado --- */
+.content-center {
     display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra horizontalmente */
+    width: 100%;
+}
+
+/* Aplica a los contenedores principales dentro de la sección centrada */
+.content-center > div {
+    width: 100%;
+}
+
+#inicio-descarte-section {
     justify-content: center;
-    align-items: center;
-    min-height: 60vh; /* Centra el botón verticalmente */
-    width: 100%; /* Asegura que ocupe todo el ancho */
-    text-align: center; /* Centra el contenido horizontalmente */
+    min-height: 60vh;
 }
 
 .btn-iniciar {
@@ -25,6 +33,7 @@
     transform: translateY(-5px);
     background-color: var(--primary-hover-color);
 }
+
 
 /* --- 2. Estilos del Modal (Pop-up) --- */
 .modal-overlay {
@@ -73,7 +82,6 @@
     color: var(--text-color);
 }
 
-/* CORRECCIÓN: Estilos para los botones dentro del modal */
 .modal-content .btn-principal {
     width: 100%;
     padding: 12px 20px;
@@ -93,23 +101,27 @@
 
 
 /* --- 3. Estilos de la Interfaz Principal de Registro --- */
+
+/* CORRECCIÓN: Tarjeta de sesión horizontal */
 .card-sesion-info {
     background-color: var(--card-bg-color);
-    border-left: 5px solid var(--primary-color);
     padding: 15px 20px;
     border-radius: 8px;
     margin-bottom: 30px;
     box-shadow: 0 4px 12px var(--shadow-color);
+    display: flex;
+    flex-wrap: wrap; /* Permite que los items pasen a la siguiente línea si no caben */
+    justify-content: space-around;
+    gap: 15px;
 }
 
-.card-sesion-info h4 {
-    margin-top: 0;
-    margin-bottom: 15px;
-}
-
-.card-sesion-info p {
-    margin: 5px 0;
+.info-item {
     font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.info-item strong {
+    color: var(--primary-color);
 }
 
 .form-equipo {
@@ -122,7 +134,7 @@
 
 .form-grid {
     display: grid;
-    grid-template-columns: 1fr; /* Una columna en móvil */
+    grid-template-columns: 1fr;
     gap: 15px;
 }
 
@@ -155,11 +167,10 @@
     padding: 25px;
     border-radius: 8px;
     box-shadow: 0 4px 12px var(--shadow-color);
-    margin-bottom: 30px;
 }
 
 .table-container {
-    overflow-x: auto; /* Permite scroll horizontal en móviles */
+    overflow-x: auto;
 }
 
 #tabla-equipos {
@@ -172,11 +183,12 @@
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
+    white-space: nowrap; /* Evita que el texto se parta en varias líneas */
 }
 
 #tabla-equipos th {
     background-color: var(--input-bg-color);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
 #tabla-equipos tbody tr:nth-child(even) {
@@ -200,6 +212,7 @@
     padding: 25px;
     border-radius: 8px;
     box-shadow: 0 4px 12px var(--shadow-color);
+    margin-bottom: 30px;
 }
 
 .finalizar-seccion textarea {
@@ -227,7 +240,7 @@
 }
 
 
-/* --- 6. NUEVO: Estilos para el Modal de Confirmación --- */
+/* --- 6. Estilos para el Modal de Confirmación --- */
 .modal-buttons {
     display: flex;
     justify-content: center;
@@ -260,17 +273,24 @@
     color: white;
 }
 .btn-danger:hover {
-    background-color: #b02a37; /* Un rojo más oscuro */
+    background-color: #b02a37;
 }
 
 
 /* --- 7. Media Queries para Escritorio --- */
 @media (min-width: 768px) {
     .container {
-        max-width: 900px; /* Un poco más de espacio */
+        max-width: 1100px; /* Más espacio para la tabla ancha */
     }
 
     .form-grid {
-        grid-template-columns: 1fr 1fr; /* Dos columnas en escritorio */
+        grid-template-columns: repeat(3, 1fr); /* Tres columnas para el formulario */
     }
+    
+    .form-grid .form-group:nth-child(1) { grid-column: 1 / 2; }
+    .form-grid .form-group:nth-child(2) { grid-column: 2 / 3; }
+    .form-grid .form-group:nth-child(3) { grid-column: 3 / 4; }
+    .form-grid .form-group:nth-child(4) { grid-column: 1 / 2; }
+    .form-grid .form-group:nth-child(5) { grid-column: 2 / 3; }
+
 }

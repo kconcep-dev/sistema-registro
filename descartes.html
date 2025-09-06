@@ -21,20 +21,19 @@
         <div class="container">
             <h1>Registro de Descartes</h1>
 
-            <div id="inicio-descarte-section">
+            <div id="inicio-descarte-section" class="content-center">
                 <button id="btn-iniciar-descarte" class="btn-iniciar">
                     ➕ Iniciar Nuevo Descarte
                 </button>
             </div>
 
-            <div id="registro-equipos-section" style="display: none;">
+            <div id="registro-equipos-section" class="content-center" style="display: none;">
 
                 <div class="card-sesion-info">
-                    <h4>Información de la Sesión</h4>
-                    <p><strong>Cuadro Nº:</strong> <span id="sesion-id"></span></p>
-                    <p><strong>Unidad Administrativa:</strong> <span id="sesion-ua"></span></p>
-                    <p><strong>Técnico:</strong> <span id="sesion-tecnico"></span></p>
-                    <p><strong>Fecha:</strong> <span id="sesion-fecha"></span></p>
+                    <div class="info-item"><strong>Cuadro Nº:</strong> <span id="sesion-id"></span></div>
+                    <div class="info-item"><strong>Unidad A.:</strong> <span id="sesion-ua"></span></div>
+                    <div class="info-item"><strong>Técnico:</strong> <span id="sesion-tecnico"></span></div>
+                    <div class="info-item"><strong>Fecha:</strong> <span id="sesion-fecha"></span></div>
                 </div>
 
                 <form id="form-equipo" class="form-equipo" novalidate>
@@ -72,6 +71,12 @@
                     <button type="submit" id="btn-anadir-equipo" class="btn-principal">Añadir Equipo</button>
                 </form>
 
+                <div class="finalizar-seccion">
+                   <label for="observacion">Observación General:</label>
+                   <textarea id="observacion" rows="3" placeholder="Añade cualquier observación relevante..."></textarea>
+                   <button id="btn-finalizar-descarte" class="btn-finalizar">Finalizar Descarte</button>
+               </div>
+
                 <div class="tabla-equipos-wrapper">
                     <h3>Equipos Registrados (<span id="contador-equipos">0</span>)</h3>
                     <div class="table-container">
@@ -80,9 +85,12 @@
                                 <tr>
                                     <th>Nº</th>
                                     <th>Descripción</th>
-                                    <th>Marca</th>
-                                    <th>Serie</th>
                                     <th>Marbete</th>
+                                    <th>Serie</th>
+                                    <th>Marca</th>
+                                    <th>Modelo</th>
+                                    <th>Estado</th>
+                                    <th>Motivo</th>
                                     <th>Acción</th>
                                 </tr>
                             </thead>
@@ -90,11 +98,6 @@
                                 </tbody>
                         </table>
                     </div>
-                </div>
-                 <div class="finalizar-seccion">
-                    <label for="observacion">Observación General:</label>
-                    <textarea id="observacion" rows="3" placeholder="Añade cualquier observación relevante para este descarte..."></textarea>
-                    <button id="btn-finalizar-descarte" class="btn-finalizar">Finalizar Descarte</button>
                 </div>
             </div>
         </div>

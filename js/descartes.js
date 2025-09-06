@@ -27,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const formNuevaSesion = document.getElementById('form-nueva-sesion');
     const inputUA = document.getElementById('unidad_administrativa');
     
-    // NUEVO: Modal de Confirmación
     const modalConfirmacion = document.getElementById('modal-confirmacion');
     const confirmTitle = document.getElementById('confirm-title');
     const confirmMessage = document.getElementById('confirm-message');
@@ -56,15 +55,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
+    // CORRECCIÓN: Renderiza la tabla con todas las columnas
     function renderEquipoEnTabla(equipo, numero) {
         const tr = document.createElement('tr');
         tr.setAttribute('data-id', equipo.id);
         tr.innerHTML = `
             <td>${numero}</td>
-            <td>${equipo.descripcion}</td>
-            <td>${equipo.marca}</td>
-            <td>${equipo.serie}</td>
-            <td>${equipo.marbete}</td>
+            <td>${equipo.descripcion || '-'}</td>
+            <td>${equipo.marbete || '-'}</td>
+            <td>${equipo.serie || '-'}</td>
+            <td>${equipo.marca || '-'}</td>
+            <td>${equipo.modelo || '-'}</td>
+            <td>${equipo.estado_equipo || '-'}</td>
+            <td>${equipo.motivo_descarte || '-'}</td>
             <td><button class="btn-eliminar" data-id="${equipo.id}">Eliminar</button></td>
         `;
         tablaEquiposBody.appendChild(tr);
@@ -77,7 +80,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return userMappings[user.email] || user.email.split('@')[0];
     }
 
-    // NUEVA FUNCIÓN: Muestra un modal de confirmación y devuelve una promesa
     function showConfirmationModal(title, message) {
         confirmTitle.textContent = title;
         confirmMessage.textContent = message;
@@ -114,6 +116,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        const submitBtn = formNuevaSesion.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creando Sesión...';
+
         try {
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) throw new Error("No se pudo obtener el usuario.");
@@ -137,13 +143,16 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('sesion-fecha').textContent = new Date(data.fecha + 'T00:00:00').toLocaleDateString('es-PA');
 
             inicioSection.style.display = 'none';
-            registroSection.style.display = 'block';
+            registroSection.style.display = 'flex';
             modalSesion.style.display = 'none';
             formNuevaSesion.reset();
             showToast('Sesión creada. Ya puedes añadir equipos.', 'success');
         } catch (error) {
             console.error('Error creando la sesión:', error);
             showToast('No se pudo crear la sesión.', 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Crear Sesión';
         }
     });
     
@@ -165,14 +174,16 @@ document.addEventListener('DOMContentLoaded', () => {
             motivo_descarte: document.getElementById('motivo_descarte').value.trim(),
         };
 
-        if (!nuevoEquipo.descripcion) {
-            showToast('La descripción es recomendable.', 'error');
+        // CORRECCIÓN: Verifica si todos los campos están vacíos
+        const isFormEmpty = Object.values(nuevoEquipo).slice(1).every(value => value === '');
+        if (isFormEmpty) {
+            showToast('Por favor, rellena al menos un campo del equipo.', 'error');
             return;
         }
 
+        btnAnadirEquipo.disabled = true;
+        btnAnadirEquipo.textContent = 'Añadiendo...';
         try {
-            btnAnadirEquipo.disabled = true;
-            btnAnadirEquipo.textContent = 'Añadiendo...';
             const { data, error } = await supabaseClient.from('equipos_descartados').insert(nuevoEquipo).select().single();
             if (error) throw error;
             
@@ -191,7 +202,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // MODIFICADO: Eliminar un equipo usando el modal de confirmación
     tablaEquiposBody.addEventListener('click', async (e) => {
         if (e.target.classList.contains('btn-eliminar')) {
             const equipoId = e.target.dataset.id;
@@ -220,8 +230,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // MODIFICADO: Finalizar el descarte usando el modal de confirmación
     btnFinalizar.addEventListener('click', async () => {
+        // CORRECCIÓN: Verifica si se ha añadido al menos un equipo
+        if (equiposCounter === 0) {
+            showToast('Debes añadir al menos un equipo antes de finalizar.', 'error');
+            return;
+        }
+
         const confirmado = await showConfirmationModal(
             'Finalizar Descarte',
             '¿Has terminado de registrar todos los equipos para esta sesión?'
@@ -229,6 +244,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (confirmado) {
             const observacion = document.getElementById('observacion').value.trim();
+            btnFinalizar.disabled = true;
+            btnFinalizar.textContent = 'Finalizando...';
             try {
                 const { error } = await supabaseClient.from('descartes_sesiones').update({ observacion: observacion }).eq('id', currentSessionId);
                 if (error) throw error;
@@ -236,10 +253,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast('Descarte finalizado y guardado.', 'success');
                 setTimeout(() => {
                     window.location.href = 'inicio.html';
-                }, 1500); // Espera 1.5s para que el toast sea visible antes de redirigir
+                }, 1500);
             } catch (error) {
                 console.error('Error al finalizar el descarte:', error);
                 showToast('No se pudo guardar la observación final.', 'error');
+                btnFinalizar.disabled = false;
+                btnFinalizar.textContent = 'Finalizar Descarte';
             }
         }
     });
