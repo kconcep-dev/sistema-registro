@@ -21,10 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const toastMessageEl = document.getElementById('toast-message');
 
     // --- 2. ESTADO DE LA APLICACIÓN ---
-    let currentSessionId = null;
     let equiposCounter = 0;
     let toastTimeout;
-    const VIEW_STORAGE_KEY = 'descarteViewActive';
+    const SESSION_STORAGE_KEY = 'activeDescarteSessionId'; // Clave para la sesión
 
     // --- 3. FUNCIONES AUXILIARES ---
 
@@ -39,14 +38,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateWorkInProgress() {
         const hasInputText = Array.from(formInputs).some(input => input.value.trim() !== '') || observacionInput.value.trim() !== '';
-        window.isWorkInProgress = equiposCounter > 0 || hasInputText;
+        // El trabajo está en progreso si hay una sesión activa
+        window.isWorkInProgress = !!sessionStorage.getItem(SESSION_STORAGE_KEY);
     }
 
     window.clearWorkInProgress = () => {
         window.isWorkInProgress = false;
-        sessionStorage.removeItem(VIEW_STORAGE_KEY);
+        sessionStorage.removeItem(SESSION_STORAGE_KEY);
+        // Resetea la UI a su estado inicial
         if (window.location.pathname.includes('descartes.html')) {
-            currentSessionId = null;
             equiposCounter = 0;
             contadorEquiposSpan.textContent = '0';
             tablaEquiposBody.innerHTML = '';
@@ -73,8 +73,46 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         tablaEquiposBody.appendChild(tr);
     }
+
+    // NUEVO: Función para mostrar la UI de registro
+    function showRegistroUI() {
+        inicioSection.style.display = 'none';
+        registroSection.style.display = 'flex';
+        updateWorkInProgress();
+    }
     
-    // --- 4. MANEJADORES DE EVENTOS ---
+    // --- 4. LÓGICA DE SESIÓN Y RESTAURACIÓN ---
+
+    async function restoreSession(sessionId) {
+        try {
+            // Obtener equipos de la sesión guardada
+            const { data: equiposData, error: equiposError } = await supabaseClient
+                .from('equipos_descartados')
+                .select('*')
+                .eq('sesion_id', sessionId)
+                .order('created_at', { ascending: true });
+            if (equiposError) throw equiposError;
+            
+            // Renderizar la UI
+            showRegistroUI();
+            tablaEquiposBody.innerHTML = '';
+            equiposData.forEach((equipo, index) => {
+                renderEquipoEnTabla(equipo, index + 1);
+            });
+            equiposCounter = equiposData.length;
+            contadorEquiposSpan.textContent = equiposCounter;
+            
+            showToast('Sesión anterior restaurada.', 'success');
+            updateWorkInProgress();
+
+        } catch (error) {
+            console.error("Error restaurando la sesión:", error);
+            showToast("No se pudo restaurar la sesión. Empezando de nuevo.", "error");
+            clearWorkInProgress();
+        }
+    }
+    
+    // --- 5. MANEJADORES DE EVENTOS ---
 
     btnIniciar.addEventListener('click', () => {
         modalSesion.style.display = 'flex';
@@ -85,20 +123,19 @@ document.addEventListener('DOMContentLoaded', () => {
         modalSesion.style.display = 'none';
     });
 
-    // CORRECCIÓN DEFINITIVA AQUÍ
     formNuevaSesion.addEventListener('submit', async (e) => {
         e.preventDefault();
         const unidadAdministrativa = inputUA.value.trim();
-        if (!unidadAdministrativa) return showToast('Por favor, introduce la unidad administrativa.', 'error');
+        if (!unidadAdministrativa) return showToast('Introduce la unidad administrativa.', 'error');
 
         const submitBtn = formNuevaSesion.querySelector('button[type="submit"]');
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Creando Sesión...';
+        submitBtn.textContent = 'Creando...';
 
         try {
             const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) throw new Error("No se pudo obtener el usuario.");
-            
+            if (!user) throw new Error("Usuario no encontrado.");
+
             const tecnico = await (async () => {
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 if (!user) return 'Desconocido';
@@ -106,27 +143,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 return userMappings[user.email] || user.email.split('@')[0];
             })();
             
-            const fecha = new Date().toISOString().split('T')[0];
-            
-            // Este es el objeto completo que la base de datos necesita
             const nuevaSesion = {
                 unidad_administrativa: unidadAdministrativa,
                 tecnico_encargado: tecnico,
-                fecha: fecha,
+                fecha: new Date().toISOString().split('T')[0],
                 user_id: user.id
             };
 
             const { data, error } = await supabaseClient.from('descartes_sesiones').insert(nuevaSesion).select().single();
             if (error) throw error;
 
-            currentSessionId = data.id;
-            sessionStorage.setItem(VIEW_STORAGE_KEY, 'true');
+            sessionStorage.setItem(SESSION_STORAGE_KEY, data.id); // Guarda el ID de la sesión
             
-            inicioSection.style.display = 'none';
-            registroSection.style.display = 'flex';
+            showRegistroUI();
             modalSesion.style.display = 'none';
             formNuevaSesion.reset();
-            updateWorkInProgress();
         } catch (error) {
             console.error('Error creando la sesión:', error);
             showToast('No se pudo crear la sesión.', 'error');
@@ -136,10 +167,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // ... (El resto del código permanece igual)
-    
     formEquipo.addEventListener('submit', async (e) => {
         e.preventDefault();
+        const currentSessionId = sessionStorage.getItem(SESSION_STORAGE_KEY);
         if (!currentSessionId) return showToast('Error: No hay una sesión activa.', 'error');
 
         const nuevoEquipo = {
@@ -154,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         if (Object.values(nuevoEquipo).slice(1).every(v => v === '')) {
-            return showToast('Por favor, rellena al menos un campo del equipo.', 'error');
+            return showToast('Por favor, rellena al menos un campo.', 'error');
         }
 
         btnAnadirEquipo.disabled = true;
@@ -168,14 +198,12 @@ document.addEventListener('DOMContentLoaded', () => {
             renderEquipoEnTabla(data, equiposCounter);
             formEquipo.reset();
             document.getElementById('descripcion').focus();
-            showToast('Equipo añadido con éxito.', 'success');
-            updateWorkInProgress();
         } catch (error) {
-            console.error('Error añadiendo equipo:', error);
             showToast('No se pudo añadir el equipo.', 'error');
         } finally {
             btnAnadirEquipo.disabled = false;
             btnAnadirEquipo.textContent = 'Añadir Equipo';
+            updateWorkInProgress();
         }
     });
     
@@ -190,7 +218,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.querySelector(`tr[data-id='${equipoId}']`).remove();
                     equiposCounter--;
                     contadorEquiposSpan.textContent = equiposCounter;
-                    showToast('Equipo eliminado.', 'success');
                     updateWorkInProgress();
                 } catch (error) {
                     showToast('No se pudo eliminar el equipo.', 'error');
@@ -202,10 +229,11 @@ document.addEventListener('DOMContentLoaded', () => {
     btnFinalizar.addEventListener('click', async () => {
         if (equiposCounter === 0) return showToast('Debes añadir al menos un equipo.', 'error');
 
-        const confirmado = await window.showConfirmationModal('Finalizar Descarte', '¿Has terminado de registrar todos los equipos?');
+        const confirmado = await window.showConfirmationModal('Finalizar Descarte', '¿Has terminado de registrar los equipos?');
 
         if (confirmado) {
-            const observacion = document.getElementById('observacion').value.trim();
+            const currentSessionId = sessionStorage.getItem(SESSION_STORAGE_KEY);
+            const observacion = observacionInput.value.trim();
             btnFinalizar.disabled = true;
             btnFinalizar.textContent = 'Finalizando...';
             try {
@@ -214,14 +242,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast('Descarte finalizado y guardado.', 'success');
                 setTimeout(() => window.location.href = 'inicio.html', 1500);
             } catch (error) {
-                showToast('No se pudo guardar la observación final.', 'error');
+                showToast('No se pudo guardar la observación.', 'error');
                 btnFinalizar.disabled = false;
                 btnFinalizar.textContent = 'Finalizar Descarte';
             }
         }
     });
 
-    // --- 5. GUARDIANES Y ESTADO INICIAL ---
+    // --- 6. GUARDIANES E INICIALIZACIÓN ---
 
     window.addEventListener('beforeunload', (event) => {
         if (window.isWorkInProgress) {
@@ -230,17 +258,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    [...formEquipo.querySelectorAll('input'), document.getElementById('observacion')].forEach(input => {
-        input.addEventListener('input', updateWorkInProgress);
-    });
-
     (async function initializePage() {
         await supabaseClient.auth.getSession();
         
-        if (sessionStorage.getItem(VIEW_STORAGE_KEY) === 'true') {
-            inicioSection.style.display = 'none';
-            registroSection.style.display = 'flex';
-            showToast("Listo para continuar o iniciar una nueva sesión.", "success");
+        const activeSessionId = sessionStorage.getItem(SESSION_STORAGE_KEY);
+        if (activeSessionId) {
+            await restoreSession(activeSessionId);
         }
 
         document.getElementById('loader').style.display = 'none';
