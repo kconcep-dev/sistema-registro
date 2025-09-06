@@ -8,22 +8,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnIniciar = document.getElementById('btn-iniciar-descarte');
     const btnAnadirEquipo = document.getElementById('btn-anadir-equipo');
     const btnFinalizar = document.getElementById('btn-finalizar-descarte');
+    
+    // Modales
     const modalSesion = document.getElementById('modal-nueva-sesion');
     const btnCerrarModalSesion = document.getElementById('btn-cerrar-modal');
     const formNuevaSesion = document.getElementById('form-nueva-sesion');
     const inputUA = document.getElementById('unidad_administrativa');
+    
+    const modalEditar = document.getElementById('modal-editar-equipo');
+    const formEditar = document.getElementById('form-editar-equipo');
+    const btnCerrarModalEditar = document.getElementById('btn-cerrar-modal-editar');
+    const btnCancelarEdicion = document.getElementById('btn-editar-cancelar');
+
+    // Formularios y tabla
     const formEquipo = document.getElementById('form-equipo');
-    const formInputs = formEquipo.querySelectorAll('input');
-    const observacionInput = document.getElementById('observacion');
     const tablaEquiposBody = document.querySelector('#tabla-equipos tbody');
     const contadorEquiposSpan = document.getElementById('contador-equipos');
+    const activeSessionIdSpan = document.getElementById('active-session-id');
     const toastEl = document.getElementById('toast-notification');
     const toastMessageEl = document.getElementById('toast-message');
 
     // --- 2. ESTADO DE LA APLICACIÓN ---
     let equiposCounter = 0;
     let toastTimeout;
-    const SESSION_STORAGE_KEY = 'activeDescarteSessionId'; // Clave para la sesión
+    let equipoActualEditandoId = null;
+    const SESSION_STORAGE_KEY = 'activeDescarteSessionId';
 
     // --- 3. FUNCIONES AUXILIARES ---
 
@@ -36,22 +45,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
-    function updateWorkInProgress() {
-        const hasInputText = Array.from(formInputs).some(input => input.value.trim() !== '') || observacionInput.value.trim() !== '';
-        // El trabajo está en progreso si hay una sesión activa
-        window.isWorkInProgress = !!sessionStorage.getItem(SESSION_STORAGE_KEY);
-    }
-
     window.clearWorkInProgress = () => {
         window.isWorkInProgress = false;
         sessionStorage.removeItem(SESSION_STORAGE_KEY);
-        // Resetea la UI a su estado inicial
         if (window.location.pathname.includes('descartes.html')) {
             equiposCounter = 0;
             contadorEquiposSpan.textContent = '0';
             tablaEquiposBody.innerHTML = '';
             formEquipo.reset();
-            observacionInput.value = '';
+            document.getElementById('observacion').value = '';
             inicioSection.style.display = 'flex';
             registroSection.style.display = 'none';
         }
@@ -69,44 +71,53 @@ document.addEventListener('DOMContentLoaded', () => {
             <td>${equipo.modelo || '-'}</td>
             <td>${equipo.estado_equipo || '-'}</td>
             <td>${equipo.motivo_descarte || '-'}</td>
-            <td><button class="btn-eliminar" data-id="${equipo.id}">Eliminar</button></td>
+            <td class="actions-cell">
+                <button class="btn-accion btn-editar" data-id="${equipo.id}">Editar</button>
+                <button class="btn-accion btn-eliminar" data-id="${equipo.id}">Eliminar</button>
+            </td>
         `;
         tablaEquiposBody.appendChild(tr);
     }
 
-    // NUEVO: Función para mostrar la UI de registro
-    function showRegistroUI() {
+    function updateFilaEnTabla(equipoActualizado) {
+        const fila = document.querySelector(`tr[data-id='${equipoActualizado.id}']`);
+        if (fila) {
+            fila.cells[1].textContent = equipoActualizado.descripcion || '-';
+            fila.cells[2].textContent = equipoActualizado.marbete || '-';
+            fila.cells[3].textContent = equipoActualizado.serie || '-';
+            fila.cells[4].textContent = equipoActualizado.marca || '-';
+            fila.cells[5].textContent = equipoActualizado.modelo || '-';
+            fila.cells[6].textContent = equipoActualizado.estado_equipo || '-';
+            fila.cells[7].textContent = equipoActualizado.motivo_descarte || '-';
+        }
+    }
+
+    function showRegistroUI(sessionId) {
+        activeSessionIdSpan.textContent = sessionId;
         inicioSection.style.display = 'none';
         registroSection.style.display = 'flex';
-        updateWorkInProgress();
+        window.isWorkInProgress = true;
     }
     
     // --- 4. LÓGICA DE SESIÓN Y RESTAURACIÓN ---
 
     async function restoreSession(sessionId) {
         try {
-            // Obtener equipos de la sesión guardada
-            const { data: equiposData, error: equiposError } = await supabaseClient
+            const { data: equiposData, error } = await supabaseClient
                 .from('equipos_descartados')
                 .select('*')
                 .eq('sesion_id', sessionId)
                 .order('created_at', { ascending: true });
-            if (equiposError) throw equiposError;
+            if (error) throw error;
             
-            // Renderizar la UI
-            showRegistroUI();
+            showRegistroUI(sessionId);
             tablaEquiposBody.innerHTML = '';
-            equiposData.forEach((equipo, index) => {
-                renderEquipoEnTabla(equipo, index + 1);
-            });
+            equiposData.forEach((equipo, index) => renderEquipoEnTabla(equipo, index + 1));
             equiposCounter = equiposData.length;
             contadorEquiposSpan.textContent = equiposCounter;
             
             showToast('Sesión anterior restaurada.', 'success');
-            updateWorkInProgress();
-
         } catch (error) {
-            console.error("Error restaurando la sesión:", error);
             showToast("No se pudo restaurar la sesión. Empezando de nuevo.", "error");
             clearWorkInProgress();
         }
@@ -114,14 +125,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- 5. MANEJADORES DE EVENTOS ---
 
-    btnIniciar.addEventListener('click', () => {
-        modalSesion.style.display = 'flex';
-        inputUA.focus();
-    });
-
-    btnCerrarModalSesion.addEventListener('click', () => {
-        modalSesion.style.display = 'none';
-    });
+    btnIniciar.addEventListener('click', () => modalSesion.style.display = 'flex');
+    btnCerrarModalSesion.addEventListener('click', () => modalSesion.style.display = 'none');
 
     formNuevaSesion.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -135,16 +140,16 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) throw new Error("Usuario no encontrado.");
-
+            
             const tecnico = await (async () => {
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 if (!user) return 'Desconocido';
                 const userMappings = { 'concepcion.kelieser@gmail.com': 'Kevin' };
                 return userMappings[user.email] || user.email.split('@')[0];
             })();
-            
+
             const nuevaSesion = {
-                unidad_administrativa: unidadAdministrativa,
+                unidad_administrativa,
                 tecnico_encargado: tecnico,
                 fecha: new Date().toISOString().split('T')[0],
                 user_id: user.id
@@ -153,13 +158,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const { data, error } = await supabaseClient.from('descartes_sesiones').insert(nuevaSesion).select().single();
             if (error) throw error;
 
-            sessionStorage.setItem(SESSION_STORAGE_KEY, data.id); // Guarda el ID de la sesión
-            
-            showRegistroUI();
+            sessionStorage.setItem(SESSION_STORAGE_KEY, data.id);
+            showRegistroUI(data.id);
             modalSesion.style.display = 'none';
             formNuevaSesion.reset();
         } catch (error) {
-            console.error('Error creando la sesión:', error);
             showToast('No se pudo crear la sesión.', 'error');
         } finally {
             submitBtn.disabled = false;
@@ -198,31 +201,93 @@ document.addEventListener('DOMContentLoaded', () => {
             renderEquipoEnTabla(data, equiposCounter);
             formEquipo.reset();
             document.getElementById('descripcion').focus();
+            showToast('Equipo añadido con éxito.', 'success'); // CORRECCIÓN
         } catch (error) {
             showToast('No se pudo añadir el equipo.', 'error');
         } finally {
             btnAnadirEquipo.disabled = false;
             btnAnadirEquipo.textContent = 'Añadir Equipo';
-            updateWorkInProgress();
         }
     });
     
     tablaEquiposBody.addEventListener('click', async (e) => {
-        if (e.target.classList.contains('btn-eliminar')) {
-            const equipoId = e.target.dataset.id;
-            const confirmado = await window.showConfirmationModal('Eliminar Equipo', '¿Estás seguro?');
+        const target = e.target;
+        const equipoId = target.dataset.id;
 
+        // Lógica para Eliminar
+        if (target.classList.contains('btn-eliminar')) {
+            const confirmado = await window.showConfirmationModal('Eliminar Equipo', '¿Estás seguro?');
             if (confirmado) {
                 try {
                     await supabaseClient.from('equipos_descartados').delete().eq('id', equipoId);
                     document.querySelector(`tr[data-id='${equipoId}']`).remove();
                     equiposCounter--;
                     contadorEquiposSpan.textContent = equiposCounter;
-                    updateWorkInProgress();
                 } catch (error) {
                     showToast('No se pudo eliminar el equipo.', 'error');
                 }
             }
+        }
+
+        // Lógica para Editar
+        if (target.classList.contains('btn-editar')) {
+            try {
+                const { data, error } = await supabaseClient.from('equipos_descartados').select('*').eq('id', equipoId).single();
+                if (error) throw error;
+
+                equipoActualEditandoId = data.id;
+                document.getElementById('edit-descripcion').value = data.descripcion || '';
+                document.getElementById('edit-marbete').value = data.marbete || '';
+                document.getElementById('edit-serie').value = data.serie || '';
+                document.getElementById('edit-marca').value = data.marca || '';
+                document.getElementById('edit-modelo').value = data.modelo || '';
+                document.getElementById('edit-estado_equipo').value = data.estado_equipo || '';
+                document.getElementById('edit-motivo_descarte').value = data.motivo_descarte || '';
+                
+                modalEditar.style.display = 'flex';
+            } catch (error) {
+                showToast('No se pudieron cargar los datos del equipo.', 'error');
+            }
+        }
+    });
+    
+    // Lógica para el modal de edición
+    btnCerrarModalEditar.addEventListener('click', () => modalEditar.style.display = 'none');
+    btnCancelarEdicion.addEventListener('click', () => modalEditar.style.display = 'none');
+    
+    formEditar.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const datosActualizados = {
+            descripcion: document.getElementById('edit-descripcion').value.trim(),
+            marbete: document.getElementById('edit-marbete').value.trim(),
+            serie: document.getElementById('edit-serie').value.trim(),
+            marca: document.getElementById('edit-marca').value.trim(),
+            modelo: document.getElementById('edit-modelo').value.trim(),
+            estado_equipo: document.getElementById('edit-estado_equipo').value.trim(),
+            motivo_descarte: document.getElementById('edit-motivo_descarte').value.trim(),
+        };
+
+        const submitBtn = formEditar.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Aplicando...';
+        
+        try {
+            const { data, error } = await supabaseClient.from('equipos_descartados')
+                .update(datosActualizados)
+                .eq('id', equipoActualEditandoId)
+                .select()
+                .single();
+            if (error) throw error;
+            
+            updateFilaEnTabla(data);
+            modalEditar.style.display = 'none';
+            showToast('Equipo actualizado con éxito.', 'success');
+        } catch (error) {
+            showToast('No se pudo actualizar el equipo.', 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Aplicar Cambios';
+            equipoActualEditandoId = null;
         }
     });
 
@@ -233,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (confirmado) {
             const currentSessionId = sessionStorage.getItem(SESSION_STORAGE_KEY);
-            const observacion = observacionInput.value.trim();
+            const observacion = document.getElementById('observacion').value.trim();
             btnFinalizar.disabled = true;
             btnFinalizar.textContent = 'Finalizando...';
             try {
