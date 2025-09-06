@@ -44,10 +44,41 @@ if (navbarPlaceholder) {
     navbarPlaceholder.innerHTML = navbarHTML;
 }
 
-// --- 3. FUNCIONES COMUNES (Se ejecutarán cuando el DOM esté listo) ---
+// --- 3. FUNCIONES Y LÓGICA COMÚN ---
 
-// NUEVO: Variable global para rastrear trabajo sin guardar
+// Variable global para rastrear trabajo sin guardar
 window.isWorkInProgress = false;
+
+// Función global para limpiar el estado de trabajo (será definida en las páginas específicas)
+window.clearWorkInProgress = () => {
+    window.isWorkInProgress = false;
+};
+
+// Función global para mostrar modal de confirmación
+window.showConfirmationModal = (title, message) => {
+    const modal = document.getElementById('modal-confirmacion');
+    if (!modal) return Promise.resolve(true); // Si no hay modal, se asume confirmación
+
+    const confirmTitle = document.getElementById('confirm-title');
+    const confirmMessage = document.getElementById('confirm-message');
+    const btnAceptar = document.getElementById('btn-confirmar-aceptar');
+    const btnCancelar = document.getElementById('btn-confirmar-cancelar');
+
+    confirmTitle.textContent = title;
+    confirmMessage.textContent = message;
+    modal.style.display = 'flex';
+
+    return new Promise((resolve) => {
+        btnAceptar.onclick = () => {
+            modal.style.display = 'none';
+            resolve(true);
+        };
+        btnCancelar.onclick = () => {
+            modal.style.display = 'none';
+            resolve(false);
+        };
+    });
+};
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -65,88 +96,91 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('theme', theme);
         });
     }
-
-    // --- LÓGICA DE LOGOUT ---
-    const logoutBtn = document.getElementById('logout-btn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-            // Lógica de advertencia también podría ir aquí si se desea
-            await supabaseClient.auth.signOut();
-            window.location.href = 'login.html';
-        });
-    }
-
+    
     // --- LÓGICA DE NAVEGACIÓN (HAMBURGUESA) ---
     const hamburgerBtn = document.getElementById('hamburger-btn');
     if (hamburgerBtn) {
-        hamburgerBtn.addEventListener('click', () => {
-            document.body.classList.toggle('nav-open');
+        hamburgerBtn.addEventListener('click', () => document.body.classList.toggle('nav-open'));
+    }
+
+    // --- FUNCIÓN GENÉRICA PARA SALIR DE FORMA SEGURA ---
+    async function safeExit(exitFunction) {
+        if (window.isWorkInProgress) {
+            const confirmed = await window.showConfirmationModal(
+                'Salir sin Guardar',
+                'Tienes cambios sin finalizar. ¿Estás seguro de que quieres salir y descartar el progreso?'
+            );
+            if (confirmed) {
+                if (typeof window.clearWorkInProgress === 'function') {
+                    window.clearWorkInProgress();
+                }
+                exitFunction();
+            }
+        } else {
+            exitFunction();
+        }
+    }
+
+    // --- LÓGICA DE LOGOUT (ACTUALIZADA) ---
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            safeExit(async () => {
+                await supabaseClient.auth.signOut();
+                window.location.href = 'login.html';
+            });
         });
     }
-    
-    // --- LÓGICA PARA MARCAR ENLACE ACTIVO Y AÑADIR GUARDIÁN DE NAVEGACIÓN ---
+
+    // --- LÓGICA PARA MARCAR ENLACE ACTIVO Y GUARDIÁN DE NAVEGACIÓN (ACTUALIZADO) ---
     const currentPage = window.location.pathname.split('/').pop();
     const navLinks = document.querySelectorAll('.nav-link');
 
     navLinks.forEach(link => {
         const linkPage = link.getAttribute('href').split('/').pop();
-
-        // Marcar enlace activo
         if (linkPage === currentPage) {
             link.classList.add('active');
         }
 
-        // NUEVO: Guardián de navegación
-        link.addEventListener('click', async (e) => {
-            // No hacer nada si es un enlace deshabilitado o si es el enlace de la página actual
+        link.addEventListener('click', (e) => {
             if (link.classList.contains('disabled') || link.classList.contains('active')) {
                 return;
             }
-
-            if (window.isWorkInProgress) {
-                e.preventDefault(); // Detener la navegación
-
-                // Las funciones showConfirmationModal y clearWorkInProgress son definidas en las páginas específicas (descartes.js, script.js)
-                if (typeof window.showConfirmationModal === 'function') {
-                    const confirmado = await window.showConfirmationModal(
-                        'Salir sin Guardar',
-                        'Tienes cambios sin finalizar. ¿Estás seguro de que quieres salir y descartar el progreso?'
-                    );
-
-                    if (confirmado) {
-                        if (typeof window.clearWorkInProgress === 'function') {
-                            window.clearWorkInProgress(); // Limpiar sessionStorage
-                        }
-                        window.location.href = link.href; // Navegar a la nueva página
-                    }
-                } else {
-                    // Fallback por si la función modal no está disponible
-                    window.location.href = link.href;
-                }
-            }
+            e.preventDefault(); // Siempre prevenimos la navegación inmediata
+            safeExit(() => {
+                window.location.href = link.href;
+            });
         });
     });
 
-    // --- TEMPORIZADOR DE INACTIVIDAD ---
+    // --- TEMPORIZADOR DE INACTIVIDAD (ACTUALIZADO) ---
     let inactivityTimer;
     const INACTIVITY_TIMEOUT = 10 * 60 * 1000;
 
-    async function logoutUser() {
-        alert("Cerrando sesión por inactividad...");
-        // Limpiar trabajo en progreso antes de salir
-        if (typeof window.clearWorkInProgress === 'function') {
-            window.clearWorkInProgress();
+    async function logoutUserByInactivity() {
+        // En lugar de alert, usamos el modal de confirmación
+        const confirmed = await window.showConfirmationModal(
+            'Sesión por Expirar',
+            'Has estado inactivo por un tiempo. ¿Deseas cerrar la sesión ahora?'
+        );
+
+        if (confirmed) {
+            if (typeof window.clearWorkInProgress === 'function') {
+                window.clearWorkInProgress();
+            }
+            await supabaseClient.auth.signOut();
+            window.location.href = 'login.html';
+        } else {
+            // Si el usuario cancela, reseteamos el timer
+            resetInactivityTimer();
         }
-        await supabaseClient.auth.signOut();
-        window.location.href = 'login.html';
     }
 
     function resetInactivityTimer() {
         clearTimeout(inactivityTimer);
-        inactivityTimer = setTimeout(logoutUser, INACTIVITY_TIMEOUT);
+        inactivityTimer = setTimeout(logoutUserByInactivity, INACTIVITY_TIMEOUT);
     }
 
-    // CORRECCIÓN: Añadido descartes.html a la lista
     const pagesWithInactivityTimer = ['index.html', 'inicio.html', 'descartes.html'];
     if (pagesWithInactivityTimer.some(page => window.location.pathname.includes(page))) {
         window.onload = resetInactivityTimer;

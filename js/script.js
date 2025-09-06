@@ -8,9 +8,6 @@
     } else {
         document.getElementById('loader').style.display = 'none';
         document.getElementById('main-content').style.display = 'flex';
-        // Este header-buttons no existe en el HTML de index.html, pero no causa error.
-        // Se puede eliminar esta línea si se desea.
-        // document.getElementById('header-buttons').style.display = 'flex';
     }
 })();
 
@@ -18,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. ELEMENTOS DEL DOM ---
     const form = document.getElementById('registro-form');
+    const inputs = form.querySelectorAll('input');
     const submitBtn = document.getElementById('submit-btn');
     const toastEl = document.getElementById('toast-notification');
     const toastMessageEl = document.getElementById('toast-message');
@@ -30,7 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 2. ESTADO Y PERSISTENCIA ---
     let toastTimeout;
-    const FORM_STORAGE_KEY = 'activeRegistroForm'; // Clave para sessionStorage
 
     // --- 3. FUNCIONES AUXILIARES ---
 
@@ -38,56 +35,22 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTimeout(toastTimeout);
         toastMessageEl.textContent = message;
         toastEl.className = `toast show ${type}`;
-        // El efecto flash no es ideal para esta página, lo comentamos.
-        // document.body.classList.add(`flash-${type}`);
         toastTimeout = setTimeout(() => {
             toastEl.className = toastEl.className.replace('show', '');
-            // document.body.classList.remove(`flash-success`, `flash-error`);
         }, 3000);
     }
 
-    // NUEVO: Funciones para manejar el estado de trabajo en progreso
+    // NUEVO: Función para actualizar el estado de "trabajo en progreso"
     function updateWorkInProgress() {
-        const formData = getFormData();
-        const hasContent = Object.values(formData).some(value => value.trim() !== '');
+        const hasContent = Array.from(inputs).some(input => input.value.trim() !== '');
         window.isWorkInProgress = hasContent;
     }
 
+    // NUEVO: Función para limpiar el estado de trabajo. Se expone globalmente.
     window.clearWorkInProgress = () => {
-        sessionStorage.removeItem(FORM_STORAGE_KEY);
         window.isWorkInProgress = false;
-        form.reset(); // También reseteamos el formulario visual
+        form.reset(); // Limpia el formulario visualmente
     };
-
-    // NUEVO: Guardar datos del formulario en sessionStorage
-    function saveFormData() {
-        const formData = getFormData();
-        sessionStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(formData));
-        updateWorkInProgress();
-    }
-
-    // NUEVO: Cargar datos del formulario desde sessionStorage
-    function loadFormData() {
-        const savedData = sessionStorage.getItem(FORM_STORAGE_KEY);
-        if (savedData) {
-            const formData = JSON.parse(savedData);
-            document.getElementById('nombre').value = formData.nombre;
-            document.getElementById('apellido').value = formData.apellido;
-            document.getElementById('cedula').value = formData.cedula;
-            document.getElementById('motivo').value = formData.motivo;
-            updateWorkInProgress();
-        }
-    }
-
-    // NUEVO: Obtener datos del formulario como un objeto
-    function getFormData() {
-        return {
-            nombre: document.getElementById('nombre').value,
-            apellido: document.getElementById('apellido').value,
-            cedula: document.getElementById('cedula').value,
-            motivo: document.getElementById('motivo').value,
-        };
-    }
     
     function displayLastVisitor(visitor) {
         if (visitor) {
@@ -116,12 +79,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 4. LÓGICA DEL FORMULARIO DE REGISTRO ---
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
-        const { nombre, apellido, cedula, motivo } = getFormData();
-        
-        if (!nombre.trim() || !apellido.trim() || !cedula.trim() || !motivo.trim()) {
+        const nombre = document.getElementById("nombre").value.trim();
+        const apellido = document.getElementById("apellido").value.trim();
+        const cedula = document.getElementById("cedula").value.trim();
+        const motivo = document.getElementById("motivo").value.trim();
+
+        if (!nombre || !apellido || !cedula || !motivo) {
             showToast("Por favor, completa todos los campos.", "error");
             return;
         }
+
         submitBtn.disabled = true;
         submitBtn.textContent = "Registrando...";
         try {
@@ -134,8 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const nuevoVisitante = { nombre, apellido, cedula, motivo, fecha: fechaActual, hora: horaActual };
             displayLastVisitor(nuevoVisitante);
             
-            // Limpia el estado de trabajo
-            clearWorkInProgress();
+            clearWorkInProgress(); // Limpia el estado de trabajo
             
         } catch (err) {
             showToast("Error al registrar los datos.", "error");
@@ -148,7 +114,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 5. LÓGICA DEL LECTOR DE QR ---
     qrFileInput.addEventListener('change', (event) => {
-        // ... (El código de QR no necesita cambios y se mantiene igual)
         const file = event.target.files[0];
         qrResultDisplay.textContent = 'Procesando...';
         if (file) {
@@ -178,15 +143,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         document.getElementById('cedula').value = parts[0].trim();
                         document.getElementById('nombre').value = parts[1].trim();
                         document.getElementById('apellido').value = parts[2].trim();
-                        saveFormData(); // Guarda los datos autocompletados
+                        updateWorkInProgress(); // Activa el guardián
                         showToast("Datos de QR cargados.", "success");
                     } else {
                         showToast("Formato del QR no esperado.", "error");
-                        qrResultDisplay.textContent += "\nError: Formato no reconocido (esperado: cedula|nombre|apellido)";
+                        qrResultDisplay.textContent += "\nError: Formato no reconocido";
                     }
                 } else {
                     showToast("No se encontró un QR en la imagen.", "error");
-                    qrResultDisplay.textContent = 'No se detectó ningún código QR en la foto.';
+                    qrResultDisplay.textContent = 'No se detectó ningún código QR.';
                 }
             };
             img.src = imageUrl;
@@ -195,13 +160,19 @@ document.addEventListener('DOMContentLoaded', () => {
         event.target.value = '';
     });
 
-    // --- 6. INICIALIZACIÓN DE LA PÁGINA ---
+    // --- 6. INICIALIZACIÓN Y GUARDIANES ---
     fetchLastVisitor();
-    loadFormData(); // Carga datos guardados al iniciar la página
 
-    // NUEVO: Agrega listeners para guardar datos mientras se escribe
-    const inputs = form.querySelectorAll('input');
+    // NUEVO: Agrega listeners para detectar cambios en el formulario
     inputs.forEach(input => {
-        input.addEventListener('input', saveFormData);
+        input.addEventListener('input', updateWorkInProgress);
+    });
+
+    // NUEVO: Guardián para recargar o cerrar la pestaña
+    window.addEventListener('beforeunload', (event) => {
+        if (window.isWorkInProgress) {
+            event.preventDefault();
+            event.returnValue = ''; // Requerido por algunos navegadores
+        }
     });
 });

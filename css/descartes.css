@@ -100,45 +100,6 @@
 
 
 /* --- 3. Estilos de la Interfaz Principal de Registro --- */
-
-/* CORRECCIÓN: Tarjeta de sesión horizontal con manejo de texto largo */
-.card-sesion-info {
-    background-color: var(--card-bg-color);
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-bottom: 30px;
-    box-shadow: 0 4px 12px var(--shadow-color);
-    display: flex;
-    flex-wrap: wrap; 
-    justify-content: space-around;
-    align-items: center;
-    gap: 15px;
-}
-
-.info-item {
-    font-size: 0.9rem;
-    color: var(--text-color);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    white-space: nowrap; /* Evita que el título se parta */
-}
-
-.info-item strong {
-    color: var(--primary-color);
-}
-
-/* Estilo para el span que contiene el valor, especialmente para la Unidad Administrativa */
-.info-item span {
-    display: inline-block;
-    max-width: 150px; /* Límite de ancho inicial para móviles */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    vertical-align: bottom; /* Alinea mejor el texto cortado */
-    cursor: help; /* Indica que se puede interactuar para ver el tooltip */
-}
-
 .form-equipo {
     background-color: var(--card-bg-color);
     padding: 25px;
@@ -307,9 +268,4 @@
     .form-grid .form-group:nth-child(3) { grid-column: 3 / 4; }
     .form-grid .form-group:nth-child(4) { grid-column: 1 / 2; }
     .form-grid .form-group:nth-child(5) { grid-column: 2 / 3; }
-    
-    /* Aumenta el ancho máximo del span en escritorio */
-    .info-item span {
-        max-width: 300px; 
-    }
 }
