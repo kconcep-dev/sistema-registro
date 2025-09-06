@@ -45,20 +45,20 @@
                             <input type="text" id="descripcion" placeholder="Ej: CPU, Monitor...">
                         </div>
                         <div class="form-group">
-                            <label for="marca">Marca:</label>
-                            <input type="text" id="marca" placeholder="Ej: Dell, HP...">
-                        </div>
-                        <div class="form-group">
-                            <label for="modelo">Modelo:</label>
-                            <input type="text" id="modelo" placeholder="Ej: Optiplex 7010">
+                            <label for="marbete">Marbete:</label>
+                            <input type="text" id="marbete" placeholder="Número de marbete">
                         </div>
                         <div class="form-group">
                             <label for="serie">Serie:</label>
                             <input type="text" id="serie" placeholder="Número de serie">
                         </div>
                         <div class="form-group">
-                            <label for="marbete">Marbete:</label>
-                            <input type="text" id="marbete" placeholder="Número de marbete">
+                            <label for="marca">Marca:</label>
+                            <input type="text" id="marca" placeholder="Ej: Dell, HP...">
+                        </div>
+                        <div class="form-group">
+                            <label for="modelo">Modelo:</label>
+                            <input type="text" id="modelo" placeholder="Ej: Optiplex 7010">
                         </div>
                     </div>
                     <div class="form-group-full">
@@ -110,6 +110,17 @@
                 <input type="text" id="unidad_administrativa" required>
                 <button type="submit" class="btn-principal">Crear Sesión</button>
             </form>
+        </div>
+    </div>
+
+    <div id="modal-confirmacion" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2 id="confirm-title">¿Estás seguro?</h2>
+            <p id="confirm-message">Esta acción no se puede deshacer.</p>
+            <div class="modal-buttons">
+                <button id="btn-confirmar-cancelar" class="btn-secondary">Cancelar</button>
+                <button id="btn-confirmar-aceptar" class="btn-danger">Aceptar</button>
+            </div>
         </div>
     </div>
 

@@ -10,35 +10,33 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'login.html';
             return;
         }
-        // Ocultar cargador y mostrar contenido
         document.getElementById('loader').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
     }
 
     // --- 2. ELEMENTOS DEL DOM ---
-    // Secciones principales
     const inicioSection = document.getElementById('inicio-descarte-section');
     const registroSection = document.getElementById('registro-equipos-section');
-
-    // Botones
     const btnIniciar = document.getElementById('btn-iniciar-descarte');
-    const btnCerrarModal = document.getElementById('btn-cerrar-modal');
     const btnAnadirEquipo = document.getElementById('btn-anadir-equipo');
     const btnFinalizar = document.getElementById('btn-finalizar-descarte');
 
-    // Modal y sus formularios
-    const modal = document.getElementById('modal-nueva-sesion');
+    // Modales
+    const modalSesion = document.getElementById('modal-nueva-sesion');
+    const btnCerrarModalSesion = document.getElementById('btn-cerrar-modal');
     const formNuevaSesion = document.getElementById('form-nueva-sesion');
     const inputUA = document.getElementById('unidad_administrativa');
+    
+    // NUEVO: Modal de Confirmación
+    const modalConfirmacion = document.getElementById('modal-confirmacion');
+    const confirmTitle = document.getElementById('confirm-title');
+    const confirmMessage = document.getElementById('confirm-message');
+    const btnConfirmarAceptar = document.getElementById('btn-confirmar-aceptar');
+    const btnConfirmarCancelar = document.getElementById('btn-confirmar-cancelar');
 
-    // Formulario de equipos
     const formEquipo = document.getElementById('form-equipo');
-
-    // Tabla y contador
     const tablaEquiposBody = document.querySelector('#tabla-equipos tbody');
     const contadorEquiposSpan = document.getElementById('contador-equipos');
-
-    // Notificaciones Toast
     const toastEl = document.getElementById('toast-notification');
     const toastMessageEl = document.getElementById('toast-message');
 
@@ -46,10 +44,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSessionId = null;
     let equiposCounter = 0;
     let toastTimeout;
-
+    
     // --- 4. FUNCIONES AUXILIARES ---
 
-    // Función para mostrar notificaciones
     function showToast(message, type = 'success') {
         clearTimeout(toastTimeout);
         toastMessageEl.textContent = message;
@@ -59,10 +56,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
-    // Función para renderizar un equipo en la tabla
     function renderEquipoEnTabla(equipo, numero) {
         const tr = document.createElement('tr');
-        tr.setAttribute('data-id', equipo.id); // Guardamos el ID del equipo en la fila
+        tr.setAttribute('data-id', equipo.id);
         tr.innerHTML = `
             <td>${numero}</td>
             <td>${equipo.descripcion}</td>
@@ -74,91 +70,83 @@ document.addEventListener('DOMContentLoaded', () => {
         tablaEquiposBody.appendChild(tr);
     }
 
-    // Función para obtener el nombre del usuario (simplificado)
     async function getUserName() {
         const { data: { user } } = await supabaseClient.auth.getUser();
         if (!user) return 'Desconocido';
-        const userMappings = {
-            'concepcion.kelieser@gmail.com': 'Kevin',
-            // Agrega más usuarios aquí si es necesario
-        };
+        const userMappings = { 'concepcion.kelieser@gmail.com': 'Kevin' };
         return userMappings[user.email] || user.email.split('@')[0];
+    }
+
+    // NUEVA FUNCIÓN: Muestra un modal de confirmación y devuelve una promesa
+    function showConfirmationModal(title, message) {
+        confirmTitle.textContent = title;
+        confirmMessage.textContent = message;
+        modalConfirmacion.style.display = 'flex';
+
+        return new Promise((resolve) => {
+            btnConfirmarAceptar.onclick = () => {
+                modalConfirmacion.style.display = 'none';
+                resolve(true);
+            };
+            btnConfirmarCancelar.onclick = () => {
+                modalConfirmacion.style.display = 'none';
+                resolve(false);
+            };
+        });
     }
 
     // --- 5. LÓGICA PRINCIPAL Y MANEJADORES DE EVENTOS ---
 
-    // Abrir el modal para crear una nueva sesión
     btnIniciar.addEventListener('click', () => {
-        modal.style.display = 'flex';
+        modalSesion.style.display = 'flex';
         inputUA.focus();
     });
 
-    // Cerrar el modal
-    btnCerrarModal.addEventListener('click', () => {
-        modal.style.display = 'none';
+    btnCerrarModalSesion.addEventListener('click', () => {
+        modalSesion.style.display = 'none';
     });
 
-    // Crear una nueva sesión de descarte
-formNuevaSesion.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const unidadAdministrativa = inputUA.value.trim();
-    if (!unidadAdministrativa) {
-        showToast('Por favor, introduce la unidad administrativa.', 'error');
-        return;
-    }
+    formNuevaSesion.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const unidadAdministrativa = inputUA.value.trim();
+        if (!unidadAdministrativa) {
+            showToast('Por favor, introduce la unidad administrativa.', 'error');
+            return;
+        }
 
-    try {
-        // --- INICIO DE LA CORRECCIÓN ---
+        try {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) throw new Error("No se pudo obtener el usuario.");
+            
+            const tecnico = await getUserName();
+            const fecha = new Date().toISOString().split('T')[0];
+            const nuevaSesion = {
+                unidad_administrativa: unidadAdministrativa,
+                tecnico_encargado: tecnico,
+                fecha: fecha,
+                user_id: user.id
+            };
 
-        // 1. Obtenemos la información completa del usuario actual
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        if (!user) throw new Error("No se pudo obtener el usuario.");
+            const { data, error } = await supabaseClient.from('descartes_sesiones').insert(nuevaSesion).select().single();
+            if (error) throw error;
 
-        // 2. Preparamos los datos, incluyendo el user.id
-        const tecnico = await getUserName();
-        const fecha = new Date().toISOString().split('T')[0];
-        
-        const nuevaSesion = {
-            unidad_administrativa: unidadAdministrativa,
-            tecnico_encargado: tecnico,
-            fecha: fecha,
-            user_id: user.id // <-- ESTA ES LA LÍNEA CLAVE
-        };
+            currentSessionId = data.id;
+            document.getElementById('sesion-id').textContent = data.id;
+            document.getElementById('sesion-ua').textContent = data.unidad_administrativa;
+            document.getElementById('sesion-tecnico').textContent = data.tecnico_encargado;
+            document.getElementById('sesion-fecha').textContent = new Date(data.fecha + 'T00:00:00').toLocaleDateString('es-PA');
 
-        // --- FIN DE LA CORRECCIÓN ---
-
-        const { data, error } = await supabaseClient
-            .from('descartes_sesiones')
-            .insert(nuevaSesion) // <-- Enviamos el nuevo objeto completo
-            .select()
-            .single();
-
-        if (error) throw error;
-
-        // Guardar el ID de la sesión actual
-        currentSessionId = data.id;
-
-        // Actualizar la interfaz (esto no cambia)
-        document.getElementById('sesion-id').textContent = data.id;
-        document.getElementById('sesion-ua').textContent = data.unidad_administrativa;
-        document.getElementById('sesion-tecnico').textContent = data.tecnico_encargado;
-        document.getElementById('sesion-fecha').textContent = new Date(data.fecha).toLocaleDateString('es-PA');
-
-        // Cambiar de vista
-        inicioSection.style.display = 'none';
-        registroSection.style.display = 'block';
-        modal.style.display = 'none';
-        formNuevaSesion.reset();
-
-        showToast('Sesión creada con éxito. Ya puedes añadir equipos.', 'success');
-
-    } catch (error) {
-        console.error('Error creando la sesión:', error);
-        showToast('No se pudo crear la sesión.', 'error');
-    }
-});
-
-    // Añadir un nuevo equipo
+            inicioSection.style.display = 'none';
+            registroSection.style.display = 'block';
+            modalSesion.style.display = 'none';
+            formNuevaSesion.reset();
+            showToast('Sesión creada. Ya puedes añadir equipos.', 'success');
+        } catch (error) {
+            console.error('Error creando la sesión:', error);
+            showToast('No se pudo crear la sesión.', 'error');
+        }
+    });
+    
     formEquipo.addEventListener('submit', async (e) => {
         e.preventDefault();
         if (!currentSessionId) {
@@ -177,7 +165,6 @@ formNuevaSesion.addEventListener('submit', async (e) => {
             motivo_descarte: document.getElementById('motivo_descarte').value.trim(),
         };
 
-        // Aunque no son obligatorios, es bueno tener al menos una descripción
         if (!nuevoEquipo.descripcion) {
             showToast('La descripción es recomendable.', 'error');
             return;
@@ -186,24 +173,15 @@ formNuevaSesion.addEventListener('submit', async (e) => {
         try {
             btnAnadirEquipo.disabled = true;
             btnAnadirEquipo.textContent = 'Añadiendo...';
-
-            const { data, error } = await supabaseClient
-                .from('equipos_descartados')
-                .insert(nuevoEquipo)
-                .select()
-                .single();
-
+            const { data, error } = await supabaseClient.from('equipos_descartados').insert(nuevoEquipo).select().single();
             if (error) throw error;
-
-            // Actualizar UI
+            
             equiposCounter++;
             contadorEquiposSpan.textContent = equiposCounter;
             renderEquipoEnTabla(data, equiposCounter);
             formEquipo.reset();
-            document.getElementById('descripcion').focus(); // Foco en el primer campo para agilizar
-
+            document.getElementById('descripcion').focus();
             showToast('Equipo añadido con éxito.', 'success');
-
         } catch (error) {
             console.error('Error añadiendo equipo:', error);
             showToast('No se pudo añadir el equipo.', 'error');
@@ -213,65 +191,59 @@ formNuevaSesion.addEventListener('submit', async (e) => {
         }
     });
     
-    // Eliminar un equipo (usando delegación de eventos)
+    // MODIFICADO: Eliminar un equipo usando el modal de confirmación
     tablaEquiposBody.addEventListener('click', async (e) => {
         if (e.target.classList.contains('btn-eliminar')) {
             const equipoId = e.target.dataset.id;
             
-            if (!confirm('¿Estás seguro de que quieres eliminar este equipo?')) {
-                return;
-            }
+            const confirmado = await showConfirmationModal(
+                'Eliminar Equipo', 
+                '¿Estás seguro de que quieres eliminar este equipo? Esta acción no se puede deshacer.'
+            );
 
-            try {
-                const { error } = await supabaseClient
-                    .from('equipos_descartados')
-                    .delete()
-                    .eq('id', equipoId);
-
-                if (error) throw error;
-                
-                // Eliminar de la tabla visual
-                const filaParaEliminar = document.querySelector(`tr[data-id='${equipoId}']`);
-                filaParaEliminar.remove();
-                
-                // Actualizar contador
-                // Nota: Esto desordenará la numeración, pero es lo más simple.
-                // La numeración final correcta se hará al generar el Excel.
-                equiposCounter--;
-                contadorEquiposSpan.textContent = equiposCounter;
-
-                showToast('Equipo eliminado.', 'success');
-
-            } catch (error) {
-                console.error('Error eliminando equipo:', error);
-                showToast('No se pudo eliminar el equipo.', 'error');
+            if (confirmado) {
+                try {
+                    const { error } = await supabaseClient.from('equipos_descartados').delete().eq('id', equipoId);
+                    if (error) throw error;
+                    
+                    const filaParaEliminar = document.querySelector(`tr[data-id='${equipoId}']`);
+                    filaParaEliminar.remove();
+                    
+                    equiposCounter--;
+                    contadorEquiposSpan.textContent = equiposCounter;
+                    showToast('Equipo eliminado.', 'success');
+                } catch (error) {
+                    console.error('Error eliminando equipo:', error);
+                    showToast('No se pudo eliminar el equipo.', 'error');
+                }
             }
         }
     });
 
-    // Finalizar el descarte
+    // MODIFICADO: Finalizar el descarte usando el modal de confirmación
     btnFinalizar.addEventListener('click', async () => {
-        const observacion = document.getElementById('observacion').value.trim();
-        
-        try {
-             const { error } = await supabaseClient
-                .from('descartes_sesiones')
-                .update({ observacion: observacion })
-                .eq('id', currentSessionId);
-                
-            if (error) throw error;
+        const confirmado = await showConfirmationModal(
+            'Finalizar Descarte',
+            '¿Has terminado de registrar todos los equipos para esta sesión?'
+        );
 
-            alert('Descarte finalizado y guardado con éxito.');
-            window.location.href = 'inicio.html';
+        if (confirmado) {
+            const observacion = document.getElementById('observacion').value.trim();
+            try {
+                const { error } = await supabaseClient.from('descartes_sesiones').update({ observacion: observacion }).eq('id', currentSessionId);
+                if (error) throw error;
 
-        } catch (error) {
-            console.error('Error al finalizar el descarte:', error);
-            showToast('No se pudo guardar la observación final.', 'error');
+                showToast('Descarte finalizado y guardado.', 'success');
+                setTimeout(() => {
+                    window.location.href = 'inicio.html';
+                }, 1500); // Espera 1.5s para que el toast sea visible antes de redirigir
+            } catch (error) {
+                console.error('Error al finalizar el descarte:', error);
+                showToast('No se pudo guardar la observación final.', 'error');
+            }
         }
     });
-
 
     // --- 6. INICIALIZACIÓN ---
     checkSessionAndInitialize();
-
 });
