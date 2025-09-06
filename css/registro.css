@@ -9,7 +9,7 @@
     margin-bottom: 20px;
 }
 
-/* CORRECCIÓN: Se aumenta el z-index para asegurar que el formulario esté siempre por encima */
+/* CORRECCIÓN: Se asegura que el formulario esté siempre por encima de la sección QR */
 #registro-form {
     position: relative;
     z-index: 10;
@@ -91,42 +91,6 @@
 
 .card-ultimo-visitante p {
     margin: 8px 0;
-}
-
-/* NUEVO: Estilos para el Modal de Confirmación (para que funcionen en esta página) */
-.modal-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 25px;
-}
-
-.btn-secondary, .btn-danger {
-    padding: 10px 25px;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-.btn-secondary {
-    background-color: var(--input-bg-color);
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
-}
-.btn-secondary:hover {
-    background-color: var(--border-color);
-    color: var(--bg-color);
-}
-
-.btn-danger {
-    background-color: var(--error-color);
-    color: white;
-}
-.btn-danger:hover {
-    background-color: #b02a37;
 }
 
 /* --- Responsivo --- */

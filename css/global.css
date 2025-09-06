@@ -71,19 +71,6 @@ body {
     }
 }
 
-body.flash-success {
-    background-color: #16A34A;
-}
-
-body.flash-error {
-    background-color: #DC2626;
-}
-
-body.flash-success h1,
-body.flash-error h1 {
-    color: white;
-}
-
 /* --- 3. Notificación Toast --- */
 .toast {
     position: fixed;
@@ -98,7 +85,7 @@ body.flash-error h1 {
     min-width: 320px;
     text-align: center;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    z-index: 4000; /* CORRECCIÓN: Aumentado de 2000 a 4000 para estar sobre el modal */
+    z-index: 4000;
     opacity: 0;
     border: 2px solid rgba(255, 255, 255, 0.7);
     transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
@@ -174,16 +161,6 @@ input:focus {
 button:disabled {
     background-color: #a0a0a0;
     cursor: not-allowed;
-}
-
-.feedback.error {
-    background-color: #f8d7da;
-    color: #842029;
-    padding: 12px;
-    margin-bottom: 15px;
-    border-radius: 6px;
-    text-align: center;
-    font-weight: bold;
 }
 
 /* --- 5. Barra de Navegación --- */
@@ -291,7 +268,6 @@ body.nav-open .nav-links {
     height: 40px;
 }
 
-/* --- Estilos para Escritorio --- */
 @media (min-width: 768px) {
     body {
         padding-top: 80px;
@@ -365,47 +341,86 @@ body.nav-open .nav-links {
     color: white;
 }
 
-/* --- 6. Estilos para Iconos Personalizados --- */
-.nav-control-btn img {
-    width: 30px;
-    height: 30px;
-    vertical-align: middle;
+/* --- 6. Iconos Personalizados --- */
+/* ... (El resto de tus estilos de iconos que ya tienes) ... */
+.nav-control-btn img, .hamburger img { width: 26px; height: 26px; vertical-align: middle; }
+.icon-dark { display: block; }
+.icon-light { display: none; }
+body.dark-mode .icon-dark { display: none; }
+body.dark-mode .icon-light { display: block; }
+.icon-close { display: none; }
+.icon-menu { display: block; }
+body.nav-open .icon-close { display: block; }
+body.nav-open .icon-menu { display: none; }
+
+/* --- NUEVO: Estilos Globales para Modales --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
 }
 
-.hamburger img {
-    width: 26px;
-    height: 26px;
-    vertical-align: middle;
+.modal-content {
+    background-color: var(--card-bg-color);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    text-align: center;
 }
 
-.icon-dark {
-    display: block;
+.modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 2rem;
+    color: var(--border-color);
+    cursor: pointer;
 }
 
-.icon-light {
-    display: none;
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 25px;
 }
 
-body.dark-mode .icon-dark {
-    display: none;
+.btn-secondary, .btn-danger {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
 }
 
-body.dark-mode .icon-light {
-    display: block;
+.btn-secondary {
+    background-color: var(--input-bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+.btn-secondary:hover {
+    background-color: var(--border-color);
+    color: var(--bg-color);
 }
 
-.icon-close {
-    display: none;
+.btn-danger {
+    background-color: var(--error-color);
+    color: white;
 }
-
-.icon-menu {
-    display: block;
-}
-
-body.nav-open .icon-close {
-    display: block;
-}
-
-body.nav-open .icon-menu {
-    display: none;
+.btn-danger:hover {
+    background-color: #b02a37;
 }
