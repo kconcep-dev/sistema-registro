@@ -57,10 +57,6 @@ body.dark-mode .login-container {
 .login-form-wrapper {
     flex-basis: 55%;
     padding: 40px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100%;
 }
 
 /* ESTILO UNIFICADO Y CORREGIDO PARA LAS ETIQUETAS */
@@ -207,4 +203,11 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+#login-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%; /* Clave: El formulario debe ocupar toda la altura disponible para poder centrar su contenido. */
 }
