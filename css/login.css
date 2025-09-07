@@ -57,14 +57,9 @@ body.dark-mode .login-container {
 .login-form-wrapper {
     flex-basis: 55%;
     padding: 40px;
-    /* CAMBIO: Se quitaron las propiedades flex de aquí para moverlas al formulario. */
 }
 
-/* ===================================================================== */
-/* === SECCIÓN DE CORRECCIÓN PARA CENTRADO VERTICAL PERFECTO === */
-/* ===================================================================== */
-
-/* 1. El formulario controla el centrado vertical de sus hijos (los pasos). */
+/* AHORA EL FORMULARIO CONTROLA EL CENTRADO DE SUS PASOS */
 #login-form {
     display: flex;
     flex-direction: column;
@@ -72,69 +67,72 @@ body.dark-mode .login-container {
     height: 100%;
 }
 
-/* 2. Reseteamos TOTALMENTE los márgenes de los elementos internos.
-      Esta regla es la base para evitar conflictos. */
-#login-form label,
-#login-form button,
-.form-buttons {
-    margin: 0;
-}
-
-/* 3. Nos aseguramos de que las etiquetas SIEMPRE estén centradas. */
-#login-form label {
-    text-align: center;
-}
-
-/* 4. APLICAMOS UN ESPACIADO CONSISTENTE A CADA PASO.
-      Este 'gap' es la única fuente de espaciado vertical. */
+/* CADA PASO USA FLEX Y GAP PARA SU ESPACIADO INTERNO */
 #step-email,
 #step-password {
     display: flex;
     flex-direction: column;
-    gap: 25px; /* Aumenté el espacio a 25px para que se sienta menos apiñado. ¡Puedes ajustar este valor! */
+    gap: 25px; /* <-- ÚNICA FUENTE DE ESPACIADO VERTICAL. AJUSTA ESTE VALOR SI QUIERES MÁS O MENOS ESPACIO. */
 }
 
-/* 5. Configuramos el contenedor de los botones finales. */
+/* ETIQUETAS: Se elimina el margen y se asegura el centrado */
+.login-form-wrapper label {
+    display: block;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--text-color);
+    margin-bottom: 0; /* CAMBIO: Eliminado el margen conflictivo */
+}
+
+/* Estilos para el contenedor de los botones finales */
 .form-buttons {
-    display: flex; /* Para que los botones se pongan uno al lado del otro. */
-    gap: 15px;   /* Espacio limpio entre los dos botones. */
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 0; /* CAMBIO: Eliminado el margen conflictivo */
 }
-
-/* ===================================================================== */
-/* === FIN DE LA SECCIÓN DE CORRECCIÓN === */
-/* ===================================================================== */
-
 
 /* Estilos generales para los botones */
-.btn-primary, .btn-secondary, #login-form button {
+.btn-primary,
+#login-form button {
     width: auto;
     flex-grow: 1;
     padding: 12px 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
     border-radius: 6px;
     cursor: pointer;
     font-size: 1rem;
     font-weight: bold;
     transition: background-color 0.2s;
+    margin-top: 0; /* CAMBIO: Eliminado el margen conflictivo */
 }
 
 #step-email #next-btn {
     width: 100%;
 }
 
-.btn-primary, #login-form button:not(.btn-secondary) {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-}
-
-.btn-primary:hover, #login-form button:not(.btn-secondary):hover {
+.btn-primary:hover,
+#login-form button:hover:not(.btn-secondary) {
     background-color: var(--primary-hover-color);
 }
 
 .btn-secondary {
+    width: auto;
+    flex-grow: 1;
+    padding: 12px 20px;
     background-color: transparent;
     color: var(--primary-color);
     border: 1px solid var(--primary-color);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.2s, color 0.2s;
+    margin-top: 0; /* CAMBIO: Eliminado el margen conflictivo */
 }
 
 .btn-secondary:hover {
@@ -168,10 +166,20 @@ body.dark-mode .login-container {
 
 /* REGLAS PARA ESCRITORIO */
 @media (min-width: 769px) {
-    .login-form-wrapper label { font-size: 1.6rem; }
-    .login-form-wrapper input { padding: 14px; text-align: center; }
-    .login-form-wrapper .btn-primary, .login-form-wrapper .btn-secondary,
-    .login-form-wrapper #step-email button { padding: 14px; }
+    .login-form-wrapper label {
+        font-size: 1.6rem;
+        /* CAMBIO: Se eliminó el 'margin-bottom' de aquí */
+    }
+    .login-form-wrapper input {
+        padding: 14px;
+        text-align: center;
+    }
+    .login-form-wrapper .btn-primary,
+    .login-form-wrapper .btn-secondary,
+    .login-form-wrapper #step-email button {
+        padding: 14px;
+        /* CAMBIO: Se eliminó el 'margin-top' de aquí */
+    }
 }
 
 /* --- Pantalla de Bienvenida (Splash Screen) --- */
