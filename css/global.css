@@ -360,8 +360,8 @@ body.nav-open .nav-links {
 .nav-control-btn img, .hamburger img { width: 26px; height: 26px; vertical-align: middle; }
 .icon-dark { display: block; }
 .icon-light { display: none; }
-body.dark-mode .icon-dark { display: none; }
-body.dark-mode .icon-light { display: block; }
+html.dark-mode .icon-dark { display: none; }
+html.dark-mode .icon-light { display: block; }
 .icon-close { display: none; }
 .icon-menu { display: block; }
 body.nav-open .icon-close { display: block; }
