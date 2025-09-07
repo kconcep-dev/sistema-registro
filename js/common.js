@@ -86,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeToggleBtn = document.getElementById('theme-toggle');
     if (themeToggleBtn) {
         if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-mode');
             themeToggleBtn.textContent = '☀️';
         }
         themeToggleBtn.addEventListener('click', () => {

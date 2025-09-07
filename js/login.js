@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (loginThemeToggleBtn) {
         // Aplicar tema guardado al cargar la página
         if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-mode');
             loginThemeToggleBtn.textContent = '☀️';
         }
         // Evento para cambiar el tema
