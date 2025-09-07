@@ -11,10 +11,8 @@
 }
 
 #inicio-descarte-section {
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    /* Esta sección ya no necesita reglas complejas.
+       Su padre se encargará del centrado. */
 }
 
 .btn-iniciar {
@@ -221,10 +219,10 @@
     .form-grid .form-group:nth-child(4) { grid-column: 1 / 2; }
     .form-grid .form-group:nth-child(5) { grid-column: 2 / 3; }
 
-    /* ESTILOS PARA LOS BOTONES DEL FORMULARIO SÓLO EN ESCRITORIO */
+    /* REGLA PARA AJUSTAR ANCHO DE BOTONES DEL FORMULARIO SÓLO EN ESCRITORIO */
     .form-equipo > .btn-principal,
     .finalizar-seccion > .btn-finalizar {
-        display: block; /* Asegura que 'margin: auto' funcione */
+        display: block;
         max-width: 400px;
         margin-left: auto;
         margin-right: auto;
@@ -233,26 +231,21 @@
 
 
 /* ======================================================= */
-/* === REGLAS PARA EL CENTRADO DE LA PÁGINA INICIAL     === */
+/* === REGLAS DE ORO PARA EL CENTRADO DE LA PÁGINA INICIAL === */
 /* ======================================================= */
 
 /*
-  1. Le ordenamos a #main-content que permita a sus hijos crecer
-     verticalmente y que los centre, anulando la regla global.
-     Esto SOLO se aplica cuando el body tiene la clase 'page-descartes-inicio'.
+  1. Le ordenamos a #main-content que centre su contenido
+     vertical y horizontalmente en la página inicial.
 */
 .page-descartes-inicio #main-content {
-    align-items: stretch;
     justify-content: center;
+    align-items: center;
 }
 
 /*
-  2. Le ordenamos al .container que se convierta en una columna
-     flexible para que sus hijos puedan usar propiedades flex.
+  2. Le damos un espacio entre el título y el botón en la página inicial.
 */
-.page-descartes-inicio .container {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    flex-grow: 1;
+.page-descartes-inicio .container h1 {
+    margin-bottom: 40px;
 }
