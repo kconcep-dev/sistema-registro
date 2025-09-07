@@ -10,10 +10,14 @@
     width: 100%;
 }
 
-/* CAMBIO: Se han eliminado las reglas problemáticas de aquí */
+/* CAMBIO: Esta sección ahora crece para ocupar el espacio vertical
+  restante y usa flexbox para centrar perfectamente el botón en su interior.
+*/
 #inicio-descarte-section {
-    /* Este contenedor ya no necesita reglas de altura o alineación,
-       su padre (#main-content) se encargará de todo. */
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .btn-iniciar {
@@ -222,10 +226,24 @@
 }
 
 /* ======================================================= */
-/* === REGLA ÚNICA Y DEFINITIVA PARA CENTRADO DE PÁGINA === */
+/* === REGLAS DE ORO PARA EL CENTRADO DE LA PÁGINA INICIAL === */
 /* ======================================================= */
 
+/*
+  1. Le ordenamos a #main-content que permita a sus hijos crecer
+     verticalmente y que los centre, anulando la regla global.
+*/
 .page-descartes-inicio #main-content {
-    justify-content: center; /* Centra el bloque verticalmente */
-    align-items: center;     /* Centra el bloque horizontalmente */
+    align-items: stretch;
+    justify-content: center;
+}
+
+/*
+  2. Le ordenamos al .container que se convierta en una columna
+     flexible para que sus hijos puedan usar propiedades flex.
+*/
+.page-descartes-inicio .container {
+    display: flex;
+    flex-direction: column;
+    width: 100%; /* Asegura que ocupe el ancho */
 }
