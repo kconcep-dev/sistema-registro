@@ -10,10 +10,11 @@
     width: 100%;
 }
 
-/* CAMBIO: Se han eliminado las reglas problemáticas de aquí */
 #inicio-descarte-section {
-    /* Este contenedor ya no necesita reglas de altura o alineación,
-       su padre (#main-content) se encargará de todo. */
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .btn-iniciar {
@@ -219,13 +220,39 @@
     .form-grid .form-group:nth-child(3) { grid-column: 3 / 4; }
     .form-grid .form-group:nth-child(4) { grid-column: 1 / 2; }
     .form-grid .form-group:nth-child(5) { grid-column: 2 / 3; }
+
+    /* ESTILOS PARA LOS BOTONES DEL FORMULARIO SÓLO EN ESCRITORIO */
+    .form-equipo > .btn-principal,
+    .finalizar-seccion > .btn-finalizar {
+        display: block; /* Asegura que 'margin: auto' funcione */
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
 }
 
+
 /* ======================================================= */
-/* === REGLA ÚNICA Y DEFINITIVA PARA CENTRADO DE PÁGINA === */
+/* === REGLAS PARA EL CENTRADO DE LA PÁGINA INICIAL     === */
 /* ======================================================= */
 
+/*
+  1. Le ordenamos a #main-content que permita a sus hijos crecer
+     verticalmente y que los centre, anulando la regla global.
+     Esto SOLO se aplica cuando el body tiene la clase 'page-descartes-inicio'.
+*/
 .page-descartes-inicio #main-content {
-    justify-content: center; /* Centra el bloque verticalmente */
-    align-items: center;     /* Centra el bloque horizontalmente */
+    align-items: stretch;
+    justify-content: center;
+}
+
+/*
+  2. Le ordenamos al .container que se convierta en una columna
+     flexible para que sus hijos puedan usar propiedades flex.
+*/
+.page-descartes-inicio .container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    flex-grow: 1;
 }
