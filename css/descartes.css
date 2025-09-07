@@ -10,10 +10,24 @@
     width: 100%;
 }
 
+/* ======================================================= */
+/* === CORRECCIÓN PARA EL CENTRADO DE LA PÁGINA INICIAL === */
+/* ======================================================= */
 #inicio-descarte-section {
-    justify-content: center;
-    min-height: 60vh;
+    /* Hacemos que la sección crezca para ocupar todo el espacio vertical disponible */
+    flex-grow: 1;
+
+    /* Usamos Flexbox para centrar perfectamente su contenido (el botón) */
+    display: flex;
+    justify-content: center; /* Centra verticalmente */
+    align-items: center;     /* Centra horizontalmente */
+
+    /* CAMBIO: Se eliminó 'min-height: 60vh;' que era la causa del problema. */
 }
+/* ======================================================= */
+/* === FIN DE LA CORRECCIÓN === */
+/* ======================================================= */
+
 
 .btn-iniciar {
     padding: 20px 40px;
@@ -35,8 +49,6 @@
 
 
 /* --- 2. Estilos del Modal (Pop-up) --- */
-/* NOTA: Los estilos principales del modal se movieron a global.css */
-/* Aquí solo quedan estilos específicos si fueran necesarios */
 .modal-content .btn-principal {
     width: 100%;
     padding: 12px 20px;
@@ -56,8 +68,6 @@
 
 
 /* --- 3. Estilos de la Interfaz Principal de Registro --- */
-
-/* NUEVO: Estilo para el indicador de sesión activa */
 .session-indicator {
     width: 100%;
     text-align: center;
@@ -144,7 +154,6 @@
     background-color: var(--input-bg-color);
 }
 
-/* NUEVO: Estilos para la celda de acciones y los botones */
 .actions-cell {
     display: flex;
     gap: 8px;
@@ -223,17 +232,4 @@
     .form-grid .form-group:nth-child(3) { grid-column: 3 / 4; }
     .form-grid .form-group:nth-child(4) { grid-column: 1 / 2; }
     .form-grid .form-group:nth-child(5) { grid-column: 2 / 3; }
-}
-
-/* ======================================================= */
-/* === AJUSTE PARA CENTRADO VERTICAL EN INICIO DE DESCARTES === */
-/* ======================================================= */
-
-/*
-  Le decimos al contenedor principal (<main>) que,
-  SOLO CUANDO estemos mostrando la sección inicial,
-  centre su contenido verticalmente.
-*/
-main:has(#inicio-descarte-section:not([style*="display: none"])) {
-    align-items: center;
 }
