@@ -1,6 +1,12 @@
 # Sistema de Registro - Soporte Técnico
 
-![Banner del Sistema de Registro](https://i.imgur.com/link-a-tu-banner.png) Aplicación web integral diseñada para digitalizar y optimizar los procesos de registro en una oficina, reemplazando por completo los flujos de trabajo manuales en papel. El sistema permite guardar datos de visitantes y gestionar el descarte de equipos tecnológicos de forma segura y centralizada.
+<p align="center">
+  <img src="https://kconcep-dev.github.io/sistema-registro/assets/icons/icon-192.png" alt="Logo del Sistema de Registro" width="128">
+</p>
+
+> **Nota:** Este es un proyecto beta desarrollado como propuesta final para la práctica profesional en la Universidad Tecnológica OTEIMA (Panamá).
+
+Aplicación web integral diseñada para digitalizar y optimizar los procesos de registro en una oficina, reemplazando por completo los flujos de trabajo manuales en papel. El sistema permite guardar datos de visitantes y gestionar el descarte de equipos tecnológicos de forma segura y centralizada.
 
 ## 🚀 Ver Demo en Vivo
 
@@ -71,7 +77,6 @@ Si deseas ejecutar una copia de este proyecto, necesitarás tu propia instancia 
 
 ## ✍️ Autor
 
-**[Tu Nombre]**
+**Kevin Concepción**
 
 * GitHub: [@kconcep-dev](https://github.com/kconcep-dev)
-* LinkedIn: [Tu Perfil de LinkedIn] ```
