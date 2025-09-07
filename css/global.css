@@ -15,15 +15,22 @@
 
 body.dark-mode {
     --bg-color: #111827;
-    /* <-- CORRECCIÓN 1: Se usa un fondo más oscuro para mejorar el contraste del texto. */
     --card-bg-color: #1A202C; 
     --input-bg-color: #111827;
     --text-color: #E5E7EB;
     --input-text-color: #FFFFFF;
-    --primary-color: #3B82F6;
-    --primary-hover-color: #60A5FA;
+
+    /* <-- CORRECCIÓN: Azul principal más oscuro y menos saturado. */
+    --primary-color: #2563EB; 
+
+    /* <-- CORRECCIÓN: El hover ahora es un azul ligeramente más claro, pero controlado. */
+    --primary-hover-color: #3B82F6; 
+
     --border-color: #9CA3AF;
     --shadow-color: rgba(0, 0, 0, 0.2);
+
+    /* <-- CORRECCIÓN: Se define un verde más oscuro solo para el modo oscuro. */
+    --success-color: #22543D; 
 }
 
 /* --- 2. Estilos Generales y Cargador --- */
