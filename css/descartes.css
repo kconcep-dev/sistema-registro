@@ -224,3 +224,16 @@
     .form-grid .form-group:nth-child(4) { grid-column: 1 / 2; }
     .form-grid .form-group:nth-child(5) { grid-column: 2 / 3; }
 }
+
+/* ======================================================= */
+/* === AJUSTE PARA CENTRADO VERTICAL EN INICIO DE DESCARTES === */
+/* ======================================================= */
+
+/*
+  Le decimos al contenedor principal (<main>) que,
+  SOLO CUANDO estemos mostrando la sección inicial,
+  centre su contenido verticalmente.
+*/
+main:has(#inicio-descarte-section:not([style*="display: none"])) {
+    align-items: center;
+}
