@@ -141,16 +141,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) throw new Error("Usuario no encontrado.");
             
-            const tecnico = await (async () => {
-                const { data: { user } } = await supabaseClient.auth.getUser();
-                if (!user) return 'Desconocido';
-                const userMappings = { 'concepcion.kelieser@gmail.com': 'Kevin' };
-                return userMappings[user.email] || user.email.split('@')[0];
-            })();
+            // Obtenemos el perfil del usuario para sacar el nombre del técnico.
+            const userProfile = getUserProfile(user);
 
             const nuevaSesion = {
                 unidad_administrativa,
-                tecnico_encargado: tecnico,
+                tecnico_encargado: userProfile.name, // <-- Usamos el nombre del perfil centralizado
                 fecha: new Date().toISOString().split('T')[0],
                 user_id: user.id
             };

@@ -16,30 +16,13 @@ async function checkSession() {
         
         // --- LÓGICA DEL MENSAJE DE BIENVENIDA PERSONALIZADO ---
 
-        // 1. Mapa de correos a nombres.
-        //    Añade todos los usuarios que necesites aquí.
-        const userMappings = {
-            'concepcion.kelieser@gmail.com': 'Kevin',
-            'otro.usuario@gmail.com': 'Ana'
-            // 'email@ejemplo.com': 'Nombre',
-        };
+        // 1. Obtenemos el perfil completo del usuario desde nuestra función centralizada.
+        const userProfile = getUserProfile(session.user);
 
-        const userEmail = session.user.email;
-        let welcomeName;
-
-        // 2. Verificamos si el correo del usuario está en nuestro mapa.
-        if (userMappings[userEmail]) {
-            // Si se encuentra, usamos el nombre del mapa.
-            welcomeName = userMappings[userEmail];
-        } else {
-            // Si no, usamos la parte del correo antes del '@' como un nombre por defecto.
-            welcomeName = userEmail.split('@')[0];
-        }
-        
-        // 3. Actualizamos el mensaje en la página.
+        // 2. Actualizamos el mensaje en la página usando el nombre del perfil.
         const welcomeMessage = document.getElementById('welcome-message');
         if (welcomeMessage) {
-            welcomeMessage.textContent = `Bienvenido, ${welcomeName}`;
+            welcomeMessage.textContent = `Bienvenido, ${userProfile.name}`;     
         }
         
         // --- FIN DE LA LÓGICA ---

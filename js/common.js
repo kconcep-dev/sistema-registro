@@ -189,3 +189,30 @@ document.addEventListener('DOMContentLoaded', () => {
         document.onclick = resetInactivityTimer;
     }
 });
+
+function getUserProfile(user) {
+    // Si por alguna razón no hay un usuario, devolvemos un perfil genérico.
+    if (!user) {
+        return { name: 'Desconocido', role: 'Invitado' };
+    }
+
+    // MAPA CENTRAL DE USUARIOS
+    const userMappings = {
+        // email: { name: 'Nombre para mostrar', role: 'Rol del usuario' }
+        'concepcion.kelieser@gmail.com': { name: 'Kevin', role: 'Técnico' },
+        'usuario2@empresa.com': { name: 'Ana', role: 'Técnico' },
+        'jefe.departamento@empresa.com': { name: 'Carlos', role: 'Supervisor' }
+        // ...agrega los demás usuarios aquí
+    };
+
+    const userEmail = user.email;
+    const profile = userMappings[userEmail];
+
+    // Si encontramos el email en nuestro mapa, devolvemos su perfil.
+    if (profile) {
+        return profile;
+    } 
+    
+    // Si no, creamos un perfil por defecto usando la parte local del email.
+    return { name: userEmail.split('@')[0], role: 'Usuario' };
+}
