@@ -15,7 +15,8 @@
 
 body.dark-mode {
     --bg-color: #111827;
-    --card-bg-color: #1F2937;
+    /* <-- CORRECCIÓN 1: Se usa un fondo más oscuro para mejorar el contraste del texto. */
+    --card-bg-color: #1A202C; 
     --input-bg-color: #111827;
     --text-color: #E5E7EB;
     --input-text-color: #FFFFFF;
@@ -339,6 +340,12 @@ body.nav-open .nav-links {
 .nav-link.active {
     background-color: var(--primary-color);
     color: white;
+}
+
+/* <-- CORRECCIÓN 2: Se añade esta regla para el hover de la pestaña activa. */
+.nav-link.active:hover:not(.disabled) {
+    background-color: var(--primary-hover-color);
+    color: #FFFFFF;
 }
 
 /* --- 6. Iconos Personalizados --- */

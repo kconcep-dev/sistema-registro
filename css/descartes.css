@@ -154,11 +154,12 @@
     color: white;
 }
 
+/* <-- CORRECCIÓN: Se cambia el color del botón "Editar" para mejorar el contraste. */
 .btn-editar {
-    background-color: var(--border-color);
+    background-color: #4A5568; /* Un gris más oscuro que contrasta con el texto blanco */
 }
 .btn-editar:hover {
-    background-color: var(--text-color);
+    background-color: #2D3748; /* Un efecto hover más oscuro y consistente */
 }
 
 .btn-eliminar {
