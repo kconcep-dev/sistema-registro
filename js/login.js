@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         loginError.style.display = 'none';
         stepEmail.style.display = 'none';
-        stepPassword.style.display = 'block';
+        stepPassword.style.display = 'flex';
         passwordInput.focus();
     });
 
