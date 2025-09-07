@@ -64,7 +64,7 @@ body.dark-mode .login-container {
 /* === SECCIÓN DE CORRECCIÓN PARA CENTRADO VERTICAL PERFECTO === */
 /* ===================================================================== */
 
-/* 1. El formulario ahora controla la alineación de sus hijos (los pasos). */
+/* 1. El formulario controla el centrado vertical de sus hijos (los pasos). */
 #login-form {
     display: flex;
     flex-direction: column;
@@ -72,25 +72,32 @@ body.dark-mode .login-container {
     height: 100%;
 }
 
-/* 2. Reseteamos TODOS los márgenes conflictivos de etiquetas y botones. */
+/* 2. Reseteamos TOTALMENTE los márgenes de los elementos internos.
+      Esta regla es la base para evitar conflictos. */
 #login-form label,
 #login-form button,
 .form-buttons {
-    margin: 0; /* Su espaciado ahora será controlado por 'gap'. */
+    margin: 0;
 }
 
-/* 3. Cada paso del formulario ahora usa 'gap' para un espaciado interno consistente. */
+/* 3. Nos aseguramos de que las etiquetas SIEMPRE estén centradas. */
+#login-form label {
+    text-align: center;
+}
+
+/* 4. APLICAMOS UN ESPACIADO CONSISTENTE A CADA PASO.
+      Este 'gap' es la única fuente de espaciado vertical. */
 #step-email,
 #step-password {
     display: flex;
     flex-direction: column;
-    gap: 20px; /* ¡La regla clave! Espacio perfecto entre label, input y botón. */
+    gap: 25px; /* Aumenté el espacio a 25px para que se sienta menos apiñado. ¡Puedes ajustar este valor! */
 }
 
-/* 4. El contenedor de los botones finales también usa 'gap' para su espaciado. */
+/* 5. Configuramos el contenedor de los botones finales. */
 .form-buttons {
-    display: flex;
-    gap: 15px;
+    display: flex; /* Para que los botones se pongan uno al lado del otro. */
+    gap: 15px;   /* Espacio limpio entre los dos botones. */
 }
 
 /* ===================================================================== */
