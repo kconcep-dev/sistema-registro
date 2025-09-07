@@ -1,3 +1,26 @@
+/* ======================================================= */
+/* === CORRECCIÓN ESTRUCTURAL PARA CENTRADO TOTAL      === */
+/* ======================================================= */
+
+/* 1. Hacemos que el .container, en esta página, sea un contenedor
+      flexible que ocupe todo el espacio vertical disponible. */
+.page-descartes-inicio .container {
+    display: flex;
+    flex-direction: column; /* Apila sus hijos (h1 y la sección del botón) */
+    flex-grow: 1;          /* Le ordena crecer para llenar el main */
+}
+
+/* 2. Hacemos que la sección del botón crezca para ocupar
+      todo el espacio restante después del título h1. */
+#inicio-descarte-section {
+    flex-grow: 1; /* Crece para llenar el espacio del .container */
+    display: flex;
+    justify-content: center; /* Centra el botón verticalmente en su espacio */
+    align-items: center;     /* Centra el botón horizontalmente */
+}
+
+/* ======================================================= */
+
 /* --- 1. Estilos Generales y de Centrado --- */
 .content-center {
     display: flex;
@@ -9,25 +32,6 @@
 .content-center > div, .content-center > form {
     width: 100%;
 }
-
-/* ======================================================= */
-/* === CORRECCIÓN PARA EL CENTRADO DE LA PÁGINA INICIAL === */
-/* ======================================================= */
-#inicio-descarte-section {
-    /* Hacemos que la sección crezca para ocupar todo el espacio vertical disponible */
-    flex-grow: 1;
-
-    /* Usamos Flexbox para centrar perfectamente su contenido (el botón) */
-    display: flex;
-    justify-content: center; /* Centra verticalmente */
-    align-items: center;     /* Centra horizontalmente */
-
-    /* CAMBIO: Se eliminó 'min-height: 60vh;' que era la causa del problema. */
-}
-/* ======================================================= */
-/* === FIN DE LA CORRECCIÓN === */
-/* ======================================================= */
-
 
 .btn-iniciar {
     padding: 20px 40px;
@@ -232,4 +236,10 @@
     .form-grid .form-group:nth-child(3) { grid-column: 3 / 4; }
     .form-grid .form-group:nth-child(4) { grid-column: 1 / 2; }
     .form-grid .form-group:nth-child(5) { grid-column: 2 / 3; }
+}
+
+/* 3. Finalmente, nos aseguramos de que el contenedor #main-content
+      permita que sus hijos crezcan verticalmente en esta página. */
+.page-descartes-inicio #main-content {
+    align-items: stretch; /* Anula el 'align-items: flex-start' de global.css */
 }
