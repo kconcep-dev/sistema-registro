@@ -89,7 +89,6 @@ body.dark-mode .login-container {
 /* Estilos para el contenedor de los botones finales */
 .form-buttons {
     display: flex;
-    justify-content: space-between;
     gap: 15px;
     margin-top: 0; /* CAMBIO: Eliminado el margen conflictivo */
 }
