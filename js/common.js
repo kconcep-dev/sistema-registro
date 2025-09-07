@@ -82,19 +82,30 @@ window.showConfirmationModal = (title, message) => {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- LÓGICA DEL TEMA ---
-    const themeToggleBtn = document.getElementById('theme-toggle');
-    if (themeToggleBtn) {
-        if (localStorage.getItem('theme') === 'dark') {
-            themeToggleBtn.textContent = '☀️';
-        }
-        themeToggleBtn.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            let theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
-            themeToggleBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
-            localStorage.setItem('theme', theme);
-        });
+   // --- LÓGICA DEL TEMA (CORREGIDA) ---
+const themeToggleBtn = document.getElementById('theme-toggle');
+if (themeToggleBtn) {
+    // Al cargar, solo necesitamos ajustar el ícono, la clase ya está puesta.
+    if (document.documentElement.classList.contains('dark-mode')) {
+        themeToggleBtn.textContent = '☀️';
     }
+
+    // Evento de clic corregido para apuntar a <html>
+    themeToggleBtn.addEventListener('click', () => {
+        // 1. Alterna la clase en la etiqueta <html>
+        document.documentElement.classList.toggle('dark-mode');
+
+        // 2. Determina el tema actual basándose en <html>
+        const isDarkMode = document.documentElement.classList.contains('dark-mode');
+        const theme = isDarkMode ? 'dark' : 'light';
+
+        // 3. Actualiza el ícono del botón
+        themeToggleBtn.textContent = isDarkMode ? '☀️' : '🌙';
+
+        // 4. Guarda la preferencia en localStorage
+        localStorage.setItem('theme', theme);
+    });
+}
     
     // --- LÓGICA DE NAVEGACIÓN (HAMBURGUESA) ---
     const hamburgerBtn = document.getElementById('hamburger-btn');
