@@ -19,12 +19,9 @@ body.dark-mode {
     --input-bg-color: #111827;
     --text-color: #E5E7EB;
     --input-text-color: #FFFFFF;
-    /* CAMBIO: Un azul más oscuro y saturado para mejor contraste con texto blanco */
-    --primary-color: #2563EB;
-    /* CAMBIO: Un azul de hover también más oscuro */
-    --primary-hover-color: #1D4ED8;
-    /* CAMBIO: Un gris más oscuro para que el texto blanco resalte */
-    --border-color: #6B7280;
+    --primary-color: #3B82F6;
+    --primary-hover-color: #60A5FA;
+    --border-color: #9CA3AF;
     --shadow-color: rgba(0, 0, 0, 0.2);
 }
 
@@ -344,13 +341,8 @@ body.nav-open .nav-links {
     color: white;
 }
 
-/* AÑADIDO: Regla específica para el hover sobre un enlace activo */
-.nav-link.active:hover {
-    filter: brightness(90%); /* Oscurece ligeramente el color de fondo actual */
-    color: white !important; /* Se asegura de que el texto siempre sea blanco */
-}
-
 /* --- 6. Iconos Personalizados --- */
+/* ... (El resto de tus estilos de iconos que ya tienes) ... */
 .nav-control-btn img, .hamburger img { width: 26px; height: 26px; vertical-align: middle; }
 .icon-dark { display: block; }
 .icon-light { display: none; }
