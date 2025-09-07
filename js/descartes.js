@@ -97,6 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
         inicioSection.style.display = 'none';
         registroSection.style.display = 'flex';
         window.isWorkInProgress = true;
+        document.body.classList.remove('page-descartes-inicio');
     }
     
     // --- 4. LÓGICA DE SESIÓN Y RESTAURACIÓN ---
