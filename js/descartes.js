@@ -132,7 +132,10 @@ document.addEventListener('DOMContentLoaded', () => {
     formNuevaSesion.addEventListener('submit', async (e) => {
         e.preventDefault();
         const unidadAdministrativa = inputUA.value.trim();
-        if (!unidadAdministrativa) return showToast('Introduce la unidad administrativa.', 'error');
+        const codigoSiace = document.getElementById('siace_code').value.trim();
+        if (!unidadAdministrativa || !codigoSiace) {
+        return showToast('Completa la unidad y el código SIACE.', 'error');
+        }
 
         const submitBtn = formNuevaSesion.querySelector('button[type="submit"]');
         submitBtn.disabled = true;
@@ -147,6 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const nuevaSesion = {
                 unidad_administrativa,
+                codigo_siace: codigoSiace,
                 tecnico_encargado: userProfile.name, // <-- Usamos el nombre del perfil centralizado
                 fecha: new Date().toISOString().split('T')[0],
                 user_id: user.id
