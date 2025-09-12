@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const userProfile = getUserProfile(user);
 
             const nuevaSesion = {
-                unidad_administrativa,
+                unidad_administrativa: unidadAdministrativa,
                 codigo_siace: codigoSiace,
                 tecnico_encargado: userProfile.name, // <-- Usamos el nombre del perfil centralizado
                 fecha: new Date().toISOString().split('T')[0],
