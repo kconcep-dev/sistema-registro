@@ -1,5 +1,3 @@
-// js/descartes.js
-
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. ELEMENTOS DEL DOM ---
@@ -13,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalSesion = document.getElementById('modal-nueva-sesion');
     const btnCerrarModalSesion = document.getElementById('btn-cerrar-modal');
     const formNuevaSesion = document.getElementById('form-nueva-sesion');
-    const inputUA = document.getElementById('unidad_administrativa');
     
     const modalEditar = document.getElementById('modal-editar-equipo');
     const formEditar = document.getElementById('form-editar-equipo');
@@ -123,8 +120,8 @@ document.addEventListener('DOMContentLoaded', () => {
             clearWorkInProgress();
         }
     }
-    
-    // --- 5. MANEJADORES DE EVENTOS ---
+
+    // --- 5. MANEJADORES DE EVENTOS (CÓDIGO EXISTENTE) ---
 
     btnIniciar.addEventListener('click', () => modalSesion.style.display = 'flex');
     btnCerrarModalSesion.addEventListener('click', () => modalSesion.style.display = 'none');
@@ -134,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const unidadAdministrativa = document.getElementById('unidad_administrativa').value.trim();
         const codigoSiace = document.getElementById('siace_code').value.trim();
         if (!unidadAdministrativa || !codigoSiace) {
-        return showToast('Completa la unidad y el código SIACE.', 'error');
+            return showToast('Completa la unidad y el código SIACE.', 'error');
         }
 
         const submitBtn = formNuevaSesion.querySelector('button[type="submit"]');
@@ -145,13 +142,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) throw new Error("Usuario no encontrado.");
             
-            // Obtenemos el perfil del usuario para sacar el nombre del técnico.
             const userProfile = getUserProfile(user);
 
             const nuevaSesion = {
                 unidad_administrativa: unidadAdministrativa,
                 codigo_siace: codigoSiace,
-                tecnico_encargado: userProfile.name, // <-- Usamos el nombre del perfil centralizado
+                tecnico_encargado: userProfile.name,
                 fecha: new Date().toISOString().split('T')[0],
                 user_id: user.id
             };
@@ -202,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderEquipoEnTabla(data, equiposCounter);
             formEquipo.reset();
             document.getElementById('descripcion').focus();
-            showToast('Equipo añadido con éxito.', 'success'); // CORRECCIÓN
+            showToast('Equipo añadido con éxito.', 'success');
         } catch (error) {
             showToast('No se pudo añadir el equipo.', 'error');
         } finally {
@@ -215,7 +211,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const target = e.target;
         const equipoId = target.dataset.id;
 
-        // Lógica para Eliminar
         if (target.classList.contains('btn-eliminar')) {
             const confirmado = await window.showConfirmationModal('Eliminar Equipo', '¿Estás seguro?');
             if (confirmado) {
@@ -230,7 +225,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Lógica para Editar
         if (target.classList.contains('btn-editar')) {
             try {
                 const { data, error } = await supabaseClient.from('equipos_descartados').select('*').eq('id', equipoId).single();
@@ -252,7 +246,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // Lógica para el modal de edición
     btnCerrarModalEditar.addEventListener('click', () => modalEditar.style.display = 'none');
     btnCancelarEdicion.addEventListener('click', () => modalEditar.style.display = 'none');
     
@@ -314,6 +307,61 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    // --- NUEVO: LÓGICA DEL ESCÁNER DE CÓDIGO DE BARRAS ---
+
+    const modalScanner = document.getElementById('modal-scanner');
+    const videoElement = document.getElementById('video-scanner');
+    const btnCerrarScanner = document.getElementById('btn-cerrar-scanner');
+    let targetInput = null; // Variable para saber a qué input enviar el resultado
+
+    const codeReader = new ZXing.BrowserMultiFormatReader();
+    let stream = null; // Variable para guardar el stream de la cámara
+
+    // Función para detener la cámara y el escáner
+    function stopCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+        codeReader.reset();
+        modalScanner.style.display = 'none';
+    }
+
+    // Cuando se hace clic en cualquier botón de escaneo (.btn-scan)
+    document.querySelectorAll('.btn-scan').forEach(button => {
+        button.addEventListener('click', async () => {
+            const inputId = button.dataset.targetInput;
+            targetInput = document.getElementById(inputId);
+            
+            try {
+                // Pedimos permiso y obtenemos el stream de la cámara trasera
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                modalScanner.style.display = 'flex';
+
+                // Empezamos a decodificar desde el stream de video
+                codeReader.decodeFromStream(stream, videoElement, (result, err) => {
+                    if (result) {
+                        targetInput.value = result.getText(); // Ponemos el resultado en el input correcto
+                        stopCamera(); // Detenemos la cámara y cerramos el modal
+                        showToast('Código escaneado con éxito.', 'success');
+                    }
+                    if (err && !(err instanceof ZXing.NotFoundException)) {
+                        console.error("Error de escaneo:", err);
+                        showToast('Error al escanear.', 'error');
+                        stopCamera();
+                    }
+                });
+            } catch (error) {
+                console.error("Error al acceder a la cámara:", error);
+                showToast('No se pudo acceder a la cámara.', 'error');
+            }
+        });
+    });
+
+    // Evento para el botón de cerrar el modal del scanner
+    btnCerrarScanner.addEventListener('click', stopCamera);
+
 
     // --- 6. GUARDIANES E INICIALIZACIÓN ---
 

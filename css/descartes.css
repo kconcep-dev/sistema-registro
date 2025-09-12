@@ -251,3 +251,27 @@
 .page-descartes-inicio .container h1 {
     margin-bottom: 40px;
 }
+
+.input-with-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.input-with-button input {
+    flex-grow: 1; /* El input ocupa todo el espacio disponible */
+}
+
+.btn-scan {
+    padding: 8px 12px;
+    background-color: var(--border-color);
+    color: var(--bg-color);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 1;
+}
+.btn-scan:hover {
+    background-color: var(--primary-color);
+}
