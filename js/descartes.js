@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     formNuevaSesion.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const unidadAdministrativa = inputUA.value.trim();
+        const unidadAdministrativa = document.getElementById('unidad_administrativa').value.trim();
         const codigoSiace = document.getElementById('siace_code').value.trim();
         if (!unidadAdministrativa || !codigoSiace) {
         return showToast('Completa la unidad y el código SIACE.', 'error');
