@@ -274,6 +274,13 @@ body.nav-open .nav-links {
     font-size: 1.5rem;
     width: 40px;
     height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
 }
 
 @media (min-width: 768px) {
@@ -328,9 +335,6 @@ body.nav-open .nav-links {
     #theme-toggle.theme-btn {
         width: 45px;
         height: 45px;
-        border-radius: 50%;
-        border: 1px solid var(--border-color);
-        background-color: var(--card-bg-color);
     }
 }
 
