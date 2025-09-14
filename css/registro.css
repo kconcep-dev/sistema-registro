@@ -9,7 +9,6 @@
     margin-bottom: 20px;
 }
 
-/* CORRECCIÓN: Se asegura que el formulario esté siempre por encima de la sección QR */
 #registro-form {
     position: relative;
     z-index: 10;
@@ -114,4 +113,19 @@
     #main-content {
         padding-top: 50px;
     }
+}
+
+
+/* 🔥 --- NUEVOS ESTILOS PARA LA SECCIÓN DE IMAGEN --- 🔥 */
+.botones-imagen-wrapper {
+    display: flex; /* Coloca los botones uno al lado del otro */
+    gap: 15px;     /* Añade un espacio entre los botones */
+    margin-top: 20px;
+}
+
+/* Ajuste para que los botones dentro del wrapper compartan el espacio */
+.botones-imagen-wrapper .btn-principal {
+    margin-top: 0; /* Quitamos el margen superior que ya no es necesario */
+    flex: 1;       /* Hacemos que ambos botones crezcan por igual para ocupar el espacio */
+    font-size: 1rem; /* Reducimos un poco la fuente para que el texto quepa mejor */
 }

@@ -38,24 +38,34 @@
             <div class="layout-wrapper">
                 
                 <div id="qr-section" class="qr-section">
-                    <h2>Obtener Datos por QR</h2>
-                    <p class="section-subtitle">Toma una foto de la cédula para autocompletar los datos.</p>
                     
-                    <label for="qr-captura" class="btn-principal btn-captura">
-                        📸 Capturar Foto (Método Actual)
-                    </label>
+                    <h2>Escanear Código QR</h2>
+                    <p class="section-subtitle">Usa la cámara para un llenado automático e instantáneo.</p>
+                    <button id="btn-scan-live" class="btn-principal">
+                        📷 Escanear
+                    </button>
+
+                    <hr style="margin: 25px 0; border-color: var(--border-color); border-style: dashed;">
+
+                    <h2>Obtener Datos de Imagen de QR</h2>
+                    <p class="section-subtitle">Si el escáner no funciona, puedes usar una foto.</p>
+                    
+                    <div class="botones-imagen-wrapper">
+                        <label for="qr-captura" class="btn-principal btn-captura">
+                            📸 Capturar Imagen
+                        </label>
+                        <label for="qr-elegir" class="btn-principal btn-elegir">
+                            🖼️ Elegir Imagen
+                        </label>
+                    </div>
+
                     <input type="file" id="qr-captura" accept="image/*" capture="environment" style="display: none;">
+                    <input type="file" id="qr-elegir" accept="image/*" style="display: none;">
                     
                     <span id="qr-file-name" class="file-name-display">Ningún archivo seleccionado</span>
                     <pre id="qr-result-display" class="qr-result-box"></pre>
                     <canvas id="qr-canvas" style="display: none;"></canvas>
-
-                    <hr style="margin: 25px 0; border-color: var(--border-color); border-style: dashed;">
-                    <h3 style="text-align:center; margin-bottom: 15px; font-size: 1rem; color: var(--primary-color);">🧪 Laboratorio de Pruebas</h3>
-                    <button id="btn-scan-live" class="btn-principal" style="background-color: #28a745;">
-                        📷 Escanear con Cámara (Nuevo)
-                    </button>
-                    </div>
+                </div>
 
                 <form id="registro-form" novalidate>
                     <h2>Datos del Visitante</h2>
