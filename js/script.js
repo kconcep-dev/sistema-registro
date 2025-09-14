@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================================
-    // 🔥 --- CÓDIGO ACTUALIZADO PARA SCANBOT --- 🔥
+    // 🔥 --- NUEVO CÓDIGO PARA SCANBOT CON CORRECCIÓN --- 🔥
     // ==========================================================
     
     const btnScanLive = document.getElementById('btn-scan-live'); 
@@ -210,14 +210,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             // 1. Procesa los datos y llena el formulario
                             procesarDatosQRScanbot(result.barcodes[0].text);
                             
-                            // 2. Detiene el escáner para que no siga buscando
-                            scanbotSDK.disposeBarcodeScanner();
-                            
-                            // 3. Oculta y elimina el contenedor de la cámara
-                            const container = document.getElementById('scanner-container');
-                            if (container) {
-                                container.remove();
-                            }
+                            // 2. LA SOLUCIÓN: Usa un pequeño retraso para asegurar el cierre
+                            setTimeout(() => {
+                                scanbotSDK.disposeBarcodeScanner();
+                                const container = document.getElementById('scanner-container');
+                                if (container) {
+                                    container.remove();
+                                }
+                            }, 100); // Un retraso de 100 milisegundos
                         }
                     },
                     onError: (e) => {
