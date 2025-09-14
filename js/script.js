@@ -48,8 +48,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
     
+    // Esta función es el "interruptor de apagado" para la advertencia
     window.clearWorkInProgress = () => {
         window.isWorkInProgress = false;
+        console.log('Work in progress: DESACTIVADO'); // Ayuda para depurar
         mainForm.reset();
         modalForm.reset();
         qrFileNameDisplay.textContent = 'Ningún archivo seleccionado';
@@ -57,11 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (scanbotResultBox) scanbotResultBox.style.display = 'none';
     };
 
-    function updateWorkInProgress() {
-        const hasContent = Array.from(mainFormInputs).some(input => input.value.trim() !== '');
-        window.isWorkInProgress = hasContent;
-    }
-    
     function displayLastVisitor(visitor) {
         if (visitor) {
             document.getElementById('ultimo-nombre').textContent = visitor.nombre;
@@ -112,6 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             showToast("¡Registro exitoso!", "success");
             displayLastVisitor(nuevoVisitante);
+            // Al tener éxito, llamamos a la función que resetea todo, incluyendo la bandera.
             clearWorkInProgress();
         } catch (err) {
             showToast("Error al registrar los datos.", "error");
@@ -165,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast("¡Registro exitoso!", "success");
             displayLastVisitor(nuevoVisitante);
             cerrarModalRegistro();
-            clearWorkInProgress();
+            clearWorkInProgress(); // También reseteamos al enviar desde el modal
         } catch (err) {
             showToast("Error al registrar los datos.", "error");
             console.error("Supabase insert error:", err);
@@ -196,9 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 qrCanvasElement.height = img.height;
                 qrCanvas.drawImage(img, 0, 0, img.width, img.height);
                 
-                // 🔥 ESTA ES LA LÍNEA QUE FALTABA Y CAUSABA EL ERROR 🔥
                 const imageData = qrCanvas.getImageData(0, 0, qrCanvasElement.width, qrCanvasElement.height);
-                
                 const code = jsQR(imageData.data, imageData.width, imageData.height);
                 
                 if (code) {
@@ -239,6 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- 7. LÓGICA PARA SCANBOT (Cámara en Vivo) ---
+    // (Esta sección no necesita cambios, se mantiene igual)
     if (btnScanLive) {
         btnScanLive.addEventListener('click', async () => {
             if (activeBarcodeScanner) return;
@@ -318,9 +315,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 8. INICIALIZACIÓN FINAL ---
     fetchLastVisitor();
+
+    // ✅ LÓGICA MEJORADA PARA ACTIVAR LA ADVERTENCIA DE "SALIR SIN GUARDAR"
+    // Función que activa la bandera (solo la enciende, no la apaga)
+    const setWorkInProgress = () => {
+        if (!window.isWorkInProgress) {
+            window.isWorkInProgress = true;
+            console.log('Work in progress: ACTIVADO');
+        }
+    };
+    
+    // Añadimos el listener a cada campo del formulario manual.
+    // Al primer cambio, se activa la bandera y se queda así hasta que se envíe el formulario.
     mainFormInputs.forEach(input => {
-        input.addEventListener('input', updateWorkInProgress);
+        input.addEventListener('input', setWorkInProgress);
     });
+
+    // Este listener es para la advertencia nativa del navegador al cerrar la pestaña.
     window.addEventListener('beforeunload', (event) => {
         if (window.isWorkInProgress) {
             event.preventDefault();
