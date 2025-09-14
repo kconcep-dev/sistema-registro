@@ -17,10 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnCerrarModalEditar = document.getElementById('btn-cerrar-modal-editar');
     const btnCancelarEdicion = document.getElementById('btn-editar-cancelar');
 
-    const modalScanner = document.getElementById('modal-scanner');
-    const videoElement = document.getElementById('video-scanner');
-    const btnCerrarScanner = document.getElementById('btn-cerrar-scanner');
-
     // Formularios y tabla
     const formEquipo = document.getElementById('form-equipo');
     const tablaEquiposBody = document.querySelector('#tabla-equipos tbody');
@@ -34,6 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let toastTimeout;
     let equipoActualEditandoId = null;
     const SESSION_STORAGE_KEY = 'activeDescarteSessionId';
+    let scanbotSDK; // Variable para la instancia de Scanbot SDK
+    let activeBarcodeScanner; // Variable para controlar el escáner activo
 
     // --- 3. FUNCIONES AUXILIARES ---
 
@@ -125,9 +123,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 5. MANEJADORES DE EVENTOS ---
+    // --- 5. MANEJADORES DE EVENTOS (CRUD Y SESIÓN) ---
 
-    // ✅ MODAL NUEVA SESIÓN: CORREGIDO
     btnIniciar.addEventListener('click', () => modalSesion.classList.add('visible'));
     btnCerrarModalSesion.addEventListener('click', () => modalSesion.classList.remove('visible'));
 
@@ -162,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             sessionStorage.setItem(SESSION_STORAGE_KEY, data.id);
             showRegistroUI(data.id);
-            modalSesion.classList.remove('visible'); // ✅ CORREGIDO
+            modalSesion.classList.remove('visible');
             formNuevaSesion.reset();
         } catch (error) {
             showToast('No se pudo crear la sesión.', 'error');
@@ -244,14 +241,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('edit-estado_equipo').value = data.estado_equipo || '';
                 document.getElementById('edit-motivo_descarte').value = data.motivo_descarte || '';
                 
-                modalEditar.classList.add('visible'); // ✅ CORREGIDO
+                modalEditar.classList.add('visible');
             } catch (error) {
                 showToast('No se pudieron cargar los datos del equipo.', 'error');
             }
         }
     });
     
-    // ✅ MODAL EDITAR EQUIPO: CORREGIDO
     btnCerrarModalEditar.addEventListener('click', () => modalEditar.classList.remove('visible'));
     btnCancelarEdicion.addEventListener('click', () => modalEditar.classList.remove('visible'));
     
@@ -280,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (error) throw error;
             
             updateFilaEnTabla(data);
-            modalEditar.classList.remove('visible'); // ✅ CORREGIDO
+            modalEditar.classList.remove('visible');
             showToast('Equipo actualizado con éxito.', 'success');
         } catch (error) {
             showToast('No se pudo actualizar el equipo.', 'error');
@@ -314,54 +310,71 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- LÓGICA DEL ESCÁNER DE CÓDIGO DE BARRAS: CORREGIDO ---
-
-    let targetInput = null; // Variable para saber a qué input enviar el resultado
-    const codeReader = new ZXing.BrowserMultiFormatReader();
-    let stream = null; // Variable para guardar el stream de la cámara
-
-    // ✅ Función para detener la cámara y el escáner: CORREGIDA
-    function stopCamera() {
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-            stream = null;
-        }
-        codeReader.reset();
-        modalScanner.classList.remove('visible');
-    }
-
-    // Cuando se hace clic en cualquier botón de escaneo (.btn-scan)
+    // --- LÓGICA DEL ESCÁNER CON SCANBOT SDK ---
+    
     document.querySelectorAll('.btn-scan').forEach(button => {
         button.addEventListener('click', async () => {
-            const inputId = button.dataset.targetInput;
-            targetInput = document.getElementById(inputId);
+            if (activeBarcodeScanner) return;
             
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                modalScanner.classList.add('visible'); // ✅ CORREGIDO
+            const inputId = button.dataset.targetInput;
+            const targetInput = document.getElementById(inputId);
+            
+            showToast("Iniciando cámara...", "success");
 
-                codeReader.decodeFromStream(stream, videoElement, (result, err) => {
-                    if (result) {
-                        targetInput.value = result.getText();
-                        stopCamera();
-                        showToast('Código escaneado con éxito.', 'success');
-                    }
-                    if (err && !(err instanceof ZXing.NotFoundException)) {
-                        console.error("Error de escaneo:", err);
+            try {
+                if (!scanbotSDK) {
+                    scanbotSDK = await ScanbotSDK.initialize({
+                        licenseKey: '', // Tu licencia de Scanbot aquí si la tienes
+                        enginePath: 'js/scanbot/'
+                    });
+                }
+
+                const barcodeScannerConfig = {
+                    containerId: 'scanner-container', // ID del contenedor dinámico
+                    onBarcodesDetected: (result) => {
+                        if (result.barcodes.length > 0) {
+                            const scannedValue = result.barcodes[0].text;
+                            targetInput.value = scannedValue;
+                            
+                            if (activeBarcodeScanner) {
+                                activeBarcodeScanner.dispose();
+                                activeBarcodeScanner = null;
+                            }
+                            const container = document.getElementById('scanner-container');
+                            if (container) container.remove();
+                            
+                            showToast('Código escaneado con éxito.', 'success');
+                        }
+                    },
+                    onError: (e) => {
+                        console.error('Error del escáner:', e);
                         showToast('Error al escanear.', 'error');
-                        stopCamera();
+                        if (activeBarcodeScanner) {
+                            activeBarcodeScanner.dispose();
+                            activeBarcodeScanner = null;
+                        }
+                    },
+                    text: {
+                        scanningHint: "Apunte al código de barras del equipo"
                     }
-                });
-            } catch (error) {
-                console.error("Error al acceder a la cámara:", error);
-                showToast('No se pudo acceder a la cámara.', 'error');
+                };
+
+                let scannerContainer = document.getElementById('scanner-container');
+                if (!scannerContainer) {
+                    scannerContainer = document.createElement('div');
+                    scannerContainer.id = 'scanner-container';
+                    scannerContainer.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; z-index:1000;';
+                    document.body.appendChild(scannerContainer);
+                }
+                
+                activeBarcodeScanner = await scanbotSDK.createBarcodeScanner(barcodeScannerConfig);
+
+            } catch (e) {
+                console.error('Error al inicializar Scanbot SDK:', e);
+                showToast('No se pudo iniciar el escáner.', 'error');
             }
         });
     });
-
-    // Evento para el botón de cerrar el modal del scanner
-    btnCerrarScanner.addEventListener('click', stopCamera);
-
 
     // --- 6. GUARDIANES E INICIALIZACIÓN ---
 

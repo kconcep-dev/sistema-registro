@@ -191,21 +191,15 @@
         </div>
     </div>
     
-    <div id="modal-scanner" class="modal-overlay">
-        <div class="modal-content">
-            <button id="btn-cerrar-scanner" class="modal-close-btn">&times;</button>
-            <h2>Escaneando Código de Barras</h2>
-            <video id="video-scanner" style="width: 100%; border-radius: 8px;"></video>
-            <p>Apunta la cámara al código de barras.</p>
-        </div>
-    </div>
-
     <div id="toast-notification" class="toast">
         <span id="toast-message"></span>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://unpkg.com/@zxing/library@latest"></script>
+    
+    <script src="js/scanbot/ScanbotSDK.min.js"></script>
+    <script src="js/scanbot/ScanbotSDK.ui2.min.js"></script>
+    
     <script src="js/common.js" defer></script>
     <script src="js/descartes.js" defer></script>
 </body>
