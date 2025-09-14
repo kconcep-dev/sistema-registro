@@ -1,13 +1,22 @@
+// Contenido completo y corregido para js/test-scanner.js
+
 console.log("✅ Archivo test-scanner.js CARGADO");
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Referencias a los elementos que ya existen en tu HTML
+    
+    console.log("🚀 DOM listo. Buscando elementos...");
+    
+    // --- Referencias a los elementos del DOM ---
     const qrResultDisplay = document.getElementById('qr-result-display');
     const toastEl = document.getElementById('toast-notification');
     const toastMessageEl = document.getElementById('toast-message');
+    const btnScanLive = document.getElementById('btn-scan-live'); 
+    let scanbotSDK;
 
-    // (Opcional) Puedes copiar tus funciones showToast y updateWorkInProgress aquí
-    // para que el feedback visual funcione en la página de prueba.
+    // Se imprime en consola el estado del botón para depurar
+    console.log("Buscando el botón #btn-scan-live:", btnScanLive);
+
+    // --- Funciones Auxiliares ---
     function showToast(message, type = 'success') {
         let toastTimeout;
         clearTimeout(toastTimeout);
@@ -18,10 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
     
-    // --- CÓDIGO DE SCANBOT ---
-    const btnScanLive = document.getElementById('btn-scan-live'); // Añade un botón con este id en test-scanner.html
-    let scanbotSDK;
-
     function procesarDatosQR(textoQR) {
         qrResultDisplay.textContent = textoQR;
         const parts = textoQR.split('|');
@@ -35,46 +40,59 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    btnScanLive.addEventListener('click', async () => {
-        showToast("Iniciando cámara...", "success");
+    // --- Lógica de Scanbot ---
+    // Se verifica que el botón exista antes de asignarle un evento
+    if (btnScanLive) {
+        console.log("✔️ Botón encontrado. Añadiendo evento 'click'...");
+        btnScanLive.addEventListener('click', async () => {
+            showToast("Iniciando cámara...", "success");
 
-        try {
-            if (!scanbotSDK) {
-                scanbotSDK = await ScanbotSDK.initialize({
-                    licenseKey: '', // Pega tu licencia de prueba aquí
-                    engine: 'js/scanbot/'
-                });
+            try {
+                if (!scanbotSDK) {
+                    scanbotSDK = await ScanbotSDK.initialize({
+                        licenseKey: '', // Pega tu licencia de prueba de 7 días aquí
+                        engine: 'js/scanbot/'
+                    });
+                }
+
+                const barcodeScannerConfig = {
+                    containerId: 'scanner-container',
+                    onBarcodesDetected: (result) => {
+                        if (result.barcodes.length > 0) {
+                            procesarDatosQR(result.barcodes[0].text);
+                            scanbotSDK.disposeBarcodeScanner();
+                            document.getElementById('scanner-container').style.display = 'none';
+                        }
+                    },
+                    onError: (e) => {
+                        console.error('Error del escáner:', e);
+                        showToast('Error al escanear.', 'error');
+                    },
+                };
+
+                let scannerContainer = document.getElementById('scanner-container');
+                if (!scannerContainer) {
+                    scannerContainer = document.createElement('div');
+                    scannerContainer.id = 'scanner-container';
+                    scannerContainer.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; z-index:1000; background: #000;';
+                    document.body.appendChild(scannerContainer);
+                }
+                scannerContainer.style.display = 'block';
+
+                await scanbotSDK.createBarcodeScanner(barcodeScannerConfig);
+
+            } catch (e) {
+                console.error('Error al inicializar Scanbot SDK:', e);
+                showToast('No se pudo iniciar el escáner.', 'error');
             }
+        });
+    } else {
+        console.error("❌ ¡ERROR CRÍTICO! No se encontró el botón con id='btn-scan-live' en el HTML.");
+    }
 
-            const barcodeScannerConfig = {
-                containerId: 'scanner-container',
-                onBarcodesDetected: (result) => {
-                    if (result.barcodes.length > 0) {
-                        procesarDatosQR(result.barcodes[0].text);
-                        scanbotSDK.disposeBarcodeScanner();
-                        document.getElementById('scanner-container').style.display = 'none';
-                    }
-                },
-                onError: (e) => {
-                    console.error('Error del escáner:', e);
-                    showToast('Error al escanear.', 'error');
-                },
-            };
-
-            let scannerContainer = document.getElementById('scanner-container');
-            if (!scannerContainer) {
-                scannerContainer = document.createElement('div');
-                scannerContainer.id = 'scanner-container';
-                scannerContainer.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; z-index:1000; background: #000;';
-                document.body.appendChild(scannerContainer);
-            }
-            scannerContainer.style.display = 'block';
-
-            await scanbotSDK.createBarcodeScanner(barcodeScannerConfig);
-
-        } catch (e) {
-            console.error('Error al inicializar Scanbot SDK:', e);
-            showToast('No se pudo iniciar el escáner.', 'error');
-        }
-    });
+    // --- CÓDIGO FINAL PARA MOSTRAR LA PÁGINA ---
+    // Oculta la pantalla de carga y muestra el contenido principal
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('main-content').style.display = 'flex';
+    console.log("✨ Página lista y visible.");
 });
