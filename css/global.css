@@ -358,6 +358,16 @@ body.nav-open .nav-links {
         width: 45px;
         height: 45px;
     }
+
+    .nav-links .nav-item:first-child .nav-link.active {
+        border-top-left-radius: 50px;
+        border-bottom-left-radius: 50px;
+    }
+
+    .nav-links .nav-item:nth-child(4) .nav-link.active {
+        border-top-right-radius: 50px;
+        border-bottom-right-radius: 50px;
+    }
 }
 
 .nav-link:hover:not(.disabled) {
