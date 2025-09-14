@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!scanbotSDK) {
                     scanbotSDK = await ScanbotSDK.initialize({
                         licenseKey: '', // Pega tu licencia de prueba de 7 días aquí
-                        engine: 'js/scanbot/'
+                        enginePath: 'js/scanbot/'
                     });
                 }
 
