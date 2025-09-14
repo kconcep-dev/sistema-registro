@@ -1,11 +1,11 @@
 // js/common.js
 
-// --- 1. CONFIGURACIÓN Y CLIENTE SUPABASE ---
+// --- 1. SUPABASE CLIENT CONFIGURATION ---
 const supabaseUrl = "https://qmzbqwwndsdsmdkrimwb.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtemJxd3duZHNkc21ka3JpbXdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0OTExNDYsImV4cCI6MjA3MjA2NzE0Nn0.dfQdvfFbgXdun1kQ10gRsqh3treJRzOKdbkebpEQXWo";
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-// --- 2. INYECTOR DE BARRA DE NAVEGACIÓN ---
+// --- 2. NAVBAR INJECTOR ---
 const navbarHTML = `
     <nav class="navbar">
         <div class="nav-container">
@@ -44,20 +44,18 @@ if (navbarPlaceholder) {
     navbarPlaceholder.innerHTML = navbarHTML;
 }
 
-// --- 3. FUNCIONES Y LÓGICA COMÚN ---
+// --- 3. COMMON LOGIC & FUNCTIONS ---
 
-// Variable global para rastrear trabajo sin guardar
 window.isWorkInProgress = false;
 
-// Función global para limpiar el estado de trabajo (será definida en las páginas específicas)
 window.clearWorkInProgress = () => {
     window.isWorkInProgress = false;
 };
 
-// Función global para mostrar modal de confirmación
+// 🔥 UPDATED MODAL FUNCTION 🔥
 window.showConfirmationModal = (title, message) => {
     const modal = document.getElementById('modal-confirmacion');
-    if (!modal) return Promise.resolve(true); // Si no hay modal, se asume confirmación
+    if (!modal) return Promise.resolve(true);
 
     const confirmTitle = document.getElementById('confirm-title');
     const confirmMessage = document.getElementById('confirm-message');
@@ -66,15 +64,15 @@ window.showConfirmationModal = (title, message) => {
 
     confirmTitle.textContent = title;
     confirmMessage.textContent = message;
-    modal.style.display = 'flex';
+    modal.classList.add('visible'); // Use class to show
 
     return new Promise((resolve) => {
         btnAceptar.onclick = () => {
-            modal.style.display = 'none';
+            modal.classList.remove('visible'); // Use class to hide
             resolve(true);
         };
         btnCancelar.onclick = () => {
-            modal.style.display = 'none';
+            modal.classList.remove('visible'); // Use class to hide
             resolve(false);
         };
     });
@@ -82,38 +80,27 @@ window.showConfirmationModal = (title, message) => {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-   // --- LÓGICA DEL TEMA (CORREGIDA) ---
-const themeToggleBtn = document.getElementById('theme-toggle');
-if (themeToggleBtn) {
-    // Al cargar, solo necesitamos ajustar el ícono, la clase ya está puesta.
-    if (document.documentElement.classList.contains('dark-mode')) {
-        themeToggleBtn.textContent = '☀️';
+   // --- THEME LOGIC ---
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    if (themeToggleBtn) {
+        if (document.documentElement.classList.contains('dark-mode')) {
+            themeToggleBtn.textContent = '☀️';
+        }
+        themeToggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark-mode');
+            const isDarkMode = document.documentElement.classList.contains('dark-mode');
+            themeToggleBtn.textContent = isDarkMode ? '☀️' : '🌙';
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        });
     }
-
-    // Evento de clic corregido para apuntar a <html>
-    themeToggleBtn.addEventListener('click', () => {
-        // 1. Alterna la clase en la etiqueta <html>
-        document.documentElement.classList.toggle('dark-mode');
-
-        // 2. Determina el tema actual basándose en <html>
-        const isDarkMode = document.documentElement.classList.contains('dark-mode');
-        const theme = isDarkMode ? 'dark' : 'light';
-
-        // 3. Actualiza el ícono del botón
-        themeToggleBtn.textContent = isDarkMode ? '☀️' : '🌙';
-
-        // 4. Guarda la preferencia en localStorage
-        localStorage.setItem('theme', theme);
-    });
-}
     
-    // --- LÓGICA DE NAVEGACIÓN (HAMBURGUESA) ---
+    // --- NAVIGATION LOGIC (HAMBURGER) ---
     const hamburgerBtn = document.getElementById('hamburger-btn');
     if (hamburgerBtn) {
         hamburgerBtn.addEventListener('click', () => document.body.classList.toggle('nav-open'));
     }
 
-    // --- FUNCIÓN GENÉRICA PARA SALIR DE FORMA SEGURA ---
+    // --- SAFE EXIT FUNCTION ---
     async function safeExit(exitFunction) {
         if (window.isWorkInProgress) {
             const confirmed = await window.showConfirmationModal(
@@ -131,7 +118,7 @@ if (themeToggleBtn) {
         }
     }
 
-    // --- LÓGICA DE LOGOUT (ACTUALIZADA) ---
+    // --- LOGOUT LOGIC ---
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
@@ -142,7 +129,7 @@ if (themeToggleBtn) {
         });
     }
 
-    // --- LÓGICA PARA MARCAR ENLACE ACTIVO Y GUARDIÁN DE NAVEGACIÓN (ACTUALIZADO) ---
+    // --- ACTIVE LINK & NAVIGATION GUARD LOGIC ---
     const currentPage = window.location.pathname.split('/').pop();
     const navLinks = document.querySelectorAll('.nav-link');
 
@@ -151,29 +138,27 @@ if (themeToggleBtn) {
         if (linkPage === currentPage) {
             link.classList.add('active');
         }
-
         link.addEventListener('click', (e) => {
             if (link.classList.contains('disabled') || link.classList.contains('active')) {
+                e.preventDefault(); // Prevent navigation for disabled or active links
                 return;
             }
-            e.preventDefault(); // Siempre prevenimos la navegación inmediata
+            e.preventDefault();
             safeExit(() => {
                 window.location.href = link.href;
             });
         });
     });
 
-    // --- TEMPORIZADOR DE INACTIVIDAD (ACTUALIZADO) ---
+    // --- INACTIVITY TIMER ---
     let inactivityTimer;
-    const INACTIVITY_TIMEOUT = 10 * 60 * 1000;
+    const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes
 
     async function logoutUserByInactivity() {
-        // En lugar de alert, usamos el modal de confirmación
         const confirmed = await window.showConfirmationModal(
             'Sesión por Expirar',
             'Has estado inactivo por un tiempo. ¿Deseas cerrar la sesión ahora?'
         );
-
         if (confirmed) {
             if (typeof window.clearWorkInProgress === 'function') {
                 window.clearWorkInProgress();
@@ -181,7 +166,6 @@ if (themeToggleBtn) {
             await supabaseClient.auth.signOut();
             window.location.href = 'login.html';
         } else {
-            // Si el usuario cancela, reseteamos el timer
             resetInactivityTimer();
         }
     }
@@ -201,28 +185,22 @@ if (themeToggleBtn) {
 });
 
 function getUserProfile(user) {
-    // Si por alguna razón no hay un usuario, devolvemos un perfil genérico.
     if (!user) {
         return { name: 'Desconocido', role: 'Invitado' };
     }
 
-    // MAPA CENTRAL DE USUARIOS
     const userMappings = {
-        // email: { name: 'Nombre para mostrar', role: 'Rol del usuario' }
         'concepcion.kelieser@gmail.com': { name: 'Kevin', role: 'Técnico' },
         'usuario2@empresa.com': { name: 'Ana', role: 'Técnico' },
         'jefe.departamento@empresa.com': { name: 'Carlos', role: 'Supervisor' }
-        // ...agrega los demás usuarios aquí
     };
 
     const userEmail = user.email;
     const profile = userMappings[userEmail];
 
-    // Si encontramos el email en nuestro mapa, devolvemos su perfil.
     if (profile) {
         return profile;
     } 
     
-    // Si no, creamos un perfil por defecto usando la parte local del email.
     return { name: userEmail.split('@')[0], role: 'Usuario' };
 }
