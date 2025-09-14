@@ -190,10 +190,8 @@ html.dark-mode select {
 
 /* --- 5. Barra de Navegación --- */
 .navbar {
-    background-color: var(--card-bg-color); 
-    box-shadow: 0 2px 4px var(--shadow-color);
-    border-bottom: 1px solid var(--border-color); 
-    transition: background-color 0.2s ease-in-out;
+    background-color: transparent;
+    box-shadow: none;
     padding: 0 15px;
     position: fixed;
     top: 0;
@@ -326,9 +324,14 @@ body.nav-open .nav-links {
         transform: none;
         gap: 10px;
         background-color: var(--card-bg-color);
-        box-shadow: 0 4px 12px var(--shadow-color);
         padding: 10px;
         border-radius: 999px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+        transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    }
+
+    html.dark-mode .nav-links {
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
     }
     
     .nav-link {
