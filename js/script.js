@@ -72,16 +72,41 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- 🔥 CÓDIGO COMPLETO RESTAURADO --- 🔥
     function displayLastVisitor(visitor) {
+     console.log("--- Depurando displayLastVisitor ---");
+        console.log("Paso 1: La función recibió el objeto:", visitor);
+
         if (visitor) {
-            document.getElementById('ultimo-nombre').textContent = visitor.nombre;
-            document.getElementById('ultimo-apellido').textContent = visitor.apellido;
-            document.getElementById('ultimo-cedula').textContent = visitor.cedula;
-            document.getElementById('ultimo-motivo').textContent = visitor.motivo;
-            document.getElementById('ultimo-fecha').textContent = visitor.fecha;
-            document.getElementById('ultimo-hora').textContent = visitor.hora;
+            try {
+                // Intentamos actualizar cada campo y registramos el resultado
+                console.log(`Paso 2: Actualizando nombre con '${visitor.nombre}'...`);
+                document.getElementById('ultimo-nombre').textContent = visitor.nombre;
+
+                console.log(`Paso 3: Actualizando apellido con '${visitor.apellido}'...`);
+                document.getElementById('ultimo-apellido').textContent = visitor.apellido;
+
+                console.log(`Paso 4: Actualizando cédula con '${visitor.cedula}'...`);
+                document.getElementById('ultimo-cedula').textContent = visitor.cedula;
+
+                console.log(`Paso 5: Actualizando motivo con '${visitor.motivo}'...`);
+                document.getElementById('ultimo-motivo').textContent = visitor.motivo;
+
+                console.log(`Paso 6: Actualizando fecha con '${visitor.fecha}'...`);
+                document.getElementById('ultimo-fecha').textContent = visitor.fecha;
+
+                console.log(`Paso 7: Actualizando hora con '${visitor.hora}'...`);
+                document.getElementById('ultimo-hora').textContent = visitor.hora;
+                
+                console.log("✅ FIN: La actualización de la tarjeta se completó sin errores.");
+
+            } catch (error) {
+                console.error("❌ ERROR DENTRO DE displayLastVisitor:", error);
+                showToast("Error al actualizar la tarjeta de último visitante.", "error");
+            }
         } else {
+            console.log("La función recibió un visitante nulo. Mostrando mensaje por defecto.");
             ultimoVisitanteCard.innerHTML = '<h4>Aún no hay visitantes registrados.</h4>';
         }
+        console.log("-------------------------------------");
     }
 
     // --- 🔥 CÓDIGO COMPLETO RESTAURADO --- 🔥
