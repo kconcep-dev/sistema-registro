@@ -190,8 +190,10 @@ html.dark-mode select {
 
 /* --- 5. Barra de Navegación --- */
 .navbar {
-    background-color: transparent;
-    box-shadow: none;
+    background-color: var(--card-bg-color); 
+    box-shadow: 0 2px 4px var(--shadow-color);
+    border-bottom: 1px solid var(--border-color); 
+    transition: background-color 0.2s ease-in-out;
     padding: 0 15px;
     position: fixed;
     top: 0;
