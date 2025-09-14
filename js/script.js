@@ -1,6 +1,6 @@
 // js/script.js
 
-// --- 0. INITIAL ROUTE PROTECTION ---
+// --- 0. PROTECCIÓN DE RUTA INICIAL ---
 (async function checkSession() {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (!session) {
@@ -13,40 +13,32 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 1. DOM ELEMENTS ---
+    // --- 1. ELEMENTOS DEL DOM ---
     const mainForm = document.getElementById('registro-form');
     const mainFormInputs = mainForm.querySelectorAll('input[type="text"], select');
-    
-    // Image QR elements
     const qrCaptureInput = document.getElementById('qr-captura');
     const qrChooseInput = document.getElementById('qr-elegir');
     const qrFileNameDisplay = document.getElementById('qr-file-name');
     const imageResultBox = document.getElementById('image-result-box');
     const qrCanvasElement = document.getElementById("qr-canvas");
     const qrCanvas = qrCanvasElement.getContext("2d");
-
-    // Live scanner (Scanbot) elements
     const btnScanLive = document.getElementById('btn-scan-live');
     const scanbotResultBox = document.getElementById('scanbot-result-box');
-
-    // Modal elements
     const modalRegistro = document.getElementById('modal-registro-qr');
     const modalForm = document.getElementById('modal-form-registro');
     const btnCerrarModal = document.getElementById('btn-cerrar-modal-registro');
     const btnCancelarModal = document.getElementById('btn-cancelar-modal-registro');
     const btnSubmitModal = document.getElementById('btn-submit-modal-registro');
-
-    // Other elements
     const toastEl = document.getElementById('toast-notification');
     const toastMessageEl = document.getElementById('toast-message');
     const ultimoVisitanteCard = document.getElementById('ultimo-visitante-card');
 
-    // --- 2. STATE & PERSISTENCE ---
+    // --- 2. ESTADO Y PERSISTENCIA ---
     let toastTimeout;
     let scanbotSDK;
     let activeBarcodeScanner;
 
-    // --- 3. HELPER FUNCTIONS ---
+    // --- 3. FUNCIONES AUXILIARES ---
     function showToast(message, type = 'success') {
         clearTimeout(toastTimeout);
         toastMessageEl.textContent = message;
@@ -71,16 +63,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function displayLastVisitor(visitor) {
-       if (visitor) {
+        if (visitor) {
             document.getElementById('ultimo-nombre').textContent = visitor.nombre;
             document.getElementById('ultimo-apellido').textContent = visitor.apellido;
             document.getElementById('ultimo-cedula').textContent = visitor.cedula;
-            // 🔥 UPDATE: Display the sex field on the card if it exists in your HTML
-            // const sexoSpan = document.getElementById('ultimo-sexo'); 
-            // if (sexoSpan) sexoSpan.textContent = visitor.sexo;
             document.getElementById('ultimo-motivo').textContent = visitor.motivo;
             document.getElementById('ultimo-fecha').textContent = visitor.fecha;
             document.getElementById('ultimo-hora').textContent = visitor.hora;
+            // Si en el futuro añades el campo 'sexo' a la tarjeta, aquí lo actualizarías:
+            // const sexoSpan = document.getElementById('ultimo-sexo');
+            // if(sexoSpan) sexoSpan.textContent = visitor.sexo;
         } else {
             ultimoVisitanteCard.innerHTML = '<h4>Aún no hay visitantes registrados.</h4>';
         }
@@ -97,16 +89,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 4. MAIN FORM LOGIC (MANUAL) ---
+    // --- 4. LÓGICA DEL FORMULARIO PRINCIPAL (MANUAL) ---
     mainForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const nombre = document.getElementById("nombre").value.trim();
         const apellido = document.getElementById("apellido").value.trim();
         const cedula = document.getElementById("cedula").value.trim();
-        const sexo = document.getElementById("sexo").value; // 🔥 Get sex value
+        const sexo = document.getElementById("sexo").value;
         const motivo = document.getElementById("motivo").value.trim();
 
-        if (!nombre || !apellido || !cedula || !sexo || !motivo) { // 🔥 Added sex validation
+        if (!nombre || !apellido || !cedula || !sexo || !motivo) {
             showToast("Por favor, completa todos los campos.", "error");
             return;
         }
@@ -117,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const fechaActual = new Date().toISOString().split("T")[0];
             const horaActual = new Date().toLocaleTimeString("es-PA", { hour12: false });
-            const { data: nuevoVisitante, error } = await supabaseClient.from('visitantes').insert([{ nombre, apellido, cedula, sexo, motivo, fecha: fechaActual, hora: horaActual }]).select().single(); // 🔥 Added sex to insert
+            const { data: nuevoVisitante, error } = await supabaseClient.from('visitantes').insert([{ nombre, apellido, cedula, sexo, motivo, fecha: fechaActual, hora: horaActual }]).select().single();
             if (error) throw error;
             
             showToast("¡Registro exitoso!", "success");
@@ -132,12 +124,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 5. REGISTRATION MODAL LOGIC ---
+    // --- 5. LÓGICA DEL MODAL DE REGISTRO ---
     function abrirModalRegistro(datos) {
         document.getElementById('modal-nombre').value = datos.nombre || '';
         document.getElementById('modal-apellido').value = datos.apellido || '';
         document.getElementById('modal-cedula').value = datos.cedula || '';
-        document.getElementById('modal-sexo').value = datos.sexo || ''; // 🔥 Set sex value
+        document.getElementById('modal-sexo').value = datos.sexo || '';
         document.getElementById('modal-motivo').value = '';
         document.getElementById('modal-motivo').focus();
         modalRegistro.classList.add('visible');
@@ -155,10 +147,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const nombre = document.getElementById("modal-nombre").value.trim();
         const apellido = document.getElementById("modal-apellido").value.trim();
         const cedula = document.getElementById("modal-cedula").value.trim();
-        const sexo = document.getElementById("modal-sexo").value; // 🔥 Get sex value
+        const sexo = document.getElementById("modal-sexo").value;
         const motivo = document.getElementById("modal-motivo").value.trim();
 
-        if (!nombre || !apellido || !cedula || !sexo || !motivo) { // 🔥 Added sex validation
+        if (!nombre || !apellido || !cedula || !sexo || !motivo) {
             showToast("Por favor, completa el motivo de la visita.", "error");
             return;
         }
@@ -169,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const fechaActual = new Date().toISOString().split("T")[0];
             const horaActual = new Date().toLocaleTimeString("es-PA", { hour12: false });
-            const { data: nuevoVisitante, error } = await supabaseClient.from('visitantes').insert([{ nombre, apellido, cedula, sexo, motivo, fecha: fechaActual, hora: horaActual }]).select().single(); // 🔥 Added sex to insert
+            const { data: nuevoVisitante, error } = await supabaseClient.from('visitantes').insert([{ nombre, apellido, cedula, sexo, motivo, fecha: fechaActual, hora: horaActual }]).select().single();
             if (error) throw error;
             
             showToast("¡Registro exitoso!", "success");
@@ -185,21 +177,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 6. IMAGE QR READER LOGIC ---
+    // --- 6. LÓGICA DEL LECTOR DE QR POR IMAGEN ---
     const handleImageFile = (file) => {
-        // ... (code inside is the same)
+        if (!file) {
+            qrFileNameDisplay.textContent = 'Ningún archivo seleccionado';
+            imageResultBox.style.display = 'none';
+            return;
+        }
+        
+        qrFileNameDisplay.textContent = file.name;
+        imageResultBox.textContent = 'Procesando...';
+        imageResultBox.style.display = 'block';
+        showToast("Procesando imagen...", "success");
+
         const reader = new FileReader();
         reader.onload = (e) => {
             const img = new Image();
             img.onload = () => {
-                // ... (image processing code is the same)
+                qrCanvasElement.width = img.width;
+                qrCanvasElement.height = img.height;
+                qrCanvas.drawImage(img, 0, 0, img.width, img.height);
+                
+                // 🔥 ESTA ES LA LÍNEA QUE FALTABA Y CAUSABA EL ERROR 🔥
+                const imageData = qrCanvas.getImageData(0, 0, qrCanvasElement.width, qrCanvasElement.height);
+                
                 const code = jsQR(imageData.data, imageData.width, imageData.height);
                 
                 if (code) {
                     const decodedData = new TextDecoder('utf-8').decode(new Uint8Array(code.binaryData));
                     imageResultBox.textContent = decodedData;
                     const parts = decodedData.split('|');
-                    // 🔥 UPDATED to check for at least 5 parts to get the sex
                     if (parts.length >= 5) {
                         const sexoChar = parts[4].trim().toUpperCase();
                         const sexo = sexoChar === 'M' ? 'Masculino' : (sexoChar === 'F' ? 'Femenino' : '');
@@ -214,7 +221,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         showToast("Formato del QR no esperado.", "error");
                     }
                 } else {
-                    // ... (error handling)
+                    imageResultBox.textContent = 'No se detectó ningún código QR en la imagen.';
+                    showToast("No se encontró un QR en la imagen.", "error");
                 }
             };
             img.src = e.target.result;
@@ -232,12 +240,19 @@ document.addEventListener('DOMContentLoaded', () => {
         event.target.value = '';
     });
 
-    // --- 7. SCANBOT LOGIC (LIVE CAMERA) ---
+    // --- 7. LÓGICA PARA SCANBOT (Cámara en Vivo) ---
     if (btnScanLive) {
         btnScanLive.addEventListener('click', async () => {
-            // ... (initialization code is the same)
+            if (activeBarcodeScanner) return;
+            showToast("Iniciando cámara...", "success");
+
             try {
-                // ... (SDK initialization is the same)
+                if (!scanbotSDK) {
+                    scanbotSDK = await ScanbotSDK.initialize({
+                        licenseKey: '',
+                        enginePath: 'js/scanbot/'
+                    });
+                }
                 const barcodeScannerConfig = {
                     containerId: 'scanner-container',
                     onBarcodesDetected: (result) => {
@@ -247,7 +262,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             scanbotResultBox.style.display = 'block';
                             
                             const parts = textoQR.split('|');
-                            // 🔥 UPDATED to check for at least 5 parts to get the sex
                             if (parts.length >= 5) {
                                 const sexoChar = parts[4].trim().toUpperCase();
                                 const sexo = sexoChar === 'M' ? 'Masculino' : (sexoChar === 'F' ? 'Femenino' : '');
@@ -271,21 +285,40 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     },
                     onError: (e) => {
-                        // ... (error handling is the same)
+                        console.error('Error del escáner:', e);
+                        showToast('Error al escanear.', 'error');
+                        if (activeBarcodeScanner) {
+                            activeBarcodeScanner.dispose();
+                            activeBarcodeScanner = null;
+                        }
                     },
-                    style: { /* ... */ },
-                    text: { /* ... */ }
+                    style: {
+                        window: { backgroundColor: "rgba(0,0,0,0.7)" },
+                        viewfinder: { borderColor: "white", borderWidth: 2, cornerRadius: 4 }
+                    },
+                    text: {
+                        scanningHint: "Apunte al código QR de la cédula"
+                    }
                 };
-                // ... (scanner creation code is the same)
+
+                let scannerContainer = document.getElementById('scanner-container');
+                if (!scannerContainer) {
+                    scannerContainer = document.createElement('div');
+                    scannerContainer.id = 'scanner-container';
+                    scannerContainer.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; z-index:1000;';
+                    document.body.appendChild(scannerContainer);
+                }
+                scannerContainer.style.display = 'block';
                 activeBarcodeScanner = await scanbotSDK.createBarcodeScanner(barcodeScannerConfig);
 
             } catch (e) {
-                // ... (error handling is the same)
+                console.error('Error al inicializar Scanbot SDK:', e);
+                showToast('No se pudo iniciar el escáner.', 'error');
             }
         });
     }
 
-    // --- 8. FINAL INITIALIZATION ---
+    // --- 8. INICIALIZACIÓN FINAL ---
     fetchLastVisitor();
     mainFormInputs.forEach(input => {
         input.addEventListener('input', updateWorkInProgress);
