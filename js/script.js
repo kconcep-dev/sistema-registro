@@ -56,34 +56,49 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
     
-    // Función global para limpiar formularios (ahora también limpia el modal)
     window.clearWorkInProgress = () => {
         window.isWorkInProgress = false;
         mainForm.reset();
         modalForm.reset();
         qrFileNameDisplay.textContent = 'Ningún archivo seleccionado';
-        imageResultBox.style.display = 'none';
-        scanbotResultBox.style.display = 'none';
+        if (imageResultBox) imageResultBox.style.display = 'none';
+        if (scanbotResultBox) scanbotResultBox.style.display = 'none';
     };
 
     function updateWorkInProgress() {
-        // El guardián ahora se basa en si el formulario principal tiene texto
         const hasContent = Array.from(mainFormInputs).some(input => input.value.trim() !== '');
         window.isWorkInProgress = hasContent;
     }
-
+    
+    // --- 🔥 CÓDIGO COMPLETO RESTAURADO --- 🔥
     function displayLastVisitor(visitor) {
-        // ... (sin cambios)
+        if (visitor) {
+            document.getElementById('ultimo-nombre').textContent = visitor.nombre;
+            document.getElementById('ultimo-apellido').textContent = visitor.apellido;
+            document.getElementById('ultimo-cedula').textContent = visitor.cedula;
+            document.getElementById('ultimo-motivo').textContent = visitor.motivo;
+            document.getElementById('ultimo-fecha').textContent = visitor.fecha;
+            document.getElementById('ultimo-hora').textContent = visitor.hora;
+        } else {
+            ultimoVisitanteCard.innerHTML = '<h4>Aún no hay visitantes registrados.</h4>';
+        }
     }
 
+    // --- 🔥 CÓDIGO COMPLETO RESTAURADO --- 🔥
     async function fetchLastVisitor() {
-        // ... (sin cambios)
+        try {
+            const { data, error } = await supabaseClient.from('visitantes').select('*').order('id', { ascending: false }).limit(1);
+            if (error) throw error;
+            displayLastVisitor(data.length > 0 ? data[0] : null);
+        } catch (error) {
+            console.error("Error al obtener último visitante:", error);
+            ultimoVisitanteCard.innerHTML = '<h4>No se pudo cargar el último registro.</h4>';
+        }
     }
 
     // --- 4. LÓGICA DEL FORMULARIO PRINCIPAL (MANUAL) ---
     mainForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-        // Lógica de registro manual
         const nombre = document.getElementById("nombre").value.trim();
         const apellido = document.getElementById("apellido").value.trim();
         const cedula = document.getElementById("cedula").value.trim();
@@ -111,37 +126,27 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Error de Supabase al insertar:", err);
         } finally {
             submitBtn.disabled = false;
-            submitBtn.textContent = "Registrar";
+            submitBtn.textContent = "Registrar Manualmente";
         }
     });
 
     // --- 5. LÓGICA DEL MODAL DE REGISTRO ---
-    
-    // Función para abrir el modal
     function abrirModalRegistro(datos) {
-        // Llenar el formulario del modal
         document.getElementById('modal-nombre').value = datos.nombre || '';
         document.getElementById('modal-apellido').value = datos.apellido || '';
         document.getElementById('modal-cedula').value = datos.cedula || '';
-        document.getElementById('modal-motivo').value = ''; // Limpiar motivo
-        
-        // Enfocar en el campo de motivo para conveniencia
+        document.getElementById('modal-motivo').value = '';
         document.getElementById('modal-motivo').focus();
-
-        // Mostrar el modal
         modalRegistro.classList.add('visible');
     }
 
-    // Función para cerrar el modal
     function cerrarModalRegistro() {
         modalRegistro.classList.remove('visible');
     }
 
-    // Eventos de cierre del modal
     btnCerrarModal.addEventListener('click', cerrarModalRegistro);
     btnCancelarModal.addEventListener('click', cerrarModalRegistro);
 
-    // Evento para registrar desde el modal
     modalForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const nombre = document.getElementById("modal-nombre").value.trim();
@@ -163,8 +168,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const { data: nuevoVisitante, error } = await supabaseClient.from('visitantes').insert([{ nombre, apellido, cedula, motivo, fecha: fechaActual, hora: horaActual }]).select().single();
             if (error) throw error;
             
-            console.log('Datos del nuevo visitante recibidos de Supabase:', nuevoVisitante);
-
             showToast("¡Registro exitoso!", "success");
             displayLastVisitor(nuevoVisitante);
             cerrarModalRegistro();
