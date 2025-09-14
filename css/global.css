@@ -324,7 +324,6 @@ body.nav-open .nav-links {
         transform: none;
         gap: 10px;
         background-color: var(--card-bg-color);
-        padding: 10px;
         border-radius: 999px;
         box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.50);
         transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
