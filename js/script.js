@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================================
-    // 🔥 --- NUEVO CÓDIGO PARA SCANBOT AÑADIDO AQUÍ --- 🔥
+    // 🔥 --- CÓDIGO ACTUALIZADO PARA SCANBOT --- 🔥
     // ==========================================================
     
     const btnScanLive = document.getElementById('btn-scan-live'); 
@@ -207,8 +207,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     containerId: 'scanner-container',
                     onBarcodesDetected: (result) => {
                         if (result.barcodes.length > 0) {
+                            // 1. Procesa los datos y llena el formulario
                             procesarDatosQRScanbot(result.barcodes[0].text);
+                            
+                            // 2. Detiene el escáner para que no siga buscando
                             scanbotSDK.disposeBarcodeScanner();
+                            
+                            // 3. Oculta y elimina el contenedor de la cámara
                             const container = document.getElementById('scanner-container');
                             if (container) {
                                 container.remove();
