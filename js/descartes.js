@@ -1,15 +1,13 @@
-// js/descartes.js
-
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 1. DOM ELEMENTS ---
+    // --- 1. ELEMENTOS DEL DOM ---
     const inicioSection = document.getElementById('inicio-descarte-section');
     const registroSection = document.getElementById('registro-equipos-section');
     const btnIniciar = document.getElementById('btn-iniciar-descarte');
     const btnAnadirEquipo = document.getElementById('btn-anadir-equipo');
     const btnFinalizar = document.getElementById('btn-finalizar-descarte');
     
-    // Modals
+    // Modales
     const modalSesion = document.getElementById('modal-nueva-sesion');
     const btnCerrarModalSesion = document.getElementById('btn-cerrar-modal');
     const formNuevaSesion = document.getElementById('form-nueva-sesion');
@@ -19,7 +17,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnCerrarModalEditar = document.getElementById('btn-cerrar-modal-editar');
     const btnCancelarEdicion = document.getElementById('btn-editar-cancelar');
 
-    // Forms & Table
+    const modalScanner = document.getElementById('modal-scanner');
+    const videoElement = document.getElementById('video-scanner');
+    const btnCerrarScanner = document.getElementById('btn-cerrar-scanner');
+
+    // Formularios y tabla
     const formEquipo = document.getElementById('form-equipo');
     const tablaEquiposBody = document.querySelector('#tabla-equipos tbody');
     const contadorEquiposSpan = document.getElementById('contador-equipos');
@@ -27,13 +29,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const toastEl = document.getElementById('toast-notification');
     const toastMessageEl = document.getElementById('toast-message');
 
-    // --- 2. APP STATE ---
+    // --- 2. ESTADO DE LA APLICACIÓN ---
     let equiposCounter = 0;
     let toastTimeout;
     let equipoActualEditandoId = null;
     const SESSION_STORAGE_KEY = 'activeDescarteSessionId';
 
-    // --- 3. HELPER FUNCTIONS ---
+    // --- 3. FUNCIONES AUXILIARES ---
+
     function showToast(message, type = 'success') {
         clearTimeout(toastTimeout);
         toastMessageEl.textContent = message;
@@ -54,7 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('observacion').value = '';
             inicioSection.style.display = 'flex';
             registroSection.style.display = 'none';
-            document.body.classList.add('page-descartes-inicio');
         }
     };
 
@@ -99,7 +101,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.remove('page-descartes-inicio');
     }
     
-    // --- 4. SESSION LOGIC & RESTORATION ---
+    // --- 4. LÓGICA DE SESIÓN Y RESTAURACIÓN ---
+
     async function restoreSession(sessionId) {
         try {
             const { data: equiposData, error } = await supabaseClient
@@ -122,106 +125,246 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 5. EVENT HANDLERS ---
+    // --- 5. MANEJADORES DE EVENTOS ---
 
-    // 🔥 MODIFIED: Use classList to show/hide modals
+    // ✅ MODAL NUEVA SESIÓN: CORREGIDO
     btnIniciar.addEventListener('click', () => modalSesion.classList.add('visible'));
     btnCerrarModalSesion.addEventListener('click', () => modalSesion.classList.remove('visible'));
 
     formNuevaSesion.addEventListener('submit', async (e) => {
         e.preventDefault();
-        // ... (form validation)
+        const unidadAdministrativa = document.getElementById('unidad_administrativa').value.trim();
+        const codigoSiace = document.getElementById('siace_code').value.trim();
+        if (!unidadAdministrativa || !codigoSiace) {
+            return showToast('Completa la unidad y el código SIACE.', 'error');
+        }
+
+        const submitBtn = formNuevaSesion.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creando...';
+
         try {
-            // ... (supabase logic)
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) throw new Error("Usuario no encontrado.");
+            
+            const userProfile = getUserProfile(user);
+
+            const nuevaSesion = {
+                unidad_administrativa: unidadAdministrativa,
+                codigo_siace: codigoSiace,
+                tecnico_encargado: userProfile.name,
+                fecha: new Date().toISOString().split('T')[0],
+                user_id: user.id
+            };
+
+            const { data, error } = await supabaseClient.from('descartes_sesiones').insert(nuevaSesion).select().single();
+            if (error) throw error;
+
             sessionStorage.setItem(SESSION_STORAGE_KEY, data.id);
             showRegistroUI(data.id);
-            modalSesion.classList.remove('visible'); // 🔥 MODIFIED
+            modalSesion.classList.remove('visible'); // ✅ CORREGIDO
             formNuevaSesion.reset();
         } catch (error) {
-            // ... (error handling)
+            showToast('No se pudo crear la sesión.', 'error');
         } finally {
-            // ... (button reset)
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Crear Sesión';
         }
     });
     
     formEquipo.addEventListener('submit', async (e) => {
-        // ... (This function has no modal logic, so no changes needed)
+        e.preventDefault();
+        const currentSessionId = sessionStorage.getItem(SESSION_STORAGE_KEY);
+        if (!currentSessionId) return showToast('Error: No hay una sesión activa.', 'error');
+
+        const nuevoEquipo = {
+            sesion_id: currentSessionId,
+            descripcion: document.getElementById('descripcion').value.trim(),
+            marca: document.getElementById('marca').value.trim(),
+            modelo: document.getElementById('modelo').value.trim(),
+            serie: document.getElementById('serie').value.trim(),
+            marbete: document.getElementById('marbete').value.trim(),
+            estado_equipo: document.getElementById('estado_equipo').value.trim(),
+            motivo_descarte: document.getElementById('motivo_descarte').value.trim(),
+        };
+
+        if (Object.values(nuevoEquipo).slice(1).every(v => v === '')) {
+            return showToast('Por favor, rellena al menos un campo.', 'error');
+        }
+
+        btnAnadirEquipo.disabled = true;
+        btnAnadirEquipo.textContent = 'Añadiendo...';
+        try {
+            const { data, error } = await supabaseClient.from('equipos_descartados').insert(nuevoEquipo).select().single();
+            if (error) throw error;
+            
+            equiposCounter++;
+            contadorEquiposSpan.textContent = equiposCounter;
+            renderEquipoEnTabla(data, equiposCounter);
+            formEquipo.reset();
+            document.getElementById('descripcion').focus();
+            showToast('Equipo añadido con éxito.', 'success');
+        } catch (error) {
+            showToast('No se pudo añadir el equipo.', 'error');
+        } finally {
+            btnAnadirEquipo.disabled = false;
+            btnAnadirEquipo.textContent = 'Añadir Equipo';
+        }
     });
     
     tablaEquiposBody.addEventListener('click', async (e) => {
         const target = e.target;
         const equipoId = target.dataset.id;
+
         if (target.classList.contains('btn-eliminar')) {
-            // ... (delete logic)
+            const confirmado = await window.showConfirmationModal('Eliminar Equipo', '¿Estás seguro?');
+            if (confirmado) {
+                try {
+                    await supabaseClient.from('equipos_descartados').delete().eq('id', equipoId);
+                    document.querySelector(`tr[data-id='${equipoId}']`).remove();
+                    equiposCounter--;
+                    contadorEquiposSpan.textContent = equiposCounter;
+                } catch (error) {
+                    showToast('No se pudo eliminar el equipo.', 'error');
+                }
+            }
         }
+
         if (target.classList.contains('btn-editar')) {
             try {
-                // ... (fetch data logic)
-                modalEditar.classList.add('visible'); // 🔥 MODIFIED
+                const { data, error } = await supabaseClient.from('equipos_descartados').select('*').eq('id', equipoId).single();
+                if (error) throw error;
+
+                equipoActualEditandoId = data.id;
+                document.getElementById('edit-descripcion').value = data.descripcion || '';
+                document.getElementById('edit-marbete').value = data.marbete || '';
+                document.getElementById('edit-serie').value = data.serie || '';
+                document.getElementById('edit-marca').value = data.marca || '';
+                document.getElementById('edit-modelo').value = data.modelo || '';
+                document.getElementById('edit-estado_equipo').value = data.estado_equipo || '';
+                document.getElementById('edit-motivo_descarte').value = data.motivo_descarte || '';
+                
+                modalEditar.classList.add('visible'); // ✅ CORREGIDO
             } catch (error) {
                 showToast('No se pudieron cargar los datos del equipo.', 'error');
             }
         }
     });
     
-    // 🔥 MODIFIED: Use classList to hide modals
+    // ✅ MODAL EDITAR EQUIPO: CORREGIDO
     btnCerrarModalEditar.addEventListener('click', () => modalEditar.classList.remove('visible'));
     btnCancelarEdicion.addEventListener('click', () => modalEditar.classList.remove('visible'));
     
     formEditar.addEventListener('submit', async (e) => {
         e.preventDefault();
-        // ... (update logic)
+        const datosActualizados = {
+            descripcion: document.getElementById('edit-descripcion').value.trim(),
+            marbete: document.getElementById('edit-marbete').value.trim(),
+            serie: document.getElementById('edit-serie').value.trim(),
+            marca: document.getElementById('edit-marca').value.trim(),
+            modelo: document.getElementById('edit-modelo').value.trim(),
+            estado_equipo: document.getElementById('edit-estado_equipo').value.trim(),
+            motivo_descarte: document.getElementById('edit-motivo_descarte').value.trim(),
+        };
+
+        const submitBtn = formEditar.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Aplicando...';
+        
         try {
-            // ... (supabase logic)
+            const { data, error } = await supabaseClient.from('equipos_descartados')
+                .update(datosActualizados)
+                .eq('id', equipoActualEditandoId)
+                .select()
+                .single();
+            if (error) throw error;
+            
             updateFilaEnTabla(data);
-            modalEditar.classList.remove('visible'); // 🔥 MODIFIED
+            modalEditar.classList.remove('visible'); // ✅ CORREGIDO
             showToast('Equipo actualizado con éxito.', 'success');
         } catch (error) {
-            // ... (error handling)
+            showToast('No se pudo actualizar el equipo.', 'error');
         } finally {
-            // ... (button reset)
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Aplicar Cambios';
+            equipoActualEditandoId = null;
         }
     });
 
     btnFinalizar.addEventListener('click', async () => {
-        // ... (This function has no modal logic, so no changes needed)
+        if (equiposCounter === 0) return showToast('Debes añadir al menos un equipo.', 'error');
+
+        const confirmado = await window.showConfirmationModal('Finalizar Descarte', '¿Has terminado de registrar los equipos?');
+
+        if (confirmado) {
+            const currentSessionId = sessionStorage.getItem(SESSION_STORAGE_KEY);
+            const observacion = document.getElementById('observacion').value.trim();
+            btnFinalizar.disabled = true;
+            btnFinalizar.textContent = 'Finalizando...';
+            try {
+                await supabaseClient.from('descartes_sesiones').update({ observacion }).eq('id', currentSessionId);
+                clearWorkInProgress();
+                showToast('Descarte finalizado y guardado.', 'success');
+                setTimeout(() => window.location.href = 'inicio.html', 1500);
+            } catch (error) {
+                showToast('No se pudo guardar la observación.', 'error');
+                btnFinalizar.disabled = false;
+                btnFinalizar.textContent = 'Finalizar Descarte';
+            }
+        }
     });
 
-    // --- BARCODE SCANNER LOGIC (ZXing) ---
-    const modalScanner = document.getElementById('modal-scanner');
-    const videoElement = document.getElementById('video-scanner');
-    const btnCerrarScanner = document.getElementById('btn-cerrar-scanner');
-    let targetInput = null;
-    const codeReader = new ZXing.BrowserMultiFormatReader();
-    let stream = null;
+    // --- LÓGICA DEL ESCÁNER DE CÓDIGO DE BARRAS: CORREGIDO ---
 
+    let targetInput = null; // Variable para saber a qué input enviar el resultado
+    const codeReader = new ZXing.BrowserMultiFormatReader();
+    let stream = null; // Variable para guardar el stream de la cámara
+
+    // ✅ Función para detener la cámara y el escáner: CORREGIDA
     function stopCamera() {
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
             stream = null;
         }
         codeReader.reset();
-        modalScanner.classList.remove('visible'); // 🔥 MODIFIED
+        modalScanner.classList.remove('visible');
     }
 
+    // Cuando se hace clic en cualquier botón de escaneo (.btn-scan)
     document.querySelectorAll('.btn-scan').forEach(button => {
         button.addEventListener('click', async () => {
-            // ... (logic to get target input)
+            const inputId = button.dataset.targetInput;
+            targetInput = document.getElementById(inputId);
+            
             try {
                 stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                modalScanner.classList.add('visible'); // 🔥 MODIFIED
+                modalScanner.classList.add('visible'); // ✅ CORREGIDO
+
                 codeReader.decodeFromStream(stream, videoElement, (result, err) => {
-                    // ... (decode logic)
+                    if (result) {
+                        targetInput.value = result.getText();
+                        stopCamera();
+                        showToast('Código escaneado con éxito.', 'success');
+                    }
+                    if (err && !(err instanceof ZXing.NotFoundException)) {
+                        console.error("Error de escaneo:", err);
+                        showToast('Error al escanear.', 'error');
+                        stopCamera();
+                    }
                 });
             } catch (error) {
-                // ... (error handling)
+                console.error("Error al acceder a la cámara:", error);
+                showToast('No se pudo acceder a la cámara.', 'error');
             }
         });
     });
 
+    // Evento para el botón de cerrar el modal del scanner
     btnCerrarScanner.addEventListener('click', stopCamera);
 
-    // --- 6. GUARDS & INITIALIZATION ---
+
+    // --- 6. GUARDIANES E INICIALIZACIÓN ---
+
     window.addEventListener('beforeunload', (event) => {
         if (window.isWorkInProgress) {
             event.preventDefault();
@@ -231,10 +374,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     (async function initializePage() {
         await supabaseClient.auth.getSession();
+        
         const activeSessionId = sessionStorage.getItem(SESSION_STORAGE_KEY);
         if (activeSessionId) {
             await restoreSession(activeSessionId);
         }
+
         document.getElementById('loader').style.display = 'none';
         document.getElementById('main-content').style.display = 'flex';
     })();

@@ -1,11 +1,11 @@
 // js/common.js
 
-// --- 1. SUPABASE CLIENT CONFIGURATION ---
+// --- 1. CONFIGURACIÓN Y CLIENTE SUPABASE ---
 const supabaseUrl = "https://qmzbqwwndsdsmdkrimwb.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtemJxd3duZHNkc21ka3JpbXdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0OTExNDYsImV4cCI6MjA3MjA2NzE0Nn0.dfQdvfFbgXdun1kQ10gRsqh3treJRzOKdbkebpEQXWo";
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-// --- 2. NAVBAR INJECTOR ---
+// --- 2. INYECTOR DE BARRA DE NAVEGACIÓN ---
 const navbarHTML = `
     <nav class="navbar">
         <div class="nav-container">
@@ -44,18 +44,20 @@ if (navbarPlaceholder) {
     navbarPlaceholder.innerHTML = navbarHTML;
 }
 
-// --- 3. COMMON LOGIC & FUNCTIONS ---
+// --- 3. FUNCIONES Y LÓGICA COMÚN ---
 
+// Variable global para rastrear trabajo sin guardar
 window.isWorkInProgress = false;
 
+// Función global para limpiar el estado de trabajo (será definida en las páginas específicas)
 window.clearWorkInProgress = () => {
     window.isWorkInProgress = false;
 };
 
-// 🔥 UPDATED MODAL FUNCTION 🔥
+// ✅ FUNCIÓN GLOBAL PARA MOSTRAR MODAL DE CONFIRMACIÓN: CORREGIDA
 window.showConfirmationModal = (title, message) => {
     const modal = document.getElementById('modal-confirmacion');
-    if (!modal) return Promise.resolve(true);
+    if (!modal) return Promise.resolve(true); // Si no hay modal, se asume confirmación
 
     const confirmTitle = document.getElementById('confirm-title');
     const confirmMessage = document.getElementById('confirm-message');
@@ -64,43 +66,48 @@ window.showConfirmationModal = (title, message) => {
 
     confirmTitle.textContent = title;
     confirmMessage.textContent = message;
-    modal.classList.add('visible'); // Use class to show
+    modal.classList.add('visible'); // <-- Usamos la clase para mostrarlo
 
     return new Promise((resolve) => {
-        btnAceptar.onclick = () => {
-            modal.classList.remove('visible'); // Use class to hide
-            resolve(true);
+        const closeModal = (value) => {
+            modal.classList.remove('visible'); // <-- Usamos la clase para ocultarlo
+            // Removemos los event listeners para evitar fugas de memoria
+            btnAceptar.onclick = null;
+            btnCancelar.onclick = null;
+            resolve(value);
         };
-        btnCancelar.onclick = () => {
-            modal.classList.remove('visible'); // Use class to hide
-            resolve(false);
-        };
+
+        btnAceptar.onclick = () => closeModal(true);
+        btnCancelar.onclick = () => closeModal(false);
     });
 };
 
 document.addEventListener('DOMContentLoaded', () => {
 
-   // --- THEME LOGIC ---
+   // --- LÓGICA DEL TEMA ---
     const themeToggleBtn = document.getElementById('theme-toggle');
     if (themeToggleBtn) {
+        // Al cargar, solo necesitamos ajustar el ícono, la clase ya está puesta.
         if (document.documentElement.classList.contains('dark-mode')) {
             themeToggleBtn.textContent = '☀️';
         }
+
         themeToggleBtn.addEventListener('click', () => {
             document.documentElement.classList.toggle('dark-mode');
             const isDarkMode = document.documentElement.classList.contains('dark-mode');
+            const theme = isDarkMode ? 'dark' : 'light';
             themeToggleBtn.textContent = isDarkMode ? '☀️' : '🌙';
-            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            localStorage.setItem('theme', theme);
         });
     }
     
-    // --- NAVIGATION LOGIC (HAMBURGER) ---
+    // --- LÓGICA DE NAVEGACIÓN (HAMBURGUESA) ---
     const hamburgerBtn = document.getElementById('hamburger-btn');
     if (hamburgerBtn) {
         hamburgerBtn.addEventListener('click', () => document.body.classList.toggle('nav-open'));
     }
 
-    // --- SAFE EXIT FUNCTION ---
+    // --- FUNCIÓN GENÉRICA PARA SALIR DE FORMA SEGURA ---
     async function safeExit(exitFunction) {
         if (window.isWorkInProgress) {
             const confirmed = await window.showConfirmationModal(
@@ -118,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- LOGOUT LOGIC ---
+    // --- LÓGICA DE LOGOUT ---
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
@@ -129,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- ACTIVE LINK & NAVIGATION GUARD LOGIC ---
+    // --- LÓGICA PARA MARCAR ENLACE ACTIVO Y GUARDIÁN DE NAVEGACIÓN ---
     const currentPage = window.location.pathname.split('/').pop();
     const navLinks = document.querySelectorAll('.nav-link');
 
@@ -138,27 +145,29 @@ document.addEventListener('DOMContentLoaded', () => {
         if (linkPage === currentPage) {
             link.classList.add('active');
         }
+
         link.addEventListener('click', (e) => {
             if (link.classList.contains('disabled') || link.classList.contains('active')) {
-                e.preventDefault(); // Prevent navigation for disabled or active links
+                e.preventDefault();
                 return;
             }
-            e.preventDefault();
+            e.preventDefault(); // Siempre prevenimos la navegación inmediata
             safeExit(() => {
                 window.location.href = link.href;
             });
         });
     });
 
-    // --- INACTIVITY TIMER ---
+    // --- TEMPORIZADOR DE INACTIVIDAD ---
     let inactivityTimer;
-    const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes
+    const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutos
 
     async function logoutUserByInactivity() {
         const confirmed = await window.showConfirmationModal(
             'Sesión por Expirar',
             'Has estado inactivo por un tiempo. ¿Deseas cerrar la sesión ahora?'
         );
+
         if (confirmed) {
             if (typeof window.clearWorkInProgress === 'function') {
                 window.clearWorkInProgress();
@@ -166,6 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await supabaseClient.auth.signOut();
             window.location.href = 'login.html';
         } else {
+            // Si el usuario cancela, reseteamos el timer
             resetInactivityTimer();
         }
     }
@@ -185,22 +195,28 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function getUserProfile(user) {
+    // Si por alguna razón no hay un usuario, devolvemos un perfil genérico.
     if (!user) {
         return { name: 'Desconocido', role: 'Invitado' };
     }
 
+    // MAPA CENTRAL DE USUARIOS
     const userMappings = {
+        // email: { name: 'Nombre para mostrar', role: 'Rol del usuario' }
         'concepcion.kelieser@gmail.com': { name: 'Kevin', role: 'Técnico' },
         'usuario2@empresa.com': { name: 'Ana', role: 'Técnico' },
         'jefe.departamento@empresa.com': { name: 'Carlos', role: 'Supervisor' }
+        // ...agrega los demás usuarios aquí
     };
 
     const userEmail = user.email;
     const profile = userMappings[userEmail];
 
+    // Si encontramos el email en nuestro mapa, devolvemos su perfil.
     if (profile) {
         return profile;
     } 
     
+    // Si no, creamos un perfil por defecto usando la parte local del email.
     return { name: userEmail.split('@')[0], role: 'Usuario' };
 }
