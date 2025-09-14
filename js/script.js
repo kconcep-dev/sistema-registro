@@ -163,6 +163,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const { data: nuevoVisitante, error } = await supabaseClient.from('visitantes').insert([{ nombre, apellido, cedula, motivo, fecha: fechaActual, hora: horaActual }]).select().single();
             if (error) throw error;
             
+            console.log('Datos del nuevo visitante recibidos de Supabase:', nuevoVisitante);
+
             showToast("¡Registro exitoso!", "success");
             displayLastVisitor(nuevoVisitante);
             cerrarModalRegistro();
