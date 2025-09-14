@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Supabase insert error:", err);
         } finally {
             submitBtn.disabled = false;
-            submitBtn.textContent = "Registrar Manualmente";
+            submitBtn.textContent = "Registrar";
         }
     });
 
