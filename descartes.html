@@ -152,43 +152,45 @@
         <div class="modal-content">
             <button id="btn-cerrar-modal-editar" class="modal-close-btn">&times;</button>
             <h2>Editar Equipo</h2>
-            <form id="form-editar-equipo" novalidate>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="edit-descripcion">Descripción:</label>
-                        <input type="text" id="edit-descripcion">
+            <div class="modal-form-container">
+                <form id="form-editar-equipo" novalidate>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="edit-descripcion">Descripción:</label>
+                            <input type="text" id="edit-descripcion">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-marbete">Marbete:</label>
+                            <input type="text" id="edit-marbete">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-serie">Serie:</label>
+                            <input type="text" id="edit-serie">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-marca">Marca:</label>
+                            <input type="text" id="edit-marca">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-modelo">Modelo:</label>
+                            <input type="text" id="edit-modelo">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="edit-marbete">Marbete:</label>
-                        <input type="text" id="edit-marbete">
+                    <div class="form-group-full">
+                        <label for="edit-estado_equipo">Estado del Equipo:</label>
+                        <input type="text" id="edit-estado_equipo">
                     </div>
-                    <div class="form-group">
-                        <label for="edit-serie">Serie:</label>
-                        <input type="text" id="edit-serie">
+                    <div class="form-group-full">
+                        <label for="edit-motivo_descarte">Motivo del Descarte:</label>
+                        <input type="text" id="edit-motivo_descarte">
                     </div>
-                    <div class="form-group">
-                        <label for="edit-marca">Marca:</label>
-                        <input type="text" id="edit-marca">
+                    <div class="modal-buttons">
+                        <button type="button" id="btn-editar-cancelar" class="btn-secondary">Cancelar</button>
+                        <button type="submit" class="btn-principal">Aplicar Cambios</button>
                     </div>
-                    <div class="form-group">
-                        <label for="edit-modelo">Modelo:</label>
-                        <input type="text" id="edit-modelo">
-                    </div>
-                </div>
-                <div class="form-group-full">
-                    <label for="edit-estado_equipo">Estado del Equipo:</label>
-                    <input type="text" id="edit-estado_equipo">
-                </div>
-                <div class="form-group-full">
-                    <label for="edit-motivo_descarte">Motivo del Descarte:</label>
-                    <input type="text" id="edit-motivo_descarte">
-                </div>
-                <div class="modal-buttons">
-                    <button type="button" id="btn-editar-cancelar" class="btn-secondary">Cancelar</button>
-                    <button type="submit" class="btn-principal">Aplicar Cambios</button>
-                </div>
-            </form>
-        </div>
+                </form>
+            </div>
+            </div>
     </div>
     
     <div id="toast-notification" class="toast">
