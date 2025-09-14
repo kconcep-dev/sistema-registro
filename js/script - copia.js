@@ -13,9 +13,9 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 1. ELEMENTOS DEL DOM (Tu código original) ---
+    // --- 1. ELEMENTOS DEL DOM ---
     const form = document.getElementById('registro-form');
-    const inputs = form.querySelectorAll('input[type="text"]');
+    const inputs = form.querySelectorAll('input');
     const submitBtn = document.getElementById('submit-btn');
     const toastEl = document.getElementById('toast-notification');
     const toastMessageEl = document.getElementById('toast-message');
@@ -26,10 +26,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const qrCanvasElement = document.getElementById("qr-canvas");
     const qrCanvas = qrCanvasElement.getContext("2d");
 
-    // --- 2. ESTADO Y PERSISTENCIA (Tu código original) ---
+    // --- 2. ESTADO Y PERSISTENCIA ---
     let toastTimeout;
 
-    // --- 3. FUNCIONES AUXILIARES (Tu código original) ---
+    // --- 3. FUNCIONES AUXILIARES ---
+
     function showToast(message, type = 'success') {
         clearTimeout(toastTimeout);
         toastMessageEl.textContent = message;
@@ -39,16 +40,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
+    // NUEVO: Función para actualizar el estado de "trabajo en progreso"
     function updateWorkInProgress() {
         const hasContent = Array.from(inputs).some(input => input.value.trim() !== '');
         window.isWorkInProgress = hasContent;
     }
 
+    // NUEVO: Función para limpiar el estado de trabajo. Se expone globalmente.
     window.clearWorkInProgress = () => {
         window.isWorkInProgress = false;
-        form.reset();
-        qrFileNameDisplay.textContent = 'Ningún archivo seleccionado';
-        qrResultDisplay.textContent = '';
+        form.reset(); // Limpia el formulario visualmente
     };
     
     function displayLastVisitor(visitor) {
@@ -75,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 4. LÓGICA DEL FORMULARIO DE REGISTRO (Tu código original) ---
+    // --- 4. LÓGICA DEL FORMULARIO DE REGISTRO ---
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const nombre = document.getElementById("nombre").value.trim();
@@ -93,13 +94,14 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const fechaActual = new Date().toISOString().split("T")[0];
             const horaActual = new Date().toLocaleTimeString("es-PA", { hour12: false });
-            const { data: nuevoVisitante, error } = await supabaseClient.from('visitantes').insert([{ nombre, apellido, cedula, motivo, fecha: fechaActual, hora: horaActual }]).select().single();
+            const { error } = await supabaseClient.from('visitantes').insert([{ nombre, apellido, cedula, motivo, fecha: fechaActual, hora: horaActual }]);
             if (error) throw error;
             
             showToast("¡Registro exitoso!", "success");
+            const nuevoVisitante = { nombre, apellido, cedula, motivo, fecha: fechaActual, hora: horaActual };
             displayLastVisitor(nuevoVisitante);
             
-            clearWorkInProgress();
+            clearWorkInProgress(); // Limpia el estado de trabajo
             
         } catch (err) {
             showToast("Error al registrar los datos.", "error");
@@ -110,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 5. LÓGICA DEL LECTOR DE QR (Tu código original) ---
+    // --- 5. LÓGICA DEL LECTOR DE QR ---
     qrFileInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
         qrResultDisplay.textContent = 'Procesando...';
@@ -141,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         document.getElementById('cedula').value = parts[0].trim();
                         document.getElementById('nombre').value = parts[1].trim();
                         document.getElementById('apellido').value = parts[2].trim();
-                        updateWorkInProgress();
+                        updateWorkInProgress(); // Activa el guardián
                         showToast("Datos de QR cargados.", "success");
                     } else {
                         showToast("Formato del QR no esperado.", "error");
@@ -158,99 +160,19 @@ document.addEventListener('DOMContentLoaded', () => {
         event.target.value = '';
     });
 
-    // --- 6. INICIALIZACIÓN Y GUARDIANES (Tu código original) ---
+    // --- 6. INICIALIZACIÓN Y GUARDIANES ---
     fetchLastVisitor();
+
+    // NUEVO: Agrega listeners para detectar cambios en el formulario
     inputs.forEach(input => {
         input.addEventListener('input', updateWorkInProgress);
     });
+
+    // NUEVO: Guardián para recargar o cerrar la pestaña
     window.addEventListener('beforeunload', (event) => {
         if (window.isWorkInProgress) {
             event.preventDefault();
-            event.returnValue = '';
+            event.returnValue = ''; // Requerido por algunos navegadores
         }
     });
-
-    // ==========================================================
-    // 🔥 --- NUEVO CÓDIGO PARA SCANBOT AÑADIDO AQUÍ --- 🔥
-    // ==========================================================
-    
-    const btnScanLive = document.getElementById('btn-scan-live'); 
-    let scanbotSDK;
-
-    function procesarDatosQRScanbot(textoQR) {
-        qrResultDisplay.textContent = textoQR;
-        const parts = textoQR.split('|');
-        if (parts.length >= 3) {
-            document.getElementById('cedula').value = parts[0].trim();
-            document.getElementById('nombre').value = parts[1].trim();
-            document.getElementById('apellido').value = parts[2].trim();
-            showToast("Datos escaneados con éxito (Nuevo).", "success");
-            updateWorkInProgress();
-        } else {
-            showToast("Formato del QR no esperado (Nuevo).", "error");
-        }
-    }
-
-    if (btnScanLive) {
-        btnScanLive.addEventListener('click', async () => {
-            showToast("Iniciando cámara (Nuevo)...", "success");
-
-            try {
-                if (!scanbotSDK) {
-                    scanbotSDK = await ScanbotSDK.initialize({
-                        licenseKey: '', // Pega tu licencia de prueba de 7 días aquí
-                        engine: 'js/scanbot/'
-                    });
-                }
-
-                const barcodeScannerConfig = {
-                    containerId: 'scanner-container',
-                    onBarcodesDetected: (result) => {
-                        if (result.barcodes.length > 0) {
-                            procesarDatosQRScanbot(result.barcodes[0].text);
-                            scanbotSDK.disposeBarcodeScanner();
-                            const container = document.getElementById('scanner-container');
-                            if (container) {
-                                container.remove();
-                            }
-                        }
-                    },
-                    onError: (e) => {
-                        console.error('Error del escáner:', e);
-                        showToast('Error al escanear.', 'error');
-                    },
-                    // Estilo del escáner
-                    style: {
-                        window: {
-                            backgroundColor: "rgba(0,0,0,0.7)"
-                        },
-                        viewfinder: {
-                            borderColor: "white",
-                            borderWidth: 2,
-                            cornerRadius: 4,
-                        }
-                    },
-                    // Texto que aparece en la UI del escáner
-                    text: {
-                        scanningHint: "Apunte al código QR de la cédula"
-                    }
-                };
-
-                let scannerContainer = document.getElementById('scanner-container');
-                if (!scannerContainer) {
-                    scannerContainer = document.createElement('div');
-                    scannerContainer.id = 'scanner-container';
-                    scannerContainer.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; z-index:1000;';
-                    document.body.appendChild(scannerContainer);
-                }
-                scannerContainer.style.display = 'block';
-
-                await scanbotSDK.createBarcodeScanner(barcodeScannerConfig);
-
-            } catch (e) {
-                console.error('Error al inicializar Scanbot SDK:', e);
-                showToast('No se pudo iniciar el escáner.', 'error');
-            }
-        });
-    }
 });
