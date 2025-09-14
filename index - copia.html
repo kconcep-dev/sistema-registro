@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prueba de Escáner - Sistema de Registro</title>
+    <title>Registrar - Sistema de Registro</title>
 
     <script>
         // Script para prevenir el "flash" del tema oscuro
@@ -34,20 +34,16 @@
     <main id="main-content" style="display: none;">
         
         <div class="container">
-            <h1>Registro de Visitantes (Página de Prueba)</h1>
+            <h1>Registro de Visitantes</h1>
 
             <div class="layout-wrapper">
                 
                 <div id="qr-section" class="qr-section">
                     <h2>Obtener Datos por QR</h2>
-                    <p class="section-subtitle">Usa la cámara para escanear el QR o sube una foto de la cédula.</p>
+                    <p class="section-subtitle">Toma una foto de la cédula para autocompletar los datos del visitante.</p>
                     
-                    <button id="btn-scan-live" class="btn-principal">📷 Escanear con Cámara</button>
-
-                    <p style="text-align: center; margin: 15px 0;">- O -</p>
-                    
-                    <label for="qr-captura" class="btn-principal btn-captura" style="background-color: #6B7280;">
-                        🖼️ Subir Foto
+                    <label for="qr-captura" class="btn-principal btn-captura">
+                        📸 Capturar Foto
                     </label>
                     <input type="file" id="qr-captura" accept="image/*" capture="environment" style="display: none;">
                     
@@ -102,10 +98,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     
-    <script src="js/scanbot/ScanbotSDK.min.js"></script>
-    <script src="js/scanbot/ScanbotSDK.ui2.min.js"></script>
-    
     <script src="js/common.js"></script>
-    <script src="js/test-scanner.js"></script>
+    <script src="js/script.js"></script>
 </body>
 </html>
