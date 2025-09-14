@@ -171,11 +171,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================================
-    // 🔥 --- NUEVO CÓDIGO PARA SCANBOT CON CORRECCIÓN --- 🔥
+    // 🔥 --- CÓDIGO ACTUALIZADO Y CORREGIDO PARA SCANBOT --- 🔥
     // ==========================================================
     
     const btnScanLive = document.getElementById('btn-scan-live'); 
     let scanbotSDK;
+    let activeBarcodeScanner; // Variable para mantener la instancia del escáner activa
 
     function procesarDatosQRScanbot(textoQR) {
         qrResultDisplay.textContent = textoQR;
@@ -193,8 +194,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnScanLive) {
         btnScanLive.addEventListener('click', async () => {
+            // Si el escáner ya está abierto, no hacemos nada.
+            if (activeBarcodeScanner) {
+                return;
+            }
             showToast("Iniciando cámara (Nuevo)...", "success");
-
             try {
                 if (!scanbotSDK) {
                     scanbotSDK = await ScanbotSDK.initialize({
@@ -202,45 +206,40 @@ document.addEventListener('DOMContentLoaded', () => {
                         enginePath: 'js/scanbot/'
                     });
                 }
-
                 const barcodeScannerConfig = {
                     containerId: 'scanner-container',
                     onBarcodesDetected: (result) => {
                         if (result.barcodes.length > 0) {
-                            // 1. Procesa los datos y llena el formulario
                             procesarDatosQRScanbot(result.barcodes[0].text);
-                            
-                            // 2. LA SOLUCIÓN: Usa un pequeño retraso para asegurar el cierre
-                            setTimeout(() => {
-                                scanbotSDK.disposeBarcodeScanner();
-                                const container = document.getElementById('scanner-container');
-                                if (container) {
-                                    container.remove();
-                                }
-                            }, 100); // Un retraso de 100 milisegundos
+                            // Usamos el objeto del escáner para cerrarlo
+                            if (activeBarcodeScanner) {
+                                activeBarcodeScanner.dispose();
+                                activeBarcodeScanner = null; // Limpiamos la variable
+                            }
+                            // Eliminamos el contenedor de la cámara
+                            const container = document.getElementById('scanner-container');
+                            if (container) {
+                                container.remove();
+                            }
                         }
                     },
                     onError: (e) => {
                         console.error('Error del escáner:', e);
                         showToast('Error al escanear.', 'error');
-                    },
-                    // Estilo del escáner
-                    style: {
-                        window: {
-                            backgroundColor: "rgba(0,0,0,0.7)"
-                        },
-                        viewfinder: {
-                            borderColor: "white",
-                            borderWidth: 2,
-                            cornerRadius: 4,
+                        // Si hay un error, también nos aseguramos de limpiar
+                        if (activeBarcodeScanner) {
+                            activeBarcodeScanner.dispose();
+                            activeBarcodeScanner = null;
                         }
                     },
-                    // Texto que aparece en la UI del escáner
+                    style: {
+                        window: { backgroundColor: "rgba(0,0,0,0.7)" },
+                        viewfinder: { borderColor: "white", borderWidth: 2, cornerRadius: 4 }
+                    },
                     text: {
                         scanningHint: "Apunte al código QR de la cédula"
                     }
                 };
-
                 let scannerContainer = document.getElementById('scanner-container');
                 if (!scannerContainer) {
                     scannerContainer = document.createElement('div');
@@ -249,9 +248,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.body.appendChild(scannerContainer);
                 }
                 scannerContainer.style.display = 'block';
-
-                await scanbotSDK.createBarcodeScanner(barcodeScannerConfig);
-
+                // Guardamos la instancia del escáner en nuestra variable
+                activeBarcodeScanner = await scanbotSDK.createBarcodeScanner(barcodeScannerConfig);
             } catch (e) {
                 console.error('Error al inicializar Scanbot SDK:', e);
                 showToast('No se pudo iniciar el escáner.', 'error');
