@@ -1,4 +1,4 @@
-// Contenido para tu nuevo archivo: js/test-scanner.js
+console.log("✅ Archivo test-scanner.js CARGADO");
 
 document.addEventListener('DOMContentLoaded', () => {
     // Referencias a los elementos que ya existen en tu HTML
