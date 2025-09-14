@@ -317,33 +317,36 @@ body.nav-open .nav-links {
     }
 
     .nav-links {
+        display: flex;
+        align-items: stretch; /* Fuerza a los hijos (li) a tener la misma altura */
         position: static;
-        display: flex; /* Aseguramos que sea un contenedor flex */
         flex-direction: row;
         height: auto;
         width: auto;
         transform: none;
-        gap: 6px; /* Reducimos un poco el espacio entre elementos */
+        gap: 0; /* Eliminamos el gap para un control total */
         background-color: var(--card-bg-color);
         border-radius: 999px;
-        
-        /* Un padding pequeño y consistente para el contenedor */
-        padding: 6px; 
-
-        /* Borde para modo claro */
-        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.50);
+        padding: 0; /* Sin padding interno */
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
         transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
     }
 
     html.dark-mode .nav-links {
-        /* Borde para modo oscuro */
         box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
     }
     
+    /* Regla clave para que el <li> sea un contenedor flex */
+    .nav-item {
+        display: flex; 
+    }
+
     .nav-link {
         font-size: 1rem;
-        /* Padding ajustado para que rellene bien el contenedor */
-        padding: 8px 20px;
+        display: flex; /* Permite centrar el contenido fácilmente */
+        align-items: center;
+        justify-content: center;
+        padding: 10px 24px; /* Padding consistente para todos */
     }
 
     .nav-links .nav-item:first-child .nav-link.active {
