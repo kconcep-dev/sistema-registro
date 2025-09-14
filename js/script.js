@@ -67,12 +67,10 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('ultimo-nombre').textContent = visitor.nombre;
             document.getElementById('ultimo-apellido').textContent = visitor.apellido;
             document.getElementById('ultimo-cedula').textContent = visitor.cedula;
+            document.getElementById('ultimo-sexo').textContent = visitor.sexo;
             document.getElementById('ultimo-motivo').textContent = visitor.motivo;
             document.getElementById('ultimo-fecha').textContent = visitor.fecha;
             document.getElementById('ultimo-hora').textContent = visitor.hora;
-            // Si en el futuro añades el campo 'sexo' a la tarjeta, aquí lo actualizarías:
-            // const sexoSpan = document.getElementById('ultimo-sexo');
-            // if(sexoSpan) sexoSpan.textContent = visitor.sexo;
         } else {
             ultimoVisitanteCard.innerHTML = '<h4>Aún no hay visitantes registrados.</h4>';
         }
