@@ -318,29 +318,45 @@ body.nav-open .nav-links {
 
     .nav-links {
         position: static;
+        display: flex; /* Aseguramos que sea un contenedor flex */
         flex-direction: row;
         height: auto;
         width: auto;
         transform: none;
-        gap: 10px;
+        gap: 6px; /* Reducimos un poco el espacio entre elementos */
         background-color: var(--card-bg-color);
         border-radius: 999px;
-        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.50);
+        
+        /* Un padding pequeño y consistente para el contenedor */
+        padding: 6px; 
+
+        /* Borde para modo claro */
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
         transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
     }
 
     html.dark-mode .nav-links {
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
+        /* Borde para modo oscuro */
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
     }
     
     .nav-link {
         font-size: 1rem;
+        /* Padding ajustado para que rellene bien el contenedor */
+        padding: 8px 20px;
     }
 
-    .nav-controls {
-        display: none;
+    .nav-links .nav-item:first-child .nav-link.active {
+        border-top-left-radius: 50px;
+        border-bottom-left-radius: 50px;
     }
 
+    .nav-links .nav-item:nth-child(4) .nav-link.active {
+        border-top-right-radius: 50px;
+        border-bottom-right-radius: 50px;
+    }
+    
+    .nav-controls,
     .nav-separator {
         display: none;
     }
@@ -356,16 +372,6 @@ body.nav-open .nav-links {
     #theme-toggle.theme-btn {
         width: 45px;
         height: 45px;
-    }
-
-    .nav-links .nav-item:first-child .nav-link.active {
-        border-top-left-radius: 50px;
-        border-bottom-left-radius: 50px;
-    }
-
-    .nav-links .nav-item:nth-child(4) .nav-link.active {
-        border-top-right-radius: 50px;
-        border-bottom-right-radius: 50px;
     }
 }
 
