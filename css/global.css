@@ -13,24 +13,17 @@
     --error-color: #DC3545;
 }
 
-html.dark-mode body {
+html.dark-mode {
     --bg-color: #111827;
     --card-bg-color: #1A202C; 
     --input-bg-color: #111827;
     --text-color: #E5E7EB;
     --input-text-color: #FFFFFF;
-
-    /* <-- CORRECCIÓN: Azul principal más oscuro y menos saturado. */
     --primary-color: #2563EB; 
-
-    /* <-- CORRECCIÓN: El hover ahora es un azul ligeramente más claro, pero controlado. */
     --primary-hover-color: #3B82F6; 
-
     --border-color: #9CA3AF;
     --shadow-color: rgba(0, 0, 0, 0.2);
-
-    /* <-- CORRECCIÓN: Se define un verde más oscuro solo para el modo oscuro. */
-    --success-color: #22543D; 
+    --success-color: #166534; /* Verde más oscuro para dark mode */
 }
 
 /* --- 2. Estilos Generales y Cargador --- */
@@ -71,9 +64,6 @@ body {
 }
 
 @keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
     100% {
         transform: rotate(360deg);
     }
@@ -113,13 +103,19 @@ body {
 }
 
 /* --- 4. Contenido Principal y Formularios Base --- */
-#main-content {
+main {
     width: 100%;
     min-height: 100vh;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: flex-start;
     padding: 80px 20px 20px 20px;
+}
+
+@media (min-width: 768px) {
+    main {
+        justify-content: center;
+    }
 }
 
 .container {
@@ -150,7 +146,8 @@ label {
 input[type="text"],
 input[type="file"],
 input[type="email"],
-input[type="password"] {
+input[type="password"],
+textarea {
     width: 100%;
     padding: 12px;
     border: 1px solid var(--border-color);
@@ -160,7 +157,8 @@ input[type="password"] {
     color: var(--input-text-color);
 }
 
-input:focus {
+input:focus,
+textarea:focus {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent);
@@ -353,14 +351,12 @@ body.nav-open .nav-links {
     color: white;
 }
 
-/* <-- CORRECCIÓN 2: Se añade esta regla para el hover de la pestaña activa. */
 .nav-link.active:hover:not(.disabled) {
     background-color: var(--primary-hover-color);
     color: #FFFFFF;
 }
 
 /* --- 6. Iconos Personalizados --- */
-/* ... (El resto de tus estilos de iconos que ya tienes) ... */
 .nav-control-btn img, .hamburger img { width: 26px; height: 26px; vertical-align: middle; }
 .icon-dark { display: block; }
 .icon-light { display: none; }
@@ -371,7 +367,11 @@ html.dark-mode .icon-light { display: block; }
 body.nav-open .icon-close { display: block; }
 body.nav-open .icon-menu { display: none; }
 
-/* --- NUEVO: Estilos Globales para Modales --- */
+
+/* ======================================================= */
+/* 🔥 --- ESTILOS GLOBALES PARA MODALES --- 🔥              */
+/* ======================================================= */
+
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -384,16 +384,34 @@ body.nav-open .icon-menu { display: none; }
     justify-content: center;
     align-items: center;
     z-index: 3000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease-in-out;
+}
+
+.modal-overlay.visible {
+    opacity: 1;
+    visibility: visible;
 }
 
 .modal-content {
     background-color: var(--card-bg-color);
     padding: 30px;
     border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 30px var(--shadow-color);
     width: 90%;
     max-width: 500px;
     position: relative;
+    text-align: center;
+    transform: scale(0.95);
+    transition: transform 0.2s ease;
+}
+
+.modal-overlay.visible .modal-content {
+    transform: scale(1);
+}
+
+.modal-content h2 {
     text-align: center;
 }
 
@@ -406,6 +424,7 @@ body.nav-open .icon-menu { display: none; }
     font-size: 2rem;
     color: var(--border-color);
     cursor: pointer;
+    line-height: 1;
 }
 
 .modal-buttons {
@@ -430,6 +449,7 @@ body.nav-open .icon-menu { display: none; }
     color: var(--text-color);
     border: 1px solid var(--border-color);
 }
+
 .btn-secondary:hover {
     background-color: var(--border-color);
     color: var(--bg-color);
@@ -439,6 +459,11 @@ body.nav-open .icon-menu { display: none; }
     background-color: var(--error-color);
     color: white;
 }
+
 .btn-danger:hover {
     background-color: #b02a37;
+}
+
+.modal-content form {
+    text-align: left;
 }

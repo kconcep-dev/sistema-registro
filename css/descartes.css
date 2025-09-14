@@ -10,11 +10,6 @@
     width: 100%;
 }
 
-#inicio-descarte-section {
-    /* Esta sección ya no necesita reglas complejas.
-       Su padre se encargará del centrado. */
-}
-
 .btn-iniciar {
     padding: 20px 40px;
     font-size: 1.5rem;
@@ -30,25 +25,6 @@
 
 .btn-iniciar:hover {
     transform: translateY(-5px);
-    background-color: var(--primary-hover-color);
-}
-
-
-/* --- 2. Estilos del Modal (Pop-up) --- */
-.modal-content .btn-principal {
-    width: 100%;
-    padding: 12px 20px;
-    margin-top: 20px;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.1rem;
-    font-weight: bold;
-    transition: background-color 0.2s;
-}
-.modal-content .btn-principal:hover {
     background-color: var(--primary-hover-color);
 }
 
@@ -154,12 +130,11 @@
     color: white;
 }
 
-/* <-- CORRECCIÓN: Se cambia el color del botón "Editar" para mejorar el contraste. */
 .btn-editar {
-    background-color: #4A5568; /* Un gris más oscuro que contrasta con el texto blanco */
+    background-color: #4A5568;
 }
 .btn-editar:hover {
-    background-color: #2D3748; /* Un efecto hover más oscuro y consistente */
+    background-color: #2D3748;
 }
 
 .btn-eliminar {
@@ -220,7 +195,6 @@
     .form-grid .form-group:nth-child(4) { grid-column: 1 / 2; }
     .form-grid .form-group:nth-child(5) { grid-column: 2 / 3; }
 
-    /* REGLA PARA AJUSTAR ANCHO DE BOTONES DEL FORMULARIO SÓLO EN ESCRITORIO */
     .form-equipo > .btn-principal,
     .finalizar-seccion > .btn-finalizar {
         display: block;
@@ -230,24 +204,13 @@
     }
 }
 
-
-/* ======================================================= */
-/* === REGLAS DE ORO PARA EL CENTRADO DE LA PÁGINA INICIAL === */
-/* ======================================================= */
-
-/*
-  1. Le ordenamos a #main-content que centre su contenido
-     vertical y horizontalmente en la página inicial.
-*/
+/* === REGLAS PARA EL CENTRADO DE LA PÁGINA INICIAL === */
 .page-descartes-inicio #main-content {
     justify-content: center;
     align-items: center;
     padding-top: 0;
 }
 
-/*
-  2. Le damos un espacio entre el título y el botón en la página inicial.
-*/
 .page-descartes-inicio .container h1 {
     margin-bottom: 40px;
 }
@@ -259,7 +222,7 @@
 }
 
 .input-with-button input {
-    flex-grow: 1; /* El input ocupa todo el espacio disponible */
+    flex-grow: 1;
 }
 
 .btn-scan {

@@ -65,11 +65,11 @@
     border: 1px solid var(--border-color);
     border-radius: 6px;
     padding: 10px;
-    margin-top: 20px;
+    margin-top: 15px;
     font-size: 0.85rem;
     white-space: pre-wrap;
     word-wrap: break-word;
-    min-height: 80px;
+    min-height: 60px;
     overflow-y: auto;
 }
 
@@ -116,7 +116,7 @@
 }
 
 
-/* 🔥 --- NUEVOS ESTILOS PARA LA SECCIÓN DE IMAGEN --- 🔥 */
+/* 🔥 --- ESTILOS ACTUALIZADOS PARA LA SECCIÓN DE IMAGEN --- 🔥 */
 .botones-imagen-wrapper {
     display: flex; /* Coloca los botones uno al lado del otro */
     gap: 15px;     /* Añade un espacio entre los botones */
@@ -128,4 +128,5 @@
     margin-top: 0; /* Quitamos el margen superior que ya no es necesario */
     flex: 1;       /* Hacemos que ambos botones crezcan por igual para ocupar el espacio */
     font-size: 1rem; /* Reducimos un poco la fuente para que el texto quepa mejor */
+    padding: 12px 10px; /* Ajustamos el padding para que no se vea apretado */
 }
