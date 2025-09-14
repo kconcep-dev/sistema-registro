@@ -300,6 +300,14 @@ body.nav-open .nav-links {
     cursor: pointer;
 }
 
+#logout-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg-color);
+}
+
 @media (min-width: 768px) {
     body {
         padding-top: 80px;
@@ -328,7 +336,7 @@ body.nav-open .nav-links {
         background-color: var(--card-bg-color);
         border-radius: 999px;
         padding: 0; /* Sin padding interno */
-        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.50);
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
         transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
     }
 
@@ -373,6 +381,11 @@ body.nav-open .nav-links {
     }
 
     #theme-toggle.theme-btn {
+        width: 45px;
+        height: 45px;
+    }
+
+    #logout-btn {
         width: 45px;
         height: 45px;
     }
