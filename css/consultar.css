@@ -1,228 +1,249 @@
 /* --- 1) Estructura Principal y Pestañas --- */
-.container {
-  max-width: 100%; /* contenedor ancho para tablas */
-}
+.container{ max-width:100%; }
 
-/* centra la píldora de pestañas */
+/* Píldora centrada para las pestañas */
 .tabs-nav{
-  display: flex;                 /* cambia de inline-flex a flex */
-  width: -moz-fit-content;       /* Firefox */
-  width: fit-content;            /* resto */
-  margin: 0 auto 25px;           /* centra horizontal */
-  align-items: center;
-  gap: 10px;
-  padding: 6px;
-  background-color: var(--card-bg-color);
-  border-radius: 999px;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.25);
+  display:flex;
+  width:fit-content;              /* (Firefox usa -moz-fit-content) */
+  margin:0 auto 25px;             /* centra horizontal */
+  align-items:center;
+  gap:10px;
+  padding:6px;
+  background-color:var(--card-bg-color);
+  border-radius:999px;
+  box-shadow:0 0 0 1px rgba(0,0,0,0.25);
 }
-html.dark-mode .tabs-nav{
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.2);
+html.dark-mode .tabs-nav{ box-shadow:0 0 0 1px rgba(255,255,255,0.2); }
+
+.tab-btn{
+  padding:10px 18px;
+  border:none;
+  background:transparent;
+  color:var(--text-color);
+  font-size:1.05rem;
+  font-weight:600;
+  cursor:pointer;
+  border-radius:999px;
+  transition:background-color .2s ease,color .2s ease,transform .1s ease;
+}
+.tab-btn:hover{ background-color:var(--input-bg-color); }
+.tab-btn.active{
+  background-color:var(--primary-color);
+  color:#fff;
+  transform:translateY(-1px);
 }
 
-/* Botones de pestaña dentro de la cápsula */
-.tab-btn {
-  padding: 10px 18px;
-  border: none;
-  background: transparent;
-  color: var(--text-color);
-  font-size: 1.05rem;
-  font-weight: 600;
-  cursor: pointer;
-  border-radius: 999px;
-  transition: background-color .2s ease, color .2s ease, transform .1s ease;
-}
-.tab-btn:hover { background-color: var(--input-bg-color); }
-.tab-btn.active {
-  background-color: var(--primary-color);
-  color: #fff;
-  transform: translateY(-1px);
-}
-
-/* Contenidos por pestaña */
-.tab-content { display: none; }
-.tab-content.active { display: block; }
-
+.tab-content{ display:none; }
+.tab-content.active{ display:block; }
 
 /* --- 2) Barra de Controles (Búsqueda, Filtros, Exportar) --- */
-.controls-area {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 25px;
-  padding: 14px;
-  background-color: var(--card-bg-color);
-  border-radius: 999px;
-  box-shadow: 0 2px 10px var(--shadow-color);
+.controls-area{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:12px;
+  margin-bottom:25px;
+  padding:14px;
+  background-color:var(--card-bg-color);
+  border-radius:999px;
+  box-shadow:0 2px 10px var(--shadow-color);
 }
 
-/* Inputs con look de cápsula */
+/* Inputs cápsula */
 .controls-area input[type="search"],
 .controls-area input[type="date"]{
-  height: 42px;
-  padding: 0 14px;
-  border: 1px solid var(--border-color);
-  border-radius: 999px;
-  background-color: var(--input-bg-color);
-  color: var(--input-text-color);
-  outline: none;
-  transition: box-shadow .15s, border-color .15s;
-  min-width: 0; /* evita desbordes en móvil */
+  height:42px;
+  padding:0 14px;
+  border:1px solid var(--border-color);
+  border-radius:999px;
+  background-color:var(--input-bg-color);
+  color:var(--input-text-color);
+  outline:none;
+  transition:box-shadow .15s, border-color .15s;
+  min-width:0; /* evita desbordes en móvil */
 }
-.controls-area input[type="search"]{
-  flex: 1 1 320px;
-  min-width: 220px;
-}
-.controls-area input[type="date"]{
-  flex: 0 0 170px;
-}
+.controls-area input[type="search"]{ flex:1 1 320px; min-width:220px; }
+.controls-area input[type="date"]{  flex:0 0 170px; }
 
 .controls-area input[type="search"]:focus,
 .controls-area input[type="date"]:focus{
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent);
+  border-color:var(--primary-color);
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent);
 }
 
 /* Placeholder tenue */
-.controls-area input::placeholder {
-  color: color-mix(in srgb, var(--input-text-color) 50%, transparent);
+.controls-area input::placeholder{
+  color:color-mix(in srgb, var(--input-text-color) 50%, transparent);
 }
 
-/* Botón export con misma altura/cápsula */
+/* Botón export cápsula */
 .btn-export{
-  height: 42px;
-  padding: 0 16px;
-  border-radius: 999px;
-  background-color: var(--success-color);
-  color: #fff;
-  border: none;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background-color .2s;
+  height:42px;
+  padding:0 16px;
+  border-radius:999px;
+  background-color:var(--success-color);
+  color:#fff;
+  border:none;
+  font-weight:700;
+  cursor:pointer;
+  transition:background-color .2s;
 }
-.btn-export:hover { background-color: #1f7b34; }
-html.dark-mode .btn-export:hover { background-color: #1a5d2a; }
+.btn-export:hover{ background-color:#1f7b34; }
+html.dark-mode .btn-export:hover{ background-color:#1a5d2a; }
 
-/* Coherencia en dark: evita blanco nativo y ajusta iconos */
+/* Dark coherente */
 html.dark-mode .controls-area input[type="search"],
 html.dark-mode .controls-area input[type="date"]{
-  background-color: var(--input-bg-color) !important;
-  color: var(--input-text-color) !important;
-  border-color: var(--border-color) !important;
+  background-color:var(--input-bg-color)!important;
+  color:var(--input-text-color)!important;
+  border-color:var(--border-color)!important;
 }
 html.dark-mode input[type="date"]::-webkit-calendar-picker-indicator,
 html.dark-mode input[type="search"]::-webkit-search-cancel-button{
-  filter: invert(1) brightness(0.9);
+  filter:invert(1) brightness(0.9);
 }
 
-/* MÓVIL: grilla limpia -> search arriba; fechas lado a lado; export abajo full */
-@media (max-width: 520px) {
-  .controls-area {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    border-radius: 16px; /* menos exagerado en móvil */
+/* Móvil: grid limpia */
+@media (max-width:520px){
+  .controls-area{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    border-radius:16px;
   }
-  .controls-area input[type="search"] { grid-column: 1 / -1; width: 100%; }
-  #date-start-visitantes, #date-end-visitantes,
-  #date-start-descartes,  #date-end-descartes  { width: 100%; }
-  .controls-area .btn-export { grid-column: 1 / -1; width: 100%; }
+  .controls-area input[type="search"]{ grid-column:1 / -1; width:100%; }
+  #date-start-visitantes,#date-end-visitantes,
+  #date-start-descartes,#date-end-descartes{ width:100%; }
+  .controls-area .btn-export{ grid-column:1 / -1; width:100%; }
 }
 
-
-/* --- 3) Estilos de la Tabla --- */
-.table-container {
-  overflow-x: auto;
-  background-color: var(--card-bg-color);
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px var(--shadow-color);
+/* --- 3) Tabla --- */
+.table-container{
+  overflow-x:auto;
+  background-color:var(--card-bg-color);
+  padding:20px;
+  border-radius:8px;
+  box-shadow:0 4px 12px var(--shadow-color);
 }
 
-#table-visitantes,
-#table-descartes {
-  width: 100%;
-  border-collapse: collapse;
+#table-visitantes,#table-descartes{
+  width:100%;
+  border-collapse:collapse;
 }
 
-#table-visitantes th, #table-visitantes td,
-#table-descartes th, #table-descartes td {
-  padding: 12px 15px;
-  text-align: left;
-  border-bottom: 1px solid var(--input-bg-color);
-  white-space: nowrap;
+/* Cabecera y celdas */
+#table-visitantes th,#table-visitantes td,
+#table-descartes th,#table-descartes td{
+  padding:12px 15px;
+  text-align:left;
+  border-bottom:1px solid var(--input-bg-color);
+  white-space:nowrap;
 }
 
-#table-visitantes th,
-#table-descartes th {
-  background-color: var(--input-bg-color);
-  font-size: 0.9rem;
-  font-weight: bold;
+#table-visitantes th,#table-descartes th{
+  background-color:var(--input-bg-color);
+  font-size:.9rem;
+  font-weight:bold;
 }
 
 #table-visitantes tbody tr:hover,
-#table-descartes tbody tr:hover {
-  background-color: color-mix(in srgb, var(--primary-color) 8%, transparent);
+#table-descartes tbody tr:hover{
+  background-color:color-mix(in srgb, var(--primary-color) 8%, transparent);
 }
 
-/* Acciones como chips */
-.table-actions {
-  display: flex;
-  gap: 8px;
+/* --- 3a) Columna de selección (visitantes) --- */
+#table-visitantes th.select-col{
+  width:1%;
+  text-align:left;
 }
+#table-visitantes td.row-select-cell{
+  width:1%;
+  text-align:center;
+}
+
+.select-head{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.select-all-wrapper{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-weight:600;
+  color:var(--text-color);
+}
+.select-all-wrapper input[type="checkbox"],
+.row-check{
+  width:18px;
+  height:18px;
+  accent-color:var(--primary-color);
+}
+
+/* Botón compacto para acciones masivas */
+.btn-compact{
+  padding:6px 10px;
+  border:none;
+  border-radius:999px;
+  font-size:.8rem;
+  font-weight:700;
+  line-height:1;
+  cursor:pointer;
+}
+.btn-danger.btn-compact{ background-color:var(--error-color); color:#fff; }
+.btn-danger.btn-compact:hover{ background-color:#b02a37; }
+
+/* Opcional: ocultar texto “Seleccionar todo” en móviles muy angostos */
+@media (max-width:420px){
+  .select-all-wrapper span{ display:none; }
+}
+
+/* --- 3b) Acciones como chips --- */
+.table-actions{ display:flex; gap:8px; }
 .table-actions button,
 .btn-view-equipos,
 .btn-eliminar-sesion,
 .btn-editar,
-.btn-eliminar {
-  border: none;
-  padding: 8px 12px;
-  border-radius: 999px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 600;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  color: #fff;
-  box-shadow: 0 2px 6px var(--shadow-color);
+.btn-eliminar{
+  border:none;
+  padding:8px 12px;
+  border-radius:999px;
+  cursor:pointer;
+  font-size:.85rem;
+  font-weight:600;
+  line-height:1;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  color:#fff;
+  box-shadow:0 2px 6px var(--shadow-color);
 }
-/* variantes */
-.btn-editar         { background-color: #4B5563; }
-.btn-editar:hover   { background-color: #374151; }
-.btn-eliminar,
-.btn-eliminar-sesion { background-color: var(--error-color); }
-.btn-eliminar:hover,
-.btn-eliminar-sesion:hover { background-color: #b02a37; }
-.btn-view-equipos   { background-color: var(--primary-color); }
-.btn-view-equipos:hover { background-color: var(--primary-hover-color); }
+.btn-editar{ background-color:#4B5563; }
+.btn-editar:hover{ background-color:#374151; }
+.btn-eliminar,.btn-eliminar-sesion{ background-color:var(--error-color); }
+.btn-eliminar:hover,.btn-eliminar-sesion:hover{ background-color:#b02a37; }
+.btn-view-equipos{ background-color:var(--primary-color); }
+.btn-view-equipos:hover{ background-color:var(--primary-hover-color); }
 /* fallback */
 .table-actions button:not(.btn-editar):not(.btn-eliminar):not(.btn-view-equipos):not(.btn-eliminar-sesion){
-  background-color: var(--primary-color);
+  background-color:var(--primary-color);
 }
-
 
 /* --- 4) Modal “Ver Equipos” --- */
-#modal-equipos-title { margin-bottom: 20px; }
-.modal-list-container {
-  max-height: 60vh;
-  overflow-y: auto;
-  text-align: left;
-  padding-right: 15px;
-  margin-right: -15px;
+#modal-equipos-title{ margin-bottom:20px; }
+.modal-list-container{
+  max-height:60vh;
+  overflow-y:auto;
+  text-align:left;
+  padding-right:15px;
+  margin-right:-15px;
 }
-.equipo-item {
-  padding: 10px;
-  border-bottom: 1px solid var(--input-bg-color);
-}
-.equipo-item:last-child { border-bottom: none; }
-.equipo-item strong { color: var(--primary-color); }
+.equipo-item{ padding:10px; border-bottom:1px solid var(--input-bg-color); }
+.equipo-item:last-child{ border-bottom:none; }
+.equipo-item strong{ color:var(--primary-color); }
 
-
-/* --- 5) Media Queries para Escritorio --- */
-@media (min-width: 992px) {
-  .container { max-width: 1200px; }
+/* --- 5) Escritorio --- */
+@media (min-width:992px){
+  .container{ max-width:1200px; }
 }

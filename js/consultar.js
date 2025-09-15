@@ -3,21 +3,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (!session) {
         window.location.href = 'login.html';
-        return; // Detiene la ejecución si no hay sesión
+        return;
     }
 
     // --- 1. ELEMENTOS DEL DOM ---
     const tabsNav = document.querySelector('.tabs-nav');
     const tabContents = document.querySelectorAll('.tab-content');
-    
-    // Controles de Visitantes
+
+    // Visitantes
     const searchVisitantesInput = document.getElementById('search-visitantes');
     const dateStartVisitantesInput = document.getElementById('date-start-visitantes');
     const dateEndVisitantesInput = document.getElementById('date-end-visitantes');
     const exportVisitantesBtn = document.getElementById('export-visitantes-btn');
-    const tableVisitantesBody = document.querySelector('#table-visitantes tbody');
+    const tableVisitantes = document.getElementById('table-visitantes');
+    const tableVisitantesBody = tableVisitantes.querySelector('tbody');
+    const selectAllCheckbox = document.getElementById('select-all-visitantes');
+    const bulkDeleteBtn = document.getElementById('bulk-delete-btn');
 
-    // Controles de Descartes
+    // Descartes
     const searchDescartesInput = document.getElementById('search-descartes');
     const dateStartDescartesInput = document.getElementById('date-start-descartes');
     const dateEndDescartesInput = document.getElementById('date-end-descartes');
@@ -31,52 +34,73 @@ document.addEventListener('DOMContentLoaded', async () => {
     const modalEquiposTitle = document.getElementById('modal-equipos-title');
     const modalEquiposList = document.querySelector('.modal-list-container');
 
-    // Toast (Notificaciones)
+    // Toast
     const toastEl = document.getElementById('toast-notification');
     const toastMessageEl = document.getElementById('toast-message');
 
-    // --- 2. ESTADO DE LA APLICACIÓN ---
+    // --- 2. ESTADO ---
     let currentVisitorData = [];
     let currentDescartesData = [];
+    let selectedVisitorIds = new Set();   // ids seleccionados (sólo los visibles/filtrados)
     let editingVisitorId = null;
     let searchDebounceTimeout;
 
-    // --- 3. FUNCIONES AUXILIARES ---
-
+    // --- 3. UTILIDADES ---
     function showToast(message, type = 'success') {
         clearTimeout(searchDebounceTimeout);
         toastMessageEl.textContent = message;
         toastEl.className = `toast show ${type}`;
-        setTimeout(() => {
-            toastEl.className = toastEl.className.replace('show', '');
-        }, 3000);
+        setTimeout(() => { toastEl.className = toastEl.className.replace('show', ''); }, 3000);
     }
 
-    // Formatea la fecha a dd-mm-aaaa SIN depender del locale
+    // dd-mm-aaaa
     function formatDate(isoString) {
         if (!isoString) return '-';
-        // Acepta 'YYYY-MM-DD' o ISO completo; si ya viene 'YYYY-MM-DD' lo tratamos directo
         const [y, m, d] = isoString.includes('T')
             ? (new Date(isoString).toISOString().slice(0,10).split('-'))
-            : isoString.split('-'); // 'YYYY-MM-DD'
+            : isoString.split('-');
         return `${d.padStart(2,'0')}-${m.padStart(2,'0')}-${y}`;
     }
 
-    // Formatea la hora a 12-horas AM/PM
+    // hh:mm AM/PM
     function formatTime(isoString) {
         if (!isoString) return '-';
         const timePart = isoString.split('T')[1] ? isoString : `1970-01-01T${isoString}`;
         const date = new Date(timePart);
-        return new Intl.DateTimeFormat('es-PA', {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-        }).format(date);
+        return new Intl.DateTimeFormat('es-PA', { hour: 'numeric', minute: '2-digit', hour12: true }).format(date);
     }
 
-    // --- 4. LÓGICA DE OBTENCIÓN Y RENDERIZADO DE DATOS ---
+    function updateBulkUI() {
+        // select all checked si todo lo visible está seleccionado
+        const total = currentVisitorData.length;
+        const selected = selectedVisitorIds.size;
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = total > 0 && selected === total;
+            selectAllCheckbox.indeterminate = selected > 0 && selected < total;
+            selectAllCheckbox.disabled = total === 0;
+        }
+        // botón eliminar masivo: aparece sólo si hay >1 seleccionado
+        if (bulkDeleteBtn) {
+            if (selected > 1) {
+                bulkDeleteBtn.style.display = 'inline-flex';
+                bulkDeleteBtn.textContent = `Eliminar (${selected})`;
+            } else {
+                bulkDeleteBtn.style.display = 'none';
+            }
+        }
+        // sincroniza checks visibles
+        tableVisitantesBody.querySelectorAll('input.row-check').forEach(cb => {
+            const id = Number(cb.dataset.id);
+            cb.checked = selectedVisitorIds.has(id);
+        });
+    }
 
-    // VISITANTES
+    function clearSelection() {
+        selectedVisitorIds.clear();
+        updateBulkUI();
+    }
+
+    // --- 4. FETCH & RENDER ---
     async function fetchVisitantes() {
         const searchTerm = searchVisitantesInput.value.trim();
         const startDate = dateStartVisitantesInput.value;
@@ -87,33 +111,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (searchTerm) {
             query = query.or(`nombre.ilike.%${searchTerm}%,apellido.ilike.%${searchTerm}%,cedula.ilike.%${searchTerm}%`);
         }
-        if (startDate) {
-            query = query.gte('fecha', startDate);
-        }
-        if (endDate) {
-            query = query.lte('fecha', endDate);
-        }
+        if (startDate) query = query.gte('fecha', startDate);
+        if (endDate)   query = query.lte('fecha', endDate);
 
         const { data, error } = await query;
-
         if (error) {
             showToast('Error al cargar los visitantes.', 'error');
             console.error(error);
             return;
         }
-        currentVisitorData = data;
-        renderVisitantesTable(data);
+        currentVisitorData = data || [];
+        renderVisitantesTable(currentVisitorData);
+        clearSelection(); // resetea selección al cambiar el set visible
     }
 
     function renderVisitantesTable(data) {
         tableVisitantesBody.innerHTML = '';
-        if (data.length === 0) {
-            tableVisitantesBody.innerHTML = '<tr><td colspan="7">No se encontraron registros.</td></tr>';
+        const colCount = tableVisitantes.querySelectorAll('thead th').length || 8;
+
+        if (!data || data.length === 0) {
+            tableVisitantesBody.innerHTML = `<tr><td colspan="${colCount}">No se encontraron registros.</td></tr>`;
             return;
         }
+
         data.forEach(visitor => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
+                <td class="row-select-cell">
+                  <input type="checkbox" class="row-check" data-id="${visitor.id}">
+                </td>
                 <td>${visitor.nombre}</td>
                 <td>${visitor.apellido}</td>
                 <td>${visitor.cedula}</td>
@@ -127,26 +153,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             `;
             tableVisitantesBody.appendChild(tr);
         });
+        updateBulkUI();
     }
 
-    // DESCARTES
     async function fetchDescartes() {
         const searchTerm = searchDescartesInput.value.trim();
         const startDate = dateStartDescartesInput.value;
         const endDate = dateEndDescartesInput.value;
 
-        // Primero, obtenemos las sesiones con sus filtros
-        let query = supabaseClient.from('descartes_sesiones').select(`*, equipos_descartados(count)`).order('id', { ascending: false });
+        let query = supabaseClient
+            .from('descartes_sesiones')
+            .select(`*, equipos_descartados(count)`)
+            .order('id', { ascending: false });
 
-        if (searchTerm) {
-            query = query.or(`unidad_administrativa.ilike.%${searchTerm}%,codigo_siace.ilike.%${searchTerm}%`);
-        }
-        if (startDate) {
-            query = query.gte('fecha', startDate);
-        }
-        if (endDate) {
-            query = query.lte('fecha', endDate);
-        }
+        if (searchTerm) query = query.or(`unidad_administrativa.ilike.%${searchTerm}%,codigo_siace.ilike.%${searchTerm}%`);
+        if (startDate)  query = query.gte('fecha', startDate);
+        if (endDate)    query = query.lte('fecha', endDate);
 
         const { data, error } = await query;
         if (error) {
@@ -154,13 +176,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error(error);
             return;
         }
-        currentDescartesData = data;
-        renderDescartesTable(data);
+        currentDescartesData = data || [];
+        renderDescartesTable(currentDescartesData);
     }
 
     function renderDescartesTable(data) {
         tableDescartesBody.innerHTML = '';
-        if (data.length === 0) {
+        if (!data || data.length === 0) {
             tableDescartesBody.innerHTML = '<tr><td colspan="6">No se encontraron sesiones.</td></tr>';
             return;
         }
@@ -181,39 +203,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // --- 5. LÓGICA DE EVENTOS ---
+    // --- 5. EVENTOS ---
 
-    // Navegación por Pestañas
+    // Pestañas
     tabsNav.addEventListener('click', (e) => {
         if (e.target.classList.contains('tab-btn')) {
             const tabId = e.target.dataset.tab;
-            
-            // Actualizar botones
             tabsNav.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             e.target.classList.add('active');
 
-            // Actualizar contenido
             tabContents.forEach(content => {
-                if (content.id === `${tabId}-content`) {
-                    content.classList.add('active');
-                } else {
-                    content.classList.remove('active');
-                }
+                content.classList.toggle('active', content.id === `${tabId}-content`);
             });
 
-            // Cargar datos de la nueva pestaña activa
-            if (tabId === 'visitantes') {
-                fetchVisitantes();
-            } else if (tabId === 'descartes') {
-                fetchDescartes();
-            }
+            if (tabId === 'visitantes') fetchVisitantes();
+            else if (tabId === 'descartes') fetchDescartes();
         }
     });
 
     // Filtros
     searchVisitantesInput.addEventListener('input', () => {
         clearTimeout(searchDebounceTimeout);
-        searchDebounceTimeout = setTimeout(fetchVisitantes, 300); // Debounce para no llamar a la API en cada tecla
+        searchDebounceTimeout = setTimeout(fetchVisitantes, 300);
     });
     dateStartVisitantesInput.addEventListener('change', fetchVisitantes);
     dateEndVisitantesInput.addEventListener('change', fetchVisitantes);
@@ -225,26 +236,68 @@ document.addEventListener('DOMContentLoaded', async () => {
     dateStartDescartesInput.addEventListener('change', fetchDescartes);
     dateEndDescartesInput.addEventListener('change', fetchDescartes);
 
-    // Acciones en la tabla de Visitantes
+    // Select all visitantes
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', () => {
+            selectedVisitorIds.clear();
+            if (selectAllCheckbox.checked) {
+                currentVisitorData.forEach(v => selectedVisitorIds.add(Number(v.id)));
+            }
+            updateBulkUI();
+        });
+    }
+
+    // Check individual filas (delegación)
+    tableVisitantesBody.addEventListener('change', (e) => {
+        if (e.target.classList.contains('row-check')) {
+            const id = Number(e.target.dataset.id);
+            if (e.target.checked) selectedVisitorIds.add(id);
+            else selectedVisitorIds.delete(id);
+            updateBulkUI();
+        }
+    });
+
+    // Eliminar masivo
+    if (bulkDeleteBtn) {
+        bulkDeleteBtn.addEventListener('click', async () => {
+            const ids = Array.from(selectedVisitorIds);
+            if (ids.length < 2) return; // sólo si hay >1
+            const confirmed = await window.showConfirmationModal(
+                'Eliminar seleccionados',
+                `Se eliminarán ${ids.length} visitantes seleccionados. ¿Continuar?`
+            );
+            if (!confirmed) return;
+
+            const { error } = await supabaseClient.from('visitantes').delete().in('id', ids);
+            if (error) {
+                showToast('Error al eliminar seleccionados.', 'error');
+                return;
+            }
+            showToast('Registros eliminados.', 'success');
+            await fetchVisitantes();
+        });
+    }
+
+    // Acciones en la tabla de Visitantes (editar/eliminar individual)
     tableVisitantesBody.addEventListener('click', async (e) => {
         const target = e.target;
         const visitorId = target.dataset.id;
 
-        // Eliminar
         if (target.classList.contains('btn-eliminar')) {
-            const confirmed = await window.showConfirmationModal('Eliminar Visitante', '¿Estás seguro de que quieres eliminar este registro? Esta acción no se puede deshacer.');
+            const confirmed = await window.showConfirmationModal(
+                'Eliminar Visitante',
+                '¿Estás seguro de que quieres eliminar este registro? Esta acción no se puede deshacer.'
+            );
             if (confirmed) {
                 const { error } = await supabaseClient.from('visitantes').delete().eq('id', visitorId);
-                if (error) {
-                    showToast('Error al eliminar el registro.', 'error');
-                } else {
+                if (error) showToast('Error al eliminar el registro.', 'error');
+                else {
                     showToast('Registro eliminado con éxito.', 'success');
-                    fetchVisitantes(); // Recargar la tabla
+                    await fetchVisitantes();
                 }
             }
         }
 
-        // Editar
         if (target.classList.contains('btn-editar')) {
             const { data, error } = await supabaseClient.from('visitantes').select('*').eq('id', visitorId).single();
             if (error) {
@@ -265,8 +318,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     tableDescartesBody.addEventListener('click', async (e) => {
         const target = e.target;
         const sessionId = target.dataset.id;
-        
-        // Ver Equipos
+
         if (target.classList.contains('btn-view-equipos')) {
             const { data, error } = await supabaseClient.from('equipos_descartados').select('*').eq('sesion_id', sessionId);
             if (error) {
@@ -274,32 +326,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
             modalEquiposTitle.textContent = `Equipos de la Sesión #${sessionId}`;
-            modalEquiposList.innerHTML = '';
-            if (data.length === 0) {
-                modalEquiposList.innerHTML = '<p>No hay equipos registrados en esta sesión.</p>';
-            } else {
-                const list = data.map(equipo => `
+            modalEquiposList.innerHTML = (data && data.length)
+                ? data.map(eq => `
                     <div class="equipo-item">
-                        <strong>${equipo.descripcion || 'Sin descripción'}</strong>
-                        <p>Marbete: ${equipo.marbete || '-'} | Serie: ${equipo.serie || '-'}</p>
+                        <strong>${eq.descripcion || 'Sin descripción'}</strong>
+                        <p>Marbete: ${eq.marbete || '-'} | Serie: ${eq.serie || '-'}</p>
                     </div>
-                `).join('');
-                modalEquiposList.innerHTML = list;
-            }
+                `).join('')
+                : '<p>No hay equipos registrados en esta sesión.</p>';
             modalVerEquipos.classList.add('visible');
         }
 
-        // Eliminar Sesión
         if (target.classList.contains('btn-eliminar-sesion')) {
-             const confirmed = await window.showConfirmationModal('Eliminar Sesión', 'Esto eliminará la sesión Y TODOS los equipos asociados. ¿Estás seguro?');
-             if (confirmed) {
-                // Supabase se encarga de eliminar en cascada por la configuración de la base de datos
+            const confirmed = await window.showConfirmationModal(
+                'Eliminar Sesión',
+                'Esto eliminará la sesión Y TODOS los equipos asociados. ¿Estás seguro?'
+            );
+            if (confirmed) {
                 const { error } = await supabaseClient.from('descartes_sesiones').delete().eq('id', sessionId);
-                if (error) {
-                    showToast('Error al eliminar la sesión.', 'error');
-                } else {
+                if (error) showToast('Error al eliminar la sesión.', 'error');
+                else {
                     showToast('Sesión eliminada con éxito.', 'success');
-                    fetchDescartes(); // Recargar la tabla
+                    await fetchDescartes();
                 }
             }
         }
@@ -315,30 +363,28 @@ document.addEventListener('DOMContentLoaded', async () => {
             sexo: document.getElementById('edit-sexo').value,
             motivo: document.getElementById('edit-motivo').value
         };
-
         const { error } = await supabaseClient.from('visitantes').update(updatedData).eq('id', editingVisitorId);
-
-        if (error) {
-            showToast('Error al guardar los cambios.', 'error');
-        } else {
+        if (error) showToast('Error al guardar los cambios.', 'error');
+        else {
             showToast('Visitante actualizado con éxito.', 'success');
             modalEditarVisitante.classList.remove('visible');
-            fetchVisitantes();
+            await fetchVisitantes();
         }
         editingVisitorId = null;
     });
 
-    // Cerrar modales
+    // Cerrar modales globales
     document.querySelectorAll('.modal-overlay').forEach(modal => {
         modal.addEventListener('click', e => {
-            if (e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close-btn') || e.target.classList.contains('modal-cancel-btn')) {
+            if (e.target.classList.contains('modal-overlay') ||
+                e.target.classList.contains('modal-close-btn') ||
+                e.target.classList.contains('modal-cancel-btn')) {
                 modal.classList.remove('visible');
             }
         });
     });
 
-    // --- 6. LÓGICA DE EXPORTACIÓN A EXCEL ---
-
+    // --- 6. EXPORTAR ---
     exportVisitantesBtn.addEventListener('click', () => {
         const ws = XLSX.utils.json_to_sheet(currentVisitorData.map(v => ({
             Nombre: v.nombre,
@@ -356,8 +402,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     exportDescartesBtn.addEventListener('click', async () => {
         showToast('Generando reporte, esto puede tardar...', 'success');
-        
-        // Para el reporte de descartes, necesitamos todos los equipos de las sesiones filtradas.
         const sessionIds = currentDescartesData.map(s => s.id);
         const { data: equipos, error } = await supabaseClient
             .from('equipos_descartados')
@@ -369,7 +413,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        const formattedData = equipos.map(e => ({
+        const formattedData = (equipos || []).map(e => ({
             "Unidad Administrativa": e.descartes_sesiones.unidad_administrativa,
             "Código SIACE": e.descartes_sesiones.codigo_siace,
             "Descripción": e.descripcion,
@@ -389,8 +433,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         XLSX.writeFile(wb, `Reporte_Descartes_${new Date().toISOString().split('T')[0]}.xlsx`);
     });
 
-    // --- 7. INICIALIZACIÓN FINAL ---
-    await fetchVisitantes(); // Cargar datos de la pestaña inicial
+    // --- 7. INIT ---
+    await fetchVisitantes();
     document.getElementById('loader').style.display = 'none';
     document.getElementById('main-content').style.display = 'flex';
 });

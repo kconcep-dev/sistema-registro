@@ -1,162 +1,169 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consultar - Sistema de Registro</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Consultar - Sistema de Registro</title>
 
-    <script>
-        // Script para prevenir el "flash" del tema oscuro
-        (function() {
-            try {
-                const theme = localStorage.getItem('theme');
-                if (theme === 'dark') {
-                    document.documentElement.classList.add('dark-mode');
-                }
-            } catch (e) {
-                // No hacer nada si localStorage no está disponible
-            }
-        })();
-    </script>
+  <script>
+    // Evita el "flash" de modo oscuro
+    (function () {
+      try {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'dark') document.documentElement.classList.add('dark-mode');
+      } catch (e) {}
+    })();
+  </script>
 
-    <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/consultar.css">
-
-    <link rel="icon" href="assets/icons/icon-192.png">
+  <link rel="stylesheet" href="css/global.css"/>
+  <link rel="stylesheet" href="css/consultar.css"/>
+  <link rel="icon" href="assets/icons/icon-192.png"/>
 </head>
+<body>
+  <div id="navbar-placeholder"></div>
 
-<div id="modal-confirmacion" class="modal-overlay">
-  <div class="modal-content">
-    <h2 id="confirm-title">¿Estás seguro?</h2>
-    <p id="confirm-message">Esta acción no se puede deshacer.</p>
-    <div class="modal-buttons">
-      <button id="btn-confirmar-cancelar" class="btn-secondary">Cancelar</button>
-      <button id="btn-confirmar-aceptar" class="btn-danger">Aceptar</button>
+  <div id="loader" class="loader-wrapper">
+    <div class="loader"></div>
+  </div>
+
+  <main id="main-content" style="display: none;">
+    <div class="container">
+      <h1>Centro de Control</h1>
+
+      <div class="tabs-nav">
+        <button class="tab-btn active" data-tab="visitantes">📝 Registros de Visitantes</button>
+        <button class="tab-btn" data-tab="descartes">🗑️ Sesiones de Descartes</button>
+      </div>
+
+      <!-- TAB: VISITANTES -->
+      <div id="visitantes-content" class="tab-content active">
+        <div class="controls-area">
+          <input type="search" id="search-visitantes" placeholder="Buscar por nombre, apellido o cédula..."/>
+          <input type="date" id="date-start-visitantes" title="Fecha de inicio"/>
+          <input type="date" id="date-end-visitantes" title="Fecha de fin"/>
+          <button id="export-visitantes-btn" class="btn-export">Exportar Excel</button>
+        </div>
+
+        <div class="table-container">
+          <table id="table-visitantes">
+            <thead>
+              <tr>
+                <th class="select-col">
+                  <div class="select-head">
+                    <label class="select-all-wrapper">
+                      <input type="checkbox" id="check-all-visitantes"/>
+                      <span>Seleccionar todo</span>
+                    </label>
+                    <button id="bulk-delete-visitantes" class="btn-danger btn-compact" style="display:none;">
+                      Eliminar seleccionados
+                    </button>
+                  </div>
+                </th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Cédula</th>
+                <th>Motivo</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB: DESCARTES -->
+      <div id="descartes-content" class="tab-content">
+        <div class="controls-area">
+          <input type="search" id="search-descartes" placeholder="Buscar por Unidad Administrativa o SIACE..."/>
+          <input type="date" id="date-start-descartes" title="Fecha de inicio"/>
+          <input type="date" id="date-end-descartes" title="Fecha de fin"/>
+          <button id="export-descartes-btn" class="btn-export">Exportar Excel</button>
+        </div>
+
+        <div class="table-container">
+          <table id="table-descartes">
+            <thead>
+              <tr>
+                <th>ID Sesión</th>
+                <th>Unidad Administrativa</th>
+                <th>Fecha</th>
+                <th>Técnico</th>
+                <th>Nº Equipos</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal de edición de visitante -->
+  <div id="modal-editar-visitante" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close-btn">&times;</button>
+      <h2>Editar Visitante</h2>
+      <div class="modal-form-container">
+        <form id="form-editar-visitante" novalidate>
+          <label for="edit-nombre">Nombre:</label>
+          <input type="text" id="edit-nombre" required />
+
+          <label for="edit-apellido">Apellido:</label>
+          <input type="text" id="edit-apellido" required />
+
+          <label for="edit-cedula">Cédula:</label>
+          <input type="text" id="edit-cedula" required />
+
+          <label for="edit-sexo">Sexo:</label>
+          <select id="edit-sexo" required>
+            <option value="" disabled>Selecciona una opción...</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Femenino">Femenino</option>
+          </select>
+
+          <label for="edit-motivo">Motivo de visita:</label>
+          <input type="text" id="edit-motivo" required />
+
+          <div class="modal-buttons">
+            <button type="button" class="btn-secondary modal-cancel-btn">Cancelar</button>
+            <button type="submit" class="btn-principal">Guardar Cambios</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
-</div>
 
-<body>
-    <div id="navbar-placeholder"></div>
-
-    <div id="loader" class="loader-wrapper">
-        <div class="loader"></div>
+  <!-- Modal de ver equipos -->
+  <div id="modal-ver-equipos" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close-btn">&times;</button>
+      <h2 id="modal-equipos-title">Equipos de la Sesión #0</h2>
+      <div class="modal-list-container"></div>
     </div>
+  </div>
 
-    <main id="main-content" style="display: none;">
-        <div class="container">
-            <h1>Centro de Control</h1>
-
-            <div class="tabs-nav">
-                <button class="tab-btn active" data-tab="visitantes">📝 Registros de Visitantes</button>
-                <button class="tab-btn" data-tab="descartes">🗑️ Sesiones de Descartes</button>
-            </div>
-
-            <div id="visitantes-content" class="tab-content active">
-                <div class="controls-area">
-                    <input type="search" id="search-visitantes" placeholder="Buscar por nombre, apellido o cédula...">
-                    <input type="date" id="date-start-visitantes" title="Fecha de inicio">
-                    <input type="date" id="date-end-visitantes" title="Fecha de fin">
-                    <button id="export-visitantes-btn" class="btn-export">Exportar Excel</button>
-                </div>
-                <div class="table-container">
-                    <table id="table-visitantes">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Apellido</th>
-                                <th>Cédula</th>
-                                <th>Motivo</th>
-                                <th>Fecha</th>
-                                <th>Hora</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="descartes-content" class="tab-content">
-                <div class="controls-area">
-                    <input type="search" id="search-descartes" placeholder="Buscar por Unidad Administrativa o SIACE...">
-                    <input type="date" id="date-start-descartes" title="Fecha de inicio">
-                    <input type="date" id="date-end-descartes" title="Fecha de fin">
-                    <button id="export-descartes-btn" class="btn-export">Exportar Excel</button>
-                </div>
-                <div class="table-container">
-                    <table id="table-descartes">
-                        <thead>
-                            <tr>
-                                <th>ID Sesión</th>
-                                <th>Unidad Administrativa</th>
-                                <th>Fecha</th>
-                                <th>Técnico</th>
-                                <th>Nº Equipos</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <div id="modal-editar-visitante" class="modal-overlay">
-        <div class="modal-content">
-            <button class="modal-close-btn">&times;</button>
-            <h2>Editar Visitante</h2>
-            <div class="modal-form-container">
-                <form id="form-editar-visitante" novalidate>
-                    <label for="edit-nombre">Nombre:</label>
-                    <input type="text" id="edit-nombre" required>
-                    
-                    <label for="edit-apellido">Apellido:</label>
-                    <input type="text" id="edit-apellido" required>
-                    
-                    <label for="edit-cedula">Cédula:</label>
-                    <input type="text" id="edit-cedula" required>
-                    
-                    <label for="edit-sexo">Sexo:</label>
-                    <select id="edit-sexo" required>
-                        <option value="" disabled>Selecciona una opción...</option>
-                        <option value="Masculino">Masculino</option>
-                        <option value="Femenino">Femenino</option>
-                    </select>
-                    
-                    <label for="edit-motivo">Motivo de visita:</label>
-                    <input type="text" id="edit-motivo" required>
-                    
-                    <div class="modal-buttons">
-                        <button type="button" class="btn-secondary modal-cancel-btn">Cancelar</button>
-                        <button type="submit" class="btn-principal">Guardar Cambios</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+  <!-- Modal de confirmación reutilizable -->
+  <div id="modal-confirmacion" class="modal-overlay">
+    <div class="modal-content">
+      <h2 id="confirm-title">¿Estás seguro?</h2>
+      <p id="confirm-message">Esta acción no se puede deshacer.</p>
+      <div class="modal-buttons">
+        <button id="btn-confirmar-cancelar" class="btn-secondary">Cancelar</button>
+        <button id="btn-confirmar-aceptar" class="btn-danger">Aceptar</button>
+      </div>
     </div>
+  </div>
 
-    <div id="modal-ver-equipos" class="modal-overlay">
-        <div class="modal-content">
-            <button class="modal-close-btn">&times;</button>
-            <h2 id="modal-equipos-title">Equipos de la Sesión #0</h2>
-            <div class="modal-list-container">
-                </div>
-        </div>
-    </div>
+  <div id="toast-notification" class="toast">
+    <span id="toast-message"></span>
+  </div>
 
-    <div id="toast-notification" class="toast">
-        <span id="toast-message"></span>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <script src="js/libs/xlsx.full.min.js"></script>
-    
-    <script src="js/common.js" defer></script>
-    <script src="js/consultar.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/libs/xlsx.full.min.js"></script>
+  <script src="js/common.js" defer></script>
+  <script src="js/consultar.js" defer></script>
 </body>
 </html>
