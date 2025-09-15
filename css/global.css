@@ -564,3 +564,46 @@ html.dark-mode input:-webkit-autofill {
     -webkit-box-shadow: 0 0 0 1000px var(--input-bg-color) inset !important;
     caret-color: var(--input-text-color) !important;
 }
+
+/* Botón primario global (para modales y formularios) */
+.btn-principal {
+  padding: 10px 25px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  background-color: var(--primary-color);
+  color: #fff;
+  transition: background-color .2s;
+}
+.btn-principal:hover { background-color: var(--primary-hover-color); }
+.btn-principal:disabled { opacity: .7; cursor: not-allowed; }
+
+/* Indica al navegador que pinte controles en dark cuando toque */
+html.dark-mode { color-scheme: dark; }
+
+/* Base del select en dark (cerrado) */
+html.dark-mode select {
+  background-color: var(--input-bg-color);
+  color: var(--input-text-color);
+  border-color: var(--border-color);
+}
+
+/* Estilos del desplegable (puede variar por navegador/OS) */
+html.dark-mode select option {
+  background-color: var(--card-bg-color);
+  color: var(--text-color);
+}
+
+/* Opción resaltada (seleccionada) en el dropdown: texto oscuro sobre fondo claro */
+html.dark-mode select option:checked {
+  background-color: #E5E7EB;   /* claro para resaltar */
+  color: #111827;              /* texto oscuro para contraste */
+}
+
+/* Hover opcional dentro del dropdown (cuando el navegador lo soporta) */
+html.dark-mode select option:hover {
+  background-color: #374151;
+  color: #ffffff;
+}
