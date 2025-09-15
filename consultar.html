@@ -6,30 +6,46 @@
   <title>Consultar - Sistema de Registro</title>
 
   <script>
-    // Evita el "flash" de modo oscuro
+    // Evitar flash de tema oscuro
     (function () {
       try {
-        const theme = localStorage.getItem('theme');
-        if (theme === 'dark') document.documentElement.classList.add('dark-mode');
+        const theme = localStorage.getItem("theme");
+        if (theme === "dark") {
+          document.documentElement.classList.add("dark-mode");
+        }
       } catch (e) {}
     })();
   </script>
 
-  <link rel="stylesheet" href="css/global.css"/>
-  <link rel="stylesheet" href="css/consultar.css"/>
-  <link rel="icon" href="assets/icons/icon-192.png"/>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/consultar.css" />
+
+  <link rel="icon" href="assets/icons/icon-192.png" />
 </head>
 <body>
   <div id="navbar-placeholder"></div>
+
+  <!-- Modal de confirmación global -->
+  <div id="modal-confirmacion" class="modal-overlay">
+    <div class="modal-content">
+      <h2 id="confirm-title">¿Estás seguro?</h2>
+      <p id="confirm-message">Esta acción no se puede deshacer.</p>
+      <div class="modal-buttons">
+        <button id="btn-confirmar-cancelar" class="btn-secondary">Cancelar</button>
+        <button id="btn-confirmar-aceptar" class="btn-danger">Aceptar</button>
+      </div>
+    </div>
+  </div>
 
   <div id="loader" class="loader-wrapper">
     <div class="loader"></div>
   </div>
 
-  <main id="main-content" style="display: none;">
+  <main id="main-content" style="display:none;">
     <div class="container">
       <h1>Centro de Control</h1>
 
+      <!-- Píldora de pestañas centrada -->
       <div class="tabs-nav">
         <button class="tab-btn active" data-tab="visitantes">📝 Registros de Visitantes</button>
         <button class="tab-btn" data-tab="descartes">🗑️ Sesiones de Descartes</button>
@@ -38,27 +54,26 @@
       <!-- TAB: VISITANTES -->
       <div id="visitantes-content" class="tab-content active">
         <div class="controls-area">
-          <input type="search" id="search-visitantes" placeholder="Buscar por nombre, apellido o cédula..."/>
-          <input type="date" id="date-start-visitantes" title="Fecha de inicio"/>
-          <input type="date" id="date-end-visitantes" title="Fecha de fin"/>
+          <input type="search" id="search-visitantes" placeholder="Buscar por nombre, apellido o cédula..." />
+          <input type="date" id="date-start-visitantes" title="Fecha de inicio" />
+          <input type="date" id="date-end-visitantes" title="Fecha de fin" />
           <button id="export-visitantes-btn" class="btn-export">Exportar Excel</button>
+
+          <!-- Controles de selección masiva (alineados a la derecha) -->
+          <div class="bulk-controls">
+            <label class="select-all">
+              <input type="checkbox" id="select-all"/>
+              <span>Seleccionar todo (filtrados)</span>
+            </label>
+            <button id="bulk-delete-btn" class="btn-danger" style="display:none;">Eliminar (0)</button>
+          </div>
         </div>
 
         <div class="table-container">
           <table id="table-visitantes">
             <thead>
               <tr>
-                <th class="select-col">
-                  <div class="select-head">
-                    <label class="select-all-wrapper">
-                      <input type="checkbox" id="check-all-visitantes"/>
-                      <span>Seleccionar todo</span>
-                    </label>
-                    <button id="bulk-delete-visitantes" class="btn-danger btn-compact" style="display:none;">
-                      Eliminar seleccionados
-                    </button>
-                  </div>
-                </th>
+                <th class="select-col" title="Seleccionar"></th>
                 <th>Nombre</th>
                 <th>Apellido</th>
                 <th>Cédula</th>
@@ -76,9 +91,9 @@
       <!-- TAB: DESCARTES -->
       <div id="descartes-content" class="tab-content">
         <div class="controls-area">
-          <input type="search" id="search-descartes" placeholder="Buscar por Unidad Administrativa o SIACE..."/>
-          <input type="date" id="date-start-descartes" title="Fecha de inicio"/>
-          <input type="date" id="date-end-descartes" title="Fecha de fin"/>
+          <input type="search" id="search-descartes" placeholder="Buscar por Unidad Administrativa o SIACE..." />
+          <input type="date" id="date-start-descartes" title="Fecha de inicio" />
+          <input type="date" id="date-end-descartes" title="Fecha de fin" />
           <button id="export-descartes-btn" class="btn-export">Exportar Excel</button>
         </div>
 
@@ -101,10 +116,10 @@
     </div>
   </main>
 
-  <!-- Modal de edición de visitante -->
+  <!-- Modal: Editar visitante -->
   <div id="modal-editar-visitante" class="modal-overlay">
     <div class="modal-content">
-      <button class="modal-close-btn">&times;</button>
+      <button class="modal-close-btn" aria-label="Cerrar">&times;</button>
       <h2>Editar Visitante</h2>
       <div class="modal-form-container">
         <form id="form-editar-visitante" novalidate>
@@ -136,24 +151,12 @@
     </div>
   </div>
 
-  <!-- Modal de ver equipos -->
+  <!-- Modal: Ver equipos de sesión de descarte -->
   <div id="modal-ver-equipos" class="modal-overlay">
     <div class="modal-content">
-      <button class="modal-close-btn">&times;</button>
+      <button class="modal-close-btn" aria-label="Cerrar">&times;</button>
       <h2 id="modal-equipos-title">Equipos de la Sesión #0</h2>
       <div class="modal-list-container"></div>
-    </div>
-  </div>
-
-  <!-- Modal de confirmación reutilizable -->
-  <div id="modal-confirmacion" class="modal-overlay">
-    <div class="modal-content">
-      <h2 id="confirm-title">¿Estás seguro?</h2>
-      <p id="confirm-message">Esta acción no se puede deshacer.</p>
-      <div class="modal-buttons">
-        <button id="btn-confirmar-cancelar" class="btn-secondary">Cancelar</button>
-        <button id="btn-confirmar-aceptar" class="btn-danger">Aceptar</button>
-      </div>
     </div>
   </div>
 

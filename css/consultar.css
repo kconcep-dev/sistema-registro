@@ -1,19 +1,19 @@
-/* --- 1) Estructura Principal y Pestañas --- */
-.container{ max-width:100%; }
+/* === 1) Estructura principal y pestañas === */
+.container{max-width:100%;}
 
-/* Píldora centrada para las pestañas */
+/* Píldora de pestañas centrada */
 .tabs-nav{
   display:flex;
-  width:fit-content;              /* (Firefox usa -moz-fit-content) */
-  margin:0 auto 25px;             /* centra horizontal */
+  width:fit-content;       /* (Firefox usa -moz-fit-content si lo requiere) */
+  margin:0 auto 25px;      /* centro horizontal */
   align-items:center;
   gap:10px;
   padding:6px;
   background-color:var(--card-bg-color);
   border-radius:999px;
-  box-shadow:0 0 0 1px rgba(0,0,0,0.25);
+  box-shadow:0 0 0 1px rgba(0,0,0,.25);
 }
-html.dark-mode .tabs-nav{ box-shadow:0 0 0 1px rgba(255,255,255,0.2); }
+html.dark-mode .tabs-nav{ box-shadow:0 0 0 1px rgba(255,255,255,.2); }
 
 .tab-btn{
   padding:10px 18px;
@@ -24,7 +24,7 @@ html.dark-mode .tabs-nav{ box-shadow:0 0 0 1px rgba(255,255,255,0.2); }
   font-weight:600;
   cursor:pointer;
   border-radius:999px;
-  transition:background-color .2s ease,color .2s ease,transform .1s ease;
+  transition:background-color .2s,color .2s,transform .1s;
 }
 .tab-btn:hover{ background-color:var(--input-bg-color); }
 .tab-btn.active{
@@ -36,7 +36,7 @@ html.dark-mode .tabs-nav{ box-shadow:0 0 0 1px rgba(255,255,255,0.2); }
 .tab-content{ display:none; }
 .tab-content.active{ display:block; }
 
-/* --- 2) Barra de Controles (Búsqueda, Filtros, Exportar) --- */
+/* === 2) Barra de controles (búsqueda, fechas, export, masivo) === */
 .controls-area{
   display:flex;
   flex-wrap:wrap;
@@ -49,7 +49,7 @@ html.dark-mode .tabs-nav{ box-shadow:0 0 0 1px rgba(255,255,255,0.2); }
   box-shadow:0 2px 10px var(--shadow-color);
 }
 
-/* Inputs cápsula */
+/* Inputs con look de cápsula */
 .controls-area input[type="search"],
 .controls-area input[type="date"]{
   height:42px;
@@ -59,7 +59,7 @@ html.dark-mode .tabs-nav{ box-shadow:0 0 0 1px rgba(255,255,255,0.2); }
   background-color:var(--input-bg-color);
   color:var(--input-text-color);
   outline:none;
-  transition:box-shadow .15s, border-color .15s;
+  transition:box-shadow .15s,border-color .15s;
   min-width:0; /* evita desbordes en móvil */
 }
 .controls-area input[type="search"]{ flex:1 1 320px; min-width:220px; }
@@ -68,15 +68,15 @@ html.dark-mode .tabs-nav{ box-shadow:0 0 0 1px rgba(255,255,255,0.2); }
 .controls-area input[type="search"]:focus,
 .controls-area input[type="date"]:focus{
   border-color:var(--primary-color);
-  box-shadow:0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--primary-color) 20%,transparent);
 }
 
 /* Placeholder tenue */
 .controls-area input::placeholder{
-  color:color-mix(in srgb, var(--input-text-color) 50%, transparent);
+  color:color-mix(in srgb,var(--input-text-color) 50%,transparent);
 }
 
-/* Botón export cápsula */
+/* Botón export */
 .btn-export{
   height:42px;
   padding:0 16px;
@@ -91,33 +91,71 @@ html.dark-mode .tabs-nav{ box-shadow:0 0 0 1px rgba(255,255,255,0.2); }
 .btn-export:hover{ background-color:#1f7b34; }
 html.dark-mode .btn-export:hover{ background-color:#1a5d2a; }
 
-/* Dark coherente */
+/* Controles masivos: “Seleccionar todo” + “Eliminar (n)” */
+.bulk-controls{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-left:auto; /* empuja a la derecha dentro de la cápsula */
+}
+.select-all{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  user-select:none;
+  font-weight:600;
+  color:var(--text-color);
+}
+.select-all input[type="checkbox"]{
+  width:18px;height:18px;
+  accent-color:var(--primary-color);
+}
+
+/* Botón eliminar masivo */
+#bulk-delete-btn{
+  height:42px;
+  padding:0 16px;
+  border:none;
+  border-radius:999px;
+  font-weight:700;
+  display:none;           /* lo maneja JS */
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  background-color:var(--error-color);
+  color:#fff;
+  box-shadow:0 2px 6px var(--shadow-color);
+}
+#bulk-delete-btn:hover{ background-color:#b02a37; }
+
+/* Coherencia en dark: evita iconos/controles blancos nativos */
 html.dark-mode .controls-area input[type="search"],
 html.dark-mode .controls-area input[type="date"]{
-  background-color:var(--input-bg-color)!important;
-  color:var(--input-text-color)!important;
-  border-color:var(--border-color)!important;
+  background-color:var(--input-bg-color) !important;
+  color:var(--input-text-color) !important;
+  border-color:var(--border-color) !important;
 }
 html.dark-mode input[type="date"]::-webkit-calendar-picker-indicator,
 html.dark-mode input[type="search"]::-webkit-search-cancel-button{
   filter:invert(1) brightness(0.9);
 }
 
-/* Móvil: grid limpia */
+/* Móvil: grilla limpia -> search arriba; fechas lado a lado; export abajo full; masivo a la derecha */
 @media (max-width:520px){
   .controls-area{
     display:grid;
     grid-template-columns:1fr 1fr;
     gap:10px;
-    border-radius:16px;
+    border-radius:16px; /* menos exagerado en móvil */
   }
   .controls-area input[type="search"]{ grid-column:1 / -1; width:100%; }
   #date-start-visitantes,#date-end-visitantes,
   #date-start-descartes,#date-end-descartes{ width:100%; }
   .controls-area .btn-export{ grid-column:1 / -1; width:100%; }
+  .bulk-controls{ grid-column:1 / -1; justify-self:end; }
 }
 
-/* --- 3) Tabla --- */
+/* === 3) Tabla === */
 .table-container{
   overflow-x:auto;
   background-color:var(--card-bg-color);
@@ -131,7 +169,6 @@ html.dark-mode input[type="search"]::-webkit-search-cancel-button{
   border-collapse:collapse;
 }
 
-/* Cabecera y celdas */
 #table-visitantes th,#table-visitantes td,
 #table-descartes th,#table-descartes td{
   padding:12px 15px;
@@ -146,59 +183,20 @@ html.dark-mode input[type="search"]::-webkit-search-cancel-button{
   font-weight:bold;
 }
 
-#table-visitantes tbody tr:hover,
-#table-descartes tbody tr:hover{
-  background-color:color-mix(in srgb, var(--primary-color) 8%, transparent);
-}
-
-/* --- 3a) Columna de selección (visitantes) --- */
-#table-visitantes th.select-col{
-  width:1%;
-  text-align:left;
-}
-#table-visitantes td.row-select-cell{
-  width:1%;
-  text-align:center;
-}
-
-.select-head{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-.select-all-wrapper{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  font-weight:600;
-  color:var(--text-color);
-}
-.select-all-wrapper input[type="checkbox"],
-.row-check{
-  width:18px;
-  height:18px;
+/* Columna de selección */
+.select-col{ width:36px; }
+.row-select{
+  width:16px;height:16px;
   accent-color:var(--primary-color);
 }
 
-/* Botón compacto para acciones masivas */
-.btn-compact{
-  padding:6px 10px;
-  border:none;
-  border-radius:999px;
-  font-size:.8rem;
-  font-weight:700;
-  line-height:1;
-  cursor:pointer;
-}
-.btn-danger.btn-compact{ background-color:var(--error-color); color:#fff; }
-.btn-danger.btn-compact:hover{ background-color:#b02a37; }
-
-/* Opcional: ocultar texto “Seleccionar todo” en móviles muy angostos */
-@media (max-width:420px){
-  .select-all-wrapper span{ display:none; }
+/* Hover filas */
+#table-visitantes tbody tr:hover,
+#table-descartes tbody tr:hover{
+  background-color:color-mix(in srgb,var(--primary-color) 8%,transparent);
 }
 
-/* --- 3b) Acciones como chips --- */
+/* Acciones tipo “chip” */
 .table-actions{ display:flex; gap:8px; }
 .table-actions button,
 .btn-view-equipos,
@@ -219,18 +217,19 @@ html.dark-mode input[type="search"]::-webkit-search-cancel-button{
   color:#fff;
   box-shadow:0 2px 6px var(--shadow-color);
 }
+/* Variantes */
 .btn-editar{ background-color:#4B5563; }
 .btn-editar:hover{ background-color:#374151; }
 .btn-eliminar,.btn-eliminar-sesion{ background-color:var(--error-color); }
 .btn-eliminar:hover,.btn-eliminar-sesion:hover{ background-color:#b02a37; }
 .btn-view-equipos{ background-color:var(--primary-color); }
 .btn-view-equipos:hover{ background-color:var(--primary-hover-color); }
-/* fallback */
+/* Fallback */
 .table-actions button:not(.btn-editar):not(.btn-eliminar):not(.btn-view-equipos):not(.btn-eliminar-sesion){
   background-color:var(--primary-color);
 }
 
-/* --- 4) Modal “Ver Equipos” --- */
+/* === 4) Modal “Ver Equipos” === */
 #modal-equipos-title{ margin-bottom:20px; }
 .modal-list-container{
   max-height:60vh;
@@ -239,11 +238,14 @@ html.dark-mode input[type="search"]::-webkit-search-cancel-button{
   padding-right:15px;
   margin-right:-15px;
 }
-.equipo-item{ padding:10px; border-bottom:1px solid var(--input-bg-color); }
+.equipo-item{
+  padding:10px;
+  border-bottom:1px solid var(--input-bg-color);
+}
 .equipo-item:last-child{ border-bottom:none; }
 .equipo-item strong{ color:var(--primary-color); }
 
-/* --- 5) Escritorio --- */
+/* === 5) Escritorio amplio === */
 @media (min-width:992px){
   .container{ max-width:1200px; }
 }
