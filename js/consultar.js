@@ -1,4 +1,4 @@
-// js/consultar.js (versión sin checkboxes ni selección masiva)
+// js/consultar.js — vista de detalle de sesión incluida (sin selección masiva)
 
 document.addEventListener('DOMContentLoaded', async () => {
   // --- 0) Protección de ruta y carga inicial ---
@@ -13,34 +13,49 @@ document.addEventListener('DOMContentLoaded', async () => {
   const tabContents = document.querySelectorAll('.tab-content');
 
   // Visitantes
-  const searchVisitantesInput = document.getElementById('search-visitantes');
-  const dateStartVisitantesInput = document.getElementById('date-start-visitantes');
-  const dateEndVisitantesInput   = document.getElementById('date-end-visitantes');
-  const exportVisitantesBtn      = document.getElementById('export-visitantes-btn');
-  const tableVisitantesBody      = document.querySelector('#table-visitantes tbody');
+  const searchVisitantesInput   = document.getElementById('search-visitantes');
+  const dateStartVisitantesInput= document.getElementById('date-start-visitantes');
+  const dateEndVisitantesInput  = document.getElementById('date-end-visitantes');
+  const exportVisitantesBtn     = document.getElementById('export-visitantes-btn');
+  const tableVisitantesBody     = document.querySelector('#table-visitantes tbody');
 
-  // Descartes
-  const searchDescartesInput     = document.getElementById('search-descartes');
-  const dateStartDescartesInput  = document.getElementById('date-start-descartes');
-  const dateEndDescartesInput    = document.getElementById('date-end-descartes');
-  const exportDescartesBtn       = document.getElementById('export-descartes-btn');
-  const tableDescartesBody       = document.querySelector('#table-descartes tbody');
+  // Sesiones de descarte (lista)
+  const searchDescartesInput    = document.getElementById('search-descartes');
+  const dateStartDescartesInput = document.getElementById('date-start-descartes');
+  const dateEndDescartesInput   = document.getElementById('date-end-descartes');
+  const exportDescartesBtn      = document.getElementById('export-descartes-btn');
+  const tableDescartesBody      = document.querySelector('#table-descartes tbody');
+
+  // Vista detalle de sesión
+  const detalleSection          = document.getElementById('detalle-sesion-content');
+  const btnVolverSesiones       = document.getElementById('btn-volver-sesiones');
+  const detalleUnidad           = document.getElementById('detalle-unidad');
+  const detalleSiace            = document.getElementById('detalle-siace');
+  const detalleFecha            = document.getElementById('detalle-fecha');
+  const detalleTecnico          = document.getElementById('detalle-tecnico');
+  const detalleObservacion      = document.getElementById('detalle-observacion');
+
+  const searchEquiposInput      = document.getElementById('search-equipos-sesion');
+  const tableEquiposBody        = document.querySelector('#table-equipos-sesion tbody');
 
   // Modales
-  const modalEditarVisitante     = document.getElementById('modal-editar-visitante');
-  const formEditarVisitante      = document.getElementById('form-editar-visitante');
-  const modalVerEquipos          = document.getElementById('modal-ver-equipos');
-  const modalEquiposTitle        = document.getElementById('modal-equipos-title');
-  const modalEquiposList         = document.querySelector('.modal-list-container');
+  const modalEditarVisitante    = document.getElementById('modal-editar-visitante');
+  const formEditarVisitante     = document.getElementById('form-editar-visitante');
+
+  const modalEditarEquipo       = document.getElementById('modal-editar-equipo');
+  const formEditarEquipo        = document.getElementById('form-editar-equipo');
 
   // Toast
-  const toastEl                  = document.getElementById('toast-notification');
-  const toastMessageEl           = document.getElementById('toast-message');
+  const toastEl        = document.getElementById('toast-notification');
+  const toastMessageEl = document.getElementById('toast-message');
 
   // --- 2) Estado ---
-  let currentVisitorData   = [];
-  let currentDescartesData = [];
-  let editingVisitorId     = null;
+  let currentVisitorData    = [];
+  let currentDescartesData  = [];
+  let currentEquiposData    = [];   // equipos de la sesión abierta
+  let editingVisitorId      = null;
+  let editingEquipoId       = null;
+  let currentSessionId      = null;
   let searchDebounceTimeout;
   let toastTimeout;
 
@@ -73,6 +88,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       minute: '2-digit',
       hour12: true
     }).format(date);
+  }
+
+  function showSection(sectionIdToShow) {
+    // Oculta todas las secciones tab-content y muestra solo la indicada
+    tabContents.forEach(c => c.classList.remove('active'));
+    const toShow = document.getElementById(sectionIdToShow);
+    if (toShow) toShow.classList.add('active');
   }
 
   // --- 4) Datos y render ---
@@ -128,7 +150,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Descartes
+  // Sesiones de descarte (lista)
   async function fetchDescartes() {
     const searchTerm = searchDescartesInput.value.trim();
     const startDate  = dateStartDescartesInput.value;
@@ -136,7 +158,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let query = supabaseClient
       .from('descartes_sesiones')
-      .select(`*, equipos_descartados(count)`)
+      .select(`id, user_id, unidad_administrativa, fecha, tecnico_encargado, observacion, codigo_siace, equipos_descartados(count)`)
       .order('id', { ascending: false });
 
     if (searchTerm) {
@@ -162,20 +184,112 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
     data.forEach(session => {
+      const count = session.equipos_descartados?.[0]?.count ?? 0;
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${session.id}</td>
-        <td>${session.unidad_administrativa}</td>
+        <td>${session.unidad_administrativa || '-'}</td>
+        <td>${session.codigo_siace || '-'}</td>
         <td>${formatDate(session.fecha)}</td>
-        <td>${session.tecnico_encargado}</td>
-        <td>${session.equipos_descartados?.[0]?.count ?? 0}</td>
+        <td>${session.tecnico_encargado || '-'}</td>
+        <td>${session.observacion || '-'}</td>
+        <td>${count}</td>
         <td class="table-actions">
-          <button class="btn-view-equipos"    data-id="${session.id}">Ver Equipos</button>
+          <button class="btn-view-equipos"    data-id="${session.id}">Abrir</button>
           <button class="btn-eliminar-sesion" data-id="${session.id}">Eliminar</button>
         </td>
       `;
       tableDescartesBody.appendChild(tr);
     });
+  }
+
+  // Equipos por sesión
+  async function fetchEquiposBySession(sessionId, searchTerm = '') {
+    let query = supabaseClient
+      .from('equipos_descartados')
+      .select('*')
+      .eq('sesion_id', sessionId)
+      .order('created_at', { ascending: true });
+
+    if (searchTerm) {
+      // Busca en varias columnas
+      const t = searchTerm;
+      query = query.or(
+        `descripcion.ilike.%${t}%,marbete.ilike.%${t}%,serie.ilike.%${t}%,marca.ilike.%${t}%,modelo.ilike.%${t}%,estado_equipo.ilike.%${t}%,motivo_descarte.ilike.%${t}%`
+      );
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      showToast('Error al cargar equipos de la sesión.', 'error');
+      console.error(error);
+      return [];
+    }
+    return data || [];
+  }
+
+  function renderEquiposTable(equipos) {
+    tableEquiposBody.innerHTML = '';
+    if (!equipos.length) {
+      tableEquiposBody.innerHTML = '<tr><td colspan="8">No hay equipos en esta sesión.</td></tr>';
+      return;
+    }
+    equipos.forEach(eq => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${eq.descripcion || '-'}</td>
+        <td>${eq.marbete || '-'}</td>
+        <td>${eq.serie || '-'}</td>
+        <td>${eq.marca || '-'}</td>
+        <td>${eq.modelo || '-'}</td>
+        <td>${eq.estado_equipo || '-'}</td>
+        <td>${eq.motivo_descarte || '-'}</td>
+        <td class="table-actions">
+          <button class="btn-editar"  data-id="${eq.id}">Editar</button>
+          <button class="btn-eliminar" data-id="${eq.id}">Eliminar</button>
+        </td>
+      `;
+      tableEquiposBody.appendChild(tr);
+    });
+  }
+
+  async function openSessionDetail(sessionId) {
+    currentSessionId = sessionId;
+
+    // Obtener datos de la sesión para cabecera
+    const { data: sesion, error } = await supabaseClient
+      .from('descartes_sesiones')
+      .select('unidad_administrativa, codigo_siace, fecha, tecnico_encargado, observacion')
+      .eq('id', sessionId)
+      .single();
+
+    if (error || !sesion) {
+      showToast('No se pudo abrir la sesión.', 'error');
+      return;
+    }
+
+    // Rellenar meta
+    detalleUnidad.textContent      = sesion.unidad_administrativa || '-';
+    detalleSiace.textContent       = sesion.codigo_siace || '-';
+    detalleFecha.textContent       = formatDate(sesion.fecha);
+    detalleTecnico.textContent     = sesion.tecnico_encargado || '-';
+    detalleObservacion.textContent = sesion.observacion || '—';
+
+    // Cargar equipos
+    currentEquiposData = await fetchEquiposBySession(sessionId);
+    renderEquiposTable(currentEquiposData);
+
+    // Cambiar de sección
+    document.getElementById('descartes-content').classList.remove('active');
+    detalleSection.classList.add('active');
+  }
+
+  function closeSessionDetail() {
+    currentSessionId  = null;
+    currentEquiposData= [];
+    searchEquiposInput.value = '';
+    detalleSection.classList.remove('active');
+    // Volver a la pestaña de sesiones
+    document.getElementById('descartes-content').classList.add('active');
   }
 
   // --- 5) Eventos ---
@@ -187,6 +301,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     tabsNav.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     e.target.classList.add('active');
+
+    // Si estaba abierto el detalle, al cambiar de pestaña lo cerramos
+    if (detalleSection.classList.contains('active')) closeSessionDetail();
 
     tabContents.forEach(c => {
       c.classList.toggle('active', c.id === `${tabId}-content`);
@@ -204,7 +321,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   dateStartVisitantesInput.addEventListener('change', fetchVisitantes);
   dateEndVisitantesInput.addEventListener('change', fetchVisitantes);
 
-  // Filtros descartes
+  // Filtros sesiones
   searchDescartesInput.addEventListener('input', () => {
     clearTimeout(searchDebounceTimeout);
     searchDebounceTimeout = setTimeout(fetchDescartes, 300);
@@ -242,43 +359,45 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
       editingVisitorId = data.id;
-      document.getElementById('edit-nombre').value   = data.nombre;
-      document.getElementById('edit-apellido').value = data.apellido;
-      document.getElementById('edit-cedula').value   = data.cedula;
-      document.getElementById('edit-sexo').value     = data.sexo;
-      document.getElementById('edit-motivo').value   = data.motivo;
+      document.getElementById('edit-nombre').value   = data.nombre || '';
+      document.getElementById('edit-apellido').value = data.apellido || '';
+      document.getElementById('edit-cedula').value   = data.cedula || '';
+      document.getElementById('edit-sexo').value     = data.sexo || '';
+      document.getElementById('edit-motivo').value   = data.motivo || '';
       modalEditarVisitante.classList.add('visible');
     }
   });
 
-  // Acciones tabla descartes
+  // Guardar cambios (modal editar visitante)
+  formEditarVisitante.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const updatedData = {
+      nombre:   document.getElementById('edit-nombre').value,
+      apellido: document.getElementById('edit-apellido').value,
+      cedula:   document.getElementById('edit-cedula').value,
+      sexo:     document.getElementById('edit-sexo').value,
+      motivo:   document.getElementById('edit-motivo').value
+    };
+
+    const { error } = await supabaseClient.from('visitantes').update(updatedData).eq('id', editingVisitorId);
+    if (error) {
+      showToast('Error al guardar los cambios.', 'error');
+    } else {
+      showToast('Visitante actualizado con éxito.', 'success');
+      modalEditarVisitante.classList.remove('visible');
+      fetchVisitantes();
+    }
+    editingVisitorId = null;
+  });
+
+  // Acciones tabla sesiones (abrir/eliminar)
   tableDescartesBody.addEventListener('click', async (e) => {
     const target = e.target;
     const sessionId = target.dataset.id;
 
-    // Ver equipos
+    // Abrir detalle
     if (target.classList.contains('btn-view-equipos')) {
-      const { data, error } = await supabaseClient
-        .from('equipos_descartados')
-        .select('*')
-        .eq('sesion_id', sessionId);
-
-      if (error) {
-        showToast('Error al cargar los equipos.', 'error');
-        return;
-      }
-
-      modalEquiposTitle.textContent = `Equipos de la Sesión #${sessionId}`;
-      modalEquiposList.innerHTML = data.length
-        ? data.map(equipo => `
-            <div class="equipo-item">
-              <strong>${equipo.descripcion || 'Sin descripción'}</strong>
-              <p>Marbete: ${equipo.marbete || '-'} | Serie: ${equipo.serie || '-'}</p>
-            </div>
-          `).join('')
-        : '<p>No hay equipos registrados en esta sesión.</p>';
-
-      modalVerEquipos.classList.add('visible');
+      await openSessionDetail(sessionId);
     }
 
     // Eliminar sesión
@@ -299,26 +418,96 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Guardar cambios (modal editar visitante)
-  formEditarVisitante.addEventListener('submit', async (e) => {
+  // Buscar dentro de equipos de la sesión
+  searchEquiposInput.addEventListener('input', async () => {
+    if (!currentSessionId) return;
+    clearTimeout(searchDebounceTimeout);
+    searchDebounceTimeout = setTimeout(async () => {
+      const term = searchEquiposInput.value.trim();
+      currentEquiposData = await fetchEquiposBySession(currentSessionId, term);
+      renderEquiposTable(currentEquiposData);
+    }, 250);
+  });
+
+  // Acciones en la tabla de equipos (editar/eliminar)
+  tableEquiposBody.addEventListener('click', async (e) => {
+    const target = e.target;
+    const equipoId = target.dataset.id;
+
+    // Eliminar equipo
+    if (target.classList.contains('btn-eliminar')) {
+      const confirmed = await window.showConfirmationModal(
+        'Eliminar Equipo',
+        '¿Deseas eliminar este equipo del descarte?'
+      );
+      if (confirmed) {
+        const { error } = await supabaseClient.from('equipos_descartados').delete().eq('id', equipoId);
+        if (error) {
+          showToast('No se pudo eliminar el equipo.', 'error');
+        } else {
+          showToast('Equipo eliminado.', 'success');
+          // refrescar lista
+          const term = searchEquiposInput.value.trim();
+          currentEquiposData = await fetchEquiposBySession(currentSessionId, term);
+          renderEquiposTable(currentEquiposData);
+        }
+      }
+    }
+
+    // Editar equipo
+    if (target.classList.contains('btn-editar')) {
+      const { data, error } = await supabaseClient
+        .from('equipos_descartados')
+        .select('*')
+        .eq('id', equipoId)
+        .single();
+
+      if (error || !data) {
+        showToast('No se pudieron cargar los datos del equipo.', 'error');
+        return;
+      }
+
+      editingEquipoId = data.id;
+      document.getElementById('edit-descripcion').value     = data.descripcion || '';
+      document.getElementById('edit-marbete').value         = data.marbete || '';
+      document.getElementById('edit-serie').value           = data.serie || '';
+      document.getElementById('edit-marca').value           = data.marca || '';
+      document.getElementById('edit-modelo').value          = data.modelo || '';
+      document.getElementById('edit-estado_equipo').value   = data.estado_equipo || '';
+      document.getElementById('edit-motivo_descarte').value = data.motivo_descarte || '';
+      modalEditarEquipo.classList.add('visible');
+    }
+  });
+
+  // Guardar cambios (modal editar equipo)
+  formEditarEquipo.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const updatedData = {
-      nombre:  document.getElementById('edit-nombre').value,
-      apellido:document.getElementById('edit-apellido').value,
-      cedula:  document.getElementById('edit-cedula').value,
-      sexo:    document.getElementById('edit-sexo').value,
-      motivo:  document.getElementById('edit-motivo').value
+    const payload = {
+      descripcion:     document.getElementById('edit-descripcion').value.trim(),
+      marbete:         document.getElementById('edit-marbete').value.trim(),
+      serie:           document.getElementById('edit-serie').value.trim(),
+      marca:           document.getElementById('edit-marca').value.trim(),
+      modelo:          document.getElementById('edit-modelo').value.trim(),
+      estado_equipo:   document.getElementById('edit-estado_equipo').value.trim(),
+      motivo_descarte: document.getElementById('edit-motivo_descarte').value.trim(),
     };
 
-    const { error } = await supabaseClient.from('visitantes').update(updatedData).eq('id', editingVisitorId);
+    const { error } = await supabaseClient
+      .from('equipos_descartados')
+      .update(payload)
+      .eq('id', editingEquipoId);
+
     if (error) {
-      showToast('Error al guardar los cambios.', 'error');
+      showToast('No se pudo actualizar el equipo.', 'error');
     } else {
-      showToast('Visitante actualizado con éxito.', 'success');
-      modalEditarVisitante.classList.remove('visible');
-      fetchVisitantes();
+      showToast('Equipo actualizado.', 'success');
+      modalEditarEquipo.classList.remove('visible');
+      // refrescar lista
+      const term = searchEquiposInput.value.trim();
+      currentEquiposData = await fetchEquiposBySession(currentSessionId, term);
+      renderEquiposTable(currentEquiposData);
     }
-    editingVisitorId = null;
+    editingEquipoId = null;
   });
 
   // Cerrar modales (click fuera / X / cancelar)
@@ -334,8 +523,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // --- 6) Exportar a Excel ---
+  // Volver a la lista de sesiones desde el detalle
+  btnVolverSesiones.addEventListener('click', () => {
+    closeSessionDetail();
+  });
 
+  // --- 6) Exportar a Excel ---
   exportVisitantesBtn.addEventListener('click', () => {
     const ws = XLSX.utils.json_to_sheet(currentVisitorData.map(v => ({
       Nombre: v.nombre,
@@ -355,6 +548,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     showToast('Generando reporte, esto puede tardar...', 'success');
 
     const sessionIds = currentDescartesData.map(s => s.id);
+    if (!sessionIds.length) {
+      showToast('No hay sesiones para exportar.', 'error');
+      return;
+    }
+
     const { data: equipos, error } = await supabaseClient
       .from('equipos_descartados')
       .select('*, descartes_sesiones(unidad_administrativa, codigo_siace, tecnico_encargado, fecha)')
@@ -386,7 +584,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // --- 7) Inicialización ---
-  await fetchVisitantes(); // pestaña inicial
+  await fetchVisitantes(); // pestaña inicial (visitantes)
   document.getElementById('loader').style.display = 'none';
   document.getElementById('main-content').style.display = 'flex';
 });

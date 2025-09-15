@@ -76,32 +76,74 @@
         </div>
       </div>
 
-      <!-- Tab: Descartes -->
+      <!-- Tab: Descartes (Lista de sesiones) -->
       <div id="descartes-content" class="tab-content">
-        <div class="controls-area">
-          <input type="search" id="search-descartes" placeholder="Buscar por Unidad Administrativa o SIACE..." />
-          <input type="date" id="date-start-descartes" title="Fecha de inicio" />
-          <input type="date" id="date-end-descartes" title="Fecha de fin" />
-          <button id="export-descartes-btn" class="btn-export">Exportar Excel</button>
-        </div>
+        <!-- Lista de sesiones -->
+        <section id="sesiones-lista">
+          <div class="controls-area">
+            <input type="search" id="search-descartes" placeholder="Buscar por Unidad Administrativa o SIACE..." />
+            <input type="date" id="date-start-descartes" title="Fecha de inicio" />
+            <input type="date" id="date-end-descartes" title="Fecha de fin" />
+            <button id="export-descartes-btn" class="btn-export">Exportar Excel</button>
+          </div>
 
-        <div class="table-container">
-          <table id="table-descartes">
-            <thead>
-              <tr>
-                <th>ID Sesión</th>
-                <th>Unidad Administrativa</th>
-                <th>Fecha</th>
-                <th>Técnico</th>
-                <th>Nº Equipos</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
+          <div class="table-container">
+            <table id="table-descartes">
+              <thead>
+                <tr>
+                  <!-- Sin id/created_at -->
+                  <th>Unidad Administrativa</th>
+                  <th>Código SIACE</th>
+                  <th>Fecha</th>
+                  <th>Técnico</th>
+                  <th>Observación</th>
+                  <th>Nº Equipos</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Detalle de una sesión (oculto inicialmente) -->
+        <section id="sesion-detalle" style="display:none;">
+          <div class="detalle-header">
+            <button id="btn-volver-sesiones" class="btn-secondary">← Volver a Sesiones</button>
+            <h2 id="detalle-titulo">Sesión</h2>
+            <div class="detalle-meta">
+              <span><strong>Unidad:</strong> <span id="detalle-unidad"></span></span>
+              <span><strong>SIACE:</strong> <span id="detalle-siace"></span></span>
+              <span><strong>Fecha:</strong> <span id="detalle-fecha"></span></span>
+              <span><strong>Técnico:</strong> <span id="detalle-tecnico"></span></span>
+            </div>
+            <p id="detalle-observacion" class="detalle-observacion"></p>
+          </div>
+
+          <div class="controls-area">
+            <input type="search" id="search-equipos" placeholder="Buscar por descripción, marca, modelo, serie o marbete..." />
+          </div>
+
+          <div class="table-container">
+            <table id="table-equipos-sesion">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Descripción</th>
+                  <th>Marbete</th>
+                  <th>Serie</th>
+                  <th>Marca</th>
+                  <th>Modelo</th>
+                  <th>Estado</th>
+                  <th>Motivo</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
       </div>
-
     </div>
   </main>
 
@@ -141,12 +183,49 @@
     </div>
   </div>
 
-  <!-- Modal: Ver equipos de una sesión -->
-  <div id="modal-ver-equipos" class="modal-overlay">
+  <!-- Modal: Editar equipo (para detalle de sesión) -->
+  <div id="modal-editar-equipo" class="modal-overlay">
     <div class="modal-content">
-      <button class="modal-close-btn">&times;</button>
-      <h2 id="modal-equipos-title">Equipos de la Sesión #0</h2>
-      <div class="modal-list-container"></div>
+      <button id="btn-cerrar-modal-editar-equipo" class="modal-close-btn">&times;</button>
+      <h2>Editar Equipo</h2>
+      <div class="modal-form-container">
+        <form id="form-editar-equipo" novalidate>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="editq-descripcion">Descripción:</label>
+              <input type="text" id="editq-descripcion" />
+            </div>
+            <div class="form-group">
+              <label for="editq-marbete">Marbete:</label>
+              <input type="text" id="editq-marbete" />
+            </div>
+            <div class="form-group">
+              <label for="editq-serie">Serie:</label>
+              <input type="text" id="editq-serie" />
+            </div>
+            <div class="form-group">
+              <label for="editq-marca">Marca:</label>
+              <input type="text" id="editq-marca" />
+            </div>
+            <div class="form-group">
+              <label for="editq-modelo">Modelo:</label>
+              <input type="text" id="editq-modelo" />
+            </div>
+          </div>
+          <div class="form-group-full">
+            <label for="editq-estado">Estado del Equipo:</label>
+            <input type="text" id="editq-estado" />
+          </div>
+          <div class="form-group-full">
+            <label for="editq-motivo">Motivo del Descarte:</label>
+            <input type="text" id="editq-motivo" />
+          </div>
+          <div class="modal-buttons">
+            <button type="button" id="btn-editar-equipo-cancelar" class="btn-secondary">Cancelar</button>
+            <button type="submit" class="btn-principal">Aplicar Cambios</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
