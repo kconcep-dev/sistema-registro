@@ -13,7 +13,7 @@ const navbarHTML = `
                 <li class="nav-item"><a href="inicio.html" class="nav-link">🏠 Inicio</a></li>
                 <li class="nav-item"><a href="index.html" class="nav-link">📝 Registrar</a></li>
                 <li class="nav-item"><a href="descartes.html" class="nav-link">🗑️ Descartes</a></li>
-                <li class="nav-item"><a href="#" class="nav-link disabled">📊 Consultar</a></li>
+                <li class="nav-item"><a href="consultar.html" class="nav-link">📊 Consultar</a></li>
                 <li class="nav-separator"></li>
                 <li class="nav-item nav-item-controls">
                     <button id="theme-toggle" class="theme-btn nav-control-btn" title="Cambiar Tema">🌙</button>
