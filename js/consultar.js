@@ -52,15 +52,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 3000);
     }
 
-    // Formatea la fecha a dd-mm-yyyy
+    // Formatea la fecha a dd-mm-aaaa SIN depender del locale
     function formatDate(isoString) {
         if (!isoString) return '-';
-        const date = new Date(isoString);
-        return new Intl.DateTimeFormat('es-PA', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        }).format(date).replace(/\//g, '-');
+        // Acepta 'YYYY-MM-DD' o ISO completo; si ya viene 'YYYY-MM-DD' lo tratamos directo
+        const [y, m, d] = isoString.includes('T')
+            ? (new Date(isoString).toISOString().slice(0,10).split('-'))
+            : isoString.split('-'); // 'YYYY-MM-DD'
+        return `${d.padStart(2,'0')}-${m.padStart(2,'0')}-${y}`;
     }
 
     // Formatea la hora a 12-horas AM/PM

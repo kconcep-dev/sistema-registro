@@ -8,6 +8,7 @@
     gap: 10px;
     margin-bottom: 25px;
     border-bottom: 2px solid var(--input-bg-color);
+    justify-content: center;
 }
 
 .tab-btn {
