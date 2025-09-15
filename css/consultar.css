@@ -3,19 +3,21 @@
   max-width: 100%; /* contenedor ancho para tablas */
 }
 
-/* Píldora que envuelve SOLO las dos pestañas (look tipo navbar) */
-.tabs-nav {
-  display: inline-flex;              /* se ajusta al contenido */
+/* centra la píldora de pestañas */
+.tabs-nav{
+  display: flex;                 /* cambia de inline-flex a flex */
+  width: -moz-fit-content;       /* Firefox */
+  width: fit-content;            /* resto */
+  margin: 0 auto 25px;           /* centra horizontal */
   align-items: center;
   gap: 10px;
-  margin: 0 auto 25px;               /* centrado horizontal */
   padding: 6px;
   background-color: var(--card-bg-color);
-  border-radius: 999px;              /* cápsula */
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.25); /* mismo borde que navbar escritorio */
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.25);
 }
-html.dark-mode .tabs-nav {
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.2); /* mismo borde que navbar dark */
+html.dark-mode .tabs-nav{
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.2);
 }
 
 /* Botones de pestaña dentro de la cápsula */
