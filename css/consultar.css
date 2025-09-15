@@ -1,183 +1,174 @@
-/* --- 1. Estructura Principal y Pestañas --- */
+/* --- 1) Estructura Principal y Pestañas --- */
 .container {
-    max-width: 100%; /* Hacemos el contenedor más ancho para las tablas */
+  max-width: 100%; /* contenedor ancho para tablas */
 }
 
+/* Píldora que envuelve SOLO las dos pestañas (look tipo navbar) */
 .tabs-nav {
-  display: flex;
-  justify-content: center;         /* centrado */
+  display: inline-flex;              /* se ajusta al contenido */
+  align-items: center;
   gap: 10px;
-  margin-bottom: 25px;
-  padding: 8px;                    /* relleno para la cápsula */
+  margin: 0 auto 25px;               /* centrado horizontal */
+  padding: 6px;
   background-color: var(--card-bg-color);
-  border: 1px solid var(--border-color);
-  border-radius: 999px;            /* cápsula */
+  border-radius: 999px;              /* cápsula */
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.25); /* mismo borde que navbar escritorio */
+}
+html.dark-mode .tabs-nav {
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.2); /* mismo borde que navbar dark */
+}
+
+/* Botones de pestaña dentro de la cápsula */
+.tab-btn {
+  padding: 10px 18px;
+  border: none;
+  background: transparent;
+  color: var(--text-color);
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 999px;
+  transition: background-color .2s ease, color .2s ease, transform .1s ease;
+}
+.tab-btn:hover { background-color: var(--input-bg-color); }
+.tab-btn.active {
+  background-color: var(--primary-color);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* Contenidos por pestaña */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+
+/* --- 2) Barra de Controles (Búsqueda, Filtros, Exportar) --- */
+.controls-area {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 25px;
+  padding: 14px;
+  background-color: var(--card-bg-color);
+  border-radius: 999px;
   box-shadow: 0 2px 10px var(--shadow-color);
 }
 
-.tab-btn {
-    padding: 10px 20px;
-    border: none;
-    background-color: transparent;
-    color: var(--border-color);
-    font-size: 1.1rem;
-    font-weight: 500;
-    cursor: pointer;
-    border-radius: 8px 8px 0 0;
-    transition: background-color 0.2s ease, color 0.2s ease;
+/* Inputs con look de cápsula */
+.controls-area input[type="search"],
+.controls-area input[type="date"]{
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background-color: var(--input-bg-color);
+  color: var(--input-text-color);
+  outline: none;
+  transition: box-shadow .15s, border-color .15s;
+  min-width: 0; /* evita desbordes en móvil */
+}
+.controls-area input[type="search"]{
+  flex: 1 1 320px;
+  min-width: 220px;
+}
+.controls-area input[type="date"]{
+  flex: 0 0 170px;
 }
 
-.tab-btn:hover {
-    background-color: var(--input-bg-color);
-    color: var(--text-color);
+.controls-area input[type="search"]:focus,
+.controls-area input[type="date"]:focus{
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent);
 }
 
-.tab-btn.active {
-    background-color: var(--primary-color);
-    color: white;
-    font-weight: bold;
+/* Placeholder tenue */
+.controls-area input::placeholder {
+  color: color-mix(in srgb, var(--input-text-color) 50%, transparent);
 }
 
-.tab-content {
-    display: none; /* Ocultamos las pestañas inactivas */
+/* Botón export con misma altura/cápsula */
+.btn-export{
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background-color: var(--success-color);
+  color: #fff;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color .2s;
+}
+.btn-export:hover { background-color: #1f7b34; }
+html.dark-mode .btn-export:hover { background-color: #1a5d2a; }
+
+/* Coherencia en dark: evita blanco nativo y ajusta iconos */
+html.dark-mode .controls-area input[type="search"],
+html.dark-mode .controls-area input[type="date"]{
+  background-color: var(--input-bg-color) !important;
+  color: var(--input-text-color) !important;
+  border-color: var(--border-color) !important;
+}
+html.dark-mode input[type="date"]::-webkit-calendar-picker-indicator,
+html.dark-mode input[type="search"]::-webkit-search-cancel-button{
+  filter: invert(1) brightness(0.9);
 }
 
-.tab-content.active {
-    display: block; /* Mostramos solo la pestaña activa */
-}
-
-
-/* --- 2. Barra de Controles (Búsqueda, Filtros, Exportar) --- */
-.controls-area {
-    display: flex;
-    flex-wrap: wrap; /* Permite que los elementos se apilen en pantallas pequeñas */
-    gap: 15px;
-    margin-bottom: 25px;
-    padding: 20px;
-    background-color: var(--card-bg-color);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px var(--shadow-color);
-}
-
-.controls-area input[type="search"] {
-    flex-grow: 1; /* Hace que la barra de búsqueda ocupe el espacio disponible */
-    min-width: 250px; /* Ancho mínimo para que no se comprima demasiado */
-}
-
-.controls-area input[type="date"] {
-    min-width: 150px;
-}
-
-.btn-export {
-    padding: 10px 20px;
-    background-color: var(--success-color);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.btn-export:hover {
-    background-color: #1f7b34;
-}
-
-html.dark-mode .btn-export:hover {
-    background-color: #1a5d2a;
+/* MÓVIL: grilla limpia -> search arriba; fechas lado a lado; export abajo full */
+@media (max-width: 520px) {
+  .controls-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    border-radius: 16px; /* menos exagerado en móvil */
+  }
+  .controls-area input[type="search"] { grid-column: 1 / -1; width: 100%; }
+  #date-start-visitantes, #date-end-visitantes,
+  #date-start-descartes,  #date-end-descartes  { width: 100%; }
+  .controls-area .btn-export { grid-column: 1 / -1; width: 100%; }
 }
 
 
-/* --- 3. Estilos de la Tabla --- */
+/* --- 3) Estilos de la Tabla --- */
 .table-container {
-    overflow-x: auto; /* Permite el desplazamiento horizontal en pantallas pequeñas */
-    background-color: var(--card-bg-color);
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px var(--shadow-color);
+  overflow-x: auto;
+  background-color: var(--card-bg-color);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 #table-visitantes,
 #table-descartes {
-    width: 100%;
-    border-collapse: collapse;
+  width: 100%;
+  border-collapse: collapse;
 }
 
 #table-visitantes th, #table-visitantes td,
 #table-descartes th, #table-descartes td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid var(--input-bg-color);
-    white-space: nowrap;
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--input-bg-color);
+  white-space: nowrap;
 }
 
 #table-visitantes th,
 #table-descartes th {
-    background-color: var(--input-bg-color);
-    font-size: 0.9rem;
-    font-weight: bold;
+  background-color: var(--input-bg-color);
+  font-size: 0.9rem;
+  font-weight: bold;
 }
 
 #table-visitantes tbody tr:hover,
 #table-descartes tbody tr:hover {
-    background-color: color-mix(in srgb, var(--primary-color) 8%, transparent);
+  background-color: color-mix(in srgb, var(--primary-color) 8%, transparent);
 }
 
+/* Acciones como chips */
 .table-actions {
-    display: flex;
-    gap: 8px;
+  display: flex;
+  gap: 8px;
 }
-
-.table-actions button {
-    border: none;
-    padding: 6px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    color: white;
-    font-size: 0.85rem;
-    transition: opacity 0.2s;
-}
-
-.table-actions button:hover {
-    opacity: 0.85;
-}
-
-
-/* --- 4. Estilos para el Modal de Ver Equipos --- */
-#modal-equipos-title {
-    margin-bottom: 20px;
-}
-
-.modal-list-container {
-    max-height: 60vh; /* Límite de altura para el contenedor de la lista */
-    overflow-y: auto;   /* Activa el scroll vertical si la lista es muy larga */
-    text-align: left;
-    padding-right: 15px;
-    margin-right: -15px;
-}
-
-.equipo-item {
-    padding: 10px;
-    border-bottom: 1px solid var(--input-bg-color);
-}
-
-.equipo-item:last-child {
-    border-bottom: none;
-}
-
-.equipo-item strong {
-    color: var(--primary-color);
-}
-
-
-/* --- 5. Media Queries para Escritorio --- */
-@media (min-width: 992px) {
-    .container {
-        max-width: 1200px; /* Hacemos el contenedor aún más ancho en pantallas grandes */
-    }
-}
-
-/* Chips de acción consistentes en tablas */
 .table-actions button,
 .btn-view-equipos,
 .btn-eliminar-sesion,
@@ -197,133 +188,39 @@ html.dark-mode .btn-export:hover {
   color: #fff;
   box-shadow: 0 2px 6px var(--shadow-color);
 }
-
 /* variantes */
-.btn-editar         { background-color: #4B5563; }           /* slate */
+.btn-editar         { background-color: #4B5563; }
 .btn-editar:hover   { background-color: #374151; }
-
 .btn-eliminar,
 .btn-eliminar-sesion { background-color: var(--error-color); }
 .btn-eliminar:hover,
 .btn-eliminar-sesion:hover { background-color: #b02a37; }
-
 .btn-view-equipos   { background-color: var(--primary-color); }
 .btn-view-equipos:hover { background-color: var(--primary-hover-color); }
-
-/* fallback si vinieran sin clase específica */
+/* fallback */
 .table-actions button:not(.btn-editar):not(.btn-eliminar):not(.btn-view-equipos):not(.btn-eliminar-sesion){
   background-color: var(--primary-color);
 }
 
-/* Controles con look de cápsula */
-.controls-area {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  padding: 14px;
-  background-color: var(--card-bg-color);
-  border-radius: 999px;
-  box-shadow: 0 2px 10px var(--shadow-color);
-}
 
-/* inputs de la barra */
-.controls-area input[type="search"],
-.controls-area input[type="date"]{
-  height: 42px;
-  padding: 0 14px;
-  border: 1px solid var(--border-color);
-  border-radius: 999px;
-  background-color: var(--input-bg-color);
-  color: var(--input-text-color);
-  outline: none;
-  transition: box-shadow .15s, border-color .15s;
+/* --- 4) Modal “Ver Equipos” --- */
+#modal-equipos-title { margin-bottom: 20px; }
+.modal-list-container {
+  max-height: 60vh;
+  overflow-y: auto;
+  text-align: left;
+  padding-right: 15px;
+  margin-right: -15px;
 }
+.equipo-item {
+  padding: 10px;
+  border-bottom: 1px solid var(--input-bg-color);
+}
+.equipo-item:last-child { border-bottom: none; }
+.equipo-item strong { color: var(--primary-color); }
 
-.controls-area input[type="search"]{
-  flex: 1 1 320px;
-  min-width: 220px;
-}
 
-.controls-area input[type="date"]{
-  width: 170px;
-}
-
-/* enfoque */
-.controls-area input[type="search"]:focus,
-.controls-area input[type="date"]:focus{
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent);
-}
-
-/* coherencia en dark: evita blanco nativo */
-html.dark-mode .controls-area input[type="search"],
-html.dark-mode .controls-area input[type="date"]{
-  background-color: var(--input-bg-color) !important;
-  color: var(--input-text-color) !important;
-  border-color: var(--border-color) !important;
-}
-html.dark-mode input[type="date"]::-webkit-calendar-picker-indicator,
-html.dark-mode input[type="search"]::-webkit-search-cancel-button{
-  filter: invert(1) brightness(0.9);
-}
-
-/* botón export igual altura/cápsula */
-.btn-export{
-  height: 42px;
-  padding: 0 16px;
-  border-radius: 999px;
-  font-weight: 700;
-}
-
-/* Estilo coherente de inputs dentro de los controles (por si no lo tenías ya) */
-.controls-area input[type="search"],
-.controls-area input[type="date"] {
-  height: 42px;
-  padding: 0 14px;
-  border: 1px solid var(--border-color);
-  border-radius: 999px;
-  background-color: var(--input-bg-color);
-  color: var(--input-text-color);
-  outline: none;
-  transition: box-shadow .15s, border-color .15s;
-  min-width: 0;                 /* evita desbordes en móvil */
-}
-
-/* Desktop/tablet: busca crece, fechas tamaño fijo cómodo */
-.controls-area input[type="search"] { flex: 1 1 320px; min-width: 220px; }
-.controls-area input[type="date"]   { flex: 0 0 170px; }
-
-/* Botón export cápsula y misma altura */
-.controls-area .btn-export {
-  height: 42px;
-  padding: 0 16px;
-  border-radius: 999px;
-  font-weight: 700;
-}
-
-/* MÓVIL: grilla limpia -> search arriba; fechas lado a lado; export abajo full */
-@media (max-width: 520px) {
-  .controls-area {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    border-radius: 16px;                  /* menos exagerado en móvil */
-  }
-  .controls-area input[type="search"] { grid-column: 1 / -1; width: 100%; }
-  #date-start-visitantes, #date-end-visitantes,
-  #date-start-descartes,  #date-end-descartes  { width: 100%; }
-  .controls-area .btn-export { grid-column: 1 / -1; width: 100%; }
-}
-
-/* Dark: evita “píldora blanca” y ajusta iconos nativos */
-html.dark-mode .controls-area input[type="date"],
-html.dark-mode .controls-area input[type="search"]{
-  background-color: var(--input-bg-color) !important;
-  color: var(--input-text-color) !important;
-  border-color: var(--border-color) !important;
-}
-html.dark-mode input[type="date"]::-webkit-calendar-picker-indicator,
-html.dark-mode input[type="search"]::-webkit-search-cancel-button {
-  filter: invert(1) brightness(0.9);
+/* --- 5) Media Queries para Escritorio --- */
+@media (min-width: 992px) {
+  .container { max-width: 1200px; }
 }
