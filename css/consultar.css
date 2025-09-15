@@ -1,0 +1,173 @@
+/* --- 1. Estructura Principal y Pestañas --- */
+.container {
+    max-width: 100%; /* Hacemos el contenedor más ancho para las tablas */
+}
+
+.tabs-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    border-bottom: 2px solid var(--input-bg-color);
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    border: none;
+    background-color: transparent;
+    color: var(--border-color);
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 8px 8px 0 0;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.tab-btn:hover {
+    background-color: var(--input-bg-color);
+    color: var(--text-color);
+}
+
+.tab-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: bold;
+}
+
+.tab-content {
+    display: none; /* Ocultamos las pestañas inactivas */
+}
+
+.tab-content.active {
+    display: block; /* Mostramos solo la pestaña activa */
+}
+
+
+/* --- 2. Barra de Controles (Búsqueda, Filtros, Exportar) --- */
+.controls-area {
+    display: flex;
+    flex-wrap: wrap; /* Permite que los elementos se apilen en pantallas pequeñas */
+    gap: 15px;
+    margin-bottom: 25px;
+    padding: 20px;
+    background-color: var(--card-bg-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.controls-area input[type="search"] {
+    flex-grow: 1; /* Hace que la barra de búsqueda ocupe el espacio disponible */
+    min-width: 250px; /* Ancho mínimo para que no se comprima demasiado */
+}
+
+.controls-area input[type="date"] {
+    min-width: 150px;
+}
+
+.btn-export {
+    padding: 10px 20px;
+    background-color: var(--success-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-export:hover {
+    background-color: #1f7b34;
+}
+
+html.dark-mode .btn-export:hover {
+    background-color: #1a5d2a;
+}
+
+
+/* --- 3. Estilos de la Tabla --- */
+.table-container {
+    overflow-x: auto; /* Permite el desplazamiento horizontal en pantallas pequeñas */
+    background-color: var(--card-bg-color);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+#table-visitantes,
+#table-descartes {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#table-visitantes th, #table-visitantes td,
+#table-descartes th, #table-descartes td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--input-bg-color);
+    white-space: nowrap;
+}
+
+#table-visitantes th,
+#table-descartes th {
+    background-color: var(--input-bg-color);
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+#table-visitantes tbody tr:hover,
+#table-descartes tbody tr:hover {
+    background-color: color-mix(in srgb, var(--primary-color) 8%, transparent);
+}
+
+.table-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.table-actions button {
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    font-size: 0.85rem;
+    transition: opacity 0.2s;
+}
+
+.table-actions button:hover {
+    opacity: 0.85;
+}
+
+
+/* --- 4. Estilos para el Modal de Ver Equipos --- */
+#modal-equipos-title {
+    margin-bottom: 20px;
+}
+
+.modal-list-container {
+    max-height: 60vh; /* Límite de altura para el contenedor de la lista */
+    overflow-y: auto;   /* Activa el scroll vertical si la lista es muy larga */
+    text-align: left;
+    padding-right: 15px;
+    margin-right: -15px;
+}
+
+.equipo-item {
+    padding: 10px;
+    border-bottom: 1px solid var(--input-bg-color);
+}
+
+.equipo-item:last-child {
+    border-bottom: none;
+}
+
+.equipo-item strong {
+    color: var(--primary-color);
+}
+
+
+/* --- 5. Media Queries para Escritorio --- */
+@media (min-width: 992px) {
+    .container {
+        max-width: 1200px; /* Hacemos el contenedor aún más ancho en pantallas grandes */
+    }
+}
