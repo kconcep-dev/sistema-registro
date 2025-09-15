@@ -4,11 +4,15 @@
 }
 
 .tabs-nav {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 25px;
-    border-bottom: 2px solid var(--input-bg-color);
-    justify-content: center;
+  display: flex;
+  justify-content: center;         /* centrado */
+  gap: 10px;
+  margin-bottom: 25px;
+  padding: 8px;                    /* relleno para la cápsula */
+  background-color: var(--card-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;            /* cápsula */
+  box-shadow: 0 2px 10px var(--shadow-color);
 }
 
 .tab-btn {
@@ -270,4 +274,56 @@ html.dark-mode input[type="search"]::-webkit-search-cancel-button{
   padding: 0 16px;
   border-radius: 999px;
   font-weight: 700;
+}
+
+/* Estilo coherente de inputs dentro de los controles (por si no lo tenías ya) */
+.controls-area input[type="search"],
+.controls-area input[type="date"] {
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background-color: var(--input-bg-color);
+  color: var(--input-text-color);
+  outline: none;
+  transition: box-shadow .15s, border-color .15s;
+  min-width: 0;                 /* evita desbordes en móvil */
+}
+
+/* Desktop/tablet: busca crece, fechas tamaño fijo cómodo */
+.controls-area input[type="search"] { flex: 1 1 320px; min-width: 220px; }
+.controls-area input[type="date"]   { flex: 0 0 170px; }
+
+/* Botón export cápsula y misma altura */
+.controls-area .btn-export {
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+/* MÓVIL: grilla limpia -> search arriba; fechas lado a lado; export abajo full */
+@media (max-width: 520px) {
+  .controls-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    border-radius: 16px;                  /* menos exagerado en móvil */
+  }
+  .controls-area input[type="search"] { grid-column: 1 / -1; width: 100%; }
+  #date-start-visitantes, #date-end-visitantes,
+  #date-start-descartes,  #date-end-descartes  { width: 100%; }
+  .controls-area .btn-export { grid-column: 1 / -1; width: 100%; }
+}
+
+/* Dark: evita “píldora blanca” y ajusta iconos nativos */
+html.dark-mode .controls-area input[type="date"],
+html.dark-mode .controls-area input[type="search"]{
+  background-color: var(--input-bg-color) !important;
+  color: var(--input-text-color) !important;
+  border-color: var(--border-color) !important;
+}
+html.dark-mode input[type="date"]::-webkit-calendar-picker-indicator,
+html.dark-mode input[type="search"]::-webkit-search-cancel-button {
+  filter: invert(1) brightness(0.9);
 }
