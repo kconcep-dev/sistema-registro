@@ -334,10 +334,10 @@ html.dark-mode select option:checked {
 
 /* 5) Ruta del ícono según tema */
 :root {
-  --calendar-icon: url("../assets/images/icono-calendario-light.png");
+  --calendar-icon: url("../assets/images/icono-calendario-dark.png");
 }
 html.dark-mode {
-  --calendar-icon: url("../assets/images/icono-calendario-dark.png");
+  --calendar-icon: url("../assets/images/icono-calendario-light.png");
 }
 
 /* 6) Coherencia en modo oscuro (ya tienes reglas, reforzamos) */
