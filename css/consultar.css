@@ -335,10 +335,10 @@ html.dark-mode select option:checked {
 /* 5) Ruta del ícono según tema */
 /* Cambia .svg por .png si tus archivos son PNG */
 :root {
-  --calendar-icon: url("assets/images/icono-calendario-light.svg");
+  --calendar-icon: url("assets/images/icono-calendario-light.png");
 }
 html.dark-mode {
-  --calendar-icon: url("assets/images/icono-calendario-dark.svg");
+  --calendar-icon: url("assets/images/icono-calendario-dark.png");
 }
 
 /* 6) Coherencia en modo oscuro (ya tienes reglas, reforzamos) */
