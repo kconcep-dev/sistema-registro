@@ -646,44 +646,48 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('loader').style.display = 'none';
   document.getElementById('main-content').style.display = 'flex';
 
-  // --- Activar apertura del datepicker al hacer clic en el ícono/wrapper ---
-document.querySelectorAll('.date-field input[type="date"]').forEach((input) => {
-  const wrapper = input.parentElement;
+  // --- 8) Calendario: inyectar botón trigger y abrir datepicker ---
+  // (Reemplaza por completo cualquier intento anterior con wrapper)
+  document.querySelectorAll('.date-field').forEach((wrapper) => {
+    const input = wrapper.querySelector('input[type="date"]');
+    if (!input) return;
 
-  // función robusta para abrir el selector
-  const openPicker = () => {
-    // Chromium/Edge: soporta showPicker()
-    if (typeof input.showPicker === 'function') {
-      input.showPicker();
-      return;
+    // Crea el botón si no existe
+    let btn = wrapper.querySelector('.date-trigger');
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'date-trigger';
+      btn.setAttribute('aria-label', input.title || 'Abrir calendario');
+      wrapper.appendChild(btn);
     }
-    // Fallbacks: intentos razonables según navegador
-    try { input.focus(); } catch (_) {}
-    try { input.click(); } catch (_) {}
-    // En navegadores que no exponen showPicker (p.ej. Firefox),
-    // el foco permite teclear o abrir con otro clic.
-  };
 
-  // clic en cualquier parte del wrapper (incluye el ícono ::after)
-  wrapper.addEventListener('click', (e) => {
-    // si ya clickeó directamente el <input>, deja el comportamiento normal
-    if (e.target === input) return;
-    e.preventDefault();
-    openPicker();
-  });
-
-  // accesibilidad: abrir con Enter/Espacio al enfocar el wrapper (opcional)
-  // hace al wrapper "focusable" sin alterar el tabbing si no quieres
-  if (!wrapper.hasAttribute('tabindex')) {
-    wrapper.setAttribute('tabindex', '0');
-    wrapper.setAttribute('role', 'button');
-    wrapper.setAttribute('aria-label', input.title || 'Abrir selector de fecha');
-    wrapper.addEventListener('keydown', (ev) => {
-      if (ev.key === 'Enter' || ev.key === ' ') {
-        ev.preventDefault();
-        openPicker();
+    const openPicker = () => {
+      if (typeof input.showPicker === 'function') {
+        input.showPicker(); // Chrome/Edge
+      } else {
+        try { input.focus(); } catch (_) {}
+        try { input.click(); } catch (_) {}
+        // Safari/Firefox: abre selector del sistema o permite teclear.
       }
+    };
+
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openPicker();
     });
-  }
-});
+
+    // Opcional: permitir Enter/Espacio en el wrapper
+    if (!wrapper.hasAttribute('tabindex')) {
+      wrapper.setAttribute('tabindex', '0');
+      wrapper.setAttribute('role', 'button');
+      wrapper.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter' || ev.key === ' ') {
+          ev.preventDefault();
+          openPicker();
+        }
+      });
+    }
+  });
 });

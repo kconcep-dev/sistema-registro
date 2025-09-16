@@ -43,7 +43,6 @@ html.dark-mode .tabs-nav{
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 
-
 /* --- 2) Barra de Controles (Búsqueda, Filtros, Exportar) --- */
 .controls-area {
   display: flex;
@@ -131,7 +130,6 @@ html.dark-mode input[type="search"]::-webkit-search-cancel-button{
   .controls-area .btn-export { grid-column: 1 / -1; width: 100%; }
 }
 
-
 /* --- 3) Estilos de la Tabla --- */
 .table-container {
   overflow-x: auto;
@@ -209,7 +207,6 @@ html.dark-mode input[type="search"]::-webkit-search-cancel-button{
   background-color: var(--primary-color);
 }
 
-
 /* --- 4) Detalle de Sesión --- */
 .detalle-header {
   background-color: var(--card-bg-color);
@@ -285,14 +282,14 @@ html.dark-mode select option:checked {
 }
 
 /* ================================
-   Calendario custom (light/dark)
+   Calendario custom con botón
    ================================ */
 
 /* 1) Wrapper para inputs de fecha */
 .controls-area .date-field {
   position: relative;
   display: inline-block;
-  flex: 0 0 170px;        /* mismo ancho que dabas a los <input type="date"> */
+  flex: 0 0 170px; /* mismo ancho que dabas al date */
 }
 
 /* 2) El input ocupa todo el wrapper y deja espacio al ícono */
@@ -300,7 +297,7 @@ html.dark-mode select option:checked {
   width: 100%;
   height: 42px;
   padding: 0 14px;
-  padding-right: 2.5rem;  /* espacio para el ícono */
+  padding-right: 2.5rem;  /* espacio para el botón-ícono */
   border: 1px solid var(--border-color);
   border-radius: 999px;
   background-color: var(--input-bg-color);
@@ -316,23 +313,29 @@ html.dark-mode select option:checked {
   pointer-events: none;
 }
 
-/* 4) Ícono custom (usa variables para light/dark) */
-.controls-area .date-field::after {
-  content: "";
+/* 4) Botón trigger real (recibe clics) */
+.date-trigger {
   position: absolute;
   top: 50%;
   right: 12px;
   transform: translateY(-50%);
-  width: 20px;                 /* tamaño visible del ícono */
+  width: 20px;
   height: 20px;
+  border: none;
+  padding: 0;
+  background: transparent;
+  background-image: var(--calendar-icon); /* variable según tema */
   background-repeat: no-repeat;
   background-size: contain;
-  background-image: var(--calendar-icon);
-  pointer-events: none;         /* no bloquea el click en el input */
-  opacity: 0.95;
+  cursor: pointer;
+  z-index: 1;
+}
+.date-trigger:focus-visible {
+  outline: 2px solid var(--primary-color);
+  border-radius: 4px;
 }
 
-/* 5) Ruta del ícono según tema */
+/* 5) Rutas del ícono según tema (invertidas: claro usa ícono oscuro) */
 :root {
   --calendar-icon: url("../assets/images/icono-calendario-dark.png");
 }
@@ -340,7 +343,7 @@ html.dark-mode {
   --calendar-icon: url("../assets/images/icono-calendario-light.png");
 }
 
-/* 6) Coherencia en modo oscuro (ya tienes reglas, reforzamos) */
+/* 6) Coherencia en dark */
 html.dark-mode .controls-area .date-field input[type="date"] {
   background-color: var(--input-bg-color) !important;
   color: var(--input-text-color) !important;
@@ -348,11 +351,8 @@ html.dark-mode .controls-area .date-field input[type="date"] {
   color-scheme: dark; /* ayuda a algunos UAs */
 }
 
-/* 7) Responsive: en móvil que ocupen 100% como antes */
-@media (max-width: 520px)
-
-/* hacer clic en toda el área, incluido el ícono */
-.controls-area .date-field,
-.controls-area .date-field::after {
-  cursor: pointer;
+/* 7) Responsive: en móvil que ocupen 100% */
+@media (max-width: 520px) {
+  .controls-area .date-field { width: 100%; }
+  .controls-area .date-field input[type="date"] { width: 100%; }
 }
