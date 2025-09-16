@@ -1,4 +1,4 @@
-// js/consultar.js — compatible con/ sin vista de detalle y sin modal editar equipo
+// js/consultar.js — vista sesiones + detalle sesiones (equipos) + visitantes
 
 document.addEventListener('DOMContentLoaded', async () => {
   // --- 0) Protección de ruta y carga inicial ---
@@ -13,37 +13,41 @@ document.addEventListener('DOMContentLoaded', async () => {
   const tabContents = document.querySelectorAll('.tab-content');
 
   // Visitantes
-  const searchVisitantesInput   = document.getElementById('search-visitantes');
-  const dateStartVisitantesInput= document.getElementById('date-start-visitantes');
-  const dateEndVisitantesInput  = document.getElementById('date-end-visitantes');
-  const exportVisitantesBtn     = document.getElementById('export-visitantes-btn');
-  const tableVisitantesBody     = document.querySelector('#table-visitantes tbody');
+  const searchVisitantesInput    = document.getElementById('search-visitantes');
+  const dateStartVisitantesInput = document.getElementById('date-start-visitantes');
+  const dateEndVisitantesInput   = document.getElementById('date-end-visitantes');
+  const exportVisitantesBtn      = document.getElementById('export-visitantes-btn');
+  const tableVisitantesBody      = document.querySelector('#table-visitantes tbody');
 
   // Sesiones (lista)
-  const searchDescartesInput    = document.getElementById('search-descartes');
-  const dateStartDescartesInput = document.getElementById('date-start-descartes');
-  const dateEndDescartesInput   = document.getElementById('date-end-descartes');
-  const exportDescartesBtn      = document.getElementById('export-descartes-btn');
-  const tableDescartesBody      = document.querySelector('#table-descartes tbody');
+  const searchDescartesInput     = document.getElementById('search-descartes');
+  const dateStartDescartesInput  = document.getElementById('date-start-descartes');
+  const dateEndDescartesInput    = document.getElementById('date-end-descartes');
+  const exportDescartesBtn       = document.getElementById('export-descartes-btn');
+  const tableDescartesBody       = document.querySelector('#table-descartes tbody');
 
-  // Vista detalle de sesión (puede no existir aún en tu HTML)
-  const detalleSection          = document.getElementById('detalle-sesion-content');
-  const btnVolverSesiones       = document.getElementById('btn-volver-sesiones');
-  const detalleUnidad           = document.getElementById('detalle-unidad');
-  const detalleSiace            = document.getElementById('detalle-siace');
-  const detalleFecha            = document.getElementById('detalle-fecha');
-  const detalleTecnico          = document.getElementById('detalle-tecnico');
-  const detalleObservacion      = document.getElementById('detalle-observacion');
-  const searchEquiposInput      = document.getElementById('search-equipos-sesion');
-  const tableEquiposBody        = document.querySelector('#table-equipos-sesion tbody');
+  // Vista detalle de sesión (según tu HTML)
+  const sesionesListaSection     = document.getElementById('sesiones-lista');
+  const sesionDetalleSection     = document.getElementById('sesion-detalle');
+  const btnVolverSesiones        = document.getElementById('btn-volver-sesiones');
+  const detalleTitulo            = document.getElementById('detalle-titulo');
+  const detalleUnidad            = document.getElementById('detalle-unidad');
+  const detalleSiace             = document.getElementById('detalle-siace');
+  const detalleFecha             = document.getElementById('detalle-fecha');
+  const detalleTecnico           = document.getElementById('detalle-tecnico');
+  const detalleObservacion       = document.getElementById('detalle-observacion');
+  const searchEquiposInput       = document.getElementById('search-equipos');
+  const tableEquiposSesionBody   = document.querySelector('#table-equipos-sesion tbody');
 
-  // Modales
-  const modalEditarVisitante    = document.getElementById('modal-editar-visitante');
-  const formEditarVisitante     = document.getElementById('form-editar-visitante');
+  // Modales visitantes
+  const modalEditarVisitante     = document.getElementById('modal-editar-visitante');
+  const formEditarVisitante      = document.getElementById('form-editar-visitante');
 
-  // Modal editar equipo (puede no existir aún)
-  const modalEditarEquipo       = document.getElementById('modal-editar-equipo');
-  const formEditarEquipo        = document.getElementById('form-editar-equipo');
+  // Modal editar equipo (ids `editq-*` en tu HTML)
+  const modalEditarEquipo        = document.getElementById('modal-editar-equipo');
+  const formEditarEquipo         = document.getElementById('form-editar-equipo');
+  const btnCerrarModalEditarEq   = document.getElementById('btn-cerrar-modal-editar-equipo');
+  const btnCancelarEditarEq      = document.getElementById('btn-editar-equipo-cancelar');
 
   // Toast
   const toastEl        = document.getElementById('toast-notification');
@@ -90,12 +94,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }).format(date);
   }
 
-  function showSection(sectionIdToShow) {
-    tabContents.forEach(c => c.classList.remove('active'));
-    const toShow = document.getElementById(sectionIdToShow);
-    if (toShow) toShow.classList.add('active');
-  }
-
   // --- 4) Datos y render ---
 
   // Visitantes
@@ -126,7 +124,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function renderVisitantesTable(data) {
-    if (!tableVisitantesBody) return; // si no existe la tabla, salimos
+    if (!tableVisitantesBody) return;
     tableVisitantesBody.innerHTML = '';
     if (!data.length) {
       tableVisitantesBody.innerHTML = '<tr><td colspan="7">No se encontraron registros.</td></tr>';
@@ -150,7 +148,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Sesiones
+  // Sesiones (lista)
   async function fetchDescartes() {
     const searchTerm = searchDescartesInput?.value.trim() || '';
     const startDate  = dateStartDescartesInput?.value || '';
@@ -181,7 +179,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!tableDescartesBody) return;
     tableDescartesBody.innerHTML = '';
     if (!data.length) {
-      tableDescartesBody.innerHTML = '<tr><td colspan="6">No se encontraron sesiones.</td></tr>';
+      tableDescartesBody.innerHTML = '<tr><td colspan="7">No se encontraron sesiones.</td></tr>';
       return;
     }
     data.forEach(session => {
@@ -203,7 +201,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Equipos por sesión (solo se usa si existe la vista detalle)
+  // Equipos por sesión
   async function fetchEquiposBySession(sessionId, searchTerm = '') {
     let query = supabaseClient
       .from('equipos_descartados')
@@ -214,7 +212,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (searchTerm) {
       const t = searchTerm;
       query = query.or(
-        `descripcion.ilike.%${t}%,marbete.ilike.%${t}%,serie.ilike.%${t}%,marca.ilike.%${t}%,modelo.ilike.%${t}%,estado_equipo.ilike.%${t}%,motivo_descarte.ilike.%${t}%`
+        [
+          `descripcion.ilike.%${t}%`,
+          `marbete.ilike.%${t}%`,
+          `serie.ilike.%${t}%`,
+          `marca.ilike.%${t}%`,
+          `modelo.ilike.%${t}%`,
+          `estado_equipo.ilike.%${t}%`,
+          `motivo_descarte.ilike.%${t}%`
+        ].join(',')
       );
     }
 
@@ -228,15 +234,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function renderEquiposTable(equipos) {
-    if (!tableEquiposBody) return;
-    tableEquiposBody.innerHTML = '';
+    if (!tableEquiposSesionBody) return;
+    tableEquiposSesionBody.innerHTML = '';
     if (!equipos.length) {
-      tableEquiposBody.innerHTML = '<tr><td colspan="8">No hay equipos en esta sesión.</td></tr>';
+      tableEquiposSesionBody.innerHTML = '<tr><td colspan="9">No hay equipos en esta sesión.</td></tr>';
       return;
     }
-    equipos.forEach(eq => {
+    equipos.forEach((eq, i) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
+        <td>${i + 1}</td>
         <td>${eq.descripcion || '-'}</td>
         <td>${eq.marbete || '-'}</td>
         <td>${eq.serie || '-'}</td>
@@ -249,17 +256,16 @@ document.addEventListener('DOMContentLoaded', async () => {
           <button class="btn-eliminar" data-id="${eq.id}">Eliminar</button>
         </td>
       `;
-      tableEquiposBody.appendChild(tr);
+      tableEquiposSesionBody.appendChild(tr);
     });
   }
 
   async function openSessionDetail(sessionId) {
-    if (!detalleSection) return; // si no existe la vista detalle, no intentamos abrir
     currentSessionId = sessionId;
 
     const { data: sesion, error } = await supabaseClient
       .from('descartes_sesiones')
-      .select('unidad_administrativa, codigo_siace, fecha, tecnico_encargado, observacion')
+      .select('id, unidad_administrativa, codigo_siace, fecha, tecnico_encargado, observacion')
       .eq('id', sessionId)
       .single();
 
@@ -268,28 +274,29 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
+    if (detalleTitulo)      detalleTitulo.textContent      = `Sesión #${sesion.id}`;
     if (detalleUnidad)      detalleUnidad.textContent      = sesion.unidad_administrativa || '-';
     if (detalleSiace)       detalleSiace.textContent       = sesion.codigo_siace || '-';
     if (detalleFecha)       detalleFecha.textContent       = formatDate(sesion.fecha);
     if (detalleTecnico)     detalleTecnico.textContent     = sesion.tecnico_encargado || '-';
     if (detalleObservacion) detalleObservacion.textContent = sesion.observacion || '—';
 
-    currentEquiposData = await fetchEquiposBySession(sessionId);
-    renderEquiposTable(currentEquiposData);
+    // Cambiar vista: ocultar lista, mostrar detalle
+    if (sesionesListaSection) sesionesListaSection.style.display = 'none';
+    if (sesionDetalleSection) sesionDetalleSection.style.display = 'block';
 
-    const listado = document.getElementById('descartes-content');
-    if (listado) listado.classList.remove('active');
-    detalleSection.classList.add('active');
+    // Cargar equipos
+    const term = searchEquiposInput?.value.trim() || '';
+    currentEquiposData = await fetchEquiposBySession(sessionId, term);
+    renderEquiposTable(currentEquiposData);
   }
 
   function closeSessionDetail() {
     currentSessionId   = null;
     currentEquiposData = [];
     if (searchEquiposInput) searchEquiposInput.value = '';
-    if (!detalleSection) return;
-    detalleSection.classList.remove('active');
-    const listado = document.getElementById('descartes-content');
-    if (listado) listado.classList.add('active');
+    if (sesionDetalleSection) sesionDetalleSection.style.display = 'none';
+    if (sesionesListaSection) sesionesListaSection.style.display = 'block';
   }
 
   // --- 5) Eventos ---
@@ -303,11 +310,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       tabsNav.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       e.target.classList.add('active');
 
-      if (detalleSection?.classList.contains('active')) closeSessionDetail();
-
+      // Siempre mostrar la sección principal del tab seleccionado
       tabContents.forEach(c => {
         c.classList.toggle('active', c.id === `${tabId}-content`);
       });
+
+      // Si salimos del detalle, cerrarlo
+      closeSessionDetail();
 
       if (tabId === 'visitantes') fetchVisitantes();
       if (tabId === 'descartes') fetchDescartes();
@@ -359,8 +368,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       // Editar
       if (target.classList.contains('btn-editar')) {
-        const { data, error } = await supabaseClient.from('visitantes').select('*').eq('id', visitorId).single();
-        if (error) {
+        const { data, error } = await supabaseClient
+          .from('visitantes')
+          .select('*')
+          .eq('id', visitorId)
+          .single();
+
+        if (error || !data) {
           showToast('No se pudieron cargar los datos del visitante.', 'error');
           return;
         }
@@ -387,7 +401,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         motivo:   document.getElementById('edit-motivo').value
       };
 
-      const { error } = await supabaseClient.from('visitantes').update(updatedData).eq('id', editingVisitorId);
+      const { error } = await supabaseClient
+        .from('visitantes')
+        .update(updatedData)
+        .eq('id', editingVisitorId);
+
       if (error) {
         showToast('Error al guardar los cambios.', 'error');
       } else {
@@ -402,21 +420,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Acciones tabla sesiones (abrir/eliminar)
   if (tableDescartesBody) {
     tableDescartesBody.addEventListener('click', async (e) => {
-      const target = e.target;
-      const sessionId = target.dataset.id;
+      const btnOpen = e.target.closest('.btn-view-equipos');
+      const btnDel  = e.target.closest('.btn-eliminar-sesion');
 
-      // Abrir detalle (solo si existe vista detalle en el HTML)
-      if (target.classList.contains('btn-view-equipos')) {
-        if (detalleSection) {
-          await openSessionDetail(sessionId);
-        } else {
-          // Fallback: si no hay vista detalle aún, mostramos los equipos en consola o toast
-          showToast('La vista de detalle no está disponible en este HTML.', 'error');
-        }
+      // Abrir detalle
+      if (btnOpen) {
+        const sessionId = btnOpen.dataset.id;
+        await openSessionDetail(sessionId);
+        return;
       }
 
       // Eliminar sesión
-      if (target.classList.contains('btn-eliminar-sesion')) {
+      if (btnDel) {
+        const sessionId = btnDel.dataset.id;
         const confirmed = await window.showConfirmationModal(
           'Eliminar Sesión',
           'Esto eliminará la sesión Y TODOS los equipos asociados. ¿Estás seguro?'
@@ -448,13 +464,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // Acciones en la tabla de equipos (editar/eliminar)
-  if (tableEquiposBody) {
-    tableEquiposBody.addEventListener('click', async (e) => {
-      const target = e.target;
-      const equipoId = target.dataset.id;
+  if (tableEquiposSesionBody) {
+    tableEquiposSesionBody.addEventListener('click', async (e) => {
+      const btnEdit = e.target.closest('.btn-editar');
+      const btnDel  = e.target.closest('.btn-eliminar');
 
       // Eliminar equipo
-      if (target.classList.contains('btn-eliminar')) {
+      if (btnDel) {
+        const equipoId = btnDel.dataset.id;
         const confirmed = await window.showConfirmationModal(
           'Eliminar Equipo',
           '¿Deseas eliminar este equipo del descarte?'
@@ -472,8 +489,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       }
 
-      // Editar equipo (solo si existe modal)
-      if (target.classList.contains('btn-editar')) {
+      // Editar equipo
+      if (btnEdit) {
+        const equipoId = btnEdit.dataset.id;
         const { data, error } = await supabaseClient
           .from('equipos_descartados')
           .select('*')
@@ -487,37 +505,37 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         editingEquipoId = data.id;
 
-        // Si no hay modal en el HTML, avisamos y salimos
         if (!modalEditarEquipo || !formEditarEquipo) {
           showToast('El modal de edición de equipo no está disponible en este HTML.', 'error');
           return;
         }
 
-        document.getElementById('edit-descripcion')?.setAttribute('value', data.descripcion || '');
-        document.getElementById('edit-descripcion').value     = data.descripcion || '';
-        document.getElementById('edit-marbete').value         = data.marbete || '';
-        document.getElementById('edit-serie').value           = data.serie || '';
-        document.getElementById('edit-marca').value           = data.marca || '';
-        document.getElementById('edit-modelo').value          = data.modelo || '';
-        document.getElementById('edit-estado_equipo').value   = data.estado_equipo || '';
-        document.getElementById('edit-motivo_descarte').value = data.motivo_descarte || '';
+        // Rellenar campos (ids editq-*)
+        document.getElementById('editq-descripcion').value   = data.descripcion || '';
+        document.getElementById('editq-marbete').value       = data.marbete || '';
+        document.getElementById('editq-serie').value         = data.serie || '';
+        document.getElementById('editq-marca').value         = data.marca || '';
+        document.getElementById('editq-modelo').value        = data.modelo || '';
+        document.getElementById('editq-estado').value        = data.estado_equipo || '';
+        document.getElementById('editq-motivo').value        = data.motivo_descarte || '';
+
         modalEditarEquipo.classList.add('visible');
       }
     });
   }
 
-  // Guardar cambios (modal editar equipo) — solo si existe
+  // Guardar cambios (modal editar equipo)
   if (formEditarEquipo) {
     formEditarEquipo.addEventListener('submit', async (e) => {
       e.preventDefault();
       const payload = {
-        descripcion:     document.getElementById('edit-descripcion').value.trim(),
-        marbete:         document.getElementById('edit-marbete').value.trim(),
-        serie:           document.getElementById('edit-serie').value.trim(),
-        marca:           document.getElementById('edit-marca').value.trim(),
-        modelo:          document.getElementById('edit-modelo').value.trim(),
-        estado_equipo:   document.getElementById('edit-estado_equipo').value.trim(),
-        motivo_descarte: document.getElementById('edit-motivo_descarte').value.trim(),
+        descripcion:     document.getElementById('editq-descripcion').value.trim(),
+        marbete:         document.getElementById('editq-marbete').value.trim(),
+        serie:           document.getElementById('editq-serie').value.trim(),
+        marca:           document.getElementById('editq-marca').value.trim(),
+        modelo:          document.getElementById('editq-modelo').value.trim(),
+        estado_equipo:   document.getElementById('editq-estado').value.trim(),
+        motivo_descarte: document.getElementById('editq-motivo').value.trim(),
       };
 
       const { error } = await supabaseClient
@@ -538,7 +556,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Cerrar modales genéricos (click fuera / X / cancelar)
+  // Cerrar modal editar equipo (X / Cancelar / overlay)
+  if (btnCerrarModalEditarEq) {
+    btnCerrarModalEditarEq.addEventListener('click', () => modalEditarEquipo?.classList.remove('visible'));
+  }
+  if (btnCancelarEditarEq) {
+    btnCancelarEditarEq.addEventListener('click', () => modalEditarEquipo?.classList.remove('visible'));
+  }
   document.querySelectorAll('.modal-overlay').forEach(modal => {
     modal.addEventListener('click', e => {
       if (
@@ -551,7 +575,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // Volver desde detalle (si existe)
+  // Volver desde detalle
   if (btnVolverSesiones) {
     btnVolverSesiones.addEventListener('click', () => {
       closeSessionDetail();
