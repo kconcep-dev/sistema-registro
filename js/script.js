@@ -1,341 +1,369 @@
 // js/script.js
 
+// --- Helpers de fecha/hora en zona 'America/Panama' ---
+function getLocalPaDateISO() {
+  // Devuelve 'YYYY-MM-DD' (formato en-CA) según la hora local de Panamá
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Panama' }).format(new Date());
+}
+function getLocalPaTime24h() {
+  // Devuelve 'HH:mm:ss' en 24h según la hora local de Panamá
+  const t = new Intl.DateTimeFormat('es-PA', {
+    timeZone: 'America/Panama',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).format(new Date());
+  // Algunos navegadores pueden devolver con puntos o espacios, normalizamos a HH:mm:ss
+  return t.replace(/\./g, ':').replace(/\s/g, '');
+}
+
 // --- 0. PROTECCIÓN DE RUTA INICIAL ---
 (async function checkSession() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if (!session) {
-        window.location.href = 'login.html';
-    } else {
-        document.getElementById('loader').style.display = 'none';
-        document.getElementById('main-content').style.display = 'flex';
-    }
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) {
+    window.location.href = 'login.html';
+  } else {
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('main-content').style.display = 'flex';
+  }
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 1. ELEMENTOS DEL DOM ---
-    const mainForm = document.getElementById('registro-form');
-    const mainFormInputs = mainForm.querySelectorAll('input[type="text"], select');
-    const qrCaptureInput = document.getElementById('qr-captura');
-    const qrChooseInput = document.getElementById('qr-elegir');
-    const qrFileNameDisplay = document.getElementById('qr-file-name');
-    const imageResultBox = document.getElementById('image-result-box');
-    const qrCanvasElement = document.getElementById("qr-canvas");
-    const qrCanvas = qrCanvasElement.getContext("2d");
-    const btnScanLive = document.getElementById('btn-scan-live');
-    const scanbotResultBox = document.getElementById('scanbot-result-box');
-    const modalRegistro = document.getElementById('modal-registro-qr');
-    const modalForm = document.getElementById('modal-form-registro');
-    const btnCerrarModal = document.getElementById('btn-cerrar-modal-registro');
-    const btnCancelarModal = document.getElementById('btn-cancelar-modal-registro');
-    const btnSubmitModal = document.getElementById('btn-submit-modal-registro');
-    const toastEl = document.getElementById('toast-notification');
-    const toastMessageEl = document.getElementById('toast-message');
-    const ultimoVisitanteCard = document.getElementById('ultimo-visitante-card');
+  // --- 1. ELEMENTOS DEL DOM ---
+  const mainForm = document.getElementById('registro-form');
+  const mainFormInputs = mainForm.querySelectorAll('input[type="text"], select');
+  const qrCaptureInput = document.getElementById('qr-captura');
+  const qrChooseInput = document.getElementById('qr-elegir');
+  const qrFileNameDisplay = document.getElementById('qr-file-name');
+  const imageResultBox = document.getElementById('image-result-box');
+  const qrCanvasElement = document.getElementById("qr-canvas");
+  const qrCanvas = qrCanvasElement.getContext("2d");
+  const btnScanLive = document.getElementById('btn-scan-live');
+  const scanbotResultBox = document.getElementById('scanbot-result-box');
+  const modalRegistro = document.getElementById('modal-registro-qr');
+  const modalForm = document.getElementById('modal-form-registro');
+  const btnCerrarModal = document.getElementById('btn-cerrar-modal-registro');
+  const btnCancelarModal = document.getElementById('btn-cancelar-modal-registro');
+  const btnSubmitModal = document.getElementById('btn-submit-modal-registro');
+  const toastEl = document.getElementById('toast-notification');
+  const toastMessageEl = document.getElementById('toast-message');
+  const ultimoVisitanteCard = document.getElementById('ultimo-visitante-card');
 
-    // --- 2. ESTADO Y PERSISTENCIA ---
-    let toastTimeout;
-    let scanbotSDK;
-    let activeBarcodeScanner;
+  // --- 2. ESTADO Y PERSISTENCIA ---
+  let toastTimeout;
+  let scanbotSDK;
+  let activeBarcodeScanner;
 
-    // --- 3. FUNCIONES AUXILIARES ---
-    function showToast(message, type = 'success') {
-        clearTimeout(toastTimeout);
-        toastMessageEl.textContent = message;
-        toastEl.className = `toast show ${type}`;
-        toastTimeout = setTimeout(() => {
-            toastEl.className = toastEl.className.replace('show', '');
-        }, 3000);
+  // --- 3. FUNCIONES AUXILIARES ---
+  function showToast(message, type = 'success') {
+    clearTimeout(toastTimeout);
+    toastMessageEl.textContent = message;
+    toastEl.className = `toast show ${type}`;
+    toastTimeout = setTimeout(() => {
+      toastEl.className = toastEl.className.replace('show', '');
+    }, 3000);
+  }
+  
+  // Esta función es el "interruptor de apagado" para la advertencia
+  window.clearWorkInProgress = () => {
+    window.isWorkInProgress = false;
+    console.log('Work in progress: DESACTIVADO');
+    mainForm.reset();
+    modalForm.reset();
+    qrFileNameDisplay.textContent = 'Ningún archivo seleccionado';
+    if (imageResultBox) imageResultBox.style.display = 'none';
+    if (scanbotResultBox) scanbotResultBox.style.display = 'none';
+  };
+
+  function displayLastVisitor(visitor) {
+    if (visitor) {
+      document.getElementById('ultimo-nombre').textContent = visitor.nombre;
+      document.getElementById('ultimo-apellido').textContent = visitor.apellido;
+      document.getElementById('ultimo-cedula').textContent = visitor.cedula;
+      document.getElementById('ultimo-sexo').textContent = visitor.sexo;
+      document.getElementById('ultimo-motivo').textContent = visitor.motivo;
+      document.getElementById('ultimo-fecha').textContent = visitor.fecha;
+      document.getElementById('ultimo-hora').textContent = visitor.hora;
+    } else {
+      ultimoVisitanteCard.innerHTML = '<h4>Aún no hay visitantes registrados.</h4>';
+    }
+  }
+
+  async function fetchLastVisitor() {
+    try {
+      const { data, error } = await supabaseClient
+        .from('visitantes')
+        .select('*')
+        .order('id', { ascending: false })
+        .limit(1);
+      if (error) throw error;
+      displayLastVisitor(data.length > 0 ? data[0] : null);
+    } catch (error) {
+      console.error("Error fetching last visitor:", error);
+      ultimoVisitanteCard.innerHTML = '<h4>No se pudo cargar el último registro.</h4>';
+    }
+  }
+
+  // --- 4. LÓGICA DEL FORMULARIO PRINCIPAL (MANUAL) ---
+  mainForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const nombre   = document.getElementById("nombre").value.trim();
+    const apellido = document.getElementById("apellido").value.trim();
+    const cedula   = document.getElementById("cedula").value.trim();
+    const sexo     = document.getElementById("sexo").value;
+    const motivo   = document.getElementById("motivo").value.trim();
+
+    if (!nombre || !apellido || !cedula || !sexo || !motivo) {
+      showToast("Por favor, completa todos los campos.", "error");
+      return;
     }
     
-    // Esta función es el "interruptor de apagado" para la advertencia
-    window.clearWorkInProgress = () => {
-        window.isWorkInProgress = false;
-        console.log('Work in progress: DESACTIVADO'); // Ayuda para depurar
-        mainForm.reset();
-        modalForm.reset();
-        qrFileNameDisplay.textContent = 'Ningún archivo seleccionado';
-        if (imageResultBox) imageResultBox.style.display = 'none';
-        if (scanbotResultBox) scanbotResultBox.style.display = 'none';
-    };
-
-    function displayLastVisitor(visitor) {
-        if (visitor) {
-            document.getElementById('ultimo-nombre').textContent = visitor.nombre;
-            document.getElementById('ultimo-apellido').textContent = visitor.apellido;
-            document.getElementById('ultimo-cedula').textContent = visitor.cedula;
-            document.getElementById('ultimo-sexo').textContent = visitor.sexo;
-            document.getElementById('ultimo-motivo').textContent = visitor.motivo;
-            document.getElementById('ultimo-fecha').textContent = visitor.fecha;
-            document.getElementById('ultimo-hora').textContent = visitor.hora;
-        } else {
-            ultimoVisitanteCard.innerHTML = '<h4>Aún no hay visitantes registrados.</h4>';
-        }
+    const submitBtn = document.getElementById('submit-btn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Registrando...";
+    try {
+      // ⬇️ FECHA/HORA corregidas a zona de Panamá
+      const fechaActual = getLocalPaDateISO();     // 'YYYY-MM-DD'
+      const horaActual  = getLocalPaTime24h();     // 'HH:mm:ss'
+      const { data: nuevoVisitante, error } = await supabaseClient
+        .from('visitantes')
+        .insert([{ nombre, apellido, cedula, sexo, motivo, fecha: fechaActual, hora: horaActual }])
+        .select()
+        .single();
+      if (error) throw error;
+      
+      showToast("¡Registro exitoso!", "success");
+      displayLastVisitor(nuevoVisitante);
+      // Al tener éxito, reseteamos todo, incluyendo la bandera.
+      clearWorkInProgress();
+    } catch (err) {
+      showToast("Error al registrar los datos.", "error");
+      console.error("Supabase insert error:", err);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Registrar";
     }
+  });
 
-    async function fetchLastVisitor() {
-        try {
-            const { data, error } = await supabaseClient.from('visitantes').select('*').order('id', { ascending: false }).limit(1);
-            if (error) throw error;
-            displayLastVisitor(data.length > 0 ? data[0] : null);
-        } catch (error) {
-            console.error("Error fetching last visitor:", error);
-            ultimoVisitanteCard.innerHTML = '<h4>No se pudo cargar el último registro.</h4>';
-        }
+  // --- 5. LÓGICA DEL MODAL DE REGISTRO ---
+  function abrirModalRegistro(datos) {
+    document.getElementById('modal-nombre').value   = datos.nombre   || '';
+    document.getElementById('modal-apellido').value = datos.apellido || '';
+    document.getElementById('modal-cedula').value   = datos.cedula   || '';
+    document.getElementById('modal-sexo').value     = datos.sexo     || '';
+    document.getElementById('modal-motivo').value   = '';
+    document.getElementById('modal-motivo').focus();
+    modalRegistro.classList.add('visible');
+  }
+
+  function cerrarModalRegistro() {
+    modalRegistro.classList.remove('visible');
+  }
+
+  btnCerrarModal.addEventListener('click', cerrarModalRegistro);
+  btnCancelarModal.addEventListener('click', cerrarModalRegistro);
+
+  modalForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nombre   = document.getElementById("modal-nombre").value.trim();
+    const apellido = document.getElementById("modal-apellido").value.trim();
+    const cedula   = document.getElementById("modal-cedula").value.trim();
+    const sexo     = document.getElementById("modal-sexo").value;
+    const motivo   = document.getElementById("modal-motivo").value.trim();
+
+    if (!nombre || !apellido || !cedula || !sexo || !motivo) {
+      showToast("Por favor, completa el motivo de la visita.", "error");
+      return;
     }
+    
+    btnSubmitModal.disabled = true;
+    btnSubmitModal.textContent = "Registrando...";
 
-    // --- 4. LÓGICA DEL FORMULARIO PRINCIPAL (MANUAL) ---
-    mainForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const nombre = document.getElementById("nombre").value.trim();
-        const apellido = document.getElementById("apellido").value.trim();
-        const cedula = document.getElementById("cedula").value.trim();
-        const sexo = document.getElementById("sexo").value;
-        const motivo = document.getElementById("motivo").value.trim();
+    try {
+      // ⬇️ FECHA/HORA corregidas a zona de Panamá
+      const fechaActual = getLocalPaDateISO();   // 'YYYY-MM-DD'
+      const horaActual  = getLocalPaTime24h();   // 'HH:mm:ss'
+      const { data: nuevoVisitante, error } = await supabaseClient
+        .from('visitantes')
+        .insert([{ nombre, apellido, cedula, sexo, motivo, fecha: fechaActual, hora: horaActual }])
+        .select()
+        .single();
+      if (error) throw error;
+      
+      showToast("¡Registro exitoso!", "success");
+      displayLastVisitor(nuevoVisitante);
+      cerrarModalRegistro();
+      clearWorkInProgress(); // También reseteamos al enviar desde el modal
+    } catch (err) {
+      showToast("Error al registrar los datos.", "error");
+      console.error("Supabase insert error:", err);
+    } finally {
+      btnSubmitModal.disabled = false;
+      btnSubmitModal.textContent = "Registrar";
+    }
+  });
 
-        if (!nombre || !apellido || !cedula || !sexo || !motivo) {
-            showToast("Por favor, completa todos los campos.", "error");
-            return;
-        }
+  // --- 6. LÓGICA DEL LECTOR DE QR POR IMAGEN ---
+  const handleImageFile = (file) => {
+    if (!file) {
+      qrFileNameDisplay.textContent = 'Ningún archivo seleccionado';
+      imageResultBox.style.display = 'none';
+      return;
+    }
+    
+    qrFileNameDisplay.textContent = file.name;
+    imageResultBox.textContent = 'Procesando...';
+    imageResultBox.style.display = 'block';
+    showToast("Procesando imagen...", "success");
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        qrCanvasElement.width = img.width;
+        qrCanvasElement.height = img.height;
+        qrCanvas.drawImage(img, 0, 0, img.width, img.height);
         
-        const submitBtn = document.getElementById('submit-btn');
-        submitBtn.disabled = true;
-        submitBtn.textContent = "Registrando...";
-        try {
-            const fechaActual = new Date().toISOString().split("T")[0];
-            const horaActual = new Date().toLocaleTimeString("es-PA", { hour12: false });
-            const { data: nuevoVisitante, error } = await supabaseClient.from('visitantes').insert([{ nombre, apellido, cedula, sexo, motivo, fecha: fechaActual, hora: horaActual }]).select().single();
-            if (error) throw error;
-            
-            showToast("¡Registro exitoso!", "success");
-            displayLastVisitor(nuevoVisitante);
-            // Al tener éxito, llamamos a la función que resetea todo, incluyendo la bandera.
-            clearWorkInProgress();
-        } catch (err) {
-            showToast("Error al registrar los datos.", "error");
-            console.error("Supabase insert error:", err);
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Registrar";
-        }
-    });
-
-    // --- 5. LÓGICA DEL MODAL DE REGISTRO ---
-    function abrirModalRegistro(datos) {
-        document.getElementById('modal-nombre').value = datos.nombre || '';
-        document.getElementById('modal-apellido').value = datos.apellido || '';
-        document.getElementById('modal-cedula').value = datos.cedula || '';
-        document.getElementById('modal-sexo').value = datos.sexo || '';
-        document.getElementById('modal-motivo').value = '';
-        document.getElementById('modal-motivo').focus();
-        modalRegistro.classList.add('visible');
-    }
-
-    function cerrarModalRegistro() {
-        modalRegistro.classList.remove('visible');
-    }
-
-    btnCerrarModal.addEventListener('click', cerrarModalRegistro);
-    btnCancelarModal.addEventListener('click', cerrarModalRegistro);
-
-    modalForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const nombre = document.getElementById("modal-nombre").value.trim();
-        const apellido = document.getElementById("modal-apellido").value.trim();
-        const cedula = document.getElementById("modal-cedula").value.trim();
-        const sexo = document.getElementById("modal-sexo").value;
-        const motivo = document.getElementById("modal-motivo").value.trim();
-
-        if (!nombre || !apellido || !cedula || !sexo || !motivo) {
-            showToast("Por favor, completa el motivo de la visita.", "error");
-            return;
-        }
+        const imageData = qrCanvas.getImageData(0, 0, qrCanvasElement.width, qrCanvasElement.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
         
-        btnSubmitModal.disabled = true;
-        btnSubmitModal.textContent = "Registrando...";
-
-        try {
-            const fechaActual = new Date().toISOString().split("T")[0];
-            const horaActual = new Date().toLocaleTimeString("es-PA", { hour12: false });
-            const { data: nuevoVisitante, error } = await supabaseClient.from('visitantes').insert([{ nombre, apellido, cedula, sexo, motivo, fecha: fechaActual, hora: horaActual }]).select().single();
-            if (error) throw error;
-            
-            showToast("¡Registro exitoso!", "success");
-            displayLastVisitor(nuevoVisitante);
-            cerrarModalRegistro();
-            clearWorkInProgress(); // También reseteamos al enviar desde el modal
-        } catch (err) {
-            showToast("Error al registrar los datos.", "error");
-            console.error("Supabase insert error:", err);
-        } finally {
-            btnSubmitModal.disabled = false;
-            btnSubmitModal.textContent = "Registrar";
-        }
-    });
-
-    // --- 6. LÓGICA DEL LECTOR DE QR POR IMAGEN ---
-    const handleImageFile = (file) => {
-        if (!file) {
-            qrFileNameDisplay.textContent = 'Ningún archivo seleccionado';
-            imageResultBox.style.display = 'none';
-            return;
-        }
-        
-        qrFileNameDisplay.textContent = file.name;
-        imageResultBox.textContent = 'Procesando...';
-        imageResultBox.style.display = 'block';
-        showToast("Procesando imagen...", "success");
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-                qrCanvasElement.width = img.width;
-                qrCanvasElement.height = img.height;
-                qrCanvas.drawImage(img, 0, 0, img.width, img.height);
-                
-                const imageData = qrCanvas.getImageData(0, 0, qrCanvasElement.width, qrCanvasElement.height);
-                const code = jsQR(imageData.data, imageData.width, imageData.height);
-                
-                if (code) {
-                    const decodedData = new TextDecoder('utf-8').decode(new Uint8Array(code.binaryData));
-                    imageResultBox.textContent = decodedData;
-                    const parts = decodedData.split('|');
-                    if (parts.length >= 5) {
-                        const sexoChar = parts[4].trim().toUpperCase();
-                        const sexo = sexoChar === 'M' ? 'Masculino' : (sexoChar === 'F' ? 'Femenino' : '');
-                        const datos = { 
-                            cedula: parts[0].trim(), 
-                            nombre: parts[1].trim(), 
-                            apellido: parts[2].trim(),
-                            sexo: sexo
-                        };
-                        abrirModalRegistro(datos);
-                    } else {
-                        showToast("Formato del QR no esperado.", "error");
-                    }
-                } else {
-                    imageResultBox.textContent = 'No se detectó ningún código QR en la imagen.';
-                    showToast("No se encontró un QR en la imagen.", "error");
-                }
+        if (code) {
+          const decodedData = new TextDecoder('utf-8').decode(new Uint8Array(code.binaryData));
+          imageResultBox.textContent = decodedData;
+          const parts = decodedData.split('|');
+          if (parts.length >= 5) {
+            const sexoChar = parts[4].trim().toUpperCase();
+            const sexo = sexoChar === 'M' ? 'Masculino' : (sexoChar === 'F' ? 'Femenino' : '');
+            const datos = { 
+              cedula: parts[0].trim(), 
+              nombre: parts[1].trim(), 
+              apellido: parts[2].trim(),
+              sexo: sexo
             };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
+            abrirModalRegistro(datos);
+          } else {
+            showToast("Formato del QR no esperado.", "error");
+          }
+        } else {
+          imageResultBox.textContent = 'No se detectó ningún código QR en la imagen.';
+          showToast("No se encontró un QR en la imagen.", "error");
+        }
+      };
+      img.src = e.target.result;
     };
+    reader.readAsDataURL(file);
+  };
 
-    qrCaptureInput.addEventListener('change', (event) => {
-        if (event.target.files.length > 0) handleImageFile(event.target.files[0]);
-        event.target.value = '';
-    });
+  qrCaptureInput.addEventListener('change', (event) => {
+    if (event.target.files.length > 0) handleImageFile(event.target.files[0]);
+    event.target.value = '';
+  });
 
-    qrChooseInput.addEventListener('change', (event) => {
-        if (event.target.files.length > 0) handleImageFile(event.target.files[0]);
-        event.target.value = '';
-    });
+  qrChooseInput.addEventListener('change', (event) => {
+    if (event.target.files.length > 0) handleImageFile(event.target.files[0]);
+    event.target.value = '';
+  });
 
-    // --- 7. LÓGICA PARA SCANBOT (Cámara en Vivo) ---
-    // (Esta sección no necesita cambios, se mantiene igual)
-    if (btnScanLive) {
-        btnScanLive.addEventListener('click', async () => {
-            if (activeBarcodeScanner) return;
-            showToast("Iniciando cámara...", "success");
+  // --- 7. LÓGICA PARA SCANBOT (Cámara en Vivo) ---
+  // (Esta sección no necesita cambios, se mantiene igual)
+  if (btnScanLive) {
+    btnScanLive.addEventListener('click', async () => {
+      if (activeBarcodeScanner) return;
+      showToast("Iniciando cámara...", "success");
 
-            try {
-                if (!scanbotSDK) {
-                    scanbotSDK = await ScanbotSDK.initialize({
-                        licenseKey: '',
-                        enginePath: 'js/scanbot/'
-                    });
-                }
-                const barcodeScannerConfig = {
-                    containerId: 'scanner-container',
-                    onBarcodesDetected: (result) => {
-                        if (result.barcodes.length > 0) {
-                            const textoQR = result.barcodes[0].text;
-                            scanbotResultBox.textContent = textoQR;
-                            scanbotResultBox.style.display = 'block';
-                            
-                            const parts = textoQR.split('|');
-                            if (parts.length >= 5) {
-                                const sexoChar = parts[4].trim().toUpperCase();
-                                const sexo = sexoChar === 'M' ? 'Masculino' : (sexoChar === 'F' ? 'Femenino' : '');
-                                const datos = { 
-                                    cedula: parts[0].trim(), 
-                                    nombre: parts[1].trim(), 
-                                    apellido: parts[2].trim(),
-                                    sexo: sexo
-                                };
-                                abrirModalRegistro(datos);
-                            } else {
-                                showToast("Formato del QR no esperado.", "error");
-                            }
-
-                            if (activeBarcodeScanner) {
-                                activeBarcodeScanner.dispose();
-                                activeBarcodeScanner = null;
-                            }
-                            const container = document.getElementById('scanner-container');
-                            if (container) container.remove();
-                        }
-                    },
-                    onError: (e) => {
-                        console.error('Error del escáner:', e);
-                        showToast('Error al escanear.', 'error');
-                        if (activeBarcodeScanner) {
-                            activeBarcodeScanner.dispose();
-                            activeBarcodeScanner = null;
-                        }
-                    },
-                    style: {
-                        window: { backgroundColor: "rgba(0,0,0,0.7)" },
-                        viewfinder: { borderColor: "white", borderWidth: 2, cornerRadius: 4 }
-                    },
-                    text: {
-                        scanningHint: "Apunte al código QR de la cédula"
-                    }
+      try {
+        if (!scanbotSDK) {
+          scanbotSDK = await ScanbotSDK.initialize({
+            licenseKey: '',
+            enginePath: 'js/scanbot/'
+          });
+        }
+        const barcodeScannerConfig = {
+          containerId: 'scanner-container',
+          onBarcodesDetected: (result) => {
+            if (result.barcodes.length > 0) {
+              const textoQR = result.barcodes[0].text;
+              scanbotResultBox.textContent = textoQR;
+              scanbotResultBox.style.display = 'block';
+              
+              const parts = textoQR.split('|');
+              if (parts.length >= 5) {
+                const sexoChar = parts[4].trim().toUpperCase();
+                const sexo = sexoChar === 'M' ? 'Masculino' : (sexoChar === 'F' ? 'Femenino' : '');
+                const datos = { 
+                  cedula: parts[0].trim(), 
+                  nombre: parts[1].trim(), 
+                  apellido: parts[2].trim(),
+                  sexo: sexo
                 };
+                abrirModalRegistro(datos);
+              } else {
+                showToast("Formato del QR no esperado.", "error");
+              }
 
-                let scannerContainer = document.getElementById('scanner-container');
-                if (!scannerContainer) {
-                    scannerContainer = document.createElement('div');
-                    scannerContainer.id = 'scanner-container';
-                    scannerContainer.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; z-index:1000;';
-                    document.body.appendChild(scannerContainer);
-                }
-                scannerContainer.style.display = 'block';
-                activeBarcodeScanner = await scanbotSDK.createBarcodeScanner(barcodeScannerConfig);
-
-            } catch (e) {
-                console.error('Error al inicializar Scanbot SDK:', e);
-                showToast('No se pudo iniciar el escáner.', 'error');
+              if (activeBarcodeScanner) {
+                activeBarcodeScanner.dispose();
+                activeBarcodeScanner = null;
+              }
+              const container = document.getElementById('scanner-container');
+              if (container) container.remove();
             }
-        });
+          },
+          onError: (e) => {
+            console.error('Error del escáner:', e);
+            showToast('Error al escanear.', 'error');
+            if (activeBarcodeScanner) {
+              activeBarcodeScanner.dispose();
+              activeBarcodeScanner = null;
+            }
+          },
+          style: {
+            window: { backgroundColor: "rgba(0,0,0,0.7)" },
+            viewfinder: { borderColor: "white", borderWidth: 2, cornerRadius: 4 }
+          },
+          text: {
+            scanningHint: "Apunte al código QR de la cédula"
+          }
+        };
+
+        let scannerContainer = document.getElementById('scanner-container');
+        if (!scannerContainer) {
+          scannerContainer = document.createElement('div');
+          scannerContainer.id = 'scanner-container';
+          scannerContainer.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; z-index:1000;';
+          document.body.appendChild(scannerContainer);
+        }
+        scannerContainer.style.display = 'block';
+        activeBarcodeScanner = await scanbotSDK.createBarcodeScanner(barcodeScannerConfig);
+
+      } catch (e) {
+        console.error('Error al inicializar Scanbot SDK:', e);
+        showToast('No se pudo iniciar el escáner.', 'error');
+      }
+    });
+  }
+
+  // --- 8. INICIALIZACIÓN FINAL ---
+  fetchLastVisitor();
+
+  // ✅ LÓGICA MEJORADA PARA ACTIVAR LA ADVERTENCIA DE "SALIR SIN GUARDAR"
+  const setWorkInProgress = () => {
+    if (!window.isWorkInProgress) {
+      window.isWorkInProgress = true;
+      console.log('Work in progress: ACTIVADO');
     }
+  };
+  
+  mainFormInputs.forEach(input => {
+    input.addEventListener('input', setWorkInProgress);
+  });
 
-    // --- 8. INICIALIZACIÓN FINAL ---
-    fetchLastVisitor();
-
-    // ✅ LÓGICA MEJORADA PARA ACTIVAR LA ADVERTENCIA DE "SALIR SIN GUARDAR"
-    // Función que activa la bandera (solo la enciende, no la apaga)
-    const setWorkInProgress = () => {
-        if (!window.isWorkInProgress) {
-            window.isWorkInProgress = true;
-            console.log('Work in progress: ACTIVADO');
-        }
-    };
-    
-    // Añadimos el listener a cada campo del formulario manual.
-    // Al primer cambio, se activa la bandera y se queda así hasta que se envíe el formulario.
-    mainFormInputs.forEach(input => {
-        input.addEventListener('input', setWorkInProgress);
-    });
-
-    // Este listener es para la advertencia nativa del navegador al cerrar la pestaña.
-    window.addEventListener('beforeunload', (event) => {
-        if (window.isWorkInProgress) {
-            event.preventDefault();
-            event.returnValue = '';
-        }
-    });
+  window.addEventListener('beforeunload', (event) => {
+    if (window.isWorkInProgress) {
+      event.preventDefault();
+      event.returnValue = '';
+    }
+  });
 });
