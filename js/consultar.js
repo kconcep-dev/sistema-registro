@@ -645,4 +645,45 @@ document.addEventListener('DOMContentLoaded', async () => {
   await fetchVisitantes(); // pestaña inicial
   document.getElementById('loader').style.display = 'none';
   document.getElementById('main-content').style.display = 'flex';
+
+  // --- Activar apertura del datepicker al hacer clic en el ícono/wrapper ---
+document.querySelectorAll('.date-field input[type="date"]').forEach((input) => {
+  const wrapper = input.parentElement;
+
+  // función robusta para abrir el selector
+  const openPicker = () => {
+    // Chromium/Edge: soporta showPicker()
+    if (typeof input.showPicker === 'function') {
+      input.showPicker();
+      return;
+    }
+    // Fallbacks: intentos razonables según navegador
+    try { input.focus(); } catch (_) {}
+    try { input.click(); } catch (_) {}
+    // En navegadores que no exponen showPicker (p.ej. Firefox),
+    // el foco permite teclear o abrir con otro clic.
+  };
+
+  // clic en cualquier parte del wrapper (incluye el ícono ::after)
+  wrapper.addEventListener('click', (e) => {
+    // si ya clickeó directamente el <input>, deja el comportamiento normal
+    if (e.target === input) return;
+    e.preventDefault();
+    openPicker();
+  });
+
+  // accesibilidad: abrir con Enter/Espacio al enfocar el wrapper (opcional)
+  // hace al wrapper "focusable" sin alterar el tabbing si no quieres
+  if (!wrapper.hasAttribute('tabindex')) {
+    wrapper.setAttribute('tabindex', '0');
+    wrapper.setAttribute('role', 'button');
+    wrapper.setAttribute('aria-label', input.title || 'Abrir selector de fecha');
+    wrapper.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter' || ev.key === ' ') {
+        ev.preventDefault();
+        openPicker();
+      }
+    });
+  }
+});
 });

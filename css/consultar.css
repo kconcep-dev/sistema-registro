@@ -350,3 +350,9 @@ html.dark-mode .controls-area .date-field input[type="date"] {
 
 /* 7) Responsive: en móvil que ocupen 100% como antes */
 @media (max-width: 520px)
+
+/* hacer clic en toda el área, incluido el ícono */
+.controls-area .date-field,
+.controls-area .date-field::after {
+  cursor: pointer;
+}
