@@ -43,8 +43,10 @@ html.dark-mode .tabs-nav{
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 
+
 /* --- 2) Barra de Controles (Búsqueda, Filtros, Exportar) --- */
 .controls-area {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -58,7 +60,7 @@ html.dark-mode .tabs-nav{
 
 /* Inputs con look de cápsula */
 .controls-area input[type="search"],
-.controls-area input[type="date"]{
+.controls-area .date-field input[type="date"]{
   height: 42px;
   padding: 0 14px;
   border: 1px solid var(--border-color);
@@ -73,18 +75,15 @@ html.dark-mode .tabs-nav{
   flex: 1 1 320px;
   min-width: 220px;
 }
-.controls-area input[type="date"]{
-  flex: 0 0 170px;
-}
 
 /* Enfoque */
 .controls-area input[type="search"]:focus,
-.controls-area input[type="date"]:focus{
+.controls-area .date-field input[type="date"]:focus{
   border-color: var(--primary-color);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent);
 }
 
-/* Placeholder tenue */
+/* Placeholder tenue real (solo para search) */
 .controls-area input::placeholder {
   color: color-mix(in srgb, var(--input-text-color) 50%, transparent);
 }
@@ -104,16 +103,102 @@ html.dark-mode .tabs-nav{
 .btn-export:hover { background-color: #1f7b34; }
 html.dark-mode .btn-export:hover { background-color: #1a5d2a; }
 
-/* Coherencia en dark: evita blanco nativo y ajusta iconos */
+/* Coherencia en dark */
 html.dark-mode .controls-area input[type="search"],
-html.dark-mode .controls-area input[type="date"]{
+html.dark-mode .date-field input[type="date"]{
   background-color: var(--input-bg-color) !important;
   color: var(--input-text-color) !important;
   border-color: var(--border-color) !important;
 }
-html.dark-mode input[type="date"]::-webkit-calendar-picker-indicator,
-html.dark-mode input[type="search"]::-webkit-search-cancel-button{
-  filter: invert(1) brightness(0.9);
+
+/* ================================
+   Calendario custom (light/dark)
+   ================================ */
+
+/* Wrapper para inputs de fecha */
+.controls-area .date-field {
+  position: relative;
+  display: inline-block;
+  flex: 0 0 170px;        /* mismo ancho que dabas a los <input type="date"> */
+  height: 42px;
+}
+
+/* Input ocupa todo el wrapper y deja espacio al ícono */
+.controls-area .date-field input[type="date"] {
+  width: 100%;
+  height: 100%;
+  padding-right: 2.5rem;  /* espacio para el ícono */
+  background-image: none !important;
+  -webkit-appearance: none;
+  appearance: none;
+  color-scheme: light;
+}
+html.dark-mode .controls-area .date-field input[type="date"] {
+  color-scheme: dark; /* ayuda a algunos UAs en dark */
+}
+
+/* Oculta el indicador nativo (Chromium/WebKit) */
+.controls-area .date-field input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+/* Algunos navegadores muestran flecha/list-button adicional: ocúltala */
+.controls-area .date-field input[type="date"]::-webkit-list-button,
+.controls-area .date-field input[type="date"]::-webkit-inner-spin-button,
+.controls-area .date-field input[type="date"]::-ms-expand {
+  display: none;
+}
+
+/* Ícono custom (usa variables para light/dark) */
+.controls-area .date-field::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-image: var(--calendar-icon);
+  pointer-events: none;
+  opacity: 0.95;
+}
+
+/* Ruta del ícono según tema (en light uso el ícono oscuro; en dark uso el claro) */
+:root {
+  --calendar-icon: url("../assets/images/icono-calendario-dark.png");
+}
+html.dark-mode {
+  --calendar-icon: url("../assets/images/icono-calendario-light.png");
+}
+
+/* Cursor de mano en todo el wrapper y el ícono */
+.controls-area .date-field,
+.controls-area .date-field::after {
+  cursor: pointer;
+}
+
+/* Placeholder simulado para <input type="date"> cuando está vacío (lo marca el JS) */
+.controls-area .date-field[data-empty="true"]::before {
+  content: "dd/mm/aaaa";
+  position: absolute;
+  left: 14px;
+  right: 44px;               /* evita solapar el icono */
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.95rem;
+  color: color-mix(in srgb, var(--input-text-color) 50%, transparent);
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Ancho específico para date fields de escritorio */
+.controls-area .date-field {
+  flex: 0 0 170px;
 }
 
 /* MÓVIL: grilla limpia -> search arriba; fechas lado a lado; export abajo full */
@@ -125,13 +210,25 @@ html.dark-mode input[type="search"]::-webkit-search-cancel-button{
     border-radius: 16px; /* menos exagerado en móvil */
   }
   .controls-area input[type="search"] { grid-column: 1 / -1; width: 100%; }
+
+  /* Fechas ocupan 100% cada una y mantienen placeholder simulado */
   #date-start-visitantes, #date-end-visitantes,
   #date-start-descartes,  #date-end-descartes  { width: 100%; }
+
   .controls-area .btn-export { grid-column: 1 / -1; width: 100%; }
+
+  /* En móvil, conserva el mismo alto/padding y oculta flechas nativas */
+  .controls-area .date-field { width: 100%; }
+  .controls-area .date-field input[type="date"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: none !important;
+  }
 }
 
 /* --- 3) Estilos de la Tabla --- */
 .table-container {
+  position: relative;                 /* necesario para sticky right */
   overflow-x: auto;
   background-color: var(--card-bg-color);
   padding: 20px;
@@ -139,20 +236,28 @@ html.dark-mode input[type="search"]::-webkit-search-cancel-button{
   box-shadow: 0 4px 12px var(--shadow-color);
 }
 
+/* Bordes visibles en tablas */
 #table-visitantes,
 #table-descartes,
 #table-equipos-sesion {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;          /* para sticky + bordes */
+  border-spacing: 0;
+  table-layout: auto;
 }
+
+/* Color de borde (ajustable por tema) */
+:root { --table-border-color: color-mix(in srgb, var(--border-color) 60%, transparent); }
+html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50%, transparent); }
 
 #table-visitantes th, #table-visitantes td,
 #table-descartes th, #table-descartes td,
 #table-equipos-sesion th, #table-equipos-sesion td {
   padding: 12px 15px;
   text-align: left;
-  border-bottom: 1px solid var(--input-bg-color);
+  border: 1px solid var(--table-border-color);
   white-space: nowrap;
+  background-color: var(--card-bg-color); /* asegura fondo sólido para sticky */
 }
 
 #table-visitantes th,
@@ -161,6 +266,9 @@ html.dark-mode input[type="search"]::-webkit-search-cancel-button{
   background-color: var(--input-bg-color);
   font-size: 0.9rem;
   font-weight: bold;
+  position: sticky;       /* header sticky horizontal si scrolleas vertical */
+  top: 0;
+  z-index: 3;
 }
 
 #table-visitantes tbody tr:hover,
@@ -205,6 +313,27 @@ html.dark-mode input[type="search"]::-webkit-search-cancel-button{
 /* fallback */
 .table-actions button:not(.btn-editar):not(.btn-eliminar):not(.btn-view-equipos):not(.btn-eliminar-sesion){
   background-color: var(--primary-color);
+}
+
+/* --- Columna ACCIONES sticky (última columna) --- */
+#table-visitantes th:last-child,
+#table-descartes th:last-child,
+#table-equipos-sesion th:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 4; /* por encima del body */
+  box-shadow: -6px 0 8px -4px rgba(0,0,0,0.08); /* separador visual al hacer scroll */
+}
+
+#table-visitantes td:last-child,
+#table-descartes td:last-child,
+#table-equipos-sesion td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 3;
+  background-color: var(--card-bg-color);
+  box-shadow: -6px 0 8px -4px rgba(0,0,0,0.06);
+  min-width: 180px; /* ancho mínimo para botones */
 }
 
 /* --- 4) Detalle de Sesión --- */
@@ -279,80 +408,4 @@ html.dark-mode select option:checked {
 /* --- 6) Media Queries para Escritorio --- */
 @media (min-width: 992px) {
   .container { max-width: 1200px; }
-}
-
-/* ================================
-   Calendario custom con botón
-   ================================ */
-
-/* 1) Wrapper para inputs de fecha */
-.controls-area .date-field {
-  position: relative;
-  display: inline-block;
-  flex: 0 0 170px; /* mismo ancho que dabas al date */
-}
-
-/* 2) El input ocupa todo el wrapper y deja espacio al ícono */
-.controls-area .date-field input[type="date"] {
-  width: 100%;
-  height: 42px;
-  padding: 0 14px;
-  padding-right: 2.5rem;  /* espacio para el botón-ícono */
-  border: 1px solid var(--border-color);
-  border-radius: 999px;
-  background-color: var(--input-bg-color);
-  color: var(--input-text-color);
-  outline: none;
-  transition: box-shadow .15s, border-color .15s;
-  background-image: none !important; /* evita fondos nativos */
-}
-
-/* 3) Oculta el indicador nativo (Chromium/WebKit) */
-.controls-area .date-field input[type="date"]::-webkit-calendar-picker-indicator {
-  opacity: 0 !important;
-  pointer-events: none;
-}
-
-/* 4) Botón trigger real (recibe clics) */
-.date-trigger {
-  position: absolute;
-  top: 50%;
-  right: 12px;
-  transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  border: none;
-  padding: 0;
-  background: transparent;
-  background-image: var(--calendar-icon); /* variable según tema */
-  background-repeat: no-repeat;
-  background-size: contain;
-  cursor: pointer;
-  z-index: 1;
-}
-.date-trigger:focus-visible {
-  outline: 2px solid var(--primary-color);
-  border-radius: 4px;
-}
-
-/* 5) Rutas del ícono según tema (invertidas: claro usa ícono oscuro) */
-:root {
-  --calendar-icon: url("../assets/images/icono-calendario-dark.png");
-}
-html.dark-mode {
-  --calendar-icon: url("../assets/images/icono-calendario-light.png");
-}
-
-/* 6) Coherencia en dark */
-html.dark-mode .controls-area .date-field input[type="date"] {
-  background-color: var(--input-bg-color) !important;
-  color: var(--input-text-color) !important;
-  border-color: var(--border-color) !important;
-  color-scheme: dark; /* ayuda a algunos UAs */
-}
-
-/* 7) Responsive: en móvil que ocupen 100% */
-@media (max-width: 520px) {
-  .controls-area .date-field { width: 100%; }
-  .controls-area .date-field input[type="date"] { width: 100%; }
 }

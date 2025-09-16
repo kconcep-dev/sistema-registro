@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const exportDescartesBtn       = document.getElementById('export-descartes-btn');
   const tableDescartesBody       = document.querySelector('#table-descartes tbody');
 
-  // Vista detalle de sesión (según tu HTML)
+  // Vista detalle de sesión
   const sesionesListaSection     = document.getElementById('sesiones-lista');
   const sesionDetalleSection     = document.getElementById('sesion-detalle');
   const btnVolverSesiones        = document.getElementById('btn-volver-sesiones');
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const modalEditarVisitante     = document.getElementById('modal-editar-visitante');
   const formEditarVisitante      = document.getElementById('form-editar-visitante');
 
-  // Modal editar equipo (ids `editq-*` en tu HTML)
+  // Modal editar equipo (ids `editq-*`)
   const modalEditarEquipo        = document.getElementById('modal-editar-equipo');
   const formEditarEquipo         = document.getElementById('form-editar-equipo');
   const btnCerrarModalEditarEq   = document.getElementById('btn-cerrar-modal-editar-equipo');
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }, 3000);
   }
 
-  // dd-mm-aaaa sin depender del locale
+  // dd-mm-aaaa
   function formatDate(isoString) {
     if (!isoString) return '-';
     const [y, m, d] = isoString.includes('T')
@@ -310,12 +310,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       tabsNav.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       e.target.classList.add('active');
 
-      // Siempre mostrar la sección principal del tab seleccionado
-      tabContents.forEach(c => {
-        c.classList.toggle('active', c.id === `${tabId}-content`);
-      });
+      tabContents.forEach(c => c.classList.toggle('active', c.id === `${tabId}-content`));
 
-      // Si salimos del detalle, cerrarlo
       closeSessionDetail();
 
       if (tabId === 'visitantes') fetchVisitantes();
@@ -510,7 +506,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           return;
         }
 
-        // Rellenar campos (ids editq-*)
         document.getElementById('editq-descripcion').value   = data.descripcion || '';
         document.getElementById('editq-marbete').value       = data.marbete || '';
         document.getElementById('editq-serie').value         = data.serie || '';
@@ -556,7 +551,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Cerrar modal editar equipo (X / Cancelar / overlay)
+  // Cerrar modal editar equipo
   if (btnCerrarModalEditarEq) {
     btnCerrarModalEditarEq.addEventListener('click', () => modalEditarEquipo?.classList.remove('visible'));
   }
@@ -646,42 +641,48 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('loader').style.display = 'none';
   document.getElementById('main-content').style.display = 'flex';
 
-  // --- 8) Calendario: inyectar botón trigger y abrir datepicker ---
-  // (Reemplaza por completo cualquier intento anterior con wrapper)
-  document.querySelectorAll('.date-field').forEach((wrapper) => {
-    const input = wrapper.querySelector('input[type="date"]');
-    if (!input) return;
+  // --- 8) Datepicker UX: abrir al click en wrapper y placeholder simulado ---
+  const dateInputs = [
+    dateStartVisitantesInput,
+    dateEndVisitantesInput,
+    dateStartDescartesInput,
+    dateEndDescartesInput,
+  ].filter(Boolean);
 
-    // Crea el botón si no existe
-    let btn = wrapper.querySelector('.date-trigger');
-    if (!btn) {
-      btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'date-trigger';
-      btn.setAttribute('aria-label', input.title || 'Abrir calendario');
-      wrapper.appendChild(btn);
-    }
+  function updateDateFieldState(input) {
+    const wrapper = input?.parentElement;
+    if (!wrapper || !wrapper.classList.contains('date-field')) return;
+    wrapper.dataset.empty = input.value ? 'false' : 'true';
+  }
 
+  function attachDateFieldHandlers(input) {
+    const wrapper = input.parentElement;
+    if (!wrapper) return;
+
+    // Estado inicial (placeholder simulado)
+    updateDateFieldState(input);
+
+    // Abrir selector de fecha desde el wrapper/ícono
     const openPicker = () => {
       if (typeof input.showPicker === 'function') {
-        input.showPicker(); // Chrome/Edge
-      } else {
-        try { input.focus(); } catch (_) {}
-        try { input.click(); } catch (_) {}
-        // Safari/Firefox: abre selector del sistema o permite teclear.
+        input.showPicker();
+        return;
       }
+      try { input.focus(); } catch(_) {}
+      try { input.click(); } catch(_) {}
     };
 
-    btn.addEventListener('click', (e) => {
+    wrapper.addEventListener('click', (e) => {
+      if (e.target === input) return; // comportamiento nativo si clic directo
       e.preventDefault();
-      e.stopPropagation();
       openPicker();
     });
 
-    // Opcional: permitir Enter/Espacio en el wrapper
+    // Accesibilidad
     if (!wrapper.hasAttribute('tabindex')) {
       wrapper.setAttribute('tabindex', '0');
       wrapper.setAttribute('role', 'button');
+      wrapper.setAttribute('aria-label', input.title || 'Abrir selector de fecha');
       wrapper.addEventListener('keydown', (ev) => {
         if (ev.key === 'Enter' || ev.key === ' ') {
           ev.preventDefault();
@@ -689,5 +690,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       });
     }
-  });
+
+    // Actualizar estado vacío/lleno
+    input.addEventListener('input',  () => updateDateFieldState(input));
+    input.addEventListener('change', () => updateDateFieldState(input));
+  }
+
+  dateInputs.forEach(attachDateFieldHandlers);
 });
