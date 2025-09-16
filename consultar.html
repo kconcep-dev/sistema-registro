@@ -41,8 +41,12 @@
       <div id="visitantes-content" class="tab-content active">
         <div class="controls-area">
           <input type="search" id="search-visitantes" placeholder="Buscar por nombre, apellido o cédula..." />
-          <input type="date" id="date-start-visitantes" title="Fecha de inicio" />
-          <input type="date" id="date-end-visitantes" title="Fecha de fin" />
+          <div class="date-field">
+            <input type="date" id="date-start-visitantes" title="Fecha de inicio" />
+          </div>
+          <div class="date-field">
+            <input type="date" id="date-end-visitantes" title="Fecha de fin" />
+          </div>
           <button id="export-visitantes-btn" class="btn-export">Exportar Excel</button>
         </div>
 
@@ -70,8 +74,12 @@
         <section id="sesiones-lista">
           <div class="controls-area">
             <input type="search" id="search-descartes" placeholder="Buscar por Unidad Administrativa o SIACE..." />
-            <input type="date" id="date-start-descartes" title="Fecha de inicio" />
-            <input type="date" id="date-end-descartes" title="Fecha de fin" />
+            <div class="date-field">
+              <input type="date" id="date-start-descartes" title="Fecha de inicio" />
+            </div>
+            <div class="date-field">
+              <input type="date" id="date-end-descartes" title="Fecha de fin" />
+            </div>
             <button id="export-descartes-btn" class="btn-export">Exportar Excel</button>
           </div>
 
