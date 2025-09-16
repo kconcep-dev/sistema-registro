@@ -281,11 +281,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (detalleTecnico)     detalleTecnico.textContent     = sesion.tecnico_encargado || '-';
     if (detalleObservacion) detalleObservacion.textContent = sesion.observacion || '—';
 
-    // Cambiar vista: ocultar lista, mostrar detalle
     if (sesionesListaSection) sesionesListaSection.style.display = 'none';
     if (sesionDetalleSection) sesionDetalleSection.style.display = 'block';
 
-    // Cargar equipos
     const term = searchEquiposInput?.value.trim() || '';
     currentEquiposData = await fetchEquiposBySession(sessionId, term);
     renderEquiposTable(currentEquiposData);
@@ -345,7 +343,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       const target = e.target;
       const visitorId = target.dataset.id;
 
-      // Eliminar
       if (target.classList.contains('btn-eliminar')) {
         const confirmed = await window.showConfirmationModal(
           'Eliminar Visitante',
@@ -362,7 +359,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       }
 
-      // Editar
       if (target.classList.contains('btn-editar')) {
         const { data, error } = await supabaseClient
           .from('visitantes')
@@ -385,7 +381,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Guardar cambios (modal editar visitante)
   if (formEditarVisitante) {
     formEditarVisitante.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -413,20 +408,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Acciones tabla sesiones (abrir/eliminar)
+  // Acciones tabla sesiones
   if (tableDescartesBody) {
     tableDescartesBody.addEventListener('click', async (e) => {
       const btnOpen = e.target.closest('.btn-view-equipos');
       const btnDel  = e.target.closest('.btn-eliminar-sesion');
 
-      // Abrir detalle
       if (btnOpen) {
         const sessionId = btnOpen.dataset.id;
         await openSessionDetail(sessionId);
         return;
       }
 
-      // Eliminar sesión
       if (btnDel) {
         const sessionId = btnDel.dataset.id;
         const confirmed = await window.showConfirmationModal(
@@ -446,7 +439,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Buscar dentro de equipos de la sesión
+  // Buscar en equipos de la sesión
   if (searchEquiposInput) {
     searchEquiposInput.addEventListener('input', async () => {
       if (!currentSessionId) return;
@@ -459,13 +452,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Acciones en la tabla de equipos (editar/eliminar)
+  // Acciones en equipos
   if (tableEquiposSesionBody) {
     tableEquiposSesionBody.addEventListener('click', async (e) => {
       const btnEdit = e.target.closest('.btn-editar');
       const btnDel  = e.target.closest('.btn-eliminar');
 
-      // Eliminar equipo
       if (btnDel) {
         const equipoId = btnDel.dataset.id;
         const confirmed = await window.showConfirmationModal(
@@ -485,7 +477,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       }
 
-      // Editar equipo
       if (btnEdit) {
         const equipoId = btnEdit.dataset.id;
         const { data, error } = await supabaseClient
@@ -519,7 +510,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Guardar cambios (modal editar equipo)
   if (formEditarEquipo) {
     formEditarEquipo.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -551,7 +541,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Cerrar modal editar equipo
   if (btnCerrarModalEditarEq) {
     btnCerrarModalEditarEq.addEventListener('click', () => modalEditarEquipo?.classList.remove('visible'));
   }
@@ -570,7 +559,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // Volver desde detalle
   if (btnVolverSesiones) {
     btnVolverSesiones.addEventListener('click', () => {
       closeSessionDetail();
@@ -580,18 +568,38 @@ document.addEventListener('DOMContentLoaded', async () => {
   // --- 6) Exportar a Excel ---
   if (exportVisitantesBtn) {
     exportVisitantesBtn.addEventListener('click', () => {
-      const ws = XLSX.utils.json_to_sheet(currentVisitorData.map(v => ({
-        Nombre:  v.nombre,
-        Apellido:v.apellido,
-        Cedula:  v.cedula,
-        Sexo:    v.sexo,
-        Motivo:  v.motivo,
-        Fecha:   formatDate(v.fecha),
-        Hora:    formatTime(v.hora)
-      })));
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Visitantes");
-      XLSX.writeFile(wb, `Reporte_Visitantes_${new Date().toISOString().split('T')[0]}.xlsx`);
+      if (!currentVisitorData.length) {
+        showToast("No hay registros para exportar.", "error");
+        return;
+      }
+
+      const title = [["Reporte de Visitantes"]];
+      const headers = [["Nombre", "Apellido", "Cédula", "Sexo", "Motivo", "Fecha", "Hora"]];
+      const rows = currentVisitorData.map(v => [
+        v.nombre,
+        v.apellido,
+        v.cedula,
+        v.sexo,
+        v.motivo,
+        formatDate(v.fecha),
+        formatTime(v.hora)
+      ]);
+
+      const worksheet = XLSX.utils.aoa_to_sheet([...title, [], ...headers, ...rows]);
+
+      worksheet['!cols'] = [
+        { wch: 20 }, { wch: 20 }, { wch: 15 },
+        { wch: 10 }, { wch: 25 }, { wch: 12 }, { wch: 12 }
+      ];
+
+      worksheet['A1'].s = { font: { bold: true, sz: 14 }, alignment: { horizontal: "center" } };
+      if (!worksheet['!merges']) worksheet['!merges'] = [];
+      worksheet['!merges'].push({ s: { r:0, c:0 }, e: { r:0, c:6 } });
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Visitantes");
+
+      XLSX.writeFile(workbook, `Reporte_Visitantes_${new Date().toISOString().split('T')[0]}.xlsx`);
     });
   }
 
@@ -637,11 +645,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // --- 7) Inicialización ---
-  await fetchVisitantes(); // pestaña inicial
+  await fetchVisitantes();
   document.getElementById('loader').style.display = 'none';
   document.getElementById('main-content').style.display = 'flex';
 
-  // --- 8) Datepicker UX: abrir al click en wrapper y placeholder simulado ---
+  // --- 8) Datepicker UX ---
   const dateInputs = [
     dateStartVisitantesInput,
     dateEndVisitantesInput,
@@ -659,10 +667,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const wrapper = input.parentElement;
     if (!wrapper) return;
 
-    // Estado inicial (placeholder simulado)
     updateDateFieldState(input);
 
-    // Abrir selector de fecha desde el wrapper/ícono
     const openPicker = () => {
       if (typeof input.showPicker === 'function') {
         input.showPicker();
@@ -673,12 +679,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     wrapper.addEventListener('click', (e) => {
-      if (e.target === input) return; // comportamiento nativo si clic directo
+      if (e.target === input) return;
       e.preventDefault();
       openPicker();
     });
 
-    // Accesibilidad
     if (!wrapper.hasAttribute('tabindex')) {
       wrapper.setAttribute('tabindex', '0');
       wrapper.setAttribute('role', 'button');
@@ -691,7 +696,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     }
 
-    // Actualizar estado vacío/lleno
     input.addEventListener('input',  () => updateDateFieldState(input));
     input.addEventListener('change', () => updateDateFieldState(input));
   }
