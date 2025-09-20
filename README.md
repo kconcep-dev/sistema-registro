@@ -4,7 +4,7 @@
   <img src="https://kconcep-dev.github.io/sistema-registro/assets/icons/icon-192.png" alt="Logo del Sistema de Registro" width="128">
 </p>
 
-> **Nota:** Este es un proyecto beta desarrollado como propuesta final para la práctica profesional en la Universidad Tecnológica OTEIMA (Panamá).
+> **Nota:** Este es un proyecto desarrollado como propuesta final para la práctica profesional en la Universidad Tecnológica OTEIMA (Panamá).
 
 Aplicación web integral diseñada para digitalizar y optimizar los procesos de registro en una oficina, reemplazando por completo los flujos de trabajo manuales en papel. El sistema permite guardar datos de visitantes y gestionar el descarte de equipos tecnológicos de forma segura y centralizada.
 
