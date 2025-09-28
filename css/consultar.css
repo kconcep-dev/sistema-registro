@@ -277,6 +277,7 @@ html.dark-mode {
   }
 }
 
+
 /* --- 3) Estilos de la Tabla --- */
 .table-container {
   position: relative;                 /* necesario para sticky right */
@@ -400,32 +401,46 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   gap: 10px;
 }
 
-/* --- 4b) Toggle de detalles extra SOLO en móvil --- */
+/* Título limpio */
+.detalle-header h2 {
+  margin: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
 
 /* Botón toggle oculto en escritorio */
 #btn-toggle-detalles {
   display: none;
 }
 
-/* Detalles extra visibles siempre en escritorio */
+/* Detalles extra SIEMPRE visibles en escritorio */
 #detalle-extra {
   display: flex;
   flex-wrap: wrap;
   gap: 12px 18px;
-  color: var(--border-color);
+  margin-top: 6px;
+  color: var(--text-color);
   font-size: 0.95rem;
 }
-#detalle-extra span strong { color: var(--text-color); }
-
-/* Observación dentro del bloque */
-#detalle-extra .detalle-observacion {
-  flex-basis: 100%;
-  margin-top: 6px;
+#detalle-extra span strong {
   color: var(--text-color);
 }
 
-/* En móvil: ocultar detalles extra por defecto, mostrar con toggle */
+/* Observación independiente, siempre debajo */
+.detalle-observacion {
+  margin-top: 10px;
+  padding: 10px 14px;
+  background-color: var(--card-bg-color);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px var(--shadow-color);
+  color: var(--text-color);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+/* --- En móvil: toggle activo --- */
 @media (max-width: 768px) {
+  /* Botón toggle visible */
   #btn-toggle-detalles {
     display: inline-block;
     padding: 6px 12px;
@@ -440,6 +455,7 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
     background-color: var(--primary-hover-color);
   }
 
+  /* Detalles ocultos por defecto */
   #detalle-extra {
     display: none;
   }
@@ -451,38 +467,12 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   }
 }
 
-.detalle-header h2 {
-  margin: 0;
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-#detalle-extra {
-  flex-basis: 100%;
-  width: 100%;          /* fuerza ocupar toda la fila */
-  display: block;       /* asegura comportamiento de bloque */
-  margin-top: 6px;
-  color: var(--text-color);
-  font-size: 0.95rem;
-}
-
-/* Observación independiente */
-.detalle-observacion {
-  margin-top: 10px;
-  padding: 10px 14px;
-  background-color: var(--card-bg-color);
-  border-radius: 8px;
-  box-shadow: 0 2px 6px var(--shadow-color);
-  color: var(--text-color);
-  font-size: 0.95rem;
-  line-height: 1.4;
-}
-
+/* Botón volver */
 #btn-volver-sesiones {
   justify-self: start;
 }
 
-/* Volver a Sesiones más compacto en móvil */
+/* Botón volver más compacto en móvil */
 @media (max-width: 768px) {
   #btn-volver-sesiones {
     padding: 6px 12px;
