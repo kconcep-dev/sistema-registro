@@ -457,13 +457,13 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   padding-bottom: 0;
 }
 
+#detalle-extra {
+  display: grid;
+  grid-template-columns: auto auto; /* 2 columnas */
+  gap: 12px 18px;
+}
 #detalle-extra .detalle-observacion {
-  flex-basis: 100%;
-  width: 100%;          /* fuerza ocupar toda la fila */
-  display: block;       /* asegura comportamiento de bloque */
-  margin-top: 6px;
-  color: var(--text-color);
-  font-size: 0.95rem;
+  grid-column: 1 / -1;   /* ocupa toda la fila */
 }
 
 #btn-volver-sesiones {
