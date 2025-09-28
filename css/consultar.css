@@ -459,6 +459,8 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
 
 #detalle-extra .detalle-observacion {
   flex-basis: 100%;
+  width: 100%;          /* fuerza ocupar toda la fila */
+  display: block;       /* asegura comportamiento de bloque */
   margin-top: 6px;
   color: var(--text-color);
   font-size: 0.95rem;
