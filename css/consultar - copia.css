@@ -152,6 +152,9 @@ html.dark-mode .date-field input[type="date"]{
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center;
+  /* Si tu PNG es oscuro y no contrasta, descomenta la línea de abajo:
+  filter: invert(1) brightness(2);
+  */
 }
 
 /* ================================
@@ -162,7 +165,7 @@ html.dark-mode .date-field input[type="date"]{
 .controls-area .date-field {
   position: relative;
   display: inline-block;
-  flex: 0 0 170px;
+  flex: 0 0 170px;        /* mismo ancho que dabas a los <input type="date"> */
   height: 42px;
 }
 
@@ -177,29 +180,29 @@ html.dark-mode .date-field input[type="date"]{
   color-scheme: light;
 }
 html.dark-mode .controls-area .date-field input[type="date"] {
-  color-scheme: dark;
+  color-scheme: dark; /* ayuda a algunos UAs en dark */
 }
 
-/* Oculta el indicador nativo */
+/* Oculta el indicador nativo (Chromium/WebKit) */
 .controls-area .date-field input[type="date"]::-webkit-calendar-picker-indicator {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  cursor: pointer;
-  pointer-events: auto;
+  width: 100%;      /* ocupa todo el ancho del campo */
+  height: 100%;     /* ocupa todo el alto */
+  opacity: 0;       /* invisible */
+  cursor: pointer;  /* cursor de mano */
+  pointer-events: auto; /* clickeable en todo el input */
 }
 
-/* Ocultar flechas extra */
+/* Algunos navegadores muestran flecha/list-button adicional: ocúltala */
 .controls-area .date-field input[type="date"]::-webkit-list-button,
 .controls-area .date-field input[type="date"]::-webkit-inner-spin-button,
 .controls-area .date-field input[type="date"]::-ms-expand {
   display: none;
 }
 
-/* Ícono custom */
+/* Ícono custom (usa variables para light/dark) */
 .controls-area .date-field::after {
   content: "";
   position: absolute;
@@ -215,7 +218,7 @@ html.dark-mode .controls-area .date-field input[type="date"] {
   opacity: 0.95;
 }
 
-/* Variables para íconos */
+/* Ruta del ícono según tema (en light uso el ícono oscuro; en dark uso el claro) */
 :root {
   --calendar-icon: url("../assets/images/icono-calendario-dark.png");
   --plus-icon: url("../assets/images/plus-icon.png");
@@ -224,18 +227,57 @@ html.dark-mode {
   --calendar-icon: url("../assets/images/icono-calendario-light.png");
 }
 
-/* Cursor de mano */
+/* Cursor de mano en todo el wrapper y el ícono */
 .controls-area .date-field,
 .controls-area .date-field::after {
   cursor: pointer;
 }
 
-/* --- Placeholder móvil visible en date --- */
+/* Placeholder simulado para <input type="date"> cuando está vacío (lo marca el JS) */
+.controls-area .date-field[data-empty="true"]::before {
+  content: none;
+}
+
+/* Ancho específico para date fields de escritorio */
+.controls-area .date-field {
+  flex: 0 0 170px;
+}
+
+/* MÓVIL: grilla limpia -> search arriba; fechas lado a lado; export abajo full */
+@media (max-width: 520px) {
+  .controls-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    border-radius: 16px; /* menos exagerado en móvil */
+  }
+  .controls-area input[type="search"] { grid-column: 1 / -1; width: 100%; }
+
+  /* Fechas ocupan 100% cada una y mantienen placeholder simulado */
+  #date-start-visitantes, #date-end-visitantes,
+  #date-start-descartes,  #date-end-descartes  { width: 100%; }
+
+  .controls-area .btn-export { grid-column: 1 / -1; width: 100%; }
+
+  /* En móvil, conserva el mismo alto/padding y oculta flechas nativas */
+  .controls-area .date-field { width: 100%; }
+  .controls-area .date-field input[type="date"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: none !important;
+  }
+}
+
+/* Mostrar placeholder dd/mm/aaaa en inputs de fecha en móvil */
 @media (max-width: 768px) {
-  input[type="date"]:not(:focus):not(:valid)::before {
+  input[type="date"]::before {
     content: attr(placeholder);
     color: #888;
     margin-left: 10px;
+  }
+  input[type="date"]:focus::before,
+  input[type="date"]:valid::before {
+    content: "";
   }
 }
 
@@ -259,7 +301,7 @@ html.dark-mode {
   table-layout: auto;
 }
 
-/* Color de borde */
+/* Color de borde (ajustable por tema) */
 :root { --table-border-color: color-mix(in srgb, var(--border-color) 60%, transparent); }
 html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50%, transparent); }
 
@@ -279,7 +321,7 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   background-color: var(--input-bg-color);
   font-size: 0.9rem;
   font-weight: bold;
-  position: sticky;
+  position: sticky;       /* header sticky horizontal si scrolleas vertical */
   top: 0;
   z-index: 3;
 }
@@ -314,8 +356,7 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   color: #fff;
   box-shadow: 0 2px 6px var(--shadow-color);
 }
-
-/* Variantes */
+/* variantes */
 .btn-editar         { background-color: #4B5563; }
 .btn-editar:hover   { background-color: #374151; }
 .btn-eliminar,
@@ -324,8 +365,7 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
 .btn-eliminar-sesion:hover { background-color: #b02a37; }
 .btn-view-equipos   { background-color: var(--primary-color); }
 .btn-view-equipos:hover { background-color: var(--primary-hover-color); }
-
-/* Fallback */
+/* fallback */
 .table-actions button:not(.btn-editar):not(.btn-eliminar):not(.btn-view-equipos):not(.btn-eliminar-sesion){
   background-color: var(--primary-color);
 }
@@ -336,8 +376,8 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
 #table-equipos-sesion th:last-child {
   position: sticky;
   right: 0;
-  z-index: 4;
-  box-shadow: -6px 0 8px -4px rgba(0,0,0,0.08);
+  z-index: 4; /* por encima del body */
+  box-shadow: -6px 0 8px -4px rgba(0,0,0,0.08); /* separador visual al hacer scroll */
 }
 
 #table-visitantes td:last-child,
@@ -429,18 +469,20 @@ html.dark-mode select option:checked {
   color: #111827;
 }
 
-/* --- 6) Modal: Agregar Equipo (igual que Editar Equipo) --- */
+/* ---6) Modal: Agregar Equipo (igual que Editar Equipo) --- */
 #modal-agregar-equipo .form-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
   margin-bottom: 12px;
 }
+
 #modal-agregar-equipo .form-group,
 #modal-agregar-equipo .form-group-full {
   display: flex;
   flex-direction: column;
 }
+
 @media (min-width: 768px) {
   #modal-agregar-equipo .form-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -452,7 +494,7 @@ html.dark-mode select option:checked {
   #modal-agregar-equipo .form-group:nth-child(5) { grid-column: 2 / 3; }
 }
 
-/* --- 7) Tarjetas de sesiones --- */
+/* Tarjetas de sesiones */
 .sesion-card {
   border: 1px solid var(--border-color);
   border-radius: 12px;
@@ -496,7 +538,7 @@ html.dark-mode select option:checked {
   .sesion-card.open .sesion-detalles { display: block; }
 }
 
-/* --- 8) Media Queries para Escritorio --- */
+/* --- 7) Media Queries para Escritorio --- */
 @media (min-width: 992px) {
   .container { max-width: 1200px; }
 }
