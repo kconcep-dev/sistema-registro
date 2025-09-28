@@ -264,6 +264,13 @@ html.dark-mode {
     grid-column: 1 / -1;
     width: 100%;
   }
+
+  /* Añadir equipo ancho completo */
+  #btn-agregar-equipo {
+    grid-column: 1 / -1;
+    width: 100%;
+    text-align: center;
+  }
 }
 
 /* --- 3) Estilos de la Tabla --- */
