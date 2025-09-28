@@ -11,23 +11,37 @@
 }
 
 .btn-iniciar {
-    padding: 20px 40px;
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: white;
+    height: 52px;
+    padding: 0 28px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
     background-color: var(--primary-color);
     border: none;
-    border-radius: 12px;
+    border-radius: 999px;            /* redondeado tipo píldora */
     cursor: pointer;
     box-shadow: 0 5px 15px var(--shadow-color);
     transition: transform 0.2s ease, background-color 0.2s ease;
+    display: inline-flex;            /* para alinear ícono + texto */
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-iniciar::before {
+    content: "";
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    background-image: var(--plus-icon);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
 }
 
 .btn-iniciar:hover {
     transform: translateY(-5px);
     background-color: var(--primary-hover-color);
 }
-
 
 /* --- 3. Estilos de la Interfaz Principal de Registro --- */
 .session-indicator {
@@ -80,7 +94,6 @@
 .btn-principal:hover {
     background-color: var(--primary-hover-color);
 }
-
 
 /* --- 4. Estilos de la Tabla de Equipos --- */
 .tabla-equipos-wrapper {
@@ -144,7 +157,6 @@
     background-color: #b02a37;
 }
 
-
 /* --- 5. Estilos de la Sección Final --- */
 .finalizar-seccion {
     background-color: var(--card-bg-color);
@@ -178,6 +190,10 @@
     font-weight: bold;
 }
 
+/* Iconos custom de esta vista */
+:root {
+  --plus-icon: url("../assets/images/plus-icon.png");
+}
 
 /* --- 6. Media Queries para Escritorio --- */
 @media (min-width: 768px) {
