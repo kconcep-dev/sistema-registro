@@ -426,9 +426,8 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   color: var(--text-color);
 }
 
-/* Observación independiente, siempre debajo */
 .detalle-observacion {
-  margin-top: 10px;
+  margin-top: 8px;
   padding: 10px 14px;
   background-color: var(--card-bg-color);
   border-radius: 8px;
