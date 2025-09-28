@@ -470,6 +470,8 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   margin-top: 6px;
   color: var(--text-color);
   font-size: 0.95rem;
+  display: block;        /* asegura que ocupe toda la línea */
+  width: 100%;
 }
 
 #btn-volver-sesiones {
