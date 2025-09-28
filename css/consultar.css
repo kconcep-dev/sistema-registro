@@ -464,12 +464,14 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   color: var(--border-color);
   font-size: 0.95rem;
 }
-.detalle-meta span strong { color: var(--text-color); }
 
+.detalle-meta span strong { 
+  color: var(--text-color); 
+}
+
+/* La observación SIEMPRE debajo */
 .detalle-observacion {
-  grid-column: 1 / -1;   /* ocupa toda la fila en la grid del header */
-  display: block;
-  width: 100%;
+  flex-basis: 100%;   /* fuerza ocupar toda la fila */
   margin-top: 6px;
   color: var(--text-color);
   font-size: 0.95rem;
