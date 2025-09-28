@@ -107,13 +107,20 @@
             <!-- Botón de volver: en móvil se verá más compacto -->
             <button id="btn-volver-sesiones" class="btn-secondary btn-volver" type="button">← Volver a Sesiones</button>
             <h2 id="detalle-titulo">Sesión</h2>
-            <div class="detalle-meta">
-              <span><strong>Unidad:</strong> <span id="detalle-unidad">—</span></span>
+            <span class="detalle-unidad"><strong>Unidad:</strong> <span id="detalle-unidad">—</span></span>
+
+            <!-- Botón toggle SOLO para móvil -->
+            <button id="btn-toggle-detalles" class="btn-secondary btn-toggle" type="button">
+              Ver más detalles ⌄
+            </button>
+
+            <!-- Bloque de detalles extra -->
+            <div id="detalle-extra" class="detalle-extra">
               <span><strong>SIACE:</strong> <span id="detalle-siace">—</span></span>
               <span><strong>Fecha:</strong> <span id="detalle-fecha">—</span></span>
               <span><strong>Técnico:</strong> <span id="detalle-tecnico">—</span></span>
+              <p id="detalle-observacion" class="detalle-observacion"></p>
             </div>
-            <p id="detalle-observacion" class="detalle-observacion"></p>
           </div>
 
           <div class="controls-area">

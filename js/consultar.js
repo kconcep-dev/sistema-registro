@@ -36,6 +36,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const detalleFecha             = document.getElementById('detalle-fecha');
   const detalleTecnico           = document.getElementById('detalle-tecnico');
   const detalleObservacion       = document.getElementById('detalle-observacion');
+  const btnToggleDetalles       = document.getElementById('btn-toggle-detalles');
+  const detalleExtra            = document.getElementById('detalle-extra');
   const searchEquiposInput       = document.getElementById('search-equipos');
   const tableEquiposSesionBody   = document.querySelector('#table-equipos-sesion tbody');
 
@@ -569,6 +571,16 @@ const btnCancelarAgregarEq     = document.getElementById('btn-agregar-equipo-can
   if (btnVolverSesiones) {
     btnVolverSesiones.addEventListener('click', () => {
       closeSessionDetail();
+    });
+  }
+
+    // Toggle de detalles extra (solo móvil)
+  if (btnToggleDetalles && detalleExtra) {
+    btnToggleDetalles.addEventListener('click', () => {
+      detalleExtra.classList.toggle('open');
+      btnToggleDetalles.textContent = detalleExtra.classList.contains('open')
+        ? 'Ocultar detalles ▲'
+        : 'Ver más detalles ▼';
     });
   }
 
