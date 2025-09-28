@@ -239,6 +239,33 @@ html.dark-mode {
   }
 }
 
+/* --- Ajuste de grilla en móvil para filtros --- */
+@media (max-width: 768px) {
+  .controls-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    border-radius: 16px; /* menos exagerado en móvil */
+  }
+
+  /* Barra de búsqueda ocupa todo el ancho arriba */
+  .controls-area input[type="search"] {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  /* Fechas lado a lado */
+  .controls-area .date-field {
+    width: 100%;
+  }
+
+  /* Exportar ancho completo abajo */
+  .controls-area .btn-export {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+
 /* --- 3) Estilos de la Tabla --- */
 .table-container {
   position: relative;                 /* necesario para sticky right */
