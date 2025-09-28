@@ -139,8 +139,8 @@ html.dark-mode .controls-area .date-field input[type="date"] {
 
 /* Oculta el indicador nativo (Chromium/WebKit) */
 .controls-area .date-field input[type="date"]::-webkit-calendar-picker-indicator {
-  opacity: 0 !important;
-  pointer-events: none;
+  opacity: 0;
+  pointer-events: auto;
 }
 
 /* Algunos navegadores muestran flecha/list-button adicional: ocúltala */
