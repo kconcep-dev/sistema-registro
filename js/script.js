@@ -5,18 +5,17 @@ function getLocalPaDateISO() {
   // Devuelve 'YYYY-MM-DD' (formato en-CA) según la hora local de Panamá
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Panama' }).format(new Date());
 }
-function getLocalPaTime12h() {
-  // Devuelve 'hh:mm:ss AM/PM' según la hora local de Panamá
+function getLocalPaTime24h() {
+  // Devuelve 'HH:mm:ss' en 24h según la hora local de Panamá
   const t = new Intl.DateTimeFormat('es-PA', {
     timeZone: 'America/Panama',
-    hour: 'numeric',
+    hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
-    hour12: true
+    hour12: false
   }).format(new Date());
-
-  // Normaliza: quita puntos/espacios y fuerza AM/PM en mayúscula
-  return t.replace(/\./g, '').replace(/\s/g, '').toUpperCase();
+  // Algunos navegadores pueden devolver con puntos o espacios, normalizamos a HH:mm:ss
+  return t.replace(/\./g, ':').replace(/\s/g, '');
 }
 
 // --- 0. PROTECCIÓN DE RUTA INICIAL ---
@@ -127,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       // ⬇️ FECHA/HORA corregidas a zona de Panamá
       const fechaActual = getLocalPaDateISO();     // 'YYYY-MM-DD'
-      const horaActual  = getLocalPaTime12h();     // 'hh:mm:ss AM/PM'
+      const horaActual  = getLocalPaTime24h();     // 'HH:mm:ss'
       const { data: nuevoVisitante, error } = await supabaseClient
         .from('visitantes')
         .insert([{ nombre, apellido, cedula, sexo, motivo, fecha: fechaActual, hora: horaActual }])
@@ -185,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       // ⬇️ FECHA/HORA corregidas a zona de Panamá
       const fechaActual = getLocalPaDateISO();   // 'YYYY-MM-DD'
-      const horaActual  = getLocalPaTime12h();   // 'hh:mm:ss AM/PM'
+      const horaActual  = getLocalPaTime24h();   // 'HH:mm:ss'
       const { data: nuevoVisitante, error } = await supabaseClient
         .from('visitantes')
         .insert([{ nombre, apellido, cedula, sexo, motivo, fecha: fechaActual, hora: horaActual }])
