@@ -269,7 +269,11 @@ html.dark-mode {
   #btn-agregar-equipo {
     grid-column: 1 / -1;
     width: 100%;
-    text-align: center;
+    justify-content: center; /* centra ícono + texto dentro del ancho */
+    text-align: center;      /* extra, por compatibilidad */
+    display: inline-flex;    /* mantiene el gap */
+    align-items: center;
+    gap: 8px;                /* espacio entre icono y texto */
   }
 }
 
