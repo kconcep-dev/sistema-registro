@@ -111,6 +111,35 @@ html.dark-mode .date-field input[type="date"]{
   border-color: var(--border-color) !important;
 }
 
+/* Botón Agregar Equipo: estilo "pill" como exportar */
+#btn-agregar-equipo {
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;              /* redondeado total */
+  background-color: var(--primary-color);
+  color: #fff;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;                          /* espacio entre el ícono y el texto */
+  transition: background-color .2s;
+  box-shadow: 0 2px 6px var(--shadow-color);
+}
+
+#btn-agregar-equipo:hover {
+  background-color: var(--primary-hover-color);
+}
+
+/* Icono "+" dentro del botón */
+#btn-agregar-equipo i {
+  font-size: 1.2rem;
+  color: #fff;                       /* blanco para contraste */
+  font-weight: bold;
+}
+
 /* ================================
    Calendario custom (light/dark)
    ================================ */
