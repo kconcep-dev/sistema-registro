@@ -127,7 +127,7 @@ html.dark-mode .date-field input[type="date"]{
 .controls-area .date-field input[type="date"] {
   width: 100%;
   height: 100%;
-  padding-right: 2.5rem;  /* espacio para el ícono */
+  padding-right: 1.8rem;  /* espacio para el ícono */
   background-image: none !important;
   -webkit-appearance: none;
   appearance: none;
@@ -188,18 +188,7 @@ html.dark-mode {
 
 /* Placeholder simulado para <input type="date"> cuando está vacío (lo marca el JS) */
 .controls-area .date-field[data-empty="true"]::before {
-  content: "dd/mm/aaaa";
-  position: absolute;
-  left: 14px;
-  right: 44px;               /* evita solapar el icono */
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 0.95rem;
-  color: color-mix(in srgb, var(--input-text-color) 50%, transparent);
-  pointer-events: none;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  content: none;
 }
 
 /* Ancho específico para date fields de escritorio */
