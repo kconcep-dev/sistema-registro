@@ -49,6 +49,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btnCerrarModalEditarEq   = document.getElementById('btn-cerrar-modal-editar-equipo');
   const btnCancelarEditarEq      = document.getElementById('btn-editar-equipo-cancelar');
 
+  // --- NUEVO: Modal agregar equipo ---
+const btnAgregarEquipo         = document.getElementById('btn-agregar-equipo');
+const modalAgregarEquipo       = document.getElementById('modal-agregar-equipo');
+const formAgregarEquipo        = document.getElementById('form-agregar-equipo');
+const btnCerrarModalAgregarEq  = document.getElementById('btn-cerrar-modal-agregar-equipo');
+const btnCancelarAgregarEq     = document.getElementById('btn-agregar-equipo-cancelar');
+
   // Toast
   const toastEl        = document.getElementById('toast-notification');
   const toastMessageEl = document.getElementById('toast-message');
@@ -563,6 +570,59 @@ document.addEventListener('DOMContentLoaded', async () => {
     btnVolverSesiones.addEventListener('click', () => {
       closeSessionDetail();
     });
+  }
+
+  // --- NUEVO: Lógica para agregar equipo ---
+  if (btnAgregarEquipo && modalAgregarEquipo) {
+    btnAgregarEquipo.addEventListener('click', () => {
+      if (!currentSessionId) {
+        showToast("Primero abre una sesión.", "error");
+        return;
+      }
+      formAgregarEquipo.reset();
+      modalAgregarEquipo.classList.add('visible');
+    });
+  }
+
+  if (formAgregarEquipo) {
+    formAgregarEquipo.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentSessionId) {
+        showToast("No hay sesión activa.", "error");
+        return;
+      }
+
+      const payload = {
+        sesion_id:       currentSessionId,
+        descripcion:     document.getElementById('add-descripcion').value.trim(),
+        marbete:         document.getElementById('add-marbete').value.trim(),
+        serie:           document.getElementById('add-serie').value.trim(),
+        marca:           document.getElementById('add-marca').value.trim(),
+        modelo:          document.getElementById('add-modelo').value.trim(),
+        estado_equipo:   document.getElementById('add-estado').value.trim(),
+        motivo_descarte: document.getElementById('add-motivo').value.trim(),
+      };
+
+      const { error } = await supabaseClient.from('equipos_descartados').insert([payload]);
+
+      if (error) {
+        console.error(error);
+        showToast("No se pudo agregar el equipo.", "error");
+      } else {
+        showToast("Equipo agregado con éxito.", "success");
+        modalAgregarEquipo.classList.remove('visible');
+        const term = searchEquiposInput?.value.trim() || '';
+        currentEquiposData = await fetchEquiposBySession(currentSessionId, term);
+        renderEquiposTable(currentEquiposData);
+      }
+  });
+}
+
+  if (btnCerrarModalAgregarEq) {
+    btnCerrarModalAgregarEq.addEventListener('click', () => modalAgregarEquipo?.classList.remove('visible'));
+  }
+  if (btnCancelarAgregarEq) {
+    btnCancelarAgregarEq.addEventListener('click', () => modalAgregarEquipo?.classList.remove('visible'));
   }
 
   // --- 6) Exportar a Excel ---

@@ -121,6 +121,8 @@
               type="search"
               id="search-equipos"
               placeholder="Buscar por descripción, marca, modelo, serie o marbete..." />
+            <!-- Nuevo botón para añadir equipo -->
+            <button id="btn-agregar-equipo" class="btn-principal" type="button">➕ Añadir Equipo</button>
           </div>
 
           <div class="table-container">
@@ -234,6 +236,52 @@
           <div class="modal-buttons">
             <button type="button" id="btn-editar-equipo-cancelar" class="btn-secondary">Cancelar</button>
             <button type="submit" class="btn-principal">Aplicar Cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Agregar equipo (nuevo) -->
+  <div id="modal-agregar-equipo" class="modal-overlay">
+    <div class="modal-content">
+      <button id="btn-cerrar-modal-agregar-equipo" class="modal-close-btn">&times;</button>
+      <h2>Agregar Equipo</h2>
+      <div class="modal-form-container">
+        <form id="form-agregar-equipo" novalidate>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="add-descripcion">Descripción:</label>
+              <input type="text" id="add-descripcion" required />
+            </div>
+            <div class="form-group">
+              <label for="add-marbete">Marbete:</label>
+              <input type="text" id="add-marbete" required />
+            </div>
+            <div class="form-group">
+              <label for="add-serie">Serie:</label>
+              <input type="text" id="add-serie" />
+            </div>
+            <div class="form-group">
+              <label for="add-marca">Marca:</label>
+              <input type="text" id="add-marca" />
+            </div>
+            <div class="form-group">
+              <label for="add-modelo">Modelo:</label>
+              <input type="text" id="add-modelo" />
+            </div>
+          </div>
+          <div class="form-group-full">
+            <label for="add-estado">Estado del Equipo:</label>
+            <input type="text" id="add-estado" />
+          </div>
+          <div class="form-group-full">
+            <label for="add-motivo">Motivo del Descarte:</label>
+            <input type="text" id="add-motivo" />
+          </div>
+          <div class="modal-buttons">
+            <button type="button" id="btn-agregar-equipo-cancelar" class="btn-secondary">Cancelar</button>
+            <button type="submit" class="btn-principal">Añadir</button>
           </div>
         </form>
       </div>

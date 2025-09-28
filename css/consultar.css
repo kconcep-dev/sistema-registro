@@ -400,7 +400,32 @@ html.dark-mode select option:checked {
   color: #111827;
 }
 
-/* --- 6) Media Queries para Escritorio --- */
+/* ---6) Modal: Agregar Equipo (igual que Editar Equipo) --- */
+#modal-agregar-equipo .form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+#modal-agregar-equipo .form-group,
+#modal-agregar-equipo .form-group-full {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  #modal-agregar-equipo .form-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  #modal-agregar-equipo .form-group:nth-child(1) { grid-column: 1 / 2; }
+  #modal-agregar-equipo .form-group:nth-child(2) { grid-column: 2 / 3; }
+  #modal-agregar-equipo .form-group:nth-child(3) { grid-column: 3 / 4; }
+  #modal-agregar-equipo .form-group:nth-child(4) { grid-column: 1 / 2; }
+  #modal-agregar-equipo .form-group:nth-child(5) { grid-column: 2 / 3; }
+}
+
+/* --- 7) Media Queries para Escritorio --- */
 @media (min-width: 992px) {
   .container { max-width: 1200px; }
 }
