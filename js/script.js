@@ -5,17 +5,18 @@ function getLocalPaDateISO() {
   // Devuelve 'YYYY-MM-DD' (formato en-CA) según la hora local de Panamá
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Panama' }).format(new Date());
 }
-function getLocalPaTime24h() {
-  // Devuelve 'HH:mm:ss' en 24h según la hora local de Panamá
+function getLocalPaTime12h() {
+  // Devuelve 'hh:mm:ss AM/PM' según la hora local de Panamá
   const t = new Intl.DateTimeFormat('es-PA', {
     timeZone: 'America/Panama',
-    hour: '2-digit',
+    hour: 'numeric',
     minute: '2-digit',
     second: '2-digit',
-    hour12: false
+    hour12: true
   }).format(new Date());
-  // Algunos navegadores pueden devolver con puntos o espacios, normalizamos a HH:mm:ss
-  return t.replace(/\./g, ':').replace(/\s/g, '');
+
+  // Normaliza: quita puntos/espacios y fuerza AM/PM en mayúscula
+  return t.replace(/\./g, '').replace(/\s/g, '').toUpperCase();
 }
 
 // --- 0. PROTECCIÓN DE RUTA INICIAL ---
@@ -126,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       // ⬇️ FECHA/HORA corregidas a zona de Panamá
       const fechaActual = getLocalPaDateISO();     // 'YYYY-MM-DD'
-      const horaActual  = getLocalPaTime24h();     // 'HH:mm:ss'
+      const horaActual  = getLocalPaTime12h();     // 'hh:mm:ss AM/PM'
       const { data: nuevoVisitante, error } = await supabaseClient
         .from('visitantes')
         .insert([{ nombre, apellido, cedula, sexo, motivo, fecha: fechaActual, hora: horaActual }])
@@ -184,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       // ⬇️ FECHA/HORA corregidas a zona de Panamá
       const fechaActual = getLocalPaDateISO();   // 'YYYY-MM-DD'
-      const horaActual  = getLocalPaTime24h();   // 'HH:mm:ss'
+      const horaActual  = getLocalPaTime12h();   // 'hh:mm:ss AM/PM'
       const { data: nuevoVisitante, error } = await supabaseClient
         .from('visitantes')
         .insert([{ nombre, apellido, cedula, sexo, motivo, fecha: fechaActual, hora: horaActual }])
@@ -267,7 +268,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // --- 7. LÓGICA PARA SCANBOT (Cámara en Vivo) ---
-  // (Esta sección no necesita cambios, se mantiene igual)
   if (btnScanLive) {
     btnScanLive.addEventListener('click', async () => {
       if (activeBarcodeScanner) return;
@@ -348,7 +348,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- 8. INICIALIZACIÓN FINAL ---
   fetchLastVisitor();
 
-  // ✅ LÓGICA MEJORADA PARA ACTIVAR LA ADVERTENCIA DE "SALIR SIN GUARDAR"
   const setWorkInProgress = () => {
     if (!window.isWorkInProgress) {
       window.isWorkInProgress = true;
