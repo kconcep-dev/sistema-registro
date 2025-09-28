@@ -469,10 +469,10 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   color: var(--text-color); 
 }
 
-/* La observación SIEMPRE debajo */
 .detalle-observacion {
-  flex-basis: 100%;   /* fuerza ocupar toda la fila */
+  flex-basis: 100%;  /* obliga a ocupar toda la fila */
   margin-top: 6px;
+  display: block;
   color: var(--text-color);
   font-size: 0.95rem;
 }
