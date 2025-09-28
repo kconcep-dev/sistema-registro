@@ -161,7 +161,7 @@ html.dark-mode .controls-area .date-field input[type="date"] {
   content: "";
   position: absolute;
   top: 50%;
-  right: 12px;
+  right: 8px;
   transform: translateY(-50%);
   width: 20px;
   height: 20px;
