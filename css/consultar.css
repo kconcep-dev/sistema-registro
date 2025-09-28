@@ -111,33 +111,40 @@ html.dark-mode .date-field input[type="date"]{
   border-color: var(--border-color) !important;
 }
 
-/* Botón Agregar Equipo: estilo "pill" como exportar */
-#btn-agregar-equipo {
+/* Botón Agregar Equipo: estilo pill como Exportar */
+#btn-agregar-equipo{
   height: 42px;
   padding: 0 16px;
-  border-radius: 999px;              /* redondeado total */
+  border-radius: 999px;
   background-color: var(--primary-color);
   color: #fff;
   border: none;
   font-weight: 700;
   cursor: pointer;
+  transition: background-color .2s;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;                          /* espacio entre el ícono y el texto */
-  transition: background-color .2s;
+  gap: 8px;                 /* espacio entre icono y texto */
   box-shadow: 0 2px 6px var(--shadow-color);
 }
 
-#btn-agregar-equipo:hover {
+#btn-agregar-equipo:hover{
   background-color: var(--primary-hover-color);
 }
 
-/* Icono "+" dentro del botón */
-#btn-agregar-equipo i {
-  font-size: 1.2rem;
-  color: #fff;                       /* blanco para contraste */
-  font-weight: bold;
+/* Icono PNG antes del texto (como el calendario) */
+#btn-agregar-equipo::before{
+  content: "";
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  background-image: var(--plus-icon);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  /* Si tu PNG es oscuro y no contrasta, descomenta la línea de abajo:
+  filter: invert(1) brightness(2);
+  */
 }
 
 /* ================================
@@ -204,6 +211,7 @@ html.dark-mode .controls-area .date-field input[type="date"] {
 /* Ruta del ícono según tema (en light uso el ícono oscuro; en dark uso el claro) */
 :root {
   --calendar-icon: url("../assets/images/icono-calendario-dark.png");
+  --plus-icon: url("../assets/images/plus-icon.png");
 }
 html.dark-mode {
   --calendar-icon: url("../assets/images/icono-calendario-light.png");
