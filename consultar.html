@@ -42,10 +42,10 @@
         <div class="controls-area">
           <input type="search" id="search-visitantes" placeholder="Buscar por nombre, apellido o cédula..." />
           <div class="date-field">
-            <input type="date" id="date-start-visitantes" title="Fecha de inicio" />
+            <input type="date" id="date-start-visitantes" placeholder="dd/mm/aaaa" title="Fecha de inicio" />
           </div>
           <div class="date-field">
-            <input type="date" id="date-end-visitantes" title="Fecha de fin" />
+            <input type="date" id="date-end-visitantes" placeholder="dd/mm/aaaa" title="Fecha de fin" />
           </div>
           <button id="export-visitantes-btn" class="btn-export">Exportar Excel</button>
         </div>
@@ -75,37 +75,23 @@
           <div class="controls-area">
             <input type="search" id="search-descartes" placeholder="Buscar por Unidad Administrativa o SIACE..." />
             <div class="date-field">
-              <input type="date" id="date-start-descartes" title="Fecha de inicio" />
+              <input type="date" id="date-start-descartes" placeholder="dd/mm/aaaa" title="Fecha de inicio" />
             </div>
             <div class="date-field">
-              <input type="date" id="date-end-descartes" title="Fecha de fin" />
+              <input type="date" id="date-end-descartes" placeholder="dd/mm/aaaa" title="Fecha de fin" />
             </div>
             <button id="export-descartes-btn" class="btn-export">Exportar Excel</button>
           </div>
 
-          <div class="table-container">
-            <table id="table-descartes">
-              <thead>
-                <tr>
-                  <!-- Sin mostrar id/created_at -->
-                  <th>Unidad Administrativa</th>
-                  <th>Código SIACE</th>
-                  <th>Fecha</th>
-                  <th>Técnico</th>
-                  <th>Observación</th>
-                  <th>Nº Equipos</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+          <div id="sesiones-cards-container">
+            <!-- Aquí se cargarán dinámicamente las tarjetas de sesiones -->
           </div>
         </section>
 
         <!-- Detalle de una sesión (oculto inicialmente) -->
         <section id="sesion-detalle" style="display:none;">
           <div class="detalle-header">
-            <button id="btn-volver-sesiones" class="btn-secondary" type="button">← Volver a Sesiones</button>
+            <button id="btn-volver-sesiones" class="btn-secondary btn-volver" type="button">← Volver a Sesiones</button>
             <h2 id="detalle-titulo">Sesión</h2>
             <div class="detalle-meta">
               <span><strong>Unidad:</strong> <span id="detalle-unidad">—</span></span>
@@ -121,8 +107,8 @@
               type="search"
               id="search-equipos"
               placeholder="Buscar por descripción, marca, modelo, serie o marbete..." />
-            <!-- Nuevo botón para añadir equipo -->
-            <button id="btn-agregar-equipo" class="btn-principal" type="button">Añadir Equipo</button>
+            <!-- Botón para añadir equipo ahora ancho completo en móvil -->
+            <button id="btn-agregar-equipo" class="btn-principal btn-anadir-equipo" type="button">Añadir Equipo</button>
           </div>
 
           <div class="table-container">
@@ -300,5 +286,20 @@
   <!-- App -->
   <script src="js/common.js" defer></script>
   <script src="js/consultar.js" defer></script>
+
+  <!-- Script toggle para sesiones (compacto en móvil) -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.addEventListener("click", (e) => {
+        if (e.target.classList.contains("toggle-detalles")) {
+          const card = e.target.closest(".sesion-card");
+          card.classList.toggle("open");
+          e.target.textContent = card.classList.contains("open")
+            ? "Ocultar"
+            : "Ver detalles";
+        }
+      });
+    });
+  </script>
 </body>
 </html>

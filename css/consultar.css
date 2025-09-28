@@ -128,6 +128,16 @@ html.dark-mode .date-field input[type="date"]{
   box-shadow: 0 2px 6px var(--shadow-color);
 }
 
+/* Botón Añadir Equipo ocupa todo el ancho en móvil */
+@media (max-width: 768px) {
+  #btn-agregar-equipo {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 0.8rem;
+  }
+}
+
 #btn-agregar-equipo:hover{
   background-color: var(--primary-hover-color);
 }
@@ -255,6 +265,19 @@ html.dark-mode {
     -webkit-appearance: none;
     appearance: none;
     background-image: none !important;
+  }
+}
+
+/* Mostrar placeholder dd/mm/aaaa en inputs de fecha en móvil */
+@media (max-width: 768px) {
+  input[type="date"]::before {
+    content: attr(placeholder);
+    color: #888;
+    margin-left: 10px;
+  }
+  input[type="date"]:focus::before,
+  input[type="date"]:valid::before {
+    content: "";
   }
 }
 
@@ -404,6 +427,15 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   justify-self: start;
 }
 
+/* Volver a Sesiones más compacto en móvil */
+@media (max-width: 768px) {
+  #btn-volver-sesiones {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    border-radius: 8px;
+  }
+}
+
 /* --- 5) Modal: Editar Equipo (grid dentro del modal) --- */
 #modal-editar-equipo .form-grid {
   display: grid;
@@ -460,6 +492,50 @@ html.dark-mode select option:checked {
   #modal-agregar-equipo .form-group:nth-child(3) { grid-column: 3 / 4; }
   #modal-agregar-equipo .form-group:nth-child(4) { grid-column: 1 / 2; }
   #modal-agregar-equipo .form-group:nth-child(5) { grid-column: 2 / 3; }
+}
+
+/* Tarjetas de sesiones */
+.sesion-card {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: var(--card-bg-color);
+  box-shadow: 0 2px 6px var(--shadow-color);
+}
+
+.sesion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sesion-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.toggle-detalles {
+  font-size: 0.85rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  border: none;
+  background-color: var(--primary-color);
+  color: #fff;
+  cursor: pointer;
+  transition: background-color .2s;
+}
+.toggle-detalles:hover {
+  background-color: var(--primary-hover-color);
+}
+
+.sesion-detalles {
+  margin-top: 0.8rem;
+}
+
+@media (max-width: 768px) {
+  .sesion-detalles { display: none; }
+  .sesion-card.open .sesion-detalles { display: block; }
 }
 
 /* --- 7) Media Queries para Escritorio --- */
