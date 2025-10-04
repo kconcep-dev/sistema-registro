@@ -81,7 +81,7 @@ button {
     left: 50%;
     transform: translate(-50%, -50%) scale(0.9);
     padding: 20px 30px;
-    border-radius: 10px;
+    border-radius: var(--button-radius);
     color: white;
     font-weight: bold;
     font-size: 1.2rem;
@@ -92,11 +92,13 @@ button {
     opacity: 0;
     border: 2px solid rgba(255, 255, 255, 0.7);
     transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    pointer-events: none;
 }
 
 .toast.show {
     transform: translate(-50%, -50%) scale(1);
     opacity: 1;
+    pointer-events: auto;
 }
 
 .toast.success {
