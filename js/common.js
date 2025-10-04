@@ -1,8 +1,14 @@
 // js/common.js
 
 // --- 1. CONFIGURACIÓN Y CLIENTE SUPABASE ---
-const supabaseUrl = "https://qmzbqwwndsdsmdkrimwb.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtemJxd3duZHNkc21ka3JpbXdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0OTExNDYsImV4cCI6MjA3MjA2NzE0Nn0.dfQdvfFbgXdun1kQ10gRsqh3treJRzOKdbkebpEQXWo";
+const supabaseConfig = window.__SUPABASE_CONFIG__ || {};
+
+if (!supabaseConfig.url || !supabaseConfig.key) {
+    throw new Error('Supabase no está configurado. Define window.__SUPABASE_CONFIG__ antes de cargar common.js');
+}
+
+const supabaseUrl = supabaseConfig.url;
+const supabaseKey = supabaseConfig.key;
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
 // --- 2. INYECTOR DE BARRA DE NAVEGACIÓN ---
