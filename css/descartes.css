@@ -18,7 +18,7 @@
     color: #fff;
     background-color: var(--primary-color);
     border: none;
-    border-radius: 999px;            /* redondeado tipo píldora */
+    border-radius: var(--button-radius);            /* redondeado tipo píldora */
     cursor: pointer;
     box-shadow: 0 5px 15px var(--shadow-color);
     transition: transform 0.2s ease, background-color 0.2s ease;

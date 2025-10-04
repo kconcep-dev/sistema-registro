@@ -11,7 +11,7 @@
     --shadow-color: rgba(0, 0, 0, 0.05);
     --success-color: #28A745;
     --error-color: #DC3545;
-    --button-radius: 12px;
+    --button-radius: 999px;
 }
 
 html.dark-mode {
@@ -337,7 +337,7 @@ body.nav-open .nav-links {
         transform: none;
         gap: 0;
         background-color: var(--card-bg-color);
-        border-radius: 999px;
+        border-radius: var(--button-radius);
         padding: 0;
         box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
         transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;

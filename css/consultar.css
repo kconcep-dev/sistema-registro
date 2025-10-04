@@ -13,7 +13,7 @@
   gap: 10px;
   padding: 6px;
   background-color: var(--card-bg-color);
-  border-radius: 999px;
+  border-radius: var(--button-radius);
   box-shadow: 0 0 0 1px rgba(0,0,0,0.25);
 }
 html.dark-mode .tabs-nav{
@@ -29,7 +29,7 @@ html.dark-mode .tabs-nav{
   font-size: 1.05rem;
   font-weight: 600;
   cursor: pointer;
-  border-radius: 999px;
+  border-radius: var(--button-radius);
   transition: background-color .2s ease, color .2s ease, transform .1s ease;
 }
 .tab-btn:hover { background-color: var(--input-bg-color); }
@@ -54,7 +54,7 @@ html.dark-mode .tabs-nav{
   margin-bottom: 25px;
   padding: 14px;
   background-color: var(--card-bg-color);
-  border-radius: 999px;
+  border-radius: var(--button-radius);
   box-shadow: 0 2px 10px var(--shadow-color);
 }
 
@@ -69,7 +69,7 @@ html.dark-mode .tabs-nav{
   gap: 6px;
   min-height: 38px;
   padding: 0 16px;
-  border-radius: 999px;
+  border-radius: var(--button-radius);
   background-color: color-mix(in srgb, var(--primary-color) 15%, transparent);
   color: var(--primary-color);
   font-weight: 600;
@@ -88,7 +88,7 @@ html.dark-mode .count-pill {
   height: 42px;
   padding: 0 14px;
   border: 1px solid var(--border-color);
-  border-radius: 999px;
+  border-radius: var(--button-radius);
   background-color: var(--input-bg-color);
   color: var(--input-text-color);
   outline: none;
@@ -116,7 +116,7 @@ html.dark-mode .count-pill {
 .btn-export{
   height: 42px;
   padding: 0 16px;
-  border-radius: 999px;
+  border-radius: var(--button-radius);
   background-color: var(--success-color);
   color: #fff;
   border: none;
@@ -139,7 +139,7 @@ html.dark-mode .date-field input[type="date"]{
 #btn-agregar-equipo{
   height: 42px;
   padding: 0 16px;
-  border-radius: 999px;
+  border-radius: var(--button-radius);
   background-color: var(--primary-color);
   color: #fff;
   border: none;
@@ -365,7 +365,7 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
 .btn-eliminar {
   border: none;
   padding: 8px 12px;
-  border-radius: 999px;
+  border-radius: var(--button-radius);
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 600;
@@ -593,7 +593,7 @@ html.dark-mode select option:checked {
 .toggle-detalles {
   font-size: 0.85rem;
   padding: 0.3rem 0.7rem;
-  border-radius: 999px;
+  border-radius: var(--button-radius);
   border: none;
   background-color: var(--primary-color);
   color: #fff;
