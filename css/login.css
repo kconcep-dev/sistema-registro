@@ -159,6 +159,14 @@ body.dark-mode .login-container {
 
 /* Responsivo */
 @media (max-width: 768px) {
+    .login-page-main {
+        min-height: auto;
+        height: auto;
+        justify-content: flex-start;
+        align-items: stretch;
+        padding-top: 40px;
+        padding-bottom: 40px;
+    }
     .page-main-title { font-size: 1.3rem; margin-bottom: 25px; }
     .login-container { flex-direction: column; max-width: 400px; }
     .login-info { text-align: center; align-items: center; padding: 20px; }
