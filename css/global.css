@@ -113,6 +113,8 @@ button {
 main {
     width: 100%;
     min-height: 100vh;
+    min-height: 100svh;
+    min-height: 100dvh;
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
@@ -529,7 +531,9 @@ body.nav-open .icon-menu { display: none; }
 
 /* ▼ INICIO DEL CAMBIO: Estilos para hacer el formulario del modal desplazable ▼ */
 .modal-form-container {
-    max-height: 70vh; /* Límite: el alto máximo será el 70% de la altura de la pantalla */
+    max-height: 70vh; /* Fallback para navegadores antiguos */
+    max-height: 70svh;
+    max-height: 70dvh; /* Mantiene el modal visible con teclados virtuales */
     overflow-y: auto;   /* Magia: Muestra una barra de scroll vertical SÓLO si es necesario */
     padding-right: 15px;  /* Espacio extra a la derecha para que el contenido no quede pegado a la barra de scroll */
     margin-right: -15px; /* Compensa el padding para mantener el centrado visual del contenido */
