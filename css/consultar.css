@@ -58,6 +58,30 @@ html.dark-mode .tabs-nav{
   box-shadow: 0 2px 10px var(--shadow-color);
 }
 
+.controls-area .count-pill {
+  margin-left: auto;
+}
+
+.count-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background-color: color-mix(in srgb, var(--primary-color) 15%, transparent);
+  color: var(--primary-color);
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+html.dark-mode .count-pill {
+  background-color: color-mix(in srgb, var(--primary-color) 30%, transparent);
+  color: #fff;
+}
+
 /* Inputs con look de cápsula */
 .controls-area input[type="search"],
 .controls-area .date-field input[type="date"]{
@@ -444,7 +468,7 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
     display: inline-block;
     padding: 6px 12px;
     font-size: 0.85rem;
-    border-radius: 8px;
+    border-radius: var(--button-radius);
     background-color: var(--primary-color);
     color: #fff;
     border: none;
@@ -476,7 +500,16 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   #btn-volver-sesiones {
     padding: 6px 12px;
     font-size: 0.85rem;
-    border-radius: 8px;
+    border-radius: var(--button-radius);
+  }
+}
+
+@media (max-width: 768px) {
+  .controls-area .count-pill {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-left: 0;
+    justify-content: center;
   }
 }
 

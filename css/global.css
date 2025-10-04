@@ -11,6 +11,7 @@
     --shadow-color: rgba(0, 0, 0, 0.05);
     --success-color: #28A745;
     --error-color: #DC3545;
+    --button-radius: 12px;
 }
 
 html.dark-mode {
@@ -39,6 +40,10 @@ body {
     color: var(--text-color);
     transition: background-color 0.2s ease-in-out;
     padding-top: 0;
+}
+
+button {
+    border-radius: var(--button-radius);
 }
 
 .loader-wrapper {
@@ -274,7 +279,7 @@ body.nav-open .nav-links {
     background: transparent;
     border: none;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: var(--button-radius);
     transition: background-color 0.2s;
     display: flex;
     align-items: center;
@@ -489,7 +494,7 @@ body.nav-open .icon-menu { display: none; }
 .btn-secondary, .btn-danger {
     padding: 10px 25px;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--button-radius);
     font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
@@ -569,7 +574,7 @@ html.dark-mode input:-webkit-autofill {
 .btn-principal {
   padding: 10px 25px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--button-radius);
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
