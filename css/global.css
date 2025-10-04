@@ -325,12 +325,17 @@ body.nav-open .nav-links {
 
 @media (min-width: 768px) {
     body {
-        padding-top: 80px;
+        padding-top: 0;
     }
 
     .navbar {
-        top: 15px;
+        position: static;
+        margin-top: 15px;
         height: 60px;
+    }
+
+    main {
+        padding: 40px 20px 20px 20px;
     }
 
     .nav-container {
