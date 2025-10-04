@@ -1,5 +1,10 @@
 /* --- Estilos para la Página de Login --- */
 
+/* Utilidades */
+.is-hidden {
+    display: none !important;
+}
+
 /* Contenedor principal de la página de login */
 .login-page-main {
     display: flex;
