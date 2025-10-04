@@ -121,6 +121,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     }).format(date);
   }
 
+  function updateMobileDetailsToggle(isOpen = false) {
+    if (!btnToggleDetalles || !detalleExtra) return;
+    detalleExtra.classList.toggle('open', isOpen);
+    btnToggleDetalles.textContent = isOpen ? 'Ocultar detalles ▲' : 'Ver más detalles ▼';
+    btnToggleDetalles.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  }
+
   function pluralize(count, singular, plural = `${singular}s`) {
     const label = count === 1 ? singular : plural;
     return `${count} ${label}`;
@@ -381,6 +388,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (sesionesListaSection) sesionesListaSection.style.display = 'none';
     if (sesionDetalleSection) sesionDetalleSection.style.display = 'block';
 
+    updateMobileDetailsToggle(false);
+
     await refreshSessionEquiposTotal(sessionKey);
     const term = searchEquiposInput?.value.trim() || '';
     currentEquiposData = await fetchEquiposBySession(sessionKey, term);
@@ -395,6 +404,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (sesionDetalleSection) sesionDetalleSection.style.display = 'none';
     if (sesionesListaSection) sesionesListaSection.style.display = 'block';
     updateEquiposTotalBadge(0);
+    updateMobileDetailsToggle(false);
   }
 
   updateVisitantesTotal(0);
@@ -775,11 +785,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Toggle de detalles extra (solo móvil)
   if (btnToggleDetalles && detalleExtra) {
+    btnToggleDetalles.setAttribute('aria-controls', 'detalle-extra');
+    updateMobileDetailsToggle(false);
     btnToggleDetalles.addEventListener('click', () => {
-      detalleExtra.classList.toggle('open');
-      btnToggleDetalles.textContent = detalleExtra.classList.contains('open')
-        ? 'Ocultar detalles ▲'
-        : 'Ver más detalles ▼';
+      const shouldOpen = !detalleExtra.classList.contains('open');
+      updateMobileDetailsToggle(shouldOpen);
     });
   }
 
