@@ -68,8 +68,9 @@ Si deseas ejecutar una copia de este proyecto, necesitarás tu propia instancia 
     * Crea un proyecto en [Supabase](https://supabase.com/).
     * Define el esquema de tus tablas (`visitantes`, `descartes_sesiones`, `equipos_descartados`) según la lógica de la aplicación.
     * Obtén tu **URL del Proyecto** y tu **Clave Pública (anon key)**.
-    * Copia el archivo `js/config.example.js` a `js/config.js` (este último está ignorado por Git) y completa tus credenciales allí antes de abrir cualquiera de las páginas HTML.
+    * Copia el archivo `js/config.example.js` a `js/config.js` y completa tus credenciales allí antes de abrir cualquiera de las páginas HTML.
     * Asegúrate de usar únicamente la **clave pública (`anon`)** en ese archivo y de mantener activas tus políticas **RLS** antes de desplegar a producción.
+    * En despliegues estáticos como **GitHub Pages**, publica el archivo `js/config.js` dentro del repositorio que sirve la aplicación. La clave expuesta sigue protegida siempre que las políticas **RLS** permanezcan correctamente configuradas en Supabase.
 
 4.  **Abrir en el navegador:**
     * Abre el archivo `login.html` directamente en tu navegador.
