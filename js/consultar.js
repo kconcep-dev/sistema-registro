@@ -90,8 +90,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   let searchDebounceTimeout;
   let toastTimeout;
 
-  const DETALLES_COLLAPSED_LABEL = 'Ver más detalles ▼';
-  const DETALLES_EXPANDED_LABEL  = 'Ocultar detalles ▲';
+  const ARROW_DOWN = '\u25BC';
+  const ARROW_UP   = '\u25B2';
+  const DETALLES_COLLAPSED_LABEL = `Ver más detalles ${ARROW_DOWN}`;
+  const DETALLES_EXPANDED_LABEL  = `Ocultar detalles ${ARROW_UP}`;
 
   // --- 3) Utilidades ---
   function showToast(message, type = 'success') {
@@ -170,6 +172,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!detalleExtra || !btnToggleDetalles) return;
     detalleExtra.classList.remove('open');
     btnToggleDetalles.textContent = DETALLES_COLLAPSED_LABEL;
+    btnToggleDetalles.setAttribute('aria-expanded', 'false');
   }
 
   // --- 4) Datos y render ---
@@ -785,12 +788,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
     // Toggle de detalles extra (solo móvil)
+  if (btnToggleDetalles) {
+    btnToggleDetalles.textContent = DETALLES_COLLAPSED_LABEL;
+    btnToggleDetalles.setAttribute('aria-expanded', 'false');
+  }
+
   if (btnToggleDetalles && detalleExtra) {
     btnToggleDetalles.addEventListener('click', () => {
       detalleExtra.classList.toggle('open');
-      btnToggleDetalles.textContent = detalleExtra.classList.contains('open')
-        ? DETALLES_EXPANDED_LABEL
-        : DETALLES_COLLAPSED_LABEL;
+      const isOpen = detalleExtra.classList.contains('open');
+      btnToggleDetalles.textContent = isOpen ? DETALLES_EXPANDED_LABEL : DETALLES_COLLAPSED_LABEL;
+      btnToggleDetalles.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     });
   }
 
