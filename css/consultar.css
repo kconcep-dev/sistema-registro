@@ -190,6 +190,22 @@ html.dark-mode .date-field input[type="date"]{
   height: 42px;
 }
 
+.controls-area .date-field .date-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  color: color-mix(in srgb, var(--input-text-color) 45%, transparent);
+  pointer-events: none;
+  transition: opacity .2s ease;
+}
+
+.controls-area .date-field[data-empty="false"] .date-placeholder,
+.controls-area .date-field:focus-within .date-placeholder {
+  opacity: 0;
+}
+
 /* Input ocupa todo el wrapper y deja espacio al ícono */
 .controls-area .date-field input[type="date"] {
   width: 100%;
@@ -252,15 +268,6 @@ html.dark-mode {
 .controls-area .date-field,
 .controls-area .date-field::after {
   cursor: pointer;
-}
-
-/* --- Placeholder móvil visible en date --- */
-@media (max-width: 768px) {
-  input[type="date"]:not(:focus):placeholder-shown::before {
-    content: attr(placeholder);
-    color: #888;
-    margin-left: 10px;
-  }
 }
 
 /* --- Ajuste de grilla en móvil para filtros --- */

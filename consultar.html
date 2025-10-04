@@ -41,11 +41,13 @@
       <div id="visitantes-content" class="tab-content active">
         <div class="controls-area">
           <input type="search" id="search-visitantes" placeholder="Buscar por nombre, apellido o cédula..." />
-          <div class="date-field">
+          <div class="date-field" data-empty="true">
             <input type="date" id="date-start-visitantes" placeholder="dd/mm/aaaa" title="Fecha de inicio" />
+            <span class="date-placeholder" aria-hidden="true">dd/mm/aaaa</span>
           </div>
-          <div class="date-field">
+          <div class="date-field" data-empty="true">
             <input type="date" id="date-end-visitantes" placeholder="dd/mm/aaaa" title="Fecha de fin" />
+            <span class="date-placeholder" aria-hidden="true">dd/mm/aaaa</span>
           </div>
           <span id="visitantes-total" class="count-pill" aria-live="polite">0 registros</span>
           <button id="export-visitantes-btn" class="btn-export">Exportar Excel</button>
@@ -75,11 +77,13 @@
         <section id="sesiones-lista">
           <div class="controls-area">
             <input type="search" id="search-descartes" placeholder="Buscar por Unidad Administrativa o SIACE..." />
-            <div class="date-field">
+            <div class="date-field" data-empty="true">
               <input type="date" id="date-start-descartes" placeholder="dd/mm/aaaa" title="Fecha de inicio" />
+              <span class="date-placeholder" aria-hidden="true">dd/mm/aaaa</span>
             </div>
-            <div class="date-field">
+            <div class="date-field" data-empty="true">
               <input type="date" id="date-end-descartes" placeholder="dd/mm/aaaa" title="Fecha de fin" />
+              <span class="date-placeholder" aria-hidden="true">dd/mm/aaaa</span>
             </div>
             <span id="sesiones-total" class="count-pill" aria-live="polite">0 sesiones</span>
             <button id="export-descartes-btn" class="btn-export">Exportar Excel</button>
