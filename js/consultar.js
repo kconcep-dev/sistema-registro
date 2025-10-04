@@ -52,11 +52,27 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btnCancelarEditarEq      = document.getElementById('btn-editar-equipo-cancelar');
 
   // --- NUEVO: Modal agregar equipo ---
-const btnAgregarEquipo         = document.getElementById('btn-agregar-equipo');
-const modalAgregarEquipo       = document.getElementById('modal-agregar-equipo');
-const formAgregarEquipo        = document.getElementById('form-agregar-equipo');
-const btnCerrarModalAgregarEq  = document.getElementById('btn-cerrar-modal-agregar-equipo');
-const btnCancelarAgregarEq     = document.getElementById('btn-agregar-equipo-cancelar');
+  const btnAgregarEquipo         = document.getElementById('btn-agregar-equipo');
+  const modalAgregarEquipo       = document.getElementById('modal-agregar-equipo');
+  const formAgregarEquipo        = document.getElementById('form-agregar-equipo');
+  const btnCerrarModalAgregarEq  = document.getElementById('btn-cerrar-modal-agregar-equipo');
+  const btnCancelarAgregarEq     = document.getElementById('btn-agregar-equipo-cancelar');
+
+  // Contadores
+  const visitantesTotalEl        = document.getElementById('visitantes-total');
+  const sesionesTotalEl          = document.getElementById('sesiones-total');
+  const equiposTotalEl           = document.getElementById('equipos-total');
+
+  // Modal editar sesión
+  const modalEditarSesion        = document.getElementById('modal-editar-sesion');
+  const formEditarSesion         = document.getElementById('form-editar-sesion');
+  const btnCerrarModalEditarSes  = document.getElementById('btn-cerrar-modal-editar-sesion');
+  const btnCancelarEditarSesion  = document.getElementById('btn-editar-sesion-cancelar');
+  const editSesionUnidadInput    = document.getElementById('edit-sesion-unidad');
+  const editSesionSiaceInput     = document.getElementById('edit-sesion-siace');
+  const editSesionFechaInput     = document.getElementById('edit-sesion-fecha');
+  const editSesionTecnicoInput   = document.getElementById('edit-sesion-tecnico');
+  const editSesionObservacionInput = document.getElementById('edit-sesion-observacion');
 
   // Toast
   const toastEl        = document.getElementById('toast-notification');
@@ -68,9 +84,14 @@ const btnCancelarAgregarEq     = document.getElementById('btn-agregar-equipo-can
   let currentEquiposData    = [];
   let editingVisitorId      = null;
   let editingEquipoId       = null;
+  let editingSessionId      = null;
   let currentSessionId      = null;
+  let currentSessionEquiposTotal = 0;
   let searchDebounceTimeout;
   let toastTimeout;
+
+  const DETALLES_COLLAPSED_LABEL = 'Ver más detalles ▼';
+  const DETALLES_EXPANDED_LABEL  = 'Ocultar detalles ▲';
 
   // --- 3) Utilidades ---
   function showToast(message, type = 'success') {
@@ -103,6 +124,54 @@ const btnCancelarAgregarEq     = document.getElementById('btn-agregar-equipo-can
     }).format(date);
   }
 
+  function pluralize(count, singular, plural = `${singular}s`) {
+    const label = count === 1 ? singular : plural;
+    return `${count} ${label}`;
+  }
+
+  function updateVisitantesTotal(count) {
+    if (!visitantesTotalEl) return;
+    visitantesTotalEl.textContent = pluralize(count, 'registro');
+  }
+
+  function updateSesionesTotal(count) {
+    if (!sesionesTotalEl) return;
+    sesionesTotalEl.textContent = pluralize(count, 'sesión', 'sesiones');
+  }
+
+  function updateEquiposTotalBadge(visibleCount = currentEquiposData.length) {
+    if (!equiposTotalEl) return;
+
+    if (!currentSessionId) {
+      const base = currentSessionEquiposTotal || visibleCount || 0;
+      equiposTotalEl.textContent = pluralize(base, 'equipo');
+      return;
+    }
+
+    const total = typeof currentSessionEquiposTotal === 'number'
+      ? currentSessionEquiposTotal
+      : visibleCount;
+
+    if (!total && !visibleCount) {
+      equiposTotalEl.textContent = '0 equipos';
+      return;
+    }
+
+    if (total && total !== visibleCount) {
+      const totalLabel = pluralize(total, 'equipo');
+      equiposTotalEl.textContent = `${visibleCount} de ${totalLabel}`;
+    } else {
+      const base = total || visibleCount || 0;
+      equiposTotalEl.textContent = pluralize(base, 'equipo');
+    }
+  }
+
+  function resetDetalleToggle() {
+    if (!detalleExtra || !btnToggleDetalles) return;
+    detalleExtra.classList.remove('open');
+    btnToggleDetalles.textContent = DETALLES_COLLAPSED_LABEL;
+  }
+
   // --- 4) Datos y render ---
 
   // Visitantes
@@ -126,6 +195,7 @@ const btnCancelarAgregarEq     = document.getElementById('btn-agregar-equipo-can
     if (error) {
       showToast('Error al cargar los visitantes.', 'error');
       console.error(error);
+      updateVisitantesTotal(0);
       return;
     }
     currentVisitorData = data || [];
@@ -134,6 +204,7 @@ const btnCancelarAgregarEq     = document.getElementById('btn-agregar-equipo-can
 
   function renderVisitantesTable(data) {
     if (!tableVisitantesBody) return;
+    updateVisitantesTotal(data.length);
     tableVisitantesBody.innerHTML = '';
     if (!data.length) {
       tableVisitantesBody.innerHTML = '<tr><td colspan="7">No se encontraron registros.</td></tr>';
@@ -178,6 +249,7 @@ const btnCancelarAgregarEq     = document.getElementById('btn-agregar-equipo-can
     if (error) {
       showToast('Error al cargar las sesiones de descarte.', 'error');
       console.error(error);
+      updateSesionesTotal(0);
       return;
     }
     currentDescartesData = data || [];
@@ -186,6 +258,7 @@ const btnCancelarAgregarEq     = document.getElementById('btn-agregar-equipo-can
 
   function renderDescartesTable(data) {
     if (!tableDescartesBody) return;
+    updateSesionesTotal(data.length);
     tableDescartesBody.innerHTML = '';
     if (!data.length) {
       tableDescartesBody.innerHTML = '<tr><td colspan="7">No se encontraron sesiones.</td></tr>';
@@ -203,6 +276,7 @@ const btnCancelarAgregarEq     = document.getElementById('btn-agregar-equipo-can
         <td>${count}</td>
         <td class="table-actions">
           <button class="btn-view-equipos"    data-id="${session.id}">Abrir</button>
+          <button class="btn-editar btn-editar-sesion" data-id="${session.id}">Editar</button>
           <button class="btn-eliminar-sesion" data-id="${session.id}">Eliminar</button>
         </td>
       `;
@@ -242,11 +316,31 @@ const btnCancelarAgregarEq     = document.getElementById('btn-agregar-equipo-can
     return data || [];
   }
 
+  async function refreshSessionEquiposTotal(sessionId) {
+    if (!sessionId) {
+      currentSessionEquiposTotal = 0;
+      return;
+    }
+
+    const { count, error } = await supabaseClient
+      .from('equipos_descartados')
+      .select('*', { count: 'exact', head: true })
+      .eq('sesion_id', sessionId);
+
+    if (error) {
+      console.error('No se pudo obtener el total de equipos de la sesión.', error);
+      return;
+    }
+
+    currentSessionEquiposTotal = count || 0;
+  }
+
   function renderEquiposTable(equipos) {
     if (!tableEquiposSesionBody) return;
     tableEquiposSesionBody.innerHTML = '';
     if (!equipos.length) {
       tableEquiposSesionBody.innerHTML = '<tr><td colspan="9">No hay equipos en esta sesión.</td></tr>';
+      updateEquiposTotalBadge(0);
       return;
     }
     equipos.forEach((eq, i) => {
@@ -267,15 +361,19 @@ const btnCancelarAgregarEq     = document.getElementById('btn-agregar-equipo-can
       `;
       tableEquiposSesionBody.appendChild(tr);
     });
+    updateEquiposTotalBadge(equipos.length);
   }
 
   async function openSessionDetail(sessionId) {
-    currentSessionId = sessionId;
+    const parsedId = Number(sessionId);
+    const sessionKey = Number.isNaN(parsedId) ? sessionId : parsedId;
+    currentSessionId = sessionKey;
+    resetDetalleToggle();
 
     const { data: sesion, error } = await supabaseClient
       .from('descartes_sesiones')
       .select('id, unidad_administrativa, codigo_siace, fecha, tecnico_encargado, observacion')
-      .eq('id', sessionId)
+      .eq('id', sessionKey)
       .single();
 
     if (error || !sesion) {
@@ -293,18 +391,26 @@ const btnCancelarAgregarEq     = document.getElementById('btn-agregar-equipo-can
     if (sesionesListaSection) sesionesListaSection.style.display = 'none';
     if (sesionDetalleSection) sesionDetalleSection.style.display = 'block';
 
+    await refreshSessionEquiposTotal(sessionKey);
     const term = searchEquiposInput?.value.trim() || '';
-    currentEquiposData = await fetchEquiposBySession(sessionId, term);
+    currentEquiposData = await fetchEquiposBySession(sessionKey, term);
     renderEquiposTable(currentEquiposData);
   }
 
   function closeSessionDetail() {
     currentSessionId   = null;
     currentEquiposData = [];
+    currentSessionEquiposTotal = 0;
     if (searchEquiposInput) searchEquiposInput.value = '';
     if (sesionDetalleSection) sesionDetalleSection.style.display = 'none';
     if (sesionesListaSection) sesionesListaSection.style.display = 'block';
+    updateEquiposTotalBadge(0);
+    resetDetalleToggle();
   }
+
+  updateVisitantesTotal(0);
+  updateSesionesTotal(0);
+  updateEquiposTotalBadge(0);
 
   // --- 5) Eventos ---
 
@@ -417,15 +523,101 @@ const btnCancelarAgregarEq     = document.getElementById('btn-agregar-equipo-can
     });
   }
 
+  if (formEditarSesion) {
+    formEditarSesion.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!editingSessionId) {
+        showToast('No hay sesión seleccionada.', 'error');
+        return;
+      }
+
+      const unidad = editSesionUnidadInput?.value.trim() || '';
+      const siace = editSesionSiaceInput?.value.trim() || '';
+      const fecha = editSesionFechaInput?.value || '';
+      const tecnico = editSesionTecnicoInput?.value.trim() || '';
+      const observacion = editSesionObservacionInput?.value.trim() || '';
+
+      if (!unidad || !fecha) {
+        showToast('Completa los campos de Unidad y Fecha.', 'error');
+        return;
+      }
+
+      const payload = {
+        unidad_administrativa: unidad,
+        codigo_siace: siace || null,
+        fecha,
+        tecnico_encargado: tecnico || null,
+        observacion: observacion || null,
+      };
+
+      const { error } = await supabaseClient
+        .from('descartes_sesiones')
+        .update(payload)
+        .eq('id', editingSessionId);
+
+      if (error) {
+        console.error(error);
+        showToast('No se pudo actualizar la sesión.', 'error');
+        return;
+      }
+
+      showToast('Sesión actualizada con éxito.', 'success');
+      modalEditarSesion?.classList.remove('visible');
+
+      await fetchDescartes();
+
+      if (currentSessionId && Number(currentSessionId) === editingSessionId) {
+        await openSessionDetail(currentSessionId);
+      }
+
+      editingSessionId = null;
+    });
+  }
+
   // Acciones tabla sesiones
   if (tableDescartesBody) {
     tableDescartesBody.addEventListener('click', async (e) => {
       const btnOpen = e.target.closest('.btn-view-equipos');
       const btnDel  = e.target.closest('.btn-eliminar-sesion');
+      const btnEdit = e.target.closest('.btn-editar-sesion');
 
       if (btnOpen) {
         const sessionId = btnOpen.dataset.id;
         await openSessionDetail(sessionId);
+        return;
+      }
+
+      if (btnEdit) {
+        const sessionId = Number(btnEdit.dataset.id);
+        let sessionData = currentDescartesData.find(s => s.id === sessionId);
+
+        if (!sessionData) {
+          const { data, error } = await supabaseClient
+            .from('descartes_sesiones')
+            .select('id, unidad_administrativa, codigo_siace, fecha, tecnico_encargado, observacion')
+            .eq('id', sessionId)
+            .single();
+
+          if (error || !data) {
+            showToast('No se pudieron cargar los datos de la sesión.', 'error');
+            return;
+          }
+          sessionData = data;
+        }
+
+        if (!modalEditarSesion || !formEditarSesion) {
+          showToast('El formulario de edición de sesión no está disponible.', 'error');
+          return;
+        }
+
+        editingSessionId = sessionId;
+        if (editSesionUnidadInput)    editSesionUnidadInput.value    = sessionData.unidad_administrativa || '';
+        if (editSesionSiaceInput)     editSesionSiaceInput.value     = sessionData.codigo_siace || '';
+        if (editSesionFechaInput)     editSesionFechaInput.value     = sessionData.fecha || '';
+        if (editSesionTecnicoInput)   editSesionTecnicoInput.value   = sessionData.tecnico_encargado || '';
+        if (editSesionObservacionInput) editSesionObservacionInput.value = sessionData.observacion || '';
+
+        modalEditarSesion.classList.add('visible');
         return;
       }
 
@@ -480,6 +672,9 @@ const btnCancelarAgregarEq     = document.getElementById('btn-agregar-equipo-can
           } else {
             showToast('Equipo eliminado.', 'success');
             const term = searchEquiposInput?.value.trim() || '';
+            if (currentSessionId) {
+              await refreshSessionEquiposTotal(currentSessionId);
+            }
             currentEquiposData = await fetchEquiposBySession(currentSessionId, term);
             renderEquiposTable(currentEquiposData);
           }
@@ -556,6 +751,18 @@ const btnCancelarAgregarEq     = document.getElementById('btn-agregar-equipo-can
   if (btnCancelarEditarEq) {
     btnCancelarEditarEq.addEventListener('click', () => modalEditarEquipo?.classList.remove('visible'));
   }
+  if (btnCerrarModalEditarSes) {
+    btnCerrarModalEditarSes.addEventListener('click', () => {
+      modalEditarSesion?.classList.remove('visible');
+      editingSessionId = null;
+    });
+  }
+  if (btnCancelarEditarSesion) {
+    btnCancelarEditarSesion.addEventListener('click', () => {
+      modalEditarSesion?.classList.remove('visible');
+      editingSessionId = null;
+    });
+  }
   document.querySelectorAll('.modal-overlay').forEach(modal => {
     modal.addEventListener('click', e => {
       if (
@@ -564,6 +771,9 @@ const btnCancelarAgregarEq     = document.getElementById('btn-agregar-equipo-can
         e.target.classList.contains('modal-cancel-btn')
       ) {
         modal.classList.remove('visible');
+        if (modal === modalEditarSesion) {
+          editingSessionId = null;
+        }
       }
     });
   });
@@ -579,8 +789,8 @@ const btnCancelarAgregarEq     = document.getElementById('btn-agregar-equipo-can
     btnToggleDetalles.addEventListener('click', () => {
       detalleExtra.classList.toggle('open');
       btnToggleDetalles.textContent = detalleExtra.classList.contains('open')
-        ? 'Ocultar detalles ▲'
-        : 'Ver más detalles ▼';
+        ? DETALLES_EXPANDED_LABEL
+        : DETALLES_COLLAPSED_LABEL;
     });
   }
 
@@ -624,6 +834,9 @@ const btnCancelarAgregarEq     = document.getElementById('btn-agregar-equipo-can
         showToast("Equipo agregado con éxito.", "success");
         modalAgregarEquipo.classList.remove('visible');
         const term = searchEquiposInput?.value.trim() || '';
+        if (currentSessionId) {
+          await refreshSessionEquiposTotal(currentSessionId);
+        }
         currentEquiposData = await fetchEquiposBySession(currentSessionId, term);
         renderEquiposTable(currentEquiposData);
       }
