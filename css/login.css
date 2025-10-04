@@ -169,33 +169,42 @@ body.dark-mode .login-container {
         height: auto;
         justify-content: flex-start;
         align-items: stretch;
-        padding: 3rem 1.5rem 3.5rem;
-        gap: 1.5rem;
+        padding: calc(4.5rem + env(safe-area-inset-top, 0px)) 1.5rem 3.5rem;
+        gap: 1rem;
     }
     .page-main-title { font-size: 1.3rem; margin-bottom: 1.5rem; }
     .login-container {
         flex-direction: column;
-        align-items: stretch;
+        align-items: center;
         max-width: 420px;
+        padding: 1.5rem 1.25rem;
+        gap: 1.25rem;
     }
     .login-form-wrapper {
-        order: 1;
-        padding: 1.75rem 1.5rem 1.5rem;
+        order: 2;
+        width: 100%;
+        padding: 0;
         flex: 1 1 auto;
     }
     #login-form {
         justify-content: flex-start;
-        gap: 1.5rem;
+        gap: 1.25rem;
     }
     .login-info {
-        order: 2;
+        order: 1;
         text-align: center;
         align-items: center;
-        justify-content: flex-start;
-        padding: 1.5rem;
-        flex: 0 0 auto;
-        max-height: 220px;
-        overflow-y: auto;
+        justify-content: center;
+        padding: 0;
+        width: 100%;
+        gap: 0.75rem;
+    }
+    .login-info h1 {
+        font-size: 1.6rem;
+        margin-bottom: 0.25rem;
+    }
+    #step-email,
+    #step-password {
         gap: 1rem;
     }
     .login-logo { width: 120px; height: 120px; }
