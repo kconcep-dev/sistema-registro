@@ -169,12 +169,35 @@ body.dark-mode .login-container {
         height: auto;
         justify-content: flex-start;
         align-items: stretch;
-        padding-top: 40px;
-        padding-bottom: 40px;
+        padding: 3rem 1.5rem 3.5rem;
+        gap: 1.5rem;
     }
-    .page-main-title { font-size: 1.3rem; margin-bottom: 25px; }
-    .login-container { flex-direction: column; max-width: 400px; }
-    .login-info { text-align: center; align-items: center; padding: 20px; }
+    .page-main-title { font-size: 1.3rem; margin-bottom: 1.5rem; }
+    .login-container {
+        flex-direction: column;
+        align-items: stretch;
+        max-width: 420px;
+    }
+    .login-form-wrapper {
+        order: 1;
+        padding: 1.75rem 1.5rem 1.5rem;
+        flex: 1 1 auto;
+    }
+    #login-form {
+        justify-content: flex-start;
+        gap: 1.5rem;
+    }
+    .login-info {
+        order: 2;
+        text-align: center;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 1.5rem;
+        flex: 0 0 auto;
+        max-height: 220px;
+        overflow-y: auto;
+        gap: 1rem;
+    }
     .login-logo { width: 120px; height: 120px; }
 }
 

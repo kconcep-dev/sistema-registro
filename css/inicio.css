@@ -9,6 +9,15 @@
     gap: 32px;
 }
 
+@media (pointer: coarse) {
+    .page-inicio #main-content {
+        justify-content: flex-start;
+        min-height: auto;
+        padding: 4rem 1.5rem 3rem;
+        gap: 2.5rem;
+    }
+}
+
 .page-inicio #main-content .container {
     width: min(100%, 720px);
 }
