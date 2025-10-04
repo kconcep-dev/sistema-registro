@@ -26,7 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const focusField = (field) => {
         requestAnimationFrame(() => {
-            if (typeof field.focus === 'function') {
+            const isMobileView = window.matchMedia('(max-width: 768px)').matches ||
+                window.matchMedia('(pointer: coarse)').matches;
+
+            if (!isMobileView && typeof field.focus === 'function') {
                 try {
                     field.focus({ preventScroll: true });
                 } catch (error) {
