@@ -256,7 +256,7 @@ html.dark-mode {
 
 /* --- Placeholder móvil visible en date --- */
 @media (max-width: 768px) {
-  input[type="date"]:not(:focus):not(:valid)::before {
+  input[type="date"]:not(:focus):placeholder-shown::before {
     content: attr(placeholder);
     color: #888;
     margin-left: 10px;
