@@ -44,8 +44,19 @@ document.addEventListener('DOMContentLoaded', () => {
   let toastTimeout;
   let equipoActualEditandoId = null;
   const SESSION_STORAGE_KEY = 'activeDescarteSessionId';
-  let scanbotSDK; 
+  let scanbotSDK;
   let activeBarcodeScanner;
+
+  function recalcularNumeracionTabla() {
+    const filas = Array.from(tablaEquiposBody.rows);
+    filas.forEach((fila, index) => {
+      if (fila.cells[0]) {
+        fila.cells[0].textContent = index + 1;
+      }
+    });
+    equiposCounter = filas.length;
+    contadorEquiposSpan.textContent = equiposCounter;
+  }
 
   // --- 3. FUNCIONES AUXILIARES ---
   function showToast(message, type = 'success') {
@@ -238,9 +249,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (confirmado) {
         try {
           await supabaseClient.from('equipos_descartados').delete().eq('id', equipoId);
-          document.querySelector(`tr[data-id='${equipoId}']`).remove();
-          equiposCounter--;
-          contadorEquiposSpan.textContent = equiposCounter;
+          const fila = document.querySelector(`tr[data-id='${equipoId}']`);
+          if (fila) {
+            fila.remove();
+            recalcularNumeracionTabla();
+          }
         } catch (error) {
           showToast('No se pudo eliminar el equipo.', 'error');
         }
@@ -410,14 +423,28 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   (async function initializePage() {
-    await supabaseClient.auth.getSession();
-    
-    const activeSessionId = sessionStorage.getItem(SESSION_STORAGE_KEY);
-    if (activeSessionId) {
-      await restoreSession(activeSessionId);
-    }
+    try {
+      const { data: { session }, error } = await supabaseClient.auth.getSession();
 
-    document.getElementById('loader').style.display = 'none';
-    document.getElementById('main-content').style.display = 'flex';
+      if (error) {
+        console.error('Error al obtener la sesión:', error);
+        window.location.href = 'login.html';
+        return;
+      }
+
+      if (!session) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const activeSessionId = sessionStorage.getItem(SESSION_STORAGE_KEY);
+      if (activeSessionId) {
+        await restoreSession(activeSessionId);
+      }
+
+      document.getElementById('main-content').style.display = 'flex';
+    } finally {
+      document.getElementById('loader').style.display = 'none';
+    }
   })();
 });
