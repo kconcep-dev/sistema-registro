@@ -2,24 +2,25 @@
 .page-inicio #main-content {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     min-height: 100dvh;
-    padding: clamp(96px, 20vh, 150px) 20px clamp(80px, 16vh, 130px);
-    gap: 32px;
+    padding: clamp(72px, 14vh, 120px) 24px clamp(64px, 12vh, 110px);
+    gap: clamp(28px, 5vh, 40px);
 }
 
 @media (pointer: coarse) {
     .page-inicio #main-content {
         justify-content: flex-start;
         min-height: auto;
-        padding: 4rem 1.5rem 3rem;
+        padding: 4rem 1.75rem 3rem;
         gap: 2.5rem;
     }
 }
 
 .page-inicio #main-content .container {
-    width: min(100%, 720px);
+    width: 100%;
+    max-width: 720px;
 }
 
 .subtitle { text-align: center; margin-bottom: 40px; font-size: 1.1rem; color: var(--border-color); }
@@ -40,6 +41,6 @@
 /* --- Estilos solo para Escritorio --- */
 @media (min-width: 768px) {
     .page-inicio #main-content {
-        padding-top: clamp(120px, 18vh, 180px);
+        padding-top: clamp(88px, 14vh, 140px);
     }
 }
