@@ -222,13 +222,30 @@
 
 /* === REGLAS PARA EL CENTRADO DE LA PÁGINA INICIAL === */
 .page-descartes-inicio #main-content {
+    display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding-top: 0;
+    min-height: 100dvh;
+    padding: clamp(96px, 20vh, 150px) 20px clamp(80px, 16vh, 130px);
+    gap: 32px;
+}
+
+.page-descartes-inicio #main-content .container {
+    width: min(100%, 600px);
 }
 
 .page-descartes-inicio .container h1 {
-    margin-bottom: 40px;
+    margin-bottom: 32px;
+}
+
+.page-descartes-inicio #inicio-descarte-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
 }
 
 .input-with-button {

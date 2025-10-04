@@ -1,4 +1,18 @@
 /* --- Estilos de Página de Inicio (Dashboard) --- */
+.page-inicio #main-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100dvh;
+    padding: clamp(96px, 20vh, 150px) 20px clamp(80px, 16vh, 130px);
+    gap: 32px;
+}
+
+.page-inicio #main-content .container {
+    width: min(100%, 720px);
+}
+
 .subtitle { text-align: center; margin-bottom: 40px; font-size: 1.1rem; color: var(--border-color); }
 .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
 .card { background-color: var(--primary-color); padding: 40px 25px; border-radius: 10px; box-shadow: 0 4px 12px var(--shadow-color); text-decoration: none; color: rgba(255, 255, 255, 0.9); transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
@@ -16,10 +30,7 @@
 
 /* --- Estilos solo para Escritorio --- */
 @media (min-width: 768px) {
-    #main-content {
-        /* Ajusta este valor para cambiar el espacio 
-           superior en la página de INICIO.
-        */
-        padding-top: 50px;
+    .page-inicio #main-content {
+        padding-top: clamp(120px, 18vh, 180px);
     }
 }
