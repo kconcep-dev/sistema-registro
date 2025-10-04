@@ -24,6 +24,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const backBtn = document.getElementById('back-btn');
     const loginBtn = document.getElementById('login-btn');
 
+    const focusField = (field) => {
+        requestAnimationFrame(() => {
+            if (typeof field.focus === 'function') {
+                try {
+                    field.focus({ preventScroll: true });
+                } catch (error) {
+                    field.focus();
+                }
+            }
+            if (typeof field.scrollIntoView === 'function') {
+                try {
+                    field.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                } catch (error) {
+                    field.scrollIntoView();
+                }
+            }
+        });
+    };
+
+    const toggleStepVisibility = (stepToHide, stepToShow, fieldToFocus) => {
+        stepToHide.classList.add('is-hidden');
+        stepToShow.classList.remove('is-hidden');
+        focusField(fieldToFocus);
+    };
+
     // --- LÓGICA DEL FORMULARIO MULTI-PASO ---
     nextBtn.addEventListener('click', () => {
         const email = emailInput.value.trim();
@@ -33,15 +58,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         loginError.style.display = 'none';
-        stepEmail.style.display = 'none';
-        stepPassword.style.display = 'flex';
-        passwordInput.focus();
+        toggleStepVisibility(stepEmail, stepPassword, passwordInput);
     });
 
     backBtn.addEventListener('click', () => {
-        stepPassword.style.display = 'none';
-        stepEmail.style.display = 'block';
-        emailInput.focus();
+        toggleStepVisibility(stepPassword, stepEmail, emailInput);
     });
 
     // --- LÓGICA DE ENVÍO FINAL ---
@@ -78,9 +99,9 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingOverlay.classList.remove('visible');
             loginError.textContent = 'Correo o contraseña incorrectos.';
             loginError.style.display = 'block';
-            
+
             passwordInput.value = '';
-            passwordInput.focus();
+            focusField(passwordInput);
             
             loginBtn.disabled = false;
             backBtn.disabled = false;
