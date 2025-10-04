@@ -233,14 +233,14 @@
 
 @media (pointer: coarse) {
     .page-descartes-inicio #main-content {
-        justify-content: flex-start;
-        min-height: auto;
-        padding: 4rem 1.5rem 3rem;
+        justify-content: center;
+        min-height: 100dvh;
+        padding: 5.5rem 1.5rem 4rem;
         gap: 2.5rem;
     }
 
     .page-descartes-inicio #inicio-descarte-section {
-        align-items: stretch;
+        align-items: center;
     }
 }
 
