@@ -484,6 +484,25 @@ body.nav-open .icon-menu { display: none; }
     text-align: center;
 }
 
+@media (pointer: coarse) {
+    .modal-overlay {
+        align-items: flex-start;
+        padding: 16px;
+        overflow-y: auto;
+    }
+
+    .modal-overlay.visible {
+        overflow-y: auto;
+    }
+
+    .modal-content {
+        margin-top: 16px;
+        margin-bottom: 16px;
+        max-height: calc(100dvh - 32px);
+        overflow-y: auto;
+    }
+}
+
 .modal-close-btn {
     position: absolute;
     top: 10px;
