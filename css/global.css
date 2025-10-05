@@ -295,9 +295,10 @@ body.nav-open .nav-links {
     cursor: pointer;
     border-radius: var(--button-radius);
     transition: background-color 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    line-height: 1;
 }
 
 .nav-control-btn:hover {
@@ -311,10 +312,11 @@ body.nav-open .nav-links {
     border-radius: 50%;
     border: 1px solid var(--border-color);
     background-color: var(--card-bg-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    place-items: center;
     cursor: pointer;
+    padding: 0;
+    line-height: 1;
 }
 
 #logout-btn {
@@ -434,7 +436,17 @@ body.nav-open .nav-links {
 }
 
 /* --- 6. Iconos Personalizados --- */
-.nav-control-btn img, .hamburger img { width: 26px; height: 26px; vertical-align: middle; }
+.nav-control-btn img {
+    display: block;
+    width: 26px;
+    height: 26px;
+}
+
+.hamburger img {
+    width: 26px;
+    height: 26px;
+    vertical-align: middle;
+}
 .icon-dark { display: block; }
 .icon-light { display: none; }
 html.dark-mode .icon-dark { display: none; }

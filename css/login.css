@@ -272,7 +272,8 @@ body {
     color: var(--text-color);
     font-size: 1.5rem;
     cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    line-height: 1;
 }
