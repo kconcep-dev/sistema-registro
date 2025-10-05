@@ -231,6 +231,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function applyRowStateClass(row, estado) {
+    if (!row) return;
     row.classList.remove('row-estado-libre', 'row-estado-asignada', 'row-estado-en_revision');
     if (estado === 'libre') row.classList.add('row-estado-libre');
     else if (estado === 'asignada') row.classList.add('row-estado-asignada');
@@ -299,20 +300,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     records.forEach((record) => {
       const estadoValue = record.estado || 'libre';
-      const tr = document.createElement('tr');
-      tr.dataset.id = record.id;
-      applyRowStateClass(tr, estadoValue);
+      const mainRow = document.createElement('tr');
+      mainRow.dataset.id = record.id;
+      mainRow.classList.add('inventory-row');
+      mainRow.setAttribute('data-expandable', 'true');
+      mainRow.setAttribute('aria-expanded', 'false');
+      mainRow.tabIndex = 0;
+      applyRowStateClass(mainRow, estadoValue);
 
-      const dispositivoTd = createElement('td', null, record.dispositivo || '—');
+      const dispositivoTd = createElement('td', 'cell-dispositivo', record.dispositivo || '—');
       const tipoTd = createElement('td', null, (record.tipo || 'pc').toUpperCase());
       const departamentoTd = createElement('td', null, record.departamento || '—');
       const ipTd = createElement('td', null, record.ip || '—');
-      const mascaraTd = createElement('td', null, record.mascara || '—');
-      const gatewayTd = createElement('td', null, record.gateway || '—');
-      const dns1Td = createElement('td', null, record.dns1 || '—');
-      const dns2Td = createElement('td', null, record.dns2 || '—');
 
       const estadoTd = document.createElement('td');
+      estadoTd.classList.add('estado-cell');
       const estadoPill = createElement('span', `estado-pill estado-pill--${estadoValue}`);
       estadoPill.textContent = STATE_LABELS[estadoValue] || estadoValue;
       estadoTd.appendChild(estadoPill);
@@ -348,23 +350,68 @@ document.addEventListener('DOMContentLoaded', async () => {
       actionWrapper.append(editarBtn, eliminarBtn, estadoSelectQuick);
       accionesTd.appendChild(actionWrapper);
 
-      tr.append(
+      mainRow.append(
         dispositivoTd,
         tipoTd,
         departamentoTd,
         ipTd,
-        mascaraTd,
-        gatewayTd,
-        dns1Td,
-        dns2Td,
         estadoTd,
         accionesTd
       );
 
-      tablaBody.appendChild(tr);
+      const detailRow = document.createElement('tr');
+      detailRow.dataset.id = record.id;
+      detailRow.classList.add('inventory-row-details');
+      applyRowStateClass(detailRow, estadoValue);
+      detailRow.hidden = true;
+      detailRow.setAttribute('aria-hidden', 'true');
+
+      const detailTd = document.createElement('td');
+      detailTd.colSpan = 6;
+      const detailGrid = createElement('div', 'row-detail-grid');
+
+      [
+        { label: 'Máscara', value: record.mascara || '—' },
+        { label: 'Gateway', value: record.gateway || '—' },
+        { label: 'DNS 1', value: record.dns1 || '—' },
+        { label: 'DNS 2', value: record.dns2 || '—' }
+      ].forEach(({ label, value }) => {
+        const item = createElement('div', 'row-detail-item');
+        const itemLabel = createElement('span', 'row-detail-label', label);
+        const itemValue = createElement('span', 'row-detail-value', value);
+        item.append(itemLabel, itemValue);
+        detailGrid.appendChild(item);
+      });
+
+      detailTd.appendChild(detailGrid);
+      detailRow.appendChild(detailTd);
+
+      tablaBody.append(mainRow, detailRow);
     });
 
     updateSortIndicators();
+  }
+
+  function toggleRowDetails(row) {
+    if (!row || !row.classList.contains('inventory-row')) return;
+    const detailsRow = row.nextElementSibling;
+    if (!(detailsRow instanceof HTMLTableRowElement) || !detailsRow.classList.contains('inventory-row-details')) {
+      return;
+    }
+
+    const isExpanded = row.classList.toggle('is-expanded');
+    row.setAttribute('aria-expanded', String(isExpanded));
+    detailsRow.classList.toggle('is-expanded', isExpanded);
+    detailsRow.hidden = !isExpanded;
+    detailsRow.setAttribute('aria-hidden', String(!isExpanded));
+
+    if (isExpanded && tablaBody) {
+      tablaBody.querySelectorAll('.inventory-row.is-expanded').forEach((expandedRow) => {
+        if (expandedRow !== row) {
+          toggleRowDetails(expandedRow);
+        }
+      });
+    }
   }
 
   function updateCounters() {
@@ -702,17 +749,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     tablaBody?.addEventListener('click', (event) => {
       const target = event.target;
       if (!(target instanceof HTMLElement)) return;
-      const action = target.dataset.action;
-      if (!action) return;
 
-      const id = target.dataset.id;
-      const record = allRecords.find((item) => item.id === id);
-      if (!record) return;
+      const actionEl = target.closest('[data-action]');
+      if (actionEl instanceof HTMLElement) {
+        const action = actionEl.dataset.action;
+        const id = actionEl.dataset.id;
+        const record = allRecords.find((item) => item.id === id);
+        if (!action || !id || !record) return;
 
-      if (action === 'edit') {
-        openModal({ mode: 'edit', record });
-      } else if (action === 'delete') {
-        handleDelete(id);
+        if (action === 'edit') {
+          openModal({ mode: 'edit', record });
+        } else if (action === 'delete') {
+          handleDelete(id);
+        }
+        return;
+      }
+
+      if (target.closest('.estado-quick-select') || target.closest('.action-buttons')) {
+        return;
+      }
+
+      const detailRow = target.closest('.inventory-row-details');
+      if (detailRow instanceof HTMLTableRowElement) {
+        const parentRow = detailRow.previousElementSibling;
+        if (parentRow instanceof HTMLTableRowElement) {
+          toggleRowDetails(parentRow);
+        }
+        return;
+      }
+
+      const row = target.closest('.inventory-row');
+      if (row instanceof HTMLTableRowElement) {
+        toggleRowDetails(row);
       }
     });
 
@@ -721,6 +789,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (!(target instanceof HTMLSelectElement)) return;
       if (target.matches('.estado-quick-select')) {
         handleQuickEstadoChange(target);
+      }
+    });
+
+    tablaBody?.addEventListener('keydown', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      if (!target.classList.contains('inventory-row')) return;
+
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        toggleRowDetails(target);
       }
     });
 
