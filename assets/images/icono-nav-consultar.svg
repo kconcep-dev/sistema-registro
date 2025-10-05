@@ -1,15 +1,2 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg fill="#000000" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
-	 width="800px" height="800px" viewBox="0 0 93.314 93.314"
-	 xml:space="preserve">
-<g>
-	<g>
-		<polygon points="21.598,0 9.468,16.984 24.022,6.933 		"/>
-		<path d="M73.634,18.349V8.82H62.936V0.119H25.735l2.992,8.557L9.88,21.691v51.16h17.287v10.934H37.38v9.529h46.467V18.349H73.634z
-			 M31.522,79.43v-6.578h31.414V13.176h6.343V79.43H31.522L31.522,79.43z M79.489,88.959H41.735v-5.174h31.898v-61.08h5.854v66.254
-			H79.489z"/>
-	</g>
-</g>
-</svg>
+<?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg width="800px" height="800px" viewBox="0 0 24 24" id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg"><defs><style>.cls-1{fill:none;stroke:#020202;stroke-miterlimit:10;stroke-width:1.91px;}</style></defs><polygon class="cls-1" points="16.77 8.18 16.77 22.5 3.41 22.5 3.41 5.32 16.77 5.32 16.77 8.18"/><line class="cls-1" x1="6.27" y1="13.91" x2="13.91" y2="13.91"/><line class="cls-1" x1="6.27" y1="10.09" x2="13.91" y2="10.09"/><line class="cls-1" x1="6.27" y1="17.73" x2="12" y2="17.73"/><polyline class="cls-1" points="20.59 19.64 20.59 4.36 20.59 1.5 6.27 1.5"/></svg>
