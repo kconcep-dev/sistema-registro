@@ -538,6 +538,16 @@ html.dark-mode .theme-btn {
     --icon-url: url("../assets/images/icono-nav-consultar.svg");
 }
 
+.icon-search {
+    --icon-url: url("../assets/images/icono-search.svg");
+}
+
+@media (max-width: 600px) {
+    .button-with-icon {
+        gap: 0.35rem;
+    }
+}
+
 .icon-nav-inventario {
     --icon-url: url("../assets/images/icono-nav-inventario.svg");
 }

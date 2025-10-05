@@ -35,6 +35,9 @@ html.dark-mode .tabs-nav{
   align-items: center;
   gap: 0.5rem;
 }
+.tab-btn .label-short {
+  display: none;
+}
 .tab-btn:hover { background-color: var(--input-bg-color); }
 .tab-btn.active {
   background-color: var(--primary-color);
@@ -45,6 +48,25 @@ html.dark-mode .tabs-nav{
 /* Contenidos por pestaña */
 .tab-content { display: none; }
 .tab-content.active { display: block; }
+
+@media (max-width: 768px) {
+  .tabs-nav.is-hidden-mobile {
+    display: none;
+  }
+
+  .tab-btn {
+    padding: 8px 12px;
+    font-size: 0.95rem;
+  }
+
+  .tab-btn .label-full {
+    display: none;
+  }
+
+  .tab-btn .label-short {
+    display: inline-flex;
+  }
+}
 
 
 /* --- 2) Barra de Controles (Búsqueda, Filtros, Exportar) --- */
@@ -61,7 +83,7 @@ html.dark-mode .tabs-nav{
   box-shadow: 0 2px 10px var(--shadow-color);
 }
 
-.controls-area .count-pill {
+.controls-area:not([data-controls]) .count-pill {
   margin-left: auto;
 }
 
@@ -139,6 +161,145 @@ html.dark-mode .date-field input[type="date"]{
   background-color: var(--input-bg-color) !important;
   color: var(--input-text-color) !important;
   border-color: var(--border-color) !important;
+}
+
+.controls-area[data-controls] {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.controls-area[data-controls] .controls-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.controls-area[data-controls] .controls-row--primary {
+  justify-content: flex-start;
+}
+
+.controls-area[data-controls] .controls-row--meta {
+  justify-content: space-between;
+}
+
+.controls-area[data-controls] .controls-row--meta .count-pill {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.controls-area[data-controls] .controls-row--meta .btn-export {
+  flex: 0 0 auto;
+}
+
+.controls-area[data-controls] .search-toggle {
+  display: none;
+  height: 42px;
+  padding: 0 14px;
+  border: none;
+  border-radius: var(--button-radius);
+  background-color: var(--input-bg-color);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background-color .2s ease;
+}
+
+.controls-area[data-controls] .search-toggle:hover {
+  background-color: color-mix(in srgb, var(--input-bg-color) 70%, transparent);
+}
+
+.controls-area[data-controls].search-expanded .search-toggle {
+  background-color: var(--primary-color);
+  color: #fff;
+}
+
+.controls-area[data-controls] .search-field {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.controls-area[data-controls] .search-field input[type="search"] {
+  width: 100%;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.controls-area[data-controls] .filters-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+}
+
+.controls-area[data-controls] .filters-group .date-field {
+  flex: 0 1 170px;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .controls-area[data-controls] {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .controls-area[data-controls] .controls-row {
+    gap: 8px;
+  }
+
+  .controls-area[data-controls] .search-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .controls-area[data-controls] .controls-row--primary {
+    flex-wrap: wrap;
+    align-items: stretch;
+  }
+
+  .controls-area[data-controls] .search-field {
+    display: none;
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .controls-area[data-controls] .filters-group {
+    flex: 1 1 0;
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .controls-area[data-controls] .filters-group .date-field {
+    flex: 1 1 0;
+  }
+
+  .controls-area[data-controls] .controls-row--meta {
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .controls-area[data-controls] .controls-row--meta .btn-export {
+    padding: 0 12px;
+  }
+
+  .controls-area[data-controls].search-expanded .search-field {
+    display: block;
+    flex: 1 1 auto;
+  }
+
+  .controls-area[data-controls].search-expanded .filters-group {
+    width: 100%;
+    flex: 1 1 100%;
+    order: 3;
+    margin-top: 4px;
+  }
+
+  .controls-area[data-controls].search-expanded .controls-row--meta {
+    margin-top: 4px;
+  }
 }
 
 /* Botón Agregar Equipo: estilo pill como Exportar */
@@ -258,33 +419,29 @@ html.dark-mode .controls-area .date-field input[type="date"] {
   cursor: pointer;
 }
 
-/* --- Ajuste de grilla en móvil para filtros --- */
+/* --- Ajuste de grilla en móvil para filtros existentes --- */
 @media (max-width: 768px) {
-  .controls-area {
+  .controls-area:not([data-controls]) {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     border-radius: 16px; /* menos exagerado en móvil */
   }
 
-  /* Barra de búsqueda ocupa todo el ancho arriba */
-  .controls-area input[type="search"] {
+  .controls-area:not([data-controls]) input[type="search"] {
     grid-column: 1 / -1;
     width: 100%;
   }
 
-  /* Fechas lado a lado */
-  .controls-area .date-field {
+  .controls-area:not([data-controls]) .date-field {
     width: 100%;
   }
 
-  /* Exportar ancho completo abajo */
-  .controls-area .btn-export {
+  .controls-area:not([data-controls]) .btn-export {
     grid-column: 1 / -1;
     width: 100%;
   }
 
-  /* Añadir equipo ancho completo */
   #btn-agregar-equipo {
     grid-column: 1 / -1;
     width: 100%;
@@ -293,6 +450,20 @@ html.dark-mode .controls-area .date-field input[type="date"] {
     display: inline-flex;    /* mantiene el gap */
     align-items: center;
     gap: 8px;                /* espacio entre icono y texto */
+  }
+
+  #table-visitantes th,
+  #table-visitantes td,
+  #table-descartes th,
+  #table-descartes td,
+  #table-equipos-sesion th,
+  #table-equipos-sesion td {
+    white-space: normal;
+    font-size: 0.85rem;
+  }
+
+  .table-container {
+    overflow-x: auto;
   }
 }
 
@@ -407,6 +578,31 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   background-color: var(--card-bg-color);
   box-shadow: -6px 0 8px -4px rgba(0,0,0,0.06);
   min-width: 180px; /* ancho mínimo para botones */
+}
+
+@media (max-width: 768px) {
+  #table-visitantes th:last-child,
+  #table-descartes th:last-child,
+  #table-equipos-sesion th:last-child,
+  #table-visitantes td:last-child,
+  #table-descartes td:last-child,
+  #table-equipos-sesion td:last-child {
+    min-width: 120px;
+  }
+
+  .table-actions {
+    gap: 6px;
+  }
+
+  .table-actions .button-label {
+    display: none;
+  }
+
+  .table-actions button {
+    padding: 6px;
+    width: 36px;
+    height: 36px;
+  }
 }
 
 /* --- 4) Detalle de Sesión --- */

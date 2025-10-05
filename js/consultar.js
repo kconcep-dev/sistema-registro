@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // --- 1) Elementos del DOM ---
   const tabsNav = document.querySelector('.tabs-nav');
   const tabContents = document.querySelectorAll('.tab-content');
+  const controlAreas = Array.from(document.querySelectorAll('.controls-area[data-controls]'));
 
   // Visitantes
   const searchVisitantesInput    = document.getElementById('search-visitantes');
@@ -89,6 +90,81 @@ document.addEventListener('DOMContentLoaded', async () => {
   let currentSessionEquiposTotal = 0;
   let searchDebounceTimeout;
   let toastTimeout;
+
+  function collapseSearchArea(area) {
+    if (!area || !area.classList.contains('search-expanded')) return;
+    area.classList.remove('search-expanded');
+    const toggle = area.querySelector('.search-toggle');
+    if (toggle) {
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  function expandSearchArea(area) {
+    if (!area || area.classList.contains('search-expanded')) return;
+    area.classList.add('search-expanded');
+    const toggle = area.querySelector('.search-toggle');
+    if (toggle) {
+      toggle.setAttribute('aria-expanded', 'true');
+    }
+    const input = area.querySelector('.search-field input[type="search"]');
+    if (input) {
+      requestAnimationFrame(() => input.focus());
+    }
+  }
+
+  function toggleSearchArea(area) {
+    if (!area) return;
+    if (area.classList.contains('search-expanded')) {
+      collapseSearchArea(area);
+      return;
+    }
+    controlAreas.forEach(other => {
+      if (other !== area) {
+        collapseSearchArea(other);
+      }
+    });
+    expandSearchArea(area);
+  }
+
+  function collapseAllSearchAreas() {
+    controlAreas.forEach(collapseSearchArea);
+  }
+
+  function setupResponsiveControls() {
+    if (!controlAreas.length) return;
+
+    controlAreas.forEach(area => {
+      const toggle = area.querySelector('.search-toggle');
+      const input = area.querySelector('.search-field input[type="search"]');
+      if (!toggle || !input) return;
+
+      toggle.addEventListener('click', (event) => {
+        event.preventDefault();
+        toggleSearchArea(area);
+      });
+
+      input.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          collapseSearchArea(area);
+          input.blur();
+        }
+      });
+    });
+
+    document.addEventListener('click', (event) => {
+      if (controlAreas.some(area => area.contains(event.target))) {
+        return;
+      }
+      collapseAllSearchAreas();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        collapseAllSearchAreas();
+      }
+    });
+  }
 
   // --- 3) Utilidades ---
   function showToast(message, type = 'success') {
@@ -230,11 +306,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td>${formatDate(visitor.fecha)}</td>
         <td>${formatTime(visitor.hora)}</td>
         <td class="table-actions">
-          <button class="btn-editar button-with-icon" data-id="${visitor.id}">
+          <button class="btn-editar button-with-icon" data-id="${visitor.id}" aria-label="Editar visitante">
             <span class="icon icon--sm icon-edit" aria-hidden="true"></span>
             <span class="button-label">Editar</span>
           </button>
-          <button class="btn-eliminar button-with-icon" data-id="${visitor.id}">
+          <button class="btn-eliminar button-with-icon" data-id="${visitor.id}" aria-label="Eliminar visitante">
             <span class="icon icon--sm icon-trash" aria-hidden="true"></span>
             <span class="button-label">Eliminar</span>
           </button>
@@ -291,15 +367,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td>${session.observacion || '-'}</td>
         <td>${count}</td>
         <td class="table-actions">
-          <button class="btn-view-equipos button-with-icon" data-id="${session.id}">
+          <button class="btn-view-equipos button-with-icon" data-id="${session.id}" aria-label="Abrir sesión">
             <span class="icon icon--sm icon-open" aria-hidden="true"></span>
             <span class="button-label">Abrir</span>
           </button>
-          <button class="btn-editar btn-editar-sesion button-with-icon" data-id="${session.id}">
+          <button class="btn-editar btn-editar-sesion button-with-icon" data-id="${session.id}" aria-label="Editar sesión">
             <span class="icon icon--sm icon-edit" aria-hidden="true"></span>
             <span class="button-label">Editar</span>
           </button>
-          <button class="btn-eliminar-sesion button-with-icon" data-id="${session.id}">
+          <button class="btn-eliminar-sesion button-with-icon" data-id="${session.id}" aria-label="Eliminar sesión">
             <span class="icon icon--sm icon-trash" aria-hidden="true"></span>
             <span class="button-label">Eliminar</span>
           </button>
@@ -380,11 +456,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td>${eq.estado_equipo || '-'}</td>
         <td>${eq.motivo_descarte || '-'}</td>
         <td class="table-actions">
-          <button class="btn-editar button-with-icon" data-id="${eq.id}">
+          <button class="btn-editar button-with-icon" data-id="${eq.id}" aria-label="Editar equipo">
             <span class="icon icon--sm icon-edit" aria-hidden="true"></span>
             <span class="button-label">Editar</span>
           </button>
-          <button class="btn-eliminar button-with-icon" data-id="${eq.id}">
+          <button class="btn-eliminar button-with-icon" data-id="${eq.id}" aria-label="Eliminar equipo">
             <span class="icon icon--sm icon-trash" aria-hidden="true"></span>
             <span class="button-label">Eliminar</span>
           </button>
@@ -420,6 +496,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (sesionesListaSection) sesionesListaSection.style.display = 'none';
     if (sesionDetalleSection) sesionDetalleSection.style.display = 'block';
+    collapseAllSearchAreas();
+    if (tabsNav) tabsNav.classList.add('is-hidden-mobile');
 
     updateMobileDetailsToggle(false);
 
@@ -438,11 +516,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (sesionesListaSection) sesionesListaSection.style.display = 'block';
     updateEquiposTotalBadge(0);
     updateMobileDetailsToggle(false);
+    collapseAllSearchAreas();
+    if (tabsNav) tabsNav.classList.remove('is-hidden-mobile');
   }
 
   updateVisitantesTotal(0);
   updateSesionesTotal(0);
   updateEquiposTotalBadge(0);
+  setupResponsiveControls();
 
   // --- 5) Eventos ---
 
@@ -459,6 +540,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       tabContents.forEach(c => c.classList.toggle('active', c.id === `${tabId}-content`));
 
       closeSessionDetail();
+      collapseAllSearchAreas();
 
       if (tabId === 'visitantes') fetchVisitantes();
       if (tabId === 'descartes') fetchDescartes();
