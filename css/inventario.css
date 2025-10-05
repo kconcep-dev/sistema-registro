@@ -52,33 +52,70 @@
   max-width: 680px;
 }
 
+:root {
+  --inventario-total-color: #334155;
+  --inventario-libre-color: #0f766e;
+  --inventario-asignada-color: #b91c1c;
+  --inventario-revision-color: #b45309;
+}
+
+html.dark-mode {
+  --inventario-total-color: #94a3b8;
+  --inventario-libre-color: #34d399;
+  --inventario-asignada-color: #f87171;
+  --inventario-revision-color: #fbbf24;
+}
+
 .stats-overview {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
 }
 
 .stat-card {
-  background-color: var(--card-bg-color);
-  border-radius: 18px;
-  padding: 18px 22px;
-  box-shadow: 0 4px 14px var(--shadow-color);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  border: 1px solid color-mix(in srgb, var(--border-color) 35%, transparent);
+  --stat-color: var(--inventario-total-color);
+  background-color: color-mix(in srgb, var(--stat-color) 24%, var(--card-bg-color));
+  border-radius: 16px;
+  padding: 14px 16px;
+  box-shadow: 0 3px 10px var(--shadow-color);
+  display: grid;
+  gap: 4px;
+  border: 1px solid color-mix(in srgb, var(--stat-color) 55%, transparent);
+  min-height: 100px;
 }
 
 .stat-label {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  color: color-mix(in srgb, var(--text-color) 65%, transparent);
+  color: color-mix(in srgb, var(--stat-color) 55%, var(--text-color));
 }
 
 .stat-value {
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 700;
-  color: var(--text-color);
+  color: color-mix(in srgb, var(--stat-color) 85%, var(--text-color));
+}
+
+.stat-card--total {
+  --stat-color: var(--inventario-total-color);
+}
+
+.stat-card--libre {
+  --stat-color: var(--inventario-libre-color);
+}
+
+.stat-card--asignada {
+  --stat-color: var(--inventario-asignada-color);
+}
+
+.stat-card--revision {
+  --stat-color: var(--inventario-revision-color);
+}
+
+html.dark-mode .stat-card {
+  background-color: color-mix(in srgb, var(--stat-color) 38%, var(--card-bg-color));
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  border-color: color-mix(in srgb, var(--stat-color) 65%, transparent);
 }
 
 .filters-bar {
@@ -162,7 +199,7 @@ html.dark-mode .btn-export:hover {
 #tabla-inventario {
   width: 100%;
   border-collapse: collapse;
-  min-width: 900px;
+  min-width: 720px;
 }
 
 #tabla-inventario th,
@@ -170,6 +207,7 @@ html.dark-mode .btn-export:hover {
   padding: 14px 16px;
   text-align: left;
   border-bottom: 1px solid color-mix(in srgb, var(--border-color) 35%, transparent);
+  vertical-align: middle;
 }
 
 #tabla-inventario thead {
@@ -213,64 +251,60 @@ html.dark-mode .btn-export:hover {
   transform: translateY(-50%) rotate(180deg);
 }
 
-#tabla-inventario tbody tr {
-  transition: background-color 0.15s ease;
+.inventory-row {
+  cursor: pointer;
+  transition: background-color 0.18s ease, border-color 0.18s ease;
 }
 
-#tabla-inventario tbody tr:hover {
-  background-color: color-mix(in srgb, var(--primary-color) 12%, transparent);
+.inventory-row:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--primary-color) 70%, transparent);
+  outline-offset: -2px;
+}
+
+.inventory-row:hover {
+  background-color: color-mix(in srgb, var(--primary-color) 14%, var(--card-bg-color));
 }
 
 .estado-pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 14px;
-  border-radius: var(--button-radius);
+  padding: 6px 16px;
+  border-radius: 999px;
   font-weight: 600;
   font-size: 0.85rem;
   text-transform: capitalize;
+  border: 1px solid transparent;
 }
 
 .estado-pill--libre {
-  background-color: rgba(16, 185, 129, 0.2);
-  color: #047857;
+  background-color: color-mix(in srgb, var(--inventario-libre-color) 28%, var(--card-bg-color));
+  border-color: color-mix(in srgb, var(--inventario-libre-color) 70%, transparent);
+  color: color-mix(in srgb, var(--inventario-libre-color) 96%, #000);
 }
 
 .estado-pill--asignada {
-  background-color: rgba(248, 113, 113, 0.25);
-  color: #b91c1c;
+  background-color: color-mix(in srgb, var(--inventario-asignada-color) 28%, var(--card-bg-color));
+  border-color: color-mix(in srgb, var(--inventario-asignada-color) 70%, transparent);
+  color: color-mix(in srgb, var(--inventario-asignada-color) 96%, #000);
 }
 
 .estado-pill--en_revision {
-  background-color: rgba(251, 191, 36, 0.25);
-  color: #92400e;
-}
-
-html.dark-mode .estado-pill--libre {
-  background-color: rgba(16, 185, 129, 0.28);
-  color: #34d399;
-}
-
-html.dark-mode .estado-pill--asignada {
-  background-color: rgba(248, 113, 113, 0.32);
-  color: #fca5a5;
-}
-
-html.dark-mode .estado-pill--en_revision {
-  background-color: rgba(251, 191, 36, 0.32);
-  color: #fcd34d;
+  background-color: color-mix(in srgb, var(--inventario-revision-color) 28%, var(--card-bg-color));
+  border-color: color-mix(in srgb, var(--inventario-revision-color) 70%, transparent);
+  color: color-mix(in srgb, var(--inventario-revision-color) 96%, #000);
 }
 
 .action-buttons {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 10px;
+  flex-wrap: nowrap;
   align-items: center;
 }
 
 .acciones-cell {
-  min-width: 220px;
+  min-width: 260px;
+  width: 1%;
 }
 
 .btn-action {
@@ -320,27 +354,103 @@ html.dark-mode .estado-pill--en_revision {
 }
 
 .row-estado-libre {
-  background-color: rgba(56, 178, 172, 0.18);
+  background-color: color-mix(in srgb, var(--inventario-libre-color) 24%, var(--card-bg-color));
 }
 
 .row-estado-asignada {
-  background-color: rgba(239, 68, 68, 0.18);
+  background-color: color-mix(in srgb, var(--inventario-asignada-color) 24%, var(--card-bg-color));
 }
 
 .row-estado-en_revision {
-  background-color: rgba(234, 179, 8, 0.2);
+  background-color: color-mix(in srgb, var(--inventario-revision-color) 24%, var(--card-bg-color));
 }
 
 html.dark-mode .row-estado-libre {
-  background-color: rgba(56, 178, 172, 0.28);
+  background-color: color-mix(in srgb, var(--inventario-libre-color) 40%, var(--card-bg-color));
 }
 
 html.dark-mode .row-estado-asignada {
-  background-color: rgba(239, 68, 68, 0.28);
+  background-color: color-mix(in srgb, var(--inventario-asignada-color) 40%, var(--card-bg-color));
 }
 
 html.dark-mode .row-estado-en_revision {
-  background-color: rgba(234, 179, 8, 0.32);
+  background-color: color-mix(in srgb, var(--inventario-revision-color) 40%, var(--card-bg-color));
+}
+
+.inventory-row.is-expanded {
+  border-bottom-color: transparent;
+}
+
+.inventory-row.is-expanded > td {
+  border-bottom-color: transparent;
+}
+
+.inventory-row-details {
+  display: none;
+}
+
+.inventory-row-details.is-expanded {
+  display: table-row;
+}
+
+.inventory-row-details td {
+  padding: 0 16px 16px;
+  border-top: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 45%, transparent);
+}
+
+.row-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.row-detail-item {
+  background-color: color-mix(in srgb, var(--card-bg-color) 80%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--border-color) 55%, transparent);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: grid;
+  gap: 4px;
+}
+
+.row-estado-libre .row-detail-item {
+  border-color: color-mix(in srgb, var(--inventario-libre-color) 70%, transparent);
+}
+
+.row-estado-asignada .row-detail-item {
+  border-color: color-mix(in srgb, var(--inventario-asignada-color) 70%, transparent);
+}
+
+.row-estado-en_revision .row-detail-item {
+  border-color: color-mix(in srgb, var(--inventario-revision-color) 70%, transparent);
+}
+
+.row-detail-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--text-color) 70%, transparent);
+}
+
+.row-detail-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.cell-dispositivo {
+  min-width: 220px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.estado-cell {
+  min-width: 150px;
 }
 
 html.dark-mode .filters-bar,
