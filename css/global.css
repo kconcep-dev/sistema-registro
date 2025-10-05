@@ -383,7 +383,8 @@ body.nav-open .nav-links {
         border-bottom-left-radius: 50px;
     }
 
-    .nav-links .nav-item:nth-child(4) .nav-link.active {
+    /* Ajuste: el quinto elemento (Inventario) es ahora el último botón visible */
+    .nav-links .nav-item:nth-child(5) .nav-link.active {
         border-top-right-radius: 50px;
         border-bottom-right-radius: 50px;
     }
