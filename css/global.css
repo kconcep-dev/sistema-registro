@@ -299,6 +299,11 @@ body.nav-open .nav-links {
     place-items: center;
     padding: 0;
     line-height: 1;
+    color: var(--text-color);
+}
+
+html.dark-mode .nav-control-btn {
+    color: #F9FAFB;
 }
 
 .nav-control-btn:hover {
@@ -306,7 +311,6 @@ body.nav-open .nav-links {
 }
 
 #theme-toggle.theme-btn {
-    font-size: 1.5rem;
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -325,6 +329,14 @@ body.nav-open .nav-links {
     border-radius: 50%;
     border: 1px solid var(--border-color);
     background-color: var(--card-bg-color);
+}
+
+.theme-btn {
+    color: var(--text-color);
+}
+
+html.dark-mode .theme-btn {
+    color: #F9FAFB;
 }
 
 @media (min-width: 768px) {
@@ -436,10 +448,25 @@ body.nav-open .nav-links {
 }
 
 /* --- 6. Iconos Personalizados --- */
-.nav-control-btn img {
+.icon {
     display: block;
     width: 26px;
     height: 26px;
+    background-color: currentColor;
+    mask: var(--icon-url) center/contain no-repeat;
+    -webkit-mask: var(--icon-url) center/contain no-repeat;
+}
+
+.icon-theme-dark {
+    --icon-url: url("../assets/images/icono-tema-dark.svg");
+}
+
+.icon-theme-light {
+    --icon-url: url("../assets/images/icono-tema-light.svg");
+}
+
+.icon-logout {
+    --icon-url: url("../assets/images/icono-logout.svg");
 }
 
 .hamburger img {
