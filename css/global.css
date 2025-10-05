@@ -839,6 +839,12 @@ body.nav-open .icon-menu { display: none; }
     gap: 0.45rem;
 }
 
+.modal-buttons .btn-principal {
+    width: auto;
+    margin-top: 0;
+    padding: 0.75rem 1.25rem;
+}
+
 .modal-buttons .button-with-icon .icon {
     width: 1.05em;
     height: 1.05em;
