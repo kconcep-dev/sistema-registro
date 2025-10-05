@@ -26,7 +26,7 @@ const navbarHTML = `
                 </a></li>
                 <li class="nav-item"><a href="descartes.html" class="nav-link">
                     <span class="icon icon--sm icon-nav-descartes nav-icon" aria-hidden="true"></span>
-                    <span class="nav-label">Descartes</span>
+                    <span class="nav-label">Descartar</span>
                 </a></li>
                 <li class="nav-item"><a href="consultar.html" class="nav-link">
                     <span class="icon icon--sm icon-nav-consultar nav-icon" aria-hidden="true"></span>

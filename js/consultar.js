@@ -449,11 +449,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Tabs
   if (tabsNav) {
     tabsNav.addEventListener('click', (e) => {
-      if (!e.target.classList.contains('tab-btn')) return;
-      const tabId = e.target.dataset.tab;
+      const button = e.target.closest('.tab-btn');
+      if (!button) return;
+      const tabId = button.dataset.tab;
 
       tabsNav.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      e.target.classList.add('active');
+      button.classList.add('active');
 
       tabContents.forEach(c => c.classList.toggle('active', c.id === `${tabId}-content`));
 
