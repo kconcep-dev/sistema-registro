@@ -16,11 +16,26 @@ const navbarHTML = `
     <nav class="navbar">
         <div class="nav-container">
             <ul class="nav-links" id="nav-menu">
-                <li class="nav-item"><a href="inicio.html" class="nav-link">🏠 Inicio</a></li>
-                <li class="nav-item"><a href="index.html" class="nav-link">📝 Registrar</a></li>
-                <li class="nav-item"><a href="descartes.html" class="nav-link">🗑️ Descartes</a></li>
-                <li class="nav-item"><a href="consultar.html" class="nav-link">📊 Consultar</a></li>
-                <li class="nav-item"><a href="inventario.html" class="nav-link">🖧 Inventario</a></li>
+                <li class="nav-item"><a href="inicio.html" class="nav-link">
+                    <span class="icon icon--sm icon-nav-inicio nav-icon" aria-hidden="true"></span>
+                    <span class="nav-label">Inicio</span>
+                </a></li>
+                <li class="nav-item"><a href="index.html" class="nav-link">
+                    <span class="icon icon--sm icon-nav-registrar nav-icon" aria-hidden="true"></span>
+                    <span class="nav-label">Registrar</span>
+                </a></li>
+                <li class="nav-item"><a href="descartes.html" class="nav-link">
+                    <span class="icon icon--sm icon-nav-descartes nav-icon" aria-hidden="true"></span>
+                    <span class="nav-label">Descartes</span>
+                </a></li>
+                <li class="nav-item"><a href="consultar.html" class="nav-link">
+                    <span class="icon icon--sm icon-nav-consultar nav-icon" aria-hidden="true"></span>
+                    <span class="nav-label">Consultar</span>
+                </a></li>
+                <li class="nav-item"><a href="inventario.html" class="nav-link">
+                    <span class="icon icon--sm icon-nav-inventario nav-icon" aria-hidden="true"></span>
+                    <span class="nav-label">Inventario</span>
+                </a></li>
                 <li class="nav-separator"></li>
                 <li class="nav-item nav-item-controls">
                     <button id="theme-toggle" class="theme-btn nav-control-btn" title="Cambiar Tema" aria-label="Cambiar a tema oscuro">

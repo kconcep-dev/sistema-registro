@@ -30,17 +30,6 @@
   font-size: 1.2rem;
 }
 
-#btn-nueva-ip::before {
-  content: "";
-  width: 20px;
-  height: 20px;
-  display: inline-block;
-  background-image: var(--plus-icon);
-  background-repeat: no-repeat;
-  background-size: contain;
-  background-position: center;
-}
-
 .inventory-heading h1 {
   margin-bottom: 8px;
   text-align: left;
@@ -177,6 +166,9 @@ html.dark-mode .stat-card {
   font-weight: 700;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .btn-export:hover {
@@ -335,6 +327,9 @@ html.dark-mode .btn-export:hover {
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary-color) 45%, transparent);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .btn-action:hover {

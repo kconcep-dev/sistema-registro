@@ -24,18 +24,8 @@
     transition: transform 0.2s ease, background-color 0.2s ease;
     display: inline-flex;            /* para alinear ícono + texto */
     align-items: center;
+    justify-content: center;
     gap: 10px;
-}
-
-.btn-iniciar::before {
-    content: "";
-    width: 20px;
-    height: 20px;
-    display: inline-block;
-    background-image: var(--plus-icon);
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center;
 }
 
 .btn-iniciar:hover {
@@ -90,6 +80,10 @@
     font-size: 1.1rem;
     font-weight: bold;
     transition: background-color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 .btn-principal:hover {
     background-color: var(--primary-hover-color);
@@ -139,8 +133,11 @@
     padding: 5px 10px;
     border-radius: var(--button-radius);
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: white;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
 }
 
 .btn-editar {
@@ -191,10 +188,6 @@
 }
 
 /* Iconos custom de esta vista */
-:root {
-  --plus-icon: url("../assets/images/plus-icon.png");
-}
-
 /* --- 6. Media Queries para Escritorio --- */
 @media (min-width: 768px) {
     .container {
@@ -274,12 +267,15 @@
 .btn-scan {
     padding: 8px 12px;
     background-color: var(--border-color);
-    color: var(--bg-color);
+    color: #fff;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 1.2rem;
+    font-size: 1rem;
     line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
 }
 .btn-scan:hover {
     background-color: var(--primary-color);

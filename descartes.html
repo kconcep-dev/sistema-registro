@@ -36,8 +36,9 @@
             <h1>Registro de Descartes</h1>
 
             <div id="inicio-descarte-section" class="content-center">
-                <button id="btn-iniciar-descarte" class="btn-iniciar">
-                    Iniciar Nuevo Descarte
+                <button id="btn-iniciar-descarte" class="btn-iniciar button-with-icon">
+                    <span class="icon icon--sm icon-plus" aria-hidden="true"></span>
+                    <span class="button-label">Iniciar Nuevo Descarte</span>
                 </button>
             </div>
 
@@ -59,7 +60,10 @@
                             <label for="marbete">Marbete:</label>
                             <div class="input-with-button">
                                 <input type="text" id="marbete" placeholder="Número de marbete">
-                                <button type="button" class="btn-scan" data-target-input="marbete">🔳</button>
+                                <button type="button" class="btn-scan button-with-icon" data-target-input="marbete">
+                                    <span class="icon icon--sm icon-scan" aria-hidden="true"></span>
+                                    <span class="sr-only">Escanear marbete</span>
+                                </button>
                             </div>
                         </div>
                         
@@ -67,7 +71,10 @@
                             <label for="serie">Serie:</label>
                             <div class="input-with-button">
                                 <input type="text" id="serie" placeholder="Número de serie">
-                                <button type="button" class="btn-scan" data-target-input="serie">🔳</button>
+                                <button type="button" class="btn-scan button-with-icon" data-target-input="serie">
+                                    <span class="icon icon--sm icon-scan" aria-hidden="true"></span>
+                                    <span class="sr-only">Escanear serie</span>
+                                </button>
                             </div>
                         </div>
 
@@ -88,13 +95,19 @@
                         <label for="motivo_descarte">Motivo del Descarte (Evaluación):</label>
                         <input type="text" id="motivo_descarte" placeholder="Describe la falla técnica">
                     </div>
-                    <button type="submit" id="btn-anadir-equipo" class="btn-principal">Añadir Equipo</button>
+                    <button type="submit" id="btn-anadir-equipo" class="btn-principal button-with-icon">
+                        <span class="icon icon--sm icon-plus" aria-hidden="true"></span>
+                        <span class="button-label">Añadir Equipo</span>
+                    </button>
                 </form>
 
                 <div class="finalizar-seccion">
                    <label for="observacion">Observación General:</label>
                    <textarea id="observacion" rows="3" placeholder="Añade cualquier observación relevante..."></textarea>
-                   <button id="btn-finalizar-descarte" class="btn-finalizar">Finalizar Descarte</button>
+                   <button id="btn-finalizar-descarte" class="btn-finalizar button-with-icon">
+                       <span class="icon icon--sm icon-check" aria-hidden="true"></span>
+                       <span class="button-label">Finalizar Descarte</span>
+                   </button>
                </div>
 
                 <div class="tabla-equipos-wrapper">
@@ -125,14 +138,19 @@
 
     <div id="modal-nueva-sesion" class="modal-overlay">
         <div class="modal-content">
-            <button id="btn-cerrar-modal" class="modal-close-btn">&times;</button>
+            <button id="btn-cerrar-modal" class="modal-close-btn" type="button" aria-label="Cerrar modal">
+                <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+            </button>
             <h2>Crear Nueva Sesión de Descarte</h2>
             <form id="form-nueva-sesion" novalidate>
                 <label for="unidad_administrativa">Unidad Administrativa:</label>
                 <input type="text" id="unidad_administrativa" placeholder="Introduce el nombre de la escuela" required>
                 <label for="siace_code">Código SIACE:</label>
                 <input type="text" id="siace_code" placeholder="Introduce el código de la escuela" required>
-                <button type="submit" class="btn-principal">Crear Sesión</button>
+                <button type="submit" class="btn-principal button-with-icon">
+                    <span class="icon icon--sm icon-plus" aria-hidden="true"></span>
+                    <span class="button-label">Crear Sesión</span>
+                </button>
             </form>
         </div>
     </div>
@@ -142,15 +160,23 @@
             <h2 id="confirm-title">¿Estás seguro?</h2>
             <p id="confirm-message">Esta acción no se puede deshacer.</p>
             <div class="modal-buttons">
-                <button id="btn-confirmar-cancelar" class="btn-secondary">Cancelar</button>
-                <button id="btn-confirmar-aceptar" class="btn-danger">Aceptar</button>
+            <button id="btn-confirmar-cancelar" class="btn-secondary button-with-icon">
+                <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+                <span class="button-label">Cancelar</span>
+            </button>
+            <button id="btn-confirmar-aceptar" class="btn-danger button-with-icon">
+                <span class="icon icon--sm icon-check" aria-hidden="true"></span>
+                <span class="button-label">Aceptar</span>
+            </button>
             </div>
         </div>
     </div>
 
     <div id="modal-editar-equipo" class="modal-overlay">
         <div class="modal-content">
-            <button id="btn-cerrar-modal-editar" class="modal-close-btn">&times;</button>
+            <button id="btn-cerrar-modal-editar" class="modal-close-btn" type="button" aria-label="Cerrar modal">
+                <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+            </button>
             <h2>Editar Equipo</h2>
             <div class="modal-form-container">
                 <form id="form-editar-equipo" novalidate>
@@ -185,8 +211,14 @@
                         <input type="text" id="edit-motivo_descarte">
                     </div>
                     <div class="modal-buttons">
-                        <button type="button" id="btn-editar-cancelar" class="btn-secondary">Cancelar</button>
-                        <button type="submit" class="btn-principal">Aplicar Cambios</button>
+                        <button type="button" id="btn-editar-cancelar" class="btn-secondary button-with-icon">
+                            <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+                            <span class="button-label">Cancelar</span>
+                        </button>
+                        <button type="submit" class="btn-principal button-with-icon">
+                            <span class="icon icon--sm icon-save" aria-hidden="true"></span>
+                            <span class="button-label">Aplicar Cambios</span>
+                        </button>
                     </div>
                 </form>
             </div>

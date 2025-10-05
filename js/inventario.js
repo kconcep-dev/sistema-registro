@@ -318,6 +318,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     return el;
   }
 
+  function createIconButton(className, label, iconClass) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `${className} button-with-icon`.trim();
+    button.innerHTML = `
+      <span class="icon icon--sm ${iconClass}" aria-hidden="true"></span>
+      <span class="button-label">${label}</span>
+    `;
+    return button;
+  }
+
   function clearDeviceFieldsForLibre() {
     if (!dispositivoInput || !tipoSelect || !departamentoInput || !notasInput) return;
     dispositivoInput.value = CLEAR_ON_FREE_DEFAULTS.dispositivo;
@@ -432,14 +443,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       accionesTd.classList.add('acciones-cell');
       const actionWrapper = createElement('div', 'action-buttons');
 
-      const editarBtn = createElement('button', 'btn-action', 'Editar');
-      editarBtn.type = 'button';
+      const editarBtn = createIconButton('btn-action', 'Editar', 'icon-edit');
       editarBtn.dataset.action = 'edit';
       editarBtn.dataset.id = record.id;
       editarBtn.title = 'Editar';
 
-      const eliminarBtn = createElement('button', 'btn-action btn-danger', 'Eliminar');
-      eliminarBtn.type = 'button';
+      const eliminarBtn = createIconButton('btn-action btn-danger', 'Eliminar', 'icon-trash');
       eliminarBtn.dataset.action = 'delete';
       eliminarBtn.dataset.id = record.id;
       eliminarBtn.title = 'Eliminar';
