@@ -12,11 +12,12 @@
     --success-color: #28A745;
     --error-color: #DC3545;
     --button-radius: 999px;
+    --plus-icon: url("../assets/images/plus-icon.png");
 }
 
 html.dark-mode {
     --bg-color: #111827;
-    --card-bg-color: #1A202C; 
+    --card-bg-color: #1A202C;
     --input-bg-color: #111827;
     --text-color: #E5E7EB;
     --input-text-color: #FFFFFF;
@@ -25,6 +26,7 @@ html.dark-mode {
     --border-color: #9CA3AF;
     --shadow-color: rgba(0, 0, 0, 0.2);
     --success-color: #166534; /* Verde más oscuro para dark mode */
+    --plus-icon: url("../assets/images/plus-icon.png");
 }
 
 /* --- 2. Estilos Generales y Cargador --- */
