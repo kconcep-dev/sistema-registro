@@ -170,120 +170,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  function initActionsColumnToggle(tableId) {
-    const table = document.getElementById(tableId);
-    if (!table) return;
-
-    const container = table.closest('.table-container');
-    if (!container) return;
-
-    const mobileMedia = window.matchMedia('(max-width: 768px)');
-    let toggleBtn = null;
-    let userExpanded = false;
-    let autoExpanded = false;
-
-    const ensureCollapsedState = (shouldCollapse) => {
-      table.classList.toggle('actions-collapsed', shouldCollapse);
-      table.classList.add('actions-collapsible');
-      container.classList.toggle('actions-open', !shouldCollapse);
-    };
-
-    const updateToggleVisualState = () => {
-      if (!toggleBtn) return;
-      toggleBtn.setAttribute('aria-pressed', userExpanded ? 'true' : 'false');
-      toggleBtn.setAttribute('aria-label', userExpanded ? 'Ocultar columna de acciones' : 'Mostrar columna de acciones');
-      toggleBtn.title = userExpanded ? 'Ocultar columna de acciones' : 'Mostrar columna de acciones';
-      toggleBtn.dataset.state = userExpanded ? 'open' : 'closed';
-    };
-
-    const handleToggleClick = () => {
-      userExpanded = !userExpanded;
-      autoExpanded = false;
-      ensureCollapsedState(!userExpanded);
-      updateToggleVisualState();
-      if (toggleBtn) {
-        toggleBtn.classList.remove('is-hidden');
-      }
-    };
-
-    const handleScroll = () => {
-      if (!toggleBtn) return;
-      const { scrollLeft, clientWidth, scrollWidth } = container;
-      const atEnd = Math.ceil(scrollLeft + clientWidth) >= scrollWidth - 1;
-
-      if (atEnd) {
-        if (!autoExpanded) {
-          autoExpanded = true;
-          ensureCollapsedState(false);
-          toggleBtn.classList.add('is-hidden');
-        }
-        return;
-      }
-
-      if (autoExpanded) {
-        autoExpanded = false;
-        ensureCollapsedState(!userExpanded);
-      }
-      toggleBtn.classList.remove('is-hidden');
-    };
-
-    const handleResize = () => {
-      if (!toggleBtn) return;
-      handleScroll();
-    };
-
-    const enableMobileBehaviour = () => {
-      if (toggleBtn) return;
-
-      toggleBtn = document.createElement('button');
-      toggleBtn.type = 'button';
-      toggleBtn.className = 'actions-toggle';
-      toggleBtn.innerHTML = '<span class="actions-toggle__icon" aria-hidden="true">↔</span><span class="actions-toggle__label">Acciones</span>';
-      toggleBtn.setAttribute('aria-pressed', 'false');
-      toggleBtn.setAttribute('aria-label', 'Mostrar columna de acciones');
-      toggleBtn.title = 'Mostrar columna de acciones';
-
-      container.appendChild(toggleBtn);
-      container.classList.add('has-actions-toggle');
-      userExpanded = false;
-      autoExpanded = false;
-      ensureCollapsedState(true);
-      updateToggleVisualState();
-
-      toggleBtn.addEventListener('click', handleToggleClick);
-      container.addEventListener('scroll', handleScroll, { passive: true });
-      window.addEventListener('resize', handleResize);
-      handleScroll();
-    };
-
-    const disableMobileBehaviour = () => {
-      if (!toggleBtn) return;
-
-      toggleBtn.removeEventListener('click', handleToggleClick);
-      toggleBtn.remove();
-      toggleBtn = null;
-
-      container.classList.remove('has-actions-toggle', 'actions-open');
-      table.classList.remove('actions-collapsed', 'actions-collapsible');
-      container.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleResize);
-
-      userExpanded = false;
-      autoExpanded = false;
-    };
-
-    const handleMediaChange = (event) => {
-      if (event.matches) {
-        enableMobileBehaviour();
-      } else {
-        disableMobileBehaviour();
-      }
-    };
-
-    handleMediaChange(mobileMedia);
-    mobileMedia.addEventListener('change', handleMediaChange);
-  }
-
   // --- 3) Utilidades ---
   function showToast(message, type = 'success') {
     clearTimeout(toastTimeout);
@@ -797,8 +683,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateSesionesTotal(0);
   updateEquiposTotalBadge(0);
   setupResponsiveControls();
-  ['table-visitantes', 'table-descartes', 'table-equipos-sesion'].forEach(initActionsColumnToggle);
-
   setupDateFilterGroup({
     startInput: dateStartVisitantesInput,
     endInput: dateEndVisitantesInput,
