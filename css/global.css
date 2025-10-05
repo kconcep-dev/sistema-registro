@@ -200,6 +200,77 @@ button:disabled {
     cursor: not-allowed;
 }
 
+/* --- Tablas responsivas: columna de acciones --- */
+@media (max-width: 768px) {
+    .table-container.has-actions-toggle {
+        padding-right: 64px;
+    }
+
+    .table-container .actions-toggle {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        bottom: 16px;
+        width: 42px;
+        border: none;
+        border-radius: 999px;
+        background: var(--primary-color);
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px 6px;
+        cursor: pointer;
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        transform: rotate(180deg);
+        letter-spacing: 0.08em;
+        box-shadow: 0 4px 14px color-mix(in srgb, var(--primary-color) 40%, transparent);
+        z-index: 5;
+        transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .table-container .actions-toggle:hover {
+        background: var(--primary-hover-color);
+        box-shadow: 0 4px 16px color-mix(in srgb, var(--primary-hover-color) 45%, transparent);
+    }
+
+    .table-container .actions-toggle__icon {
+        font-size: 1rem;
+        margin-bottom: 12px;
+        transform: rotate(180deg);
+    }
+
+    .table-container .actions-toggle.is-hidden {
+        display: none;
+    }
+
+    .table-container .actions-toggle:focus-visible {
+        outline: 3px solid color-mix(in srgb, var(--primary-color) 35%, transparent);
+        outline-offset: 2px;
+    }
+
+    .table-container.actions-open .actions-toggle {
+        background: var(--primary-hover-color);
+        box-shadow: 0 4px 16px color-mix(in srgb, var(--primary-hover-color) 45%, transparent);
+    }
+
+    .table-container.has-actions-toggle table.actions-collapsible {
+        transition: opacity 0.2s ease;
+    }
+
+    .table-container.has-actions-toggle table.actions-collapsed th:last-child,
+    .table-container.has-actions-toggle table.actions-collapsed td:last-child {
+        display: none;
+    }
+}
+
+html.dark-mode .table-container .actions-toggle {
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--primary-color) 55%, transparent);
+}
+
 select {
     -webkit-appearance: none;
     -moz-appearance: none;

@@ -185,8 +185,9 @@ html.dark-mode .date-field input[type="date"]{
 }
 
 .controls-area[data-controls] .controls-row--meta .count-pill {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   min-width: 0;
+  margin-right: auto;
 }
 
 .controls-area[data-controls] .controls-row--meta .btn-export {
@@ -195,28 +196,69 @@ html.dark-mode .date-field input[type="date"]{
 
 .controls-area[data-controls] .search-toggle {
   display: none;
+  width: 42px;
   height: 42px;
-  padding: 0 14px;
-  border: none;
-  border-radius: var(--button-radius);
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
   background-color: var(--input-bg-color);
   color: var(--text-color);
   cursor: pointer;
-  transition: background-color .2s ease;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--shadow-color) 60%, transparent);
+  flex: 0 0 42px;
+}
+
+html.dark-mode .controls-area[data-controls] .search-toggle {
+  border-color: color-mix(in srgb, var(--border-color) 55%, transparent);
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--primary-color) 20%, transparent);
 }
 
 .controls-area[data-controls] .search-toggle:hover {
   background-color: color-mix(in srgb, var(--input-bg-color) 70%, transparent);
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--shadow-color) 80%, transparent);
 }
 
 .controls-area[data-controls].search-expanded .search-toggle {
   background-color: var(--primary-color);
+  border-color: color-mix(in srgb, var(--primary-color) 45%, transparent);
   color: #fff;
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--primary-color) 40%, transparent);
 }
 
 .controls-area[data-controls] .search-field {
   flex: 1 1 320px;
   min-width: 0;
+}
+
+.controls-area[data-controls] .search-toggle:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary-color) 35%, transparent);
+  outline-offset: 2px;
+}
+
+.controls-area[data-controls="equipos"] .controls-row--primary {
+  flex-wrap: wrap;
+}
+
+.controls-area[data-controls="equipos"] .search-toggle {
+  order: 1;
+}
+
+.controls-area[data-controls="equipos"] .search-field {
+  order: 2;
+}
+
+.controls-area[data-controls="equipos"] #equipos-total {
+  order: 3;
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+.controls-area[data-controls="equipos"] #btn-agregar-equipo {
+  order: 4;
+  flex: 0 0 auto;
 }
 
 .controls-area[data-controls] .search-field input[type="search"] {
@@ -252,6 +294,26 @@ html.dark-mode .date-field input[type="date"]{
     display: inline-flex;
     align-items: center;
     justify-content: center;
+  }
+
+  .controls-area[data-controls="equipos"] .controls-row--primary {
+    flex-wrap: nowrap;
+  }
+
+  .controls-area[data-controls="equipos"].search-expanded .controls-row--primary {
+    flex-wrap: wrap;
+  }
+
+  .controls-area[data-controls="equipos"].search-expanded .search-field {
+    order: 4;
+    display: block;
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .controls-area[data-controls="equipos"].search-expanded #equipos-total,
+  .controls-area[data-controls="equipos"].search-expanded #btn-agregar-equipo {
+    margin-top: 8px;
   }
 
   .controls-area[data-controls] .controls-row--primary {
@@ -319,13 +381,13 @@ html.dark-mode .date-field input[type="date"]{
   box-shadow: 0 2px 6px var(--shadow-color);
 }
 
-/* Botón Añadir Equipo ocupa todo el ancho en móvil */
+/* Botón Añadir Equipo en móvil acompaña al contador */
 @media (max-width: 768px) {
   #btn-agregar-equipo {
-    display: block;
-    width: 100%;
+    display: inline-flex;
+    width: auto;
     text-align: center;
-    margin-top: 0.8rem;
+    margin-top: 0;
   }
 }
 
@@ -706,9 +768,9 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
 }
 
 @media (max-width: 768px) {
-  .controls-area .count-pill {
+  .controls-area:not([data-controls]) .count-pill {
     grid-column: 1 / -1;
-    width: 100%;
+    width: auto;
     margin-left: 0;
     justify-content: center;
   }

@@ -62,11 +62,11 @@
             </div>
             <div class="filters-group">
               <div class="date-field" data-empty="true">
-                <input type="date" id="date-start-visitantes" placeholder="dd/mm/aaaa" title="Fecha de inicio" />
+                <input type="date" id="date-start-visitantes" title="Fecha de inicio" aria-label="Fecha de inicio" />
                 <span class="date-placeholder" aria-hidden="true">dd/mm/aaaa</span>
               </div>
               <div class="date-field" data-empty="true">
-                <input type="date" id="date-end-visitantes" placeholder="dd/mm/aaaa" title="Fecha de fin" />
+                <input type="date" id="date-end-visitantes" title="Fecha de fin" aria-label="Fecha de fin" />
                 <span class="date-placeholder" aria-hidden="true">dd/mm/aaaa</span>
               </div>
             </div>
@@ -113,11 +113,11 @@
               </div>
               <div class="filters-group">
                 <div class="date-field" data-empty="true">
-                  <input type="date" id="date-start-descartes" placeholder="dd/mm/aaaa" title="Fecha de inicio" />
+                  <input type="date" id="date-start-descartes" title="Fecha de inicio" aria-label="Fecha de inicio" />
                   <span class="date-placeholder" aria-hidden="true">dd/mm/aaaa</span>
                 </div>
                 <div class="date-field" data-empty="true">
-                  <input type="date" id="date-end-descartes" placeholder="dd/mm/aaaa" title="Fecha de fin" />
+                  <input type="date" id="date-end-descartes" title="Fecha de fin" aria-label="Fecha de fin" />
                   <span class="date-placeholder" aria-hidden="true">dd/mm/aaaa</span>
                 </div>
               </div>
@@ -177,17 +177,24 @@
             </div>
           </div>
 
-          <div class="controls-area">
-            <input
-              type="search"
-              id="search-equipos"
-              placeholder="Buscar por descripción, marca, modelo, serie o marbete..." />
-            <span id="equipos-total" class="count-pill" aria-live="polite">0 equipos</span>
-            <!-- Botón Añadir Equipo se adapta a móvil -->
-            <button id="btn-agregar-equipo" class="btn-principal btn-anadir-equipo button-with-icon" type="button">
-              <span class="icon icon--sm icon-plus" aria-hidden="true"></span>
-              <span class="button-label">Añadir Equipo</span>
-            </button>
+          <div class="controls-area" data-controls="equipos">
+            <div class="controls-row controls-row--primary">
+              <button class="search-toggle button-with-icon" type="button" aria-expanded="false" aria-controls="search-equipos">
+                <span class="icon icon--sm icon-search" aria-hidden="true"></span>
+                <span class="sr-only">Mostrar búsqueda</span>
+              </button>
+              <div class="search-field">
+                <input
+                  type="search"
+                  id="search-equipos"
+                  placeholder="Buscar por descripción, marca, modelo, serie o marbete..." />
+              </div>
+              <span id="equipos-total" class="count-pill" aria-live="polite">0 equipos</span>
+              <button id="btn-agregar-equipo" class="btn-principal btn-anadir-equipo button-with-icon" type="button">
+                <span class="icon icon--sm icon-plus" aria-hidden="true"></span>
+                <span class="button-label">Añadir Equipo</span>
+              </button>
+            </div>
           </div>
 
           <div class="table-container">
