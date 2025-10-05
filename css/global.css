@@ -565,7 +565,7 @@ html.dark-mode .theme-btn {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    line-height: 1.1;
+    line-height: 1;
 }
 
 .button-with-icon .icon {
@@ -573,6 +573,7 @@ html.dark-mode .theme-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    line-height: 1;
 }
 
 .button-label {
@@ -813,8 +814,10 @@ body.nav-open .icon-menu { display: none; }
 .modal-buttons {
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 15px;
     margin-top: 25px;
+    flex-wrap: wrap;
 }
 
 .btn-secondary, .btn-danger {
@@ -836,6 +839,32 @@ body.nav-open .icon-menu { display: none; }
 .btn-secondary:hover {
     background-color: var(--border-color);
     color: var(--bg-color);
+}
+
+@media (max-width: 600px) {
+    .modal-content {
+        padding: 24px 20px;
+    }
+
+    .modal-close-btn {
+        top: 4px;
+        right: 8px;
+        padding: 4px;
+    }
+
+    .modal-buttons {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .modal-buttons .button-with-icon {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        gap: 0.35rem;
+    }
 }
 
 .btn-danger {

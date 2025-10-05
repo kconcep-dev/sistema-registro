@@ -20,6 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnIniciar = document.getElementById('btn-iniciar-descarte');
   const btnAnadirEquipo = document.getElementById('btn-anadir-equipo');
   const btnFinalizar = document.getElementById('btn-finalizar-descarte');
+  const iconButtons = document.querySelectorAll('.button-with-icon');
+  const mobileLabelQuery = window.matchMedia('(max-width: 600px)');
   
   // Modales
   const modalSesion = document.getElementById('modal-nueva-sesion');
@@ -38,6 +40,52 @@ document.addEventListener('DOMContentLoaded', () => {
   const activeSessionIdSpan = document.getElementById('active-session-id');
   const toastEl = document.getElementById('toast-notification');
   const toastMessageEl = document.getElementById('toast-message');
+
+  iconButtons.forEach((button) => {
+    const labelSpan = button.querySelector('.button-label');
+    if (!labelSpan) return;
+    if (!button.dataset.labelDesktop) {
+      button.dataset.labelDesktop = labelSpan.textContent.trim();
+    }
+    if (!button.dataset.labelMobile) {
+      button.dataset.labelMobile = button.dataset.labelDesktop;
+    }
+  });
+
+  function applyResponsiveLabel(button) {
+    if (button.dataset.loading === 'true') return;
+    const labelSpan = button.querySelector('.button-label');
+    if (!labelSpan) return;
+    const desktopLabel = button.dataset.labelDesktop;
+    if (!desktopLabel) return;
+    const mobileLabel = button.dataset.labelMobile || desktopLabel;
+    labelSpan.textContent = mobileLabelQuery.matches ? mobileLabel : desktopLabel;
+  }
+
+  function applyResponsiveLabels() {
+    iconButtons.forEach(applyResponsiveLabel);
+  }
+
+  if (typeof mobileLabelQuery.addEventListener === 'function') {
+    mobileLabelQuery.addEventListener('change', applyResponsiveLabels);
+  } else if (typeof mobileLabelQuery.addListener === 'function') {
+    mobileLabelQuery.addListener(applyResponsiveLabels);
+  }
+  applyResponsiveLabels();
+
+  function setButtonLoading(button, isLoading, loadingLabel) {
+    const labelSpan = button.querySelector('.button-label');
+    if (!labelSpan) return;
+    if (isLoading) {
+      button.dataset.loading = 'true';
+      if (loadingLabel) {
+        labelSpan.textContent = loadingLabel;
+      }
+    } else {
+      delete button.dataset.loading;
+      applyResponsiveLabel(button);
+    }
+  }
 
   // --- 2. ESTADO DE LA APLICACIÓN ---
   let equiposCounter = 0;
@@ -191,6 +239,10 @@ document.addEventListener('DOMContentLoaded', () => {
       tablaEquiposBody.innerHTML = '';
       formEquipo.reset();
       document.getElementById('observacion').value = '';
+      btnAnadirEquipo.disabled = false;
+      setButtonLoading(btnAnadirEquipo, false);
+      btnFinalizar.disabled = false;
+      setButtonLoading(btnFinalizar, false);
       inicioSection.style.display = 'flex';
       registroSection.style.display = 'none';
     }
@@ -280,7 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const submitBtn = formNuevaSesion.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Creando...';
+    setButtonLoading(submitBtn, true, 'Creando...');
 
     try {
       const { data: { user } } = await supabaseClient.auth.getUser();
@@ -312,7 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast('No se pudo crear la sesión.', 'error');
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Crear Sesión';
+      setButtonLoading(submitBtn, false);
     }
   });
 
@@ -339,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     btnAnadirEquipo.disabled = true;
-    btnAnadirEquipo.textContent = 'Añadiendo...';
+    setButtonLoading(btnAnadirEquipo, true, 'Añadiendo...');
     try {
       const { data, error } = await supabaseClient
         .from('equipos_descartados')
@@ -358,15 +410,18 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast('No se pudo añadir el equipo.', 'error');
     } finally {
       btnAnadirEquipo.disabled = false;
-      btnAnadirEquipo.textContent = 'Añadir Equipo';
+      setButtonLoading(btnAnadirEquipo, false);
     }
   });
-  
-  tablaEquiposBody.addEventListener('click', async (e) => {
-    const target = e.target;
-    const equipoId = target.dataset.id;
 
-    if (target.classList.contains('btn-eliminar')) {
+  tablaEquiposBody.addEventListener('click', async (e) => {
+    const targetButton = e.target.closest('button');
+    if (!targetButton) return;
+
+    const equipoId = targetButton.dataset.id;
+    if (!equipoId) return;
+
+    if (targetButton.classList.contains('btn-eliminar')) {
       const confirmado = await window.showConfirmationModal('Eliminar Equipo', '¿Estás seguro?');
       if (confirmado) {
         try {
@@ -382,7 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    if (target.classList.contains('btn-editar')) {
+    if (targetButton.classList.contains('btn-editar')) {
       try {
         const { data, error } = await supabaseClient
           .from('equipos_descartados')
@@ -424,7 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const submitBtn = formEditar.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Aplicando...';
+    setButtonLoading(submitBtn, true, 'Aplicando...');
     
     try {
       const { data, error } = await supabaseClient
@@ -442,7 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast('No se pudo actualizar el equipo.', 'error');
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Aplicar Cambios';
+      setButtonLoading(submitBtn, false);
       equipoActualEditandoId = null;
     }
   });
@@ -456,7 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const currentSessionId = sessionStorage.getItem(SESSION_STORAGE_KEY);
       const observacion = document.getElementById('observacion').value.trim();
       btnFinalizar.disabled = true;
-      btnFinalizar.textContent = 'Finalizando...';
+      setButtonLoading(btnFinalizar, true, 'Finalizando...');
       try {
         await supabaseClient
           .from('descartes_sesiones')
@@ -468,7 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (error) {
         showToast('No se pudo guardar la observación.', 'error');
         btnFinalizar.disabled = false;
-        btnFinalizar.textContent = 'Finalizar Descarte';
+        setButtonLoading(btnFinalizar, false);
       }
     }
   });
