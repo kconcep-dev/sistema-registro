@@ -31,6 +31,9 @@ html.dark-mode .tabs-nav{
   cursor: pointer;
   border-radius: var(--button-radius);
   transition: background-color .2s ease, color .2s ease, transform .1s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 .tab-btn:hover { background-color: var(--input-bg-color); }
 .tab-btn.active {
@@ -123,6 +126,9 @@ html.dark-mode .count-pill {
   font-weight: 700;
   cursor: pointer;
   transition: background-color .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 .btn-export:hover { background-color: #1f7b34; }
 html.dark-mode .btn-export:hover { background-color: #1a5d2a; }
@@ -166,18 +172,7 @@ html.dark-mode .date-field input[type="date"]{
   background-color: var(--primary-hover-color);
 }
 
-/* Icono PNG antes del texto (como el calendario) */
-#btn-agregar-equipo::before{
-  content: "";
-  width: 18px;
-  height: 18px;
-  display: inline-block;
-  background-image: var(--plus-icon);
-  background-repeat: no-repeat;
-  background-size: contain;
-  background-position: center;
-}
-
+/* Icono vectorial para el calendario */
 /* ================================
    Calendario custom (light/dark)
    ================================ */
@@ -188,6 +183,7 @@ html.dark-mode .date-field input[type="date"]{
   display: inline-block;
   flex: 0 0 170px;
   height: 42px;
+  color: var(--primary-color);
 }
 
 .controls-area .date-field .date-placeholder {
@@ -248,20 +244,11 @@ html.dark-mode .controls-area .date-field input[type="date"] {
   transform: translateY(-50%);
   width: 20px;
   height: 20px;
-  background-repeat: no-repeat;
-  background-size: contain;
-  background-image: var(--calendar-icon);
+  background-color: currentColor;
+  mask: url("../assets/images/icono-calendar.svg") center/contain no-repeat;
+  -webkit-mask: url("../assets/images/icono-calendar.svg") center/contain no-repeat;
   pointer-events: none;
   opacity: 0.95;
-}
-
-/* Variables para íconos */
-:root {
-  --calendar-icon: url("../assets/images/icono-calendario-dark.png");
-  --plus-icon: url("../assets/images/plus-icon.png");
-}
-html.dark-mode {
-  --calendar-icon: url("../assets/images/icono-calendario-light.png");
 }
 
 /* Cursor de mano */

@@ -95,8 +95,14 @@ document.addEventListener('DOMContentLoaded', () => {
       <td>${equipo.estado_equipo || '-'}</td>
       <td>${equipo.motivo_descarte || '-'}</td>
       <td class="actions-cell">
-        <button class="btn-accion btn-editar" data-id="${equipo.id}">Editar</button>
-        <button class="btn-accion btn-eliminar" data-id="${equipo.id}">Eliminar</button>
+        <button class="btn-accion btn-editar button-with-icon" data-id="${equipo.id}">
+          <span class="icon icon--sm icon-edit" aria-hidden="true"></span>
+          <span class="button-label">Editar</span>
+        </button>
+        <button class="btn-accion btn-eliminar button-with-icon" data-id="${equipo.id}">
+          <span class="icon icon--sm icon-trash" aria-hidden="true"></span>
+          <span class="button-label">Eliminar</span>
+        </button>
       </td>
     `;
     tablaEquiposBody.appendChild(tr);

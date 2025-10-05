@@ -124,8 +124,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   function updateMobileDetailsToggle(isOpen = false) {
     if (!btnToggleDetalles || !detalleExtra) return;
     detalleExtra.classList.toggle('open', isOpen);
-    btnToggleDetalles.textContent = isOpen ? 'Ocultar detalles ▲' : 'Ver más detalles ▼';
+    btnToggleDetalles.dataset.expanded = isOpen ? 'true' : 'false';
     btnToggleDetalles.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+
+    const iconSpan = btnToggleDetalles.querySelector('.icon');
+    const labelSpan = btnToggleDetalles.querySelector('.button-label');
+
+    if (iconSpan) {
+      iconSpan.classList.toggle('icon-arrow-down', !isOpen);
+      iconSpan.classList.toggle('icon-arrow-up', isOpen);
+    }
+
+    if (labelSpan) {
+      labelSpan.textContent = isOpen ? 'Ocultar detalles' : 'Ver más detalles';
+    }
   }
 
   function pluralize(count, singular, plural = `${singular}s`) {
@@ -218,8 +230,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td>${formatDate(visitor.fecha)}</td>
         <td>${formatTime(visitor.hora)}</td>
         <td class="table-actions">
-          <button class="btn-editar"  data-id="${visitor.id}">Editar</button>
-          <button class="btn-eliminar" data-id="${visitor.id}">Eliminar</button>
+          <button class="btn-editar button-with-icon" data-id="${visitor.id}">
+            <span class="icon icon--sm icon-edit" aria-hidden="true"></span>
+            <span class="button-label">Editar</span>
+          </button>
+          <button class="btn-eliminar button-with-icon" data-id="${visitor.id}">
+            <span class="icon icon--sm icon-trash" aria-hidden="true"></span>
+            <span class="button-label">Eliminar</span>
+          </button>
         </td>
       `;
       tableVisitantesBody.appendChild(tr);
@@ -273,9 +291,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td>${session.observacion || '-'}</td>
         <td>${count}</td>
         <td class="table-actions">
-          <button class="btn-view-equipos"    data-id="${session.id}">Abrir</button>
-          <button class="btn-editar btn-editar-sesion" data-id="${session.id}">Editar</button>
-          <button class="btn-eliminar-sesion" data-id="${session.id}">Eliminar</button>
+          <button class="btn-view-equipos button-with-icon" data-id="${session.id}">
+            <span class="icon icon--sm icon-open" aria-hidden="true"></span>
+            <span class="button-label">Abrir</span>
+          </button>
+          <button class="btn-editar btn-editar-sesion button-with-icon" data-id="${session.id}">
+            <span class="icon icon--sm icon-edit" aria-hidden="true"></span>
+            <span class="button-label">Editar</span>
+          </button>
+          <button class="btn-eliminar-sesion button-with-icon" data-id="${session.id}">
+            <span class="icon icon--sm icon-trash" aria-hidden="true"></span>
+            <span class="button-label">Eliminar</span>
+          </button>
         </td>
       `;
       tableDescartesBody.appendChild(tr);
@@ -353,8 +380,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td>${eq.estado_equipo || '-'}</td>
         <td>${eq.motivo_descarte || '-'}</td>
         <td class="table-actions">
-          <button class="btn-editar"  data-id="${eq.id}">Editar</button>
-          <button class="btn-eliminar" data-id="${eq.id}">Eliminar</button>
+          <button class="btn-editar button-with-icon" data-id="${eq.id}">
+            <span class="icon icon--sm icon-edit" aria-hidden="true"></span>
+            <span class="button-label">Editar</span>
+          </button>
+          <button class="btn-eliminar button-with-icon" data-id="${eq.id}">
+            <span class="icon icon--sm icon-trash" aria-hidden="true"></span>
+            <span class="button-label">Eliminar</span>
+          </button>
         </td>
       `;
       tableEquiposSesionBody.appendChild(tr);

@@ -41,8 +41,9 @@
                     
                     <h2>Escanear Código QR</h2>
                     <p class="section-subtitle">Usa la cámara para un llenado automático e instantáneo.</p>
-                    <button id="btn-scan-live" class="btn-principal">
-                        📷 Escanear
+                    <button id="btn-scan-live" class="btn-principal button-with-icon">
+                        <span class="icon icon--sm icon-qr" aria-hidden="true"></span>
+                        <span class="button-label">Escanear</span>
                     </button>
                     <pre id="scanbot-result-box" class="qr-result-box" style="display: none;"></pre>
 
@@ -52,11 +53,13 @@
                     <p class="section-subtitle">Si el escáner no funciona, puedes usar una foto.</p>
                     
                     <div class="botones-imagen-wrapper">
-                        <label for="qr-captura" class="btn-principal btn-captura">
-                            📸 Capturar Imagen
+                        <label for="qr-captura" class="btn-principal btn-captura button-with-icon">
+                            <span class="icon icon--sm icon-camera" aria-hidden="true"></span>
+                            <span class="button-label">Capturar Imagen</span>
                         </label>
-                        <label for="qr-elegir" class="btn-principal btn-elegir">
-                            🖼️ Elegir Imagen
+                        <label for="qr-elegir" class="btn-principal btn-elegir button-with-icon">
+                            <span class="icon icon--sm icon-upload" aria-hidden="true"></span>
+                            <span class="button-label">Elegir Imagen</span>
                         </label>
                     </div>
 
@@ -89,7 +92,10 @@
                     <label for="motivo">Motivo de visita:</label>
                     <input type="text" id="motivo" required>
                     
-                    <button type="submit" id="submit-btn" class="btn-principal">Registrar</button>
+                    <button type="submit" id="submit-btn" class="btn-principal button-with-icon">
+                        <span class="icon icon--sm icon-save" aria-hidden="true"></span>
+                        <span class="button-label">Registrar</span>
+                    </button>
                 </form>
             </div>
 
@@ -115,15 +121,23 @@
         <h2 id="confirm-title">¿Estás seguro?</h2>
         <p id="confirm-message">Esta acción no se puede deshacer.</p>
         <div class="modal-buttons">
-            <button id="btn-confirmar-cancelar" class="btn-secondary">Cancelar</button>
-            <button id="btn-confirmar-aceptar" class="btn-danger">Aceptar</button>
+            <button id="btn-confirmar-cancelar" class="btn-secondary button-with-icon">
+                <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+                <span class="button-label">Cancelar</span>
+            </button>
+            <button id="btn-confirmar-aceptar" class="btn-danger button-with-icon">
+                <span class="icon icon--sm icon-check" aria-hidden="true"></span>
+                <span class="button-label">Aceptar</span>
+            </button>
         </div>
     </div>
 </div>
 
     <div id="modal-registro-qr" class="modal-overlay"> 
         <div class="modal-content">
-            <button id="btn-cerrar-modal-registro" class="modal-close-btn">&times;</button>
+            <button id="btn-cerrar-modal-registro" class="modal-close-btn" type="button" aria-label="Cerrar modal">
+                <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+            </button>
             <h2>Completar Registro</h2>
             <p class="section-subtitle" style="margin-top: 0;">Datos obtenidos del QR. Por favor, completa el motivo.</p>
             
@@ -148,8 +162,14 @@
                 <input type="text" id="modal-motivo" required placeholder="Escribe el motivo aquí...">
                 
                 <div class="modal-buttons">
-                    <button type="button" id="btn-cancelar-modal-registro" class="btn-secondary">Cancelar</button>
-                    <button type="submit" id="btn-submit-modal-registro" class="btn-principal">Registrar</button>
+                    <button type="button" id="btn-cancelar-modal-registro" class="btn-secondary button-with-icon">
+                        <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+                        <span class="button-label">Cancelar</span>
+                    </button>
+                    <button type="submit" id="btn-submit-modal-registro" class="btn-principal button-with-icon">
+                        <span class="icon icon--sm icon-save" aria-hidden="true"></span>
+                        <span class="button-label">Registrar</span>
+                    </button>
                 </div>
             </form>
         </div>

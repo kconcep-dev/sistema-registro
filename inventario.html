@@ -32,7 +32,10 @@
           <h1>Inventario de IPs</h1>
           <p class="page-description">Control y registro de direcciones IP estáticas de equipos y dispositivos</p>
         </div>
-        <button id="btn-nueva-ip" class="btn-principal" type="button">Nueva IP</button>
+        <button id="btn-nueva-ip" class="btn-principal button-with-icon" type="button">
+          <span class="icon icon--sm icon-plus" aria-hidden="true"></span>
+          <span class="button-label">Nueva IP</span>
+        </button>
       </header>
 
       <section class="stats-overview" aria-live="polite">
@@ -80,8 +83,14 @@
           </select>
         </div>
         <div class="filters-actions">
-          <button id="btn-actualizar" class="btn-secondary" type="button">Actualizar</button>
-          <button id="btn-exportar" class="btn-export" type="button">Exportar a Excel</button>
+          <button id="btn-actualizar" class="btn-secondary button-with-icon" type="button">
+            <span class="icon icon--sm icon-refresh" aria-hidden="true"></span>
+            <span class="button-label">Actualizar</span>
+          </button>
+          <button id="btn-exportar" class="btn-export button-with-icon" type="button">
+            <span class="icon icon--sm icon-export" aria-hidden="true"></span>
+            <span class="button-label">Exportar a Excel</span>
+          </button>
         </div>
       </section>
 
@@ -112,19 +121,29 @@
 
   <div id="modal-confirmacion" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message">
     <div class="modal-content">
-      <button class="modal-close-btn" type="button" aria-label="Cerrar" data-close-confirm>&times;</button>
+      <button class="modal-close-btn" type="button" aria-label="Cerrar" data-close-confirm>
+        <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+      </button>
       <h2 id="confirm-title">Confirmación</h2>
       <p id="confirm-message">¿Deseas continuar?</p>
       <div class="modal-buttons">
-        <button id="btn-confirmar-cancelar" class="btn-secondary" type="button">Cancelar</button>
-        <button id="btn-confirmar-aceptar" class="btn-danger" type="button">Aceptar</button>
+        <button id="btn-confirmar-cancelar" class="btn-secondary button-with-icon" type="button">
+          <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+          <span class="button-label">Cancelar</span>
+        </button>
+        <button id="btn-confirmar-aceptar" class="btn-danger button-with-icon" type="button">
+          <span class="icon icon--sm icon-check" aria-hidden="true"></span>
+          <span class="button-label">Aceptar</span>
+        </button>
       </div>
     </div>
   </div>
 
   <div id="modal-ip" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-ip-title">
     <div class="modal-content modal-large">
-      <button class="modal-close-btn" type="button" aria-label="Cerrar" data-close-modal>&times;</button>
+      <button class="modal-close-btn" type="button" aria-label="Cerrar" data-close-modal>
+        <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+      </button>
       <h2 id="modal-ip-title">Nueva IP</h2>
       <div class="modal-form-container">
         <form id="form-ip">
@@ -194,8 +213,14 @@
             </div>
           </div>
           <div class="modal-buttons">
-            <button id="modal-cancel-btn" class="btn-secondary" type="button">Cancelar</button>
-            <button id="modal-submit-btn" class="btn-principal" type="submit">Guardar</button>
+            <button id="modal-cancel-btn" class="btn-secondary button-with-icon" type="button">
+              <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+              <span class="button-label">Cancelar</span>
+            </button>
+            <button id="modal-submit-btn" class="btn-principal button-with-icon" type="submit">
+              <span class="icon icon--sm icon-save" aria-hidden="true"></span>
+              <span class="button-label">Guardar</span>
+            </button>
           </div>
         </form>
       </div>
