@@ -33,33 +33,51 @@
 
       <!-- Pestañas -->
       <div class="tabs-nav">
-        <button class="tab-btn active" data-tab="visitantes">
+        <button class="tab-btn active" data-tab="visitantes" aria-label="Registros de Visitantes">
           <span class="icon icon--sm icon-nav-registrar" aria-hidden="true"></span>
-          <span class="button-label">Registros de Visitantes</span>
+          <span class="button-label">
+            <span class="label-full">Registros de Visitantes</span>
+            <span class="label-short">Visitantes</span>
+          </span>
         </button>
-        <button class="tab-btn" data-tab="descartes">
+        <button class="tab-btn" data-tab="descartes" aria-label="Sesiones de Descartes">
           <span class="icon icon--sm icon-nav-descartes" aria-hidden="true"></span>
-          <span class="button-label">Sesiones de Descartes</span>
+          <span class="button-label">
+            <span class="label-full">Sesiones de Descartes</span>
+            <span class="label-short">Descartes</span>
+          </span>
         </button>
       </div>
 
       <!-- Tab: Visitantes -->
       <div id="visitantes-content" class="tab-content active">
-        <div class="controls-area">
-          <input type="search" id="search-visitantes" placeholder="Buscar por nombre, apellido o cédula..." />
-          <div class="date-field" data-empty="true">
-            <input type="date" id="date-start-visitantes" placeholder="dd/mm/aaaa" title="Fecha de inicio" />
-            <span class="date-placeholder" aria-hidden="true">dd/mm/aaaa</span>
+        <div class="controls-area" data-controls="visitantes">
+          <div class="controls-row controls-row--primary">
+            <button class="search-toggle button-with-icon" type="button" aria-expanded="false" aria-controls="search-visitantes">
+              <span class="icon icon--sm icon-search" aria-hidden="true"></span>
+              <span class="sr-only">Mostrar búsqueda</span>
+            </button>
+            <div class="search-field">
+              <input type="search" id="search-visitantes" placeholder="Buscar por nombre, apellido o cédula..." />
+            </div>
+            <div class="filters-group">
+              <div class="date-field" data-empty="true">
+                <input type="date" id="date-start-visitantes" placeholder="dd/mm/aaaa" title="Fecha de inicio" />
+                <span class="date-placeholder" aria-hidden="true">dd/mm/aaaa</span>
+              </div>
+              <div class="date-field" data-empty="true">
+                <input type="date" id="date-end-visitantes" placeholder="dd/mm/aaaa" title="Fecha de fin" />
+                <span class="date-placeholder" aria-hidden="true">dd/mm/aaaa</span>
+              </div>
+            </div>
           </div>
-          <div class="date-field" data-empty="true">
-            <input type="date" id="date-end-visitantes" placeholder="dd/mm/aaaa" title="Fecha de fin" />
-            <span class="date-placeholder" aria-hidden="true">dd/mm/aaaa</span>
+          <div class="controls-row controls-row--meta">
+            <span id="visitantes-total" class="count-pill" aria-live="polite">0 registros</span>
+            <button id="export-visitantes-btn" class="btn-export button-with-icon">
+              <span class="icon icon--sm icon-export" aria-hidden="true"></span>
+              <span class="button-label">Exportar Excel</span>
+            </button>
           </div>
-          <span id="visitantes-total" class="count-pill" aria-live="polite">0 registros</span>
-          <button id="export-visitantes-btn" class="btn-export button-with-icon">
-            <span class="icon icon--sm icon-export" aria-hidden="true"></span>
-            <span class="button-label">Exportar Excel</span>
-          </button>
         </div>
 
         <div class="table-container">
@@ -84,21 +102,33 @@
       <div id="descartes-content" class="tab-content">
         <!-- Lista de sesiones -->
         <section id="sesiones-lista">
-          <div class="controls-area">
-            <input type="search" id="search-descartes" placeholder="Buscar por Unidad Administrativa o SIACE..." />
-            <div class="date-field" data-empty="true">
-              <input type="date" id="date-start-descartes" placeholder="dd/mm/aaaa" title="Fecha de inicio" />
-              <span class="date-placeholder" aria-hidden="true">dd/mm/aaaa</span>
+          <div class="controls-area" data-controls="descartes">
+            <div class="controls-row controls-row--primary">
+              <button class="search-toggle button-with-icon" type="button" aria-expanded="false" aria-controls="search-descartes">
+                <span class="icon icon--sm icon-search" aria-hidden="true"></span>
+                <span class="sr-only">Mostrar búsqueda</span>
+              </button>
+              <div class="search-field">
+                <input type="search" id="search-descartes" placeholder="Buscar por Unidad Administrativa o SIACE..." />
+              </div>
+              <div class="filters-group">
+                <div class="date-field" data-empty="true">
+                  <input type="date" id="date-start-descartes" placeholder="dd/mm/aaaa" title="Fecha de inicio" />
+                  <span class="date-placeholder" aria-hidden="true">dd/mm/aaaa</span>
+                </div>
+                <div class="date-field" data-empty="true">
+                  <input type="date" id="date-end-descartes" placeholder="dd/mm/aaaa" title="Fecha de fin" />
+                  <span class="date-placeholder" aria-hidden="true">dd/mm/aaaa</span>
+                </div>
+              </div>
             </div>
-            <div class="date-field" data-empty="true">
-              <input type="date" id="date-end-descartes" placeholder="dd/mm/aaaa" title="Fecha de fin" />
-              <span class="date-placeholder" aria-hidden="true">dd/mm/aaaa</span>
+            <div class="controls-row controls-row--meta">
+              <span id="sesiones-total" class="count-pill" aria-live="polite">0 sesiones</span>
+              <button id="export-descartes-btn" class="btn-export button-with-icon">
+                <span class="icon icon--sm icon-export" aria-hidden="true"></span>
+                <span class="button-label">Exportar Excel</span>
+              </button>
             </div>
-            <span id="sesiones-total" class="count-pill" aria-live="polite">0 sesiones</span>
-            <button id="export-descartes-btn" class="btn-export button-with-icon">
-              <span class="icon icon--sm icon-export" aria-hidden="true"></span>
-              <span class="button-label">Exportar Excel</span>
-            </button>
           </div>
 
           <div class="table-container">
