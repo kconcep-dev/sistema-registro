@@ -296,22 +296,24 @@ html.dark-mode .btn-export:hover {
 }
 
 .action-buttons {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  column-gap: 10px;
   row-gap: 12px;
+  align-items: center;
+  justify-content: flex-start;
+  justify-items: start;
 }
 
 .acciones-cell {
-  min-width: 320px;
+  min-width: 260px;
   width: auto;
 }
 
 .btn-action {
   border: none;
   background-color: color-mix(in srgb, var(--primary-color) 35%, var(--card-bg-color));
-  color: color-mix(in srgb, #ffffff 92%, var(--primary-color));
+  color: color-mix(in srgb, #111111 88%, var(--primary-color));
   font-weight: 600;
   padding: 8px 14px;
   border-radius: var(--button-radius);
@@ -327,7 +329,7 @@ html.dark-mode .btn-export:hover {
 
 .btn-action.btn-danger {
   background-color: color-mix(in srgb, var(--error-color) 38%, var(--card-bg-color));
-  color: color-mix(in srgb, #ffffff 92%, var(--error-color));
+  color: color-mix(in srgb, #111111 88%, var(--error-color));
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--error-color) 50%, transparent);
 }
 
@@ -337,8 +339,9 @@ html.dark-mode .btn-export:hover {
 }
 
 .action-buttons .estado-quick-select {
-  flex: 1 1 100%;
-  min-width: 200px;
+  grid-column: 1 / -1;
+  width: 100%;
+  min-width: 0;
 }
 
 html.dark-mode .btn-action {
@@ -373,6 +376,16 @@ html.dark-mode .btn-action.btn-danger:hover {
 .estado-quick-select:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .action-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .action-buttons .estado-quick-select {
+    grid-column: 1;
+  }
 }
 
 .empty-state {
