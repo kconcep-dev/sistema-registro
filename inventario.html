@@ -136,12 +136,21 @@
             <div class="form-group">
               <label for="input-tipo">Tipo</label>
               <select id="input-tipo" name="tipo">
+                <option value="">Selecciona un tipo</option>
                 <option value="pc">PC</option>
                 <option value="router">Router</option>
                 <option value="impresora">Impresora</option>
                 <option value="switch">Switch</option>
                 <option value="otro">Otro</option>
               </select>
+              <input
+                id="input-tipo-custom"
+                class="tipo-custom-input"
+                type="text"
+                placeholder="Especifica el tipo"
+                autocomplete="off"
+                hidden
+              />
             </div>
             <div class="form-group">
               <label for="input-departamento">Departamento</label>
