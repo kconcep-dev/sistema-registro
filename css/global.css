@@ -667,6 +667,22 @@ html.dark-mode .theme-btn {
     --icon-url: url("../assets/images/icono-open.svg");
 }
 
+.icon-broom {
+    --icon-url: url("../assets/images/icono-broom.svg");
+}
+
+.icon-filter {
+    --icon-url: url("../assets/images/icono-filter.svg");
+}
+
+.icon-building {
+    --icon-url: url("../assets/images/icono-building.svg");
+}
+
+.icon-stats {
+    --icon-url: url("../assets/images/icono-stats.svg");
+}
+
 .icon-arrow-left {
     --icon-url: url("../assets/images/icono-arrow-left.svg");
 }
@@ -923,4 +939,50 @@ html.dark-mode select option:checked {
 html.dark-mode select option:hover {
   background-color: #374151;
   color: #ffffff;
+}
+
+/* --- Controles reutilizables con botón de escáner --- */
+.input-with-button {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.input-with-button input,
+.input-with-button textarea,
+.input-with-button select {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.btn-scan {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0 14px;
+  border-radius: var(--button-radius);
+  border: none;
+  background-color: var(--primary-color);
+  color: #fff;
+  cursor: pointer;
+  transition: background-color .2s ease;
+  min-height: 42px;
+  box-shadow: 0 2px 6px var(--shadow-color);
+}
+
+.btn-scan:hover {
+  background-color: var(--primary-hover-color);
+}
+
+.btn-scan:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary-color) 35%, transparent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+  .btn-scan {
+    min-height: 40px;
+    padding: 0 12px;
+  }
 }

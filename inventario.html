@@ -32,10 +32,16 @@
           <h1>Inventario de IPs</h1>
           <p class="page-description">Control y registro de direcciones IP estáticas de equipos y dispositivos</p>
         </div>
-        <button id="btn-nueva-ip" class="btn-principal button-with-icon" type="button">
-          <span class="icon icon--sm icon-plus" aria-hidden="true"></span>
-          <span class="button-label">Nueva IP</span>
-        </button>
+        <div class="inventory-header-actions">
+          <button id="btn-toggle-totales" class="btn-secondary button-with-icon btn-toggle-totales" type="button" aria-expanded="false">
+            <span class="icon icon--sm icon-stats" aria-hidden="true"></span>
+            <span class="button-label">Totales</span>
+          </button>
+          <button id="btn-nueva-ip" class="btn-principal button-with-icon" type="button">
+            <span class="icon icon--sm icon-plus" aria-hidden="true"></span>
+            <span class="button-label">Nueva IP</span>
+          </button>
+        </div>
       </header>
 
       <section class="stats-overview" aria-live="polite">
@@ -57,31 +63,49 @@
         </article>
       </section>
 
-      <section class="filters-bar" aria-label="Filtros del inventario">
-        <div class="filters-group">
-          <label class="sr-only" for="filter-search">Buscar</label>
-          <input
-            id="filter-search"
-            type="search"
-            placeholder="Buscar por dispositivo, RVE, IP o departamento"
-            autocomplete="off"
-          />
+      <section class="filters-bar" aria-label="Filtros del inventario" data-active-panel="">
+        <div class="filters-toolbar" role="group" aria-label="Accesos rápidos a filtros">
+          <button type="button" class="filter-chip button-with-icon" data-filter-target="search" aria-expanded="false" aria-controls="filters-panel-search">
+            <span class="icon icon--sm icon-search" aria-hidden="true"></span>
+            <span class="button-label">Buscar</span>
+          </button>
+          <button type="button" class="filter-chip button-with-icon" data-filter-target="estado" aria-expanded="false" aria-controls="filters-panel-estado">
+            <span class="icon icon--sm icon-filter" aria-hidden="true"></span>
+            <span class="button-label">Estado</span>
+          </button>
+          <button type="button" class="filter-chip button-with-icon" data-filter-target="departamento" aria-expanded="false" aria-controls="filters-panel-departamento">
+            <span class="icon icon--sm icon-building" aria-hidden="true"></span>
+            <span class="button-label">Departamento</span>
+          </button>
         </div>
-        <div class="filters-group">
-          <label class="sr-only" for="filter-estado">Estado</label>
-          <select id="filter-estado">
-            <option value="">Todos los estados</option>
-            <option value="libre">Libre</option>
-            <option value="asignada">Asignada</option>
-            <option value="en_revision">En revisión</option>
-          </select>
+
+        <div class="filters-body">
+          <div class="filters-group" data-filter-panel="search" id="filters-panel-search">
+            <label class="sr-only" for="filter-search">Buscar</label>
+            <input
+              id="filter-search"
+              type="search"
+              placeholder="Buscar por dispositivo, RVE, IP o departamento"
+              autocomplete="off"
+            />
+          </div>
+          <div class="filters-group" data-filter-panel="estado" id="filters-panel-estado">
+            <label class="sr-only" for="filter-estado">Estado</label>
+            <select id="filter-estado">
+              <option value="">Todos los estados</option>
+              <option value="libre">Libre</option>
+              <option value="asignada">Asignada</option>
+              <option value="en_revision">En revisión</option>
+            </select>
+          </div>
+          <div class="filters-group" data-filter-panel="departamento" id="filters-panel-departamento">
+            <label class="sr-only" for="filter-departamento">Departamento</label>
+            <select id="filter-departamento">
+              <option value="">Todos los departamentos</option>
+            </select>
+          </div>
         </div>
-        <div class="filters-group">
-          <label class="sr-only" for="filter-departamento">Departamento</label>
-          <select id="filter-departamento">
-            <option value="">Todos los departamentos</option>
-          </select>
-        </div>
+
         <div class="filters-actions">
           <button id="btn-actualizar" class="btn-secondary button-with-icon" type="button">
             <span class="icon icon--sm icon-refresh" aria-hidden="true"></span>

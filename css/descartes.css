@@ -99,12 +99,14 @@
 
 .table-container {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 #tabla-equipos {
     width: 100%;
     border-collapse: collapse;
     margin-top: 15px;
+    min-width: 760px;
 }
 
 #tabla-equipos th, #tabla-equipos td {
@@ -154,6 +156,21 @@
     background-color: #b02a37;
 }
 
+.tabla-equipos-wrapper .table-container {
+    scrollbar-color: var(--border-color) transparent;
+}
+
+@media (max-width: 768px) {
+    .tabla-equipos-wrapper {
+        padding: 20px 16px;
+    }
+
+    .tabla-equipos-wrapper .table-container {
+        margin: 0 -12px;
+        padding-bottom: 10px;
+    }
+}
+
 /* --- 5. Estilos de la Sección Final --- */
 .finalizar-seccion {
     background-color: var(--card-bg-color);
@@ -161,6 +178,11 @@
     border-radius: 8px;
     box-shadow: 0 4px 12px var(--shadow-color);
     margin-bottom: 30px;
+}
+
+#modal-editar-equipo .modal-content {
+    width: min(90vw, 860px);
+    max-width: 860px;
 }
 
 .finalizar-seccion textarea {
@@ -252,31 +274,4 @@
     align-items: center;
     justify-content: center;
     gap: 24px;
-}
-
-.input-with-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.input-with-button input {
-    flex-grow: 1;
-}
-
-.btn-scan {
-    padding: 8px 12px;
-    background-color: var(--border-color);
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1rem;
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-}
-.btn-scan:hover {
-    background-color: var(--primary-color);
 }

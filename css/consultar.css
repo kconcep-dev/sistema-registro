@@ -107,9 +107,8 @@ html.dark-mode .count-pill {
   color: #fff;
 }
 
-/* Inputs con look de cápsula */
-.controls-area input[type="search"],
-.controls-area .date-field input[type="date"]{
+/* Inputs principales */
+.controls-area input[type="search"] {
   height: 42px;
   padding: 0 14px;
   border: 1px solid var(--border-color);
@@ -118,21 +117,16 @@ html.dark-mode .count-pill {
   color: var(--input-text-color);
   outline: none;
   transition: box-shadow .15s, border-color .15s;
-  min-width: 0; /* evita desbordes en móvil */
-}
-.controls-area input[type="search"]{
-  flex: 1 1 320px;
-  min-width: 220px;
+  min-width: 0;
+  flex: 1 1 260px;
+  min-width: 200px;
 }
 
-/* Enfoque */
-.controls-area input[type="search"]:focus,
-.controls-area .date-field input[type="date"]:focus{
+.controls-area input[type="search"]:focus {
   border-color: var(--primary-color);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent);
 }
 
-/* Placeholder tenue real (solo para search) */
 .controls-area input::placeholder {
   color: color-mix(in srgb, var(--input-text-color) 50%, transparent);
 }
@@ -156,8 +150,7 @@ html.dark-mode .count-pill {
 html.dark-mode .btn-export:hover { background-color: #1a5d2a; }
 
 /* Coherencia en dark */
-html.dark-mode .controls-area input[type="search"],
-html.dark-mode .date-field input[type="date"]{
+html.dark-mode .controls-area input[type="search"]{
   background-color: var(--input-bg-color) !important;
   color: var(--input-text-color) !important;
   border-color: var(--border-color) !important;
@@ -176,22 +169,44 @@ html.dark-mode .date-field input[type="date"]{
   flex-wrap: wrap;
 }
 
-.controls-area[data-controls] .controls-row--primary {
+.controls-area[data-controls] .controls-row--inline {
   justify-content: flex-start;
 }
 
-.controls-area[data-controls] .controls-row--meta {
-  justify-content: space-between;
+.controls-area[data-controls] .controls-row--inline > .count-pill {
+  margin-left: auto;
 }
 
-.controls-area[data-controls] .controls-row--meta .count-pill {
+.controls-area[data-controls] .controls-row--inline > .btn-export,
+.controls-area[data-controls] .controls-row--inline > .btn-clear-filters {
   flex: 0 0 auto;
-  min-width: 0;
-  margin-right: auto;
 }
 
-.controls-area[data-controls] .controls-row--meta .btn-export {
-  flex: 0 0 auto;
+.controls-area[data-controls] .btn-clear-filters {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: var(--button-radius);
+  border: 1px solid color-mix(in srgb, var(--border-color) 60%, transparent);
+  background-color: color-mix(in srgb, var(--border-color) 18%, transparent);
+  color: var(--text-color);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color .2s ease, border-color .2s ease;
+}
+
+.controls-area[data-controls] .btn-clear-filters:hover {
+  background-color: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  border-color: color-mix(in srgb, var(--primary-color) 32%, transparent);
+}
+
+html.dark-mode .controls-area[data-controls] .btn-clear-filters {
+  background-color: color-mix(in srgb, var(--border-color) 45%, transparent);
+  border-color: color-mix(in srgb, var(--border-color) 70%, transparent);
+  color: #fff;
 }
 
 .controls-area[data-controls] .search-toggle {
@@ -229,7 +244,7 @@ html.dark-mode .controls-area[data-controls] .search-toggle {
 }
 
 .controls-area[data-controls] .search-field {
-  flex: 1 1 320px;
+  flex: 1 1 260px;
   min-width: 0;
 }
 
@@ -238,7 +253,7 @@ html.dark-mode .controls-area[data-controls] .search-toggle {
   outline-offset: 2px;
 }
 
-.controls-area[data-controls="equipos"] .controls-row--primary {
+.controls-area[data-controls="equipos"] .controls-row--inline {
   flex-wrap: wrap;
 }
 
@@ -271,13 +286,96 @@ html.dark-mode .controls-area[data-controls] .search-toggle {
   display: flex;
   align-items: center;
   gap: 12px;
-  flex: 0 1 auto;
+  flex: 0 0 auto;
   flex-wrap: wrap;
 }
 
-.controls-area[data-controls] .filters-group .date-field {
-  flex: 0 1 170px;
-  min-width: 0;
+.controls-area .date-field {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 16px 0 44px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--button-radius);
+  background-color: var(--input-bg-color);
+  color: var(--input-text-color);
+  cursor: pointer;
+  transition: padding .2s ease, border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--shadow-color) 55%, transparent);
+}
+
+.controls-area .date-field::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  background-color: currentColor;
+  mask: url("../assets/images/icono-calendar.svg") center/contain no-repeat;
+  -webkit-mask: url("../assets/images/icono-calendar.svg") center/contain no-repeat;
+  opacity: 0.95;
+  pointer-events: none;
+}
+
+.controls-area .date-field[data-empty="true"] {
+  padding: 0;
+  min-width: 42px;
+  width: 42px;
+  box-shadow: 0 2px 4px color-mix(in srgb, var(--shadow-color) 45%, transparent);
+}
+
+.controls-area .date-field[data-empty="true"]::before {
+  position: static;
+  transform: none;
+  margin: 0;
+}
+
+.controls-area .date-field[data-empty="true"] .date-display__text {
+  display: none;
+}
+
+.controls-area .date-display {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  pointer-events: none;
+  color: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.controls-area .date-display__text {
+  color: var(--input-text-color);
+}
+
+.controls-area .date-field input[type="date"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.controls-area .date-field:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent);
+}
+
+html.dark-mode .controls-area .date-field {
+  background-color: var(--input-bg-color);
+  border-color: color-mix(in srgb, var(--border-color) 70%, transparent);
+  color: var(--input-text-color);
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--primary-color) 20%, transparent);
 }
 
 @media (max-width: 768px) {
@@ -296,11 +394,11 @@ html.dark-mode .controls-area[data-controls] .search-toggle {
     justify-content: center;
   }
 
-  .controls-area[data-controls="equipos"] .controls-row--primary {
+  .controls-area[data-controls="equipos"] .controls-row--inline {
     flex-wrap: nowrap;
   }
 
-  .controls-area[data-controls="equipos"].search-expanded .controls-row--primary {
+  .controls-area[data-controls="equipos"].search-expanded .controls-row--inline {
     flex-wrap: wrap;
   }
 
@@ -316,7 +414,7 @@ html.dark-mode .controls-area[data-controls] .search-toggle {
     margin-top: 8px;
   }
 
-  .controls-area[data-controls] .controls-row--primary {
+  .controls-area[data-controls] .controls-row--inline {
     flex-wrap: wrap;
     align-items: stretch;
   }
@@ -328,22 +426,18 @@ html.dark-mode .controls-area[data-controls] .search-toggle {
   }
 
   .controls-area[data-controls] .filters-group {
-    flex: 1 1 0;
+    flex: 0 1 auto;
     min-width: 0;
     gap: 8px;
   }
 
   .controls-area[data-controls] .filters-group .date-field {
-    flex: 1 1 0;
+    flex: 0 0 auto;
   }
 
-  .controls-area[data-controls] .controls-row--meta {
-    align-items: center;
-    flex-wrap: nowrap;
-    gap: 8px;
-  }
-
-  .controls-area[data-controls] .controls-row--meta .btn-export {
+  .controls-area[data-controls] .btn-clear-filters,
+  .controls-area[data-controls] .btn-export {
+    min-height: 40px;
     padding: 0 12px;
   }
 
@@ -356,10 +450,6 @@ html.dark-mode .controls-area[data-controls] .search-toggle {
     width: 100%;
     flex: 1 1 100%;
     order: 3;
-    margin-top: 4px;
-  }
-
-  .controls-area[data-controls].search-expanded .controls-row--meta {
     margin-top: 4px;
   }
 }
@@ -393,92 +483,6 @@ html.dark-mode .controls-area[data-controls] .search-toggle {
 
 #btn-agregar-equipo:hover{
   background-color: var(--primary-hover-color);
-}
-
-/* Icono vectorial para el calendario */
-/* ================================
-   Calendario custom (light/dark)
-   ================================ */
-
-/* Wrapper para inputs de fecha */
-.controls-area .date-field {
-  position: relative;
-  display: inline-block;
-  flex: 0 0 170px;
-  height: 42px;
-  color: var(--text-color);
-  transition: color .2s ease;
-}
-
-.controls-area .date-field .date-placeholder {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  padding: 0 14px;
-  color: color-mix(in srgb, var(--input-text-color) 45%, transparent);
-  pointer-events: none;
-  transition: opacity .2s ease;
-}
-
-.controls-area .date-field[data-empty="false"] .date-placeholder,
-.controls-area .date-field:focus-within .date-placeholder {
-  opacity: 0;
-}
-
-/* Input ocupa todo el wrapper y deja espacio al ícono */
-.controls-area .date-field input[type="date"] {
-  width: 100%;
-  height: 100%;
-  padding-right: 1.8rem;  /* espacio para el ícono */
-  background-image: none !important;
-  -webkit-appearance: none;
-  appearance: none;
-  color-scheme: light;
-}
-html.dark-mode .controls-area .date-field input[type="date"] {
-  color-scheme: dark;
-}
-
-/* Oculta el indicador nativo */
-.controls-area .date-field input[type="date"]::-webkit-calendar-picker-indicator {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  cursor: pointer;
-  pointer-events: auto;
-}
-
-/* Ocultar flechas extra */
-.controls-area .date-field input[type="date"]::-webkit-list-button,
-.controls-area .date-field input[type="date"]::-webkit-inner-spin-button,
-.controls-area .date-field input[type="date"]::-ms-expand {
-  display: none;
-}
-
-/* Ícono custom */
-.controls-area .date-field::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  right: 8px;
-  transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  background-color: currentColor;
-  mask: url("../assets/images/icono-calendar.svg") center/contain no-repeat;
-  -webkit-mask: url("../assets/images/icono-calendar.svg") center/contain no-repeat;
-  pointer-events: none;
-  opacity: 0.95;
-}
-
-/* Cursor de mano */
-.controls-area .date-field,
-.controls-area .date-field::after {
-  cursor: pointer;
 }
 
 /* --- Ajuste de grilla en móvil para filtros existentes --- */
@@ -777,6 +781,12 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
 }
 
 /* --- 5) Modal: Editar Equipo (grid dentro del modal) --- */
+#modal-editar-equipo .modal-content,
+#modal-agregar-equipo .modal-content {
+  width: min(90vw, 860px);
+  max-width: 860px;
+}
+
 #modal-editar-equipo .form-grid {
   display: grid;
   grid-template-columns: 1fr;
