@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventario de IPs - Sistema de Registro</title>
+
+  <script>
+    (function () {
+      try {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'dark') document.documentElement.classList.add('dark-mode');
+      } catch (e) {}
+    })();
+  </script>
+
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/inventario.css" />
+  <link rel="icon" href="assets/icons/icon-192.png" />
+</head>
+<body class="page-inventario">
+  <div id="navbar-placeholder"></div>
+
+  <div id="loader" class="loader-wrapper">
+    <div class="loader"></div>
+  </div>
+
+  <main id="main-content" style="display:none;">
+    <div class="inventory-container">
+      <header class="inventory-header">
+        <div class="inventory-heading">
+          <h1>Inventario de IPs</h1>
+          <p class="page-description">Control y registro de direcciones IP estáticas de equipos y dispositivos</p>
+        </div>
+        <button id="btn-nueva-ip" class="btn-principal" type="button">Nueva IP</button>
+      </header>
+
+      <section class="stats-overview" aria-live="polite">
+        <article class="stat-card">
+          <span class="stat-label">Total de IPs</span>
+          <span id="stat-total" class="stat-value">0</span>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Libres</span>
+          <span id="stat-libres" class="stat-value">0</span>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Asignadas</span>
+          <span id="stat-asignadas" class="stat-value">0</span>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">En revisión</span>
+          <span id="stat-revision" class="stat-value">0</span>
+        </article>
+      </section>
+
+      <section class="filters-bar" aria-label="Filtros del inventario">
+        <div class="filters-group">
+          <label class="sr-only" for="filter-search">Buscar</label>
+          <input
+            id="filter-search"
+            type="search"
+            placeholder="Buscar por dispositivo, RVE, IP o departamento"
+            autocomplete="off"
+          />
+        </div>
+        <div class="filters-group">
+          <label class="sr-only" for="filter-estado">Estado</label>
+          <select id="filter-estado">
+            <option value="">Todos los estados</option>
+            <option value="libre">Libre</option>
+            <option value="asignada">Asignada</option>
+            <option value="en_revision">En revisión</option>
+          </select>
+        </div>
+        <div class="filters-group">
+          <label class="sr-only" for="filter-departamento">Departamento</label>
+          <select id="filter-departamento">
+            <option value="">Todos los departamentos</option>
+          </select>
+        </div>
+        <div class="filters-actions">
+          <button id="btn-actualizar" class="btn-secondary" type="button">Actualizar</button>
+          <button id="btn-exportar" class="btn-export" type="button">Exportar a Excel</button>
+        </div>
+      </section>
+
+      <section class="table-wrapper">
+        <div class="table-container">
+          <table id="tabla-inventario">
+            <thead>
+              <tr>
+                <th scope="col" data-sort="dispositivo">Dispositivo</th>
+                <th scope="col" data-sort="tipo">Tipo</th>
+                <th scope="col" data-sort="departamento">Departamento</th>
+                <th scope="col" data-sort="ip">Dirección IP</th>
+                <th scope="col" data-sort="mascara">Máscara</th>
+                <th scope="col" data-sort="gateway">Gateway</th>
+                <th scope="col" data-sort="dns_1">DNS 1</th>
+                <th scope="col" data-sort="dns_2">DNS 2</th>
+                <th scope="col" data-sort="estado">Estado</th>
+                <th scope="col" class="acciones">Acciones</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p id="empty-state" class="empty-state" hidden>No hay registros que coincidan con los filtros seleccionados.</p>
+      </section>
+    </div>
+  </main>
+
+  <div id="toast-notification" class="toast" role="status" aria-live="polite">
+    <span id="toast-message"></span>
+  </div>
+
+  <div id="modal-confirmacion" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+    <div class="modal-content">
+      <button class="modal-close-btn" type="button" aria-label="Cerrar" data-close-confirm>&times;</button>
+      <h2 id="confirm-title">Confirmación</h2>
+      <p id="confirm-message">¿Deseas continuar?</p>
+      <div class="modal-buttons">
+        <button id="btn-confirmar-cancelar" class="btn-secondary" type="button">Cancelar</button>
+        <button id="btn-confirmar-aceptar" class="btn-danger" type="button">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-ip" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-ip-title">
+    <div class="modal-content modal-large">
+      <button class="modal-close-btn" type="button" aria-label="Cerrar" data-close-modal>&times;</button>
+      <h2 id="modal-ip-title">Nueva IP</h2>
+      <div class="modal-form-container">
+        <form id="form-ip">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="input-dispositivo">Dispositivo</label>
+              <input id="input-dispositivo" name="dispositivo" type="text" placeholder="Ej. RVE-123-456" autocomplete="off" />
+            </div>
+            <div class="form-group">
+              <label for="input-tipo">Tipo</label>
+              <select id="input-tipo" name="tipo">
+                <option value="pc">PC</option>
+                <option value="router">Router</option>
+                <option value="impresora">Impresora</option>
+                <option value="switch">Switch</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="input-departamento">Departamento</label>
+              <input id="input-departamento" name="departamento" type="text" placeholder="Departamento" autocomplete="off" />
+            </div>
+            <div class="form-group ip-field-group">
+              <label for="input-ip-octeto">Dirección IP</label>
+              <div class="ip-input-wrapper">
+                <span class="ip-prefix" aria-hidden="true">10.106.113.</span>
+                <input id="input-ip-octeto" name="ip_octeto" type="number" min="0" max="254" inputmode="numeric" placeholder="0-254" />
+              </div>
+              <div id="available-ip-list" class="available-ip-dropdown" hidden></div>
+            </div>
+            <div class="form-group">
+              <label for="input-mascara">Máscara</label>
+              <input id="input-mascara" name="mascara" type="text" />
+            </div>
+            <div class="form-group">
+              <label for="input-gateway">Gateway</label>
+              <input id="input-gateway" name="gateway" type="text" />
+            </div>
+            <div class="form-group">
+              <label for="input-dns1">DNS 1</label>
+              <input id="input-dns1" name="dns_1" type="text" />
+            </div>
+            <div class="form-group">
+              <label for="input-dns2">DNS 2</label>
+              <input id="input-dns2" name="dns_2" type="text" />
+            </div>
+            <div class="form-group form-group-full">
+              <label for="input-notas">Notas</label>
+              <textarea id="input-notas" name="notas" rows="3" placeholder="Comentarios adicionales"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="input-estado">Estado</label>
+              <select id="input-estado" name="estado">
+                <option value="libre">Libre</option>
+                <option value="asignada">Asignada</option>
+                <option value="en_revision">En revisión</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-buttons">
+            <button id="modal-cancel-btn" class="btn-secondary" type="button">Cancelar</button>
+            <button id="modal-submit-btn" class="btn-principal" type="submit">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/common.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="js/inventario.js"></script>
+</body>
+</html>
