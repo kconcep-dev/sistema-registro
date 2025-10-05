@@ -74,6 +74,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     dns2: '10.106.2.4'
   };
 
+  const CLEAR_ON_FREE_FIELDS = [
+    'dispositivo',
+    'tipo',
+    'departamento',
+    'notas',
+    'asignado_por'
+  ];
+
   async function ensureSession() {
     const { data, error } = await supabaseClient.auth.getSession();
     if (error) {
@@ -642,13 +650,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       selectEl.disabled = true;
 
       if (newEstado === 'libre') {
-        await updateRecord(id, {
-          dispositivo: null,
-          tipo: 'pc',
-          departamento: null,
-          notas: null,
-          estado: 'libre'
+        const clearPayload = { estado: 'libre' };
+        CLEAR_ON_FREE_FIELDS.forEach((field) => {
+          if (field in record) {
+            clearPayload[field] = null;
+          }
         });
+
+        Object.keys(record).forEach((key) => {
+          if (key.startsWith('asignado_')) {
+            clearPayload[key] = null;
+          }
+        });
+
+        await updateRecord(id, clearPayload);
         showToast(`La IP ${record.ip} ahora está libre.`);
       } else if (newEstado === 'asignada') {
         if (!record.dispositivo || !record.departamento) {
