@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const dispositivoInput = document.getElementById('input-dispositivo');
   const tipoSelect = document.getElementById('input-tipo');
+  const tipoCustomInput = document.getElementById('input-tipo-custom');
   const departamentoInput = document.getElementById('input-departamento');
   const ipOctetoInput = document.getElementById('input-ip-octeto');
   const mascaraInput = document.getElementById('input-mascara');
@@ -74,6 +75,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     dns2: '10.106.2.4'
   };
 
+  const PREDEFINED_TIPOS = ['pc', 'router', 'impresora', 'switch'];
+
   const CLEAR_ON_FREE_DEFAULTS = {
     dispositivo: '',
     tipo: null,
@@ -82,6 +85,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     asignado_por: null
   };
 
+  function isPredefinedTipo(value) {
+    if (!value) return false;
+    return PREDEFINED_TIPOS.includes(String(value).toLowerCase());
+  }
+
+  function activateCustomTipoInput(value = '', { focus = false } = {}) {
+    if (!tipoCustomInput) return;
+    tipoCustomInput.hidden = false;
+    tipoCustomInput.value = value;
+    if (focus) {
+      tipoCustomInput.focus();
+      tipoCustomInput.select();
+    }
+  }
+
+  function deactivateCustomTipoInput(clearValue = true) {
+    if (!tipoCustomInput) return;
+    if (clearValue) {
+      tipoCustomInput.value = '';
+    }
+    tipoCustomInput.hidden = true;
+  }
+
+  function isCustomTipoInputActive() {
+    return !!tipoCustomInput && !tipoCustomInput.hidden;
+  }
+
   function setTipoSelectValue(value) {
     if (!tipoSelect) return;
     if (value === undefined || value === null || value === '') {
@@ -89,8 +119,54 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (tipoSelect.value !== '') {
         tipoSelect.selectedIndex = -1;
       }
-    } else {
-      tipoSelect.value = value;
+      deactivateCustomTipoInput();
+      return;
+    }
+
+    const valueAsString = String(value).toLowerCase();
+    if (valueAsString === 'otro') {
+      tipoSelect.value = '';
+      if (tipoSelect.value !== '') {
+        tipoSelect.selectedIndex = -1;
+      }
+      activateCustomTipoInput('', { focus: false });
+      return;
+    }
+
+    if (isPredefinedTipo(valueAsString)) {
+      tipoSelect.value = valueAsString;
+      deactivateCustomTipoInput();
+      return;
+    }
+
+    tipoSelect.value = '';
+    if (tipoSelect.value !== '') {
+      tipoSelect.selectedIndex = -1;
+    }
+    const displayValue = typeof value === 'string' && valueAsString !== 'otro' ? value : '';
+    activateCustomTipoInput(displayValue, { focus: false });
+  }
+
+  function handleTipoSelectChange() {
+    if (!tipoSelect) return;
+    const { value } = tipoSelect;
+
+    if (value === 'otro') {
+      tipoSelect.value = '';
+      if (tipoSelect.value !== '') {
+        tipoSelect.selectedIndex = -1;
+      }
+      activateCustomTipoInput('', { focus: true });
+      return;
+    }
+
+    if (isPredefinedTipo(value)) {
+      deactivateCustomTipoInput();
+      return;
+    }
+
+    if (!value) {
+      deactivateCustomTipoInput();
     }
   }
 
@@ -138,6 +214,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.body.classList.remove('modal-open');
     resetModalState();
     formIp?.reset();
+    deactivateCustomTipoInput();
     hideAvailableIpList();
   }
 
@@ -527,7 +604,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function buildPayloadFromForm() {
     const dispositivo = dispositivoInput.value.trim();
-    const tipo = tipoSelect.value;
+    const customTipoActive = isCustomTipoInputActive();
+    const tipoSeleccionado = customTipoActive ? tipoCustomInput.value.trim() : tipoSelect.value;
     const departamento = departamentoInput.value.trim();
     const estado = estadoInput.value;
     const notas = notasInput.value.trim();
@@ -555,7 +633,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       dispositivo: shouldClearDeviceFields ? CLEAR_ON_FREE_DEFAULTS.dispositivo : dispositivo || null,
       tipo: shouldClearDeviceFields
         ? CLEAR_ON_FREE_DEFAULTS.tipo
-        : (tipo ? tipo : null),
+        : (tipoSeleccionado ? tipoSeleccionado : null),
       departamento: shouldClearDeviceFields ? CLEAR_ON_FREE_DEFAULTS.departamento : departamento || null,
       estado,
       notas: shouldClearDeviceFields ? CLEAR_ON_FREE_DEFAULTS.notas : notas || null,
@@ -771,6 +849,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     modalCancelBtn?.addEventListener('click', closeModal);
     formIp?.addEventListener('submit', handleFormSubmit);
     estadoInput?.addEventListener('change', applyEstadoRules);
+    tipoSelect?.addEventListener('change', handleTipoSelectChange);
 
     ipOctetoInput?.addEventListener('focus', () => {
       if (!isEditing) {
