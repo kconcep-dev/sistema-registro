@@ -850,14 +850,33 @@ body.nav-open .icon-menu { display: none; }
     height: 1.05em;
 }
 
-.modal-content form .modal-buttons {
+#modal-editar-equipo .modal-buttons {
     width: 100%;
-    justify-content: flex-end;
+    justify-content: center;
+}
+
+#modal-editar-equipo .modal-buttons .button-with-icon {
+    flex: 1 1 200px;
+}
+
+@media (min-width: 601px) {
+    #modal-editar-equipo .modal-buttons {
+        flex-wrap: nowrap;
+        justify-content: center;
+    }
+
+    #modal-editar-equipo .modal-buttons .button-with-icon {
+        max-width: 240px;
+    }
 }
 
 @media (max-width: 600px) {
-    .modal-content form .modal-buttons {
+    #modal-editar-equipo .modal-buttons {
         justify-content: center;
+    }
+
+    #modal-editar-equipo .modal-buttons .button-with-icon {
+        flex: 1 1 calc(50% - 10px);
     }
 }
 
