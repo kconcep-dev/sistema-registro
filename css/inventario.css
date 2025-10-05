@@ -298,24 +298,26 @@ html.dark-mode .btn-export:hover {
 .action-buttons {
   display: flex;
   gap: 10px;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: center;
+  row-gap: 12px;
 }
 
 .acciones-cell {
-  min-width: 260px;
-  width: 1%;
+  min-width: 320px;
+  width: auto;
 }
 
 .btn-action {
   border: none;
-  background-color: color-mix(in srgb, var(--primary-color) 12%, transparent);
-  color: var(--primary-color);
+  background-color: color-mix(in srgb, var(--primary-color) 35%, var(--card-bg-color));
+  color: color-mix(in srgb, #ffffff 92%, var(--primary-color));
   font-weight: 600;
   padding: 8px 14px;
   border-radius: var(--button-radius);
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary-color) 45%, transparent);
 }
 
 .btn-action:hover {
@@ -324,13 +326,39 @@ html.dark-mode .btn-export:hover {
 }
 
 .btn-action.btn-danger {
-  background-color: color-mix(in srgb, var(--error-color) 20%, transparent);
-  color: var(--error-color);
+  background-color: color-mix(in srgb, var(--error-color) 38%, var(--card-bg-color));
+  color: color-mix(in srgb, #ffffff 92%, var(--error-color));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--error-color) 50%, transparent);
 }
 
 .btn-action.btn-danger:hover {
   background-color: var(--error-color);
   color: #fff;
+}
+
+.action-buttons .estado-quick-select {
+  flex: 1 1 100%;
+  min-width: 200px;
+}
+
+html.dark-mode .btn-action {
+  background-color: color-mix(in srgb, var(--primary-color) 60%, var(--card-bg-color));
+  color: #fff;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary-color) 65%, transparent);
+}
+
+html.dark-mode .btn-action:hover {
+  background-color: color-mix(in srgb, var(--primary-color) 80%, #000);
+}
+
+html.dark-mode .btn-action.btn-danger {
+  background-color: color-mix(in srgb, var(--error-color) 65%, var(--card-bg-color));
+  color: #fff;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--error-color) 70%, transparent);
+}
+
+html.dark-mode .btn-action.btn-danger:hover {
+  background-color: color-mix(in srgb, var(--error-color) 82%, #000);
 }
 
 .estado-quick-select {
