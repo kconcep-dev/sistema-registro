@@ -21,6 +21,26 @@
   flex-wrap: wrap;
 }
 
+#btn-nueva-ip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 28px;
+  font-size: 1.2rem;
+}
+
+#btn-nueva-ip::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  background-image: var(--plus-icon);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+
 .inventory-heading h1 {
   margin-bottom: 8px;
   text-align: left;

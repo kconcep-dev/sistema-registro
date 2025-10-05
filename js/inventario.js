@@ -143,8 +143,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       notasInput.value = record.notas ?? '';
       mascaraInput.value = record.mascara ?? DEFAULTS.mascara;
       gatewayInput.value = record.gateway ?? DEFAULTS.gateway;
-      dns1Input.value = record.dns_1 ?? DEFAULTS.dns1;
-      dns2Input.value = record.dns_2 ?? DEFAULTS.dns2;
+      dns1Input.value = record.dns1 ?? DEFAULTS.dns1;
+      dns2Input.value = record.dns2 ?? DEFAULTS.dns2;
 
       const lastOctet = extractLastOctet(record.ip);
       ipOctetoInput.value = Number.isFinite(lastOctet) ? lastOctet : '';
@@ -309,8 +309,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       const ipTd = createElement('td', null, record.ip || '—');
       const mascaraTd = createElement('td', null, record.mascara || '—');
       const gatewayTd = createElement('td', null, record.gateway || '—');
-      const dns1Td = createElement('td', null, record.dns_1 || '—');
-      const dns2Td = createElement('td', null, record.dns_2 || '—');
+      const dns1Td = createElement('td', null, record.dns1 || '—');
+      const dns2Td = createElement('td', null, record.dns2 || '—');
 
       const estadoTd = document.createElement('td');
       const estadoPill = createElement('span', `estado-pill estado-pill--${estadoValue}`);
@@ -455,8 +455,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const mascara = mascaraInput.value.trim() || DEFAULTS.mascara;
     const gateway = gatewayInput.value.trim() || DEFAULTS.gateway;
-    const dns_1 = dns1Input.value.trim() || DEFAULTS.dns1;
-    const dns_2 = dns2Input.value.trim() || DEFAULTS.dns2;
+    const dns1 = dns1Input.value.trim() || DEFAULTS.dns1;
+    const dns2 = dns2Input.value.trim() || DEFAULTS.dns2;
 
     const octetValidation = validateIp(ipOctetoInput.value);
     if (!octetValidation.valid) {
@@ -478,8 +478,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       notas: notas || null,
       mascara,
       gateway,
-      dns_1,
-      dns_2
+      dns1,
+      dns2
     };
   }
 
@@ -640,8 +640,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       'Dirección IP': record.ip || '',
       'Máscara': record.mascara || '',
       'Gateway': record.gateway || '',
-      'DNS 1': record.dns_1 || '',
-      'DNS 2': record.dns_2 || '',
+      'DNS 1': record.dns1 || '',
+      'DNS 2': record.dns2 || '',
       'Estado': STATE_LABELS[record.estado] || record.estado
     }));
 
