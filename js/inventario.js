@@ -10,6 +10,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const actualizarBtn = document.getElementById('btn-actualizar');
   const exportarBtn = document.getElementById('btn-exportar');
   const nuevaIpBtn = document.getElementById('btn-nueva-ip');
+  const totalsToggleBtn = document.getElementById('btn-toggle-totales');
+  const inventoryContainerEl = document.querySelector('.inventory-container');
+  const statsOverviewSection = document.querySelector('.stats-overview');
+  const filtersBar = document.querySelector('.filters-bar');
 
   const tablaBody = document.querySelector('#tabla-inventario tbody');
   const tableHeaders = document.querySelectorAll('#tabla-inventario thead th[data-sort]');
@@ -192,6 +196,101 @@ document.addEventListener('DOMContentLoaded', async () => {
   function hideToast() {
     if (!toast) return;
     toast.className = toast.className.replace('show', '');
+  }
+
+  function initializeStatsToggle() {
+    if (!inventoryContainerEl || !statsOverviewSection || !totalsToggleBtn) return;
+
+    const mobileMedia = window.matchMedia('(max-width: 768px)');
+
+    const setExpanded = (expanded) => {
+      inventoryContainerEl.dataset.stats = expanded ? 'open' : 'closed';
+      totalsToggleBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      totalsToggleBtn.classList.toggle('is-active', expanded);
+    };
+
+    const applyForViewport = (isMobile) => {
+      if (isMobile) {
+        setExpanded(false);
+      } else {
+        inventoryContainerEl.dataset.stats = 'open';
+        totalsToggleBtn.setAttribute('aria-expanded', 'true');
+        totalsToggleBtn.classList.remove('is-active');
+      }
+    };
+
+    applyForViewport(mobileMedia.matches);
+
+    mobileMedia.addEventListener('change', (event) => {
+      applyForViewport(event.matches);
+    });
+
+    totalsToggleBtn.addEventListener('click', () => {
+      if (!mobileMedia.matches) return;
+      const isOpen = inventoryContainerEl.dataset.stats === 'open';
+      setExpanded(!isOpen);
+    });
+  }
+
+  function initializeFilterToolbar() {
+    if (!filtersBar) return;
+
+    const toolbarButtons = Array.from(filtersBar.querySelectorAll('[data-filter-target]'));
+    if (!toolbarButtons.length) return;
+
+    const mobileMedia = window.matchMedia('(max-width: 768px)');
+
+    const openPanel = (panelName = '') => {
+      filtersBar.dataset.activePanel = panelName || '';
+      toolbarButtons.forEach(button => {
+        const isActive = button.dataset.filterTarget === panelName;
+        button.setAttribute('aria-expanded', isActive ? 'true' : 'false');
+        button.classList.toggle('is-active', isActive);
+      });
+
+      if (panelName) {
+        const activePanel = filtersBar.querySelector(`.filters-group[data-filter-panel="${panelName}"]`);
+        const focusable = activePanel?.querySelector('input, select');
+        if (focusable) {
+          setTimeout(() => focusable.focus(), 150);
+        }
+      }
+    };
+
+    toolbarButtons.forEach(button => {
+      button.setAttribute('aria-expanded', 'false');
+      button.addEventListener('click', () => {
+        const target = button.dataset.filterTarget;
+        if (!mobileMedia.matches) {
+          const panel = filtersBar.querySelector(`.filters-group[data-filter-panel="${target}"]`);
+          const focusable = panel?.querySelector('input, select');
+          if (focusable) focusable.focus();
+          return;
+        }
+        const current = filtersBar.dataset.activePanel === target ? '' : target;
+        openPanel(current);
+      });
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!mobileMedia.matches) return;
+      if (!filtersBar.contains(event.target)) {
+        openPanel('');
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (!mobileMedia.matches) return;
+      if (event.key === 'Escape') {
+        openPanel('');
+      }
+    });
+
+    mobileMedia.addEventListener('change', (event) => {
+      if (!event.matches) {
+        openPanel('');
+      }
+    });
   }
 
   function initActionsColumnToggle(tableId) {
@@ -1087,6 +1186,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   toggleLoader(true);
   initActionsColumnToggle('tabla-inventario');
   attachEventListeners();
+  initializeStatsToggle();
+  initializeFilterToolbar();
   await fetchRecords({ showLoader: false });
   toggleLoader(false);
 });

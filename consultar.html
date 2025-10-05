@@ -52,7 +52,7 @@
       <!-- Tab: Visitantes -->
       <div id="visitantes-content" class="tab-content active">
         <div class="controls-area" data-controls="visitantes">
-          <div class="controls-row controls-row--primary">
+          <div class="controls-row controls-row--inline">
             <button class="search-toggle button-with-icon" type="button" aria-expanded="false" aria-controls="search-visitantes">
               <span class="icon icon--sm icon-search" aria-hidden="true"></span>
               <span class="sr-only">Mostrar búsqueda</span>
@@ -60,22 +60,28 @@
             <div class="search-field">
               <input type="search" id="search-visitantes" placeholder="Buscar por nombre, apellido o cédula..." />
             </div>
-            <div class="filters-group">
+            <div class="filters-group" role="group" aria-label="Filtros de fecha">
               <div class="date-field" data-empty="true">
+                <span class="date-display" aria-hidden="true">
+                  <span class="date-display__text"></span>
+                </span>
                 <input type="date" id="date-start-visitantes" title="Fecha de inicio" aria-label="Fecha de inicio" />
-                <span class="date-placeholder" aria-hidden="true">dd/mm/aaaa</span>
               </div>
               <div class="date-field" data-empty="true">
+                <span class="date-display" aria-hidden="true">
+                  <span class="date-display__text"></span>
+                </span>
                 <input type="date" id="date-end-visitantes" title="Fecha de fin" aria-label="Fecha de fin" />
-                <span class="date-placeholder" aria-hidden="true">dd/mm/aaaa</span>
               </div>
             </div>
-          </div>
-          <div class="controls-row controls-row--meta">
             <span id="visitantes-total" class="count-pill" aria-live="polite">0 registros</span>
             <button id="export-visitantes-btn" class="btn-export button-with-icon">
               <span class="icon icon--sm icon-export" aria-hidden="true"></span>
               <span class="button-label">Exportar Excel</span>
+            </button>
+            <button id="clear-visitantes-filters" class="btn-secondary button-with-icon btn-clear-filters" type="button" hidden>
+              <span class="icon icon--sm icon-broom" aria-hidden="true"></span>
+              <span class="button-label">Limpiar filtros</span>
             </button>
           </div>
         </div>
@@ -103,7 +109,7 @@
         <!-- Lista de sesiones -->
         <section id="sesiones-lista">
           <div class="controls-area" data-controls="descartes">
-            <div class="controls-row controls-row--primary">
+            <div class="controls-row controls-row--inline">
               <button class="search-toggle button-with-icon" type="button" aria-expanded="false" aria-controls="search-descartes">
                 <span class="icon icon--sm icon-search" aria-hidden="true"></span>
                 <span class="sr-only">Mostrar búsqueda</span>
@@ -111,22 +117,28 @@
               <div class="search-field">
                 <input type="search" id="search-descartes" placeholder="Buscar por Unidad Administrativa o SIACE..." />
               </div>
-              <div class="filters-group">
+              <div class="filters-group" role="group" aria-label="Filtros de fecha">
                 <div class="date-field" data-empty="true">
+                  <span class="date-display" aria-hidden="true">
+                    <span class="date-display__text"></span>
+                  </span>
                   <input type="date" id="date-start-descartes" title="Fecha de inicio" aria-label="Fecha de inicio" />
-                  <span class="date-placeholder" aria-hidden="true">dd/mm/aaaa</span>
                 </div>
                 <div class="date-field" data-empty="true">
+                  <span class="date-display" aria-hidden="true">
+                    <span class="date-display__text"></span>
+                  </span>
                   <input type="date" id="date-end-descartes" title="Fecha de fin" aria-label="Fecha de fin" />
-                  <span class="date-placeholder" aria-hidden="true">dd/mm/aaaa</span>
                 </div>
               </div>
-            </div>
-            <div class="controls-row controls-row--meta">
               <span id="sesiones-total" class="count-pill" aria-live="polite">0 sesiones</span>
               <button id="export-descartes-btn" class="btn-export button-with-icon">
                 <span class="icon icon--sm icon-export" aria-hidden="true"></span>
                 <span class="button-label">Exportar Excel</span>
+              </button>
+              <button id="clear-descartes-filters" class="btn-secondary button-with-icon btn-clear-filters" type="button" hidden>
+                <span class="icon icon--sm icon-broom" aria-hidden="true"></span>
+                <span class="button-label">Limpiar filtros</span>
               </button>
             </div>
           </div>
@@ -298,11 +310,23 @@
             </div>
             <div class="form-group">
               <label for="editq-marbete">Marbete:</label>
-              <input type="text" id="editq-marbete" />
+              <div class="input-with-button">
+                <input type="text" id="editq-marbete" />
+                <button type="button" class="btn-scan button-with-icon" data-target-input="editq-marbete">
+                  <span class="icon icon--sm icon-scan" aria-hidden="true"></span>
+                  <span class="sr-only">Escanear marbete</span>
+                </button>
+              </div>
             </div>
             <div class="form-group">
               <label for="editq-serie">Serie:</label>
-              <input type="text" id="editq-serie" />
+              <div class="input-with-button">
+                <input type="text" id="editq-serie" />
+                <button type="button" class="btn-scan button-with-icon" data-target-input="editq-serie">
+                  <span class="icon icon--sm icon-scan" aria-hidden="true"></span>
+                  <span class="sr-only">Escanear serie</span>
+                </button>
+              </div>
             </div>
             <div class="form-group">
               <label for="editq-marca">Marca:</label>
@@ -352,11 +376,23 @@
             </div>
             <div class="form-group">
               <label for="add-marbete">Marbete:</label>
-              <input type="text" id="add-marbete" required />
+              <div class="input-with-button">
+                <input type="text" id="add-marbete" required />
+                <button type="button" class="btn-scan button-with-icon" data-target-input="add-marbete">
+                  <span class="icon icon--sm icon-scan" aria-hidden="true"></span>
+                  <span class="sr-only">Escanear marbete</span>
+                </button>
+              </div>
             </div>
             <div class="form-group">
               <label for="add-serie">Serie:</label>
-              <input type="text" id="add-serie" />
+              <div class="input-with-button">
+                <input type="text" id="add-serie" />
+                <button type="button" class="btn-scan button-with-icon" data-target-input="add-serie">
+                  <span class="icon icon--sm icon-scan" aria-hidden="true"></span>
+                  <span class="sr-only">Escanear serie</span>
+                </button>
+              </div>
             </div>
             <div class="form-group">
               <label for="add-marca">Marca:</label>
@@ -444,6 +480,8 @@
   <!-- Libs -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="js/scanbot/ScanbotSDK.min.js"></script>
+  <script src="js/scanbot/ScanbotSDK.ui2.min.js"></script>
 
   <!-- App -->
   <script src="js/config.js"></script>

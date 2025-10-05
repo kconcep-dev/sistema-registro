@@ -21,6 +21,27 @@
   flex-wrap: wrap;
 }
 
+.inventory-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#btn-toggle-totales {
+  display: none;
+}
+
+#btn-toggle-totales.is-active {
+  background-color: color-mix(in srgb, var(--primary-color) 18%, transparent);
+  border-color: color-mix(in srgb, var(--primary-color) 35%, transparent);
+  color: var(--primary-color);
+}
+
+html.dark-mode #btn-toggle-totales.is-active {
+  background-color: color-mix(in srgb, var(--primary-color) 32%, transparent);
+  color: #fff;
+}
+
 #btn-nueva-ip {
   display: inline-flex;
   align-items: center;
@@ -109,15 +130,43 @@ html.dark-mode .stat-card {
   border-color: color-mix(in srgb, var(--stat-color) 65%, transparent);
 }
 
+
 .filters-bar {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
   align-items: center;
+  gap: 16px;
   padding: 16px;
   background-color: var(--card-bg-color);
   border-radius: 24px;
   box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.filters-toolbar {
+  display: none;
+  gap: 12px;
+}
+
+.filter-chip {
+  padding: 0 16px;
+  min-height: 44px;
+}
+
+.filter-chip.is-active {
+  background-color: color-mix(in srgb, var(--primary-color) 18%, transparent);
+  color: var(--primary-color);
+}
+
+html.dark-mode .filter-chip.is-active {
+  background-color: color-mix(in srgb, var(--primary-color) 32%, transparent);
+  color: #fff;
+}
+
+.filters-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
 }
 
 .filters-group {
@@ -188,6 +237,84 @@ html.dark-mode .btn-export:hover {
 
 .table-container {
   overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+  .inventory-header {
+    align-items: center;
+  }
+
+  .inventory-header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  #btn-toggle-totales {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 44px;
+    padding: 0 16px;
+  }
+
+  .stats-overview {
+    display: none;
+  }
+
+  .inventory-container[data-stats="open"] .stats-overview {
+    display: grid;
+  }
+
+  .filters-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .filters-toolbar {
+    display: flex;
+    width: 100%;
+  }
+
+  .filters-toolbar .filter-chip {
+    flex: 1 1 0;
+    justify-content: center;
+  }
+
+  .filters-toolbar .filter-chip .button-label {
+    display: none;
+  }
+
+  .filters-body {
+    width: 100%;
+    gap: 12px;
+  }
+
+  .filters-body .filters-group {
+    display: none;
+    width: 100%;
+  }
+
+  .filters-body .filters-group input,
+  .filters-body .filters-group select {
+    width: 100%;
+  }
+
+  .filters-bar[data-active-panel="search"] .filters-group[data-filter-panel="search"],
+  .filters-bar[data-active-panel="estado"] .filters-group[data-filter-panel="estado"],
+  .filters-bar[data-active-panel="departamento"] .filters-group[data-filter-panel="departamento"] {
+    display: flex;
+  }
+
+  .filters-actions {
+    width: 100%;
+    margin-left: 0;
+    justify-content: flex-end;
+  }
+
+  .filters-actions .button-label {
+    display: none;
+  }
 }
 
 #tabla-inventario {

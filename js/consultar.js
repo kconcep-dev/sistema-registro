@@ -25,6 +25,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const dateStartDescartesInput  = document.getElementById('date-start-descartes');
   const dateEndDescartesInput    = document.getElementById('date-end-descartes');
   const exportDescartesBtn       = document.getElementById('export-descartes-btn');
+  const clearVisitantesBtn       = document.getElementById('clear-visitantes-filters');
+  const clearDescartesBtn        = document.getElementById('clear-descartes-filters');
   const tableDescartesBody       = document.querySelector('#table-descartes tbody');
 
   // Vista detalle de sesión
@@ -88,6 +90,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   let editingSessionId      = null;
   let currentSessionId      = null;
   let currentSessionEquiposTotal = 0;
+  let scanbotInstance;
+  let activeBarcodeScanner;
   let searchDebounceTimeout;
   let toastTimeout;
 
@@ -372,6 +376,161 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  function formatDateForFilter(value) {
+    if (!value) return '';
+    const [year, month, day] = value.split('-');
+    if (!year || !month || !day) return value;
+    return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
+  }
+
+  function updateDateFieldVisual(input) {
+    if (!input) return;
+    const wrapper = input.closest('.date-field');
+    if (!wrapper) return;
+    const displayTextEl = wrapper.querySelector('.date-display__text');
+    const hasValue = Boolean(input.value);
+    wrapper.dataset.empty = hasValue ? 'false' : 'true';
+    if (displayTextEl) {
+      displayTextEl.textContent = hasValue ? formatDateForFilter(input.value) : '';
+    }
+  }
+
+  function setupDateFilterGroup({ startInput, endInput, clearButton, onChange }) {
+    const inputs = [startInput, endInput].filter(Boolean);
+    if (!inputs.length && !clearButton) return;
+
+    const updateState = () => {
+      inputs.forEach(updateDateFieldVisual);
+      if (clearButton) {
+        const hasAnyValue = inputs.some(input => Boolean(input.value));
+        clearButton.hidden = !hasAnyValue;
+      }
+    };
+
+    const handleChange = () => {
+      updateState();
+      if (typeof onChange === 'function') onChange();
+    };
+
+    inputs.forEach(input => {
+      input.addEventListener('input', updateState);
+      input.addEventListener('change', handleChange);
+      updateDateFieldVisual(input);
+    });
+
+    if (clearButton) {
+      clearButton.addEventListener('click', () => {
+        inputs.forEach(input => {
+          input.value = '';
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+        updateState();
+        if (typeof onChange === 'function') onChange();
+        clearButton.blur();
+      });
+    }
+
+    updateState();
+  }
+
+  function removeActiveScanner() {
+    if (activeBarcodeScanner) {
+      try {
+        activeBarcodeScanner.dispose();
+      } catch (error) {
+        console.error('Error al detener el escáner:', error);
+      }
+      activeBarcodeScanner = null;
+    }
+    const container = document.getElementById('scanner-container');
+    if (container) {
+      container.remove();
+    }
+  }
+
+  async function ensureScanbotInstance() {
+    if (scanbotInstance) return scanbotInstance;
+    if (typeof ScanbotSDK === 'undefined') {
+      showToast('El módulo de escáner no está disponible.', 'error');
+      return null;
+    }
+    try {
+      scanbotInstance = await ScanbotSDK.initialize({
+        licenseKey: '',
+        enginePath: 'js/scanbot/'
+      });
+      return scanbotInstance;
+    } catch (error) {
+      console.error('Error al inicializar Scanbot SDK:', error);
+      showToast('No se pudo iniciar el escáner.', 'error');
+      scanbotInstance = null;
+      return null;
+    }
+  }
+
+  function setupScannerButtons() {
+    const scannerButtons = document.querySelectorAll('.btn-scan');
+    if (!scannerButtons.length) return;
+
+    scannerButtons.forEach(button => {
+      if (button.dataset.scannerBound === 'true') return;
+      button.dataset.scannerBound = 'true';
+
+      button.addEventListener('click', async () => {
+        if (activeBarcodeScanner) return;
+
+        const targetId = button.dataset.targetInput;
+        const targetInput = targetId ? document.getElementById(targetId) : null;
+        if (!targetInput) {
+          showToast('No se encontró el campo para escanear.', 'error');
+          return;
+        }
+
+        showToast('Iniciando cámara...', 'success');
+
+        try {
+          const sdk = await ensureScanbotInstance();
+          if (!sdk) return;
+
+          const barcodeScannerConfig = {
+            containerId: 'scanner-container',
+            onBarcodesDetected: (result) => {
+              if (!result.barcodes?.length) return;
+              const scannedValue = result.barcodes[0].text;
+              targetInput.value = scannedValue;
+              targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+              targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+              removeActiveScanner();
+              showToast('Código escaneado con éxito.', 'success');
+            },
+            onError: (error) => {
+              console.error('Error del escáner:', error);
+              showToast('Error al escanear.', 'error');
+              removeActiveScanner();
+            },
+            text: {
+              scanningHint: 'Apunte al código de barras del equipo'
+            }
+          };
+
+          let scannerContainer = document.getElementById('scanner-container');
+          if (!scannerContainer) {
+            scannerContainer = document.createElement('div');
+            scannerContainer.id = 'scanner-container';
+            scannerContainer.style.cssText = 'position:fixed; inset:0; width:100%; height:100%; z-index:1000;';
+            document.body.appendChild(scannerContainer);
+          }
+
+          activeBarcodeScanner = await sdk.createBarcodeScanner(barcodeScannerConfig);
+        } catch (error) {
+          console.error('Error al inicializar el escáner:', error);
+          showToast('No se pudo iniciar el escáner.', 'error');
+          removeActiveScanner();
+        }
+      });
+    });
+  }
+
   // --- 4) Datos y render ---
 
   // Visitantes
@@ -640,6 +799,28 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupResponsiveControls();
   ['table-visitantes', 'table-descartes', 'table-equipos-sesion'].forEach(initActionsColumnToggle);
 
+  setupDateFilterGroup({
+    startInput: dateStartVisitantesInput,
+    endInput: dateEndVisitantesInput,
+    clearButton: clearVisitantesBtn,
+    onChange: fetchVisitantes
+  });
+
+  setupDateFilterGroup({
+    startInput: dateStartDescartesInput,
+    endInput: dateEndDescartesInput,
+    clearButton: clearDescartesBtn,
+    onChange: fetchDescartes
+  });
+
+  setupScannerButtons();
+  window.addEventListener('beforeunload', removeActiveScanner);
+  document.addEventListener('click', (event) => {
+    if (event.target.closest('.modal-close-btn, [data-close-modal], [data-close-confirm], .modal-cancel-btn')) {
+      removeActiveScanner();
+    }
+  });
+
   // --- 5) Eventos ---
 
   // Tabs
@@ -669,9 +850,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       searchDebounceTimeout = setTimeout(fetchVisitantes, 300);
     });
   }
-  if (dateStartVisitantesInput) dateStartVisitantesInput.addEventListener('change', fetchVisitantes);
-  if (dateEndVisitantesInput)   dateEndVisitantesInput.addEventListener('change', fetchVisitantes);
-
   // Filtros sesiones
   if (searchDescartesInput) {
     searchDescartesInput.addEventListener('input', () => {
@@ -679,8 +857,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       searchDebounceTimeout = setTimeout(fetchDescartes, 300);
     });
   }
-  if (dateStartDescartesInput) dateStartDescartesInput.addEventListener('change', fetchDescartes);
-  if (dateEndDescartesInput)   dateEndDescartesInput.addEventListener('change', fetchDescartes);
 
   // Acciones tabla visitantes
   if (tableVisitantesBody) {
