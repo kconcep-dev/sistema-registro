@@ -124,12 +124,15 @@
     display: flex; /* Coloca los botones uno al lado del otro */
     gap: 15px;     /* Añade un espacio entre los botones */
     margin-top: 20px;
+    width: 100%;
+    justify-content: center; /* Centra los botones dentro del contenedor */
 }
 
 /* Ajuste para que los botones dentro del wrapper compartan el espacio */
 .botones-imagen-wrapper .btn-principal {
     margin-top: 0; /* Quitamos el margen superior que ya no es necesario */
-    flex: 1;       /* Hacemos que ambos botones crezcan por igual para ocupar el espacio */
+    flex: 1 1 0;   /* Hacemos que ambos botones crezcan por igual para ocupar el espacio */
+    max-width: 100%;
     font-size: 1rem; /* Reducimos un poco la fuente para que el texto quepa mejor */
     padding: 12px 10px; /* Ajustamos el padding para que no se vea apretado */
 }
