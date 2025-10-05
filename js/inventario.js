@@ -76,11 +76,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const CLEAR_ON_FREE_DEFAULTS = {
     dispositivo: '',
-    tipo: 'pc',
+    tipo: null,
     departamento: '',
     notas: '',
     asignado_por: null
   };
+
+  function setTipoSelectValue(value) {
+    if (!tipoSelect) return;
+    if (value === undefined || value === null || value === '') {
+      tipoSelect.value = '';
+      if (tipoSelect.value !== '') {
+        tipoSelect.selectedIndex = -1;
+      }
+    } else {
+      tipoSelect.value = value;
+    }
+  }
 
   async function ensureSession() {
     const { data, error } = await supabaseClient.auth.getSession();
@@ -145,7 +157,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       modalTitle.textContent = 'Editar IP';
 
       dispositivoInput.value = record.dispositivo ?? '';
-      tipoSelect.value = record.tipo ?? 'pc';
+      setTipoSelectValue(record.tipo ?? '');
       departamentoInput.value = record.departamento ?? '';
       estadoInput.value = record.estado ?? 'libre';
       notasInput.value = record.notas ?? '';
@@ -161,7 +173,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       editingId = null;
       modalTitle.textContent = 'Nueva IP';
       formIp.reset();
-      tipoSelect.value = 'pc';
+      setTipoSelectValue('pc');
       estadoInput.value = 'libre';
       mascaraInput.value = DEFAULTS.mascara;
       gatewayInput.value = DEFAULTS.gateway;
@@ -232,7 +244,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   function clearDeviceFieldsForLibre() {
     if (!dispositivoInput || !tipoSelect || !departamentoInput || !notasInput) return;
     dispositivoInput.value = CLEAR_ON_FREE_DEFAULTS.dispositivo;
-    tipoSelect.value = CLEAR_ON_FREE_DEFAULTS.tipo;
+    setTipoSelectValue(CLEAR_ON_FREE_DEFAULTS.tipo);
     departamentoInput.value = CLEAR_ON_FREE_DEFAULTS.departamento;
     notasInput.value = CLEAR_ON_FREE_DEFAULTS.notas;
     selectedFreeRecordId = null;
@@ -329,7 +341,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       applyRowStateClass(mainRow, estadoValue);
 
       const dispositivoTd = createElement('td', 'cell-dispositivo', record.dispositivo || '—');
-      const tipoTd = createElement('td', null, (record.tipo || 'pc').toUpperCase());
+      const tipoTd = createElement('td', null, record.tipo ? record.tipo.toUpperCase() : '—');
       const departamentoTd = createElement('td', null, record.departamento || '—');
       const ipTd = createElement('td', null, record.ip || '—');
 
@@ -541,7 +553,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const payload = {
       ip,
       dispositivo: shouldClearDeviceFields ? CLEAR_ON_FREE_DEFAULTS.dispositivo : dispositivo || null,
-      tipo: shouldClearDeviceFields ? CLEAR_ON_FREE_DEFAULTS.tipo : tipo || 'pc',
+      tipo: shouldClearDeviceFields
+        ? CLEAR_ON_FREE_DEFAULTS.tipo
+        : (tipo ? tipo : null),
       departamento: shouldClearDeviceFields ? CLEAR_ON_FREE_DEFAULTS.departamento : departamento || null,
       estado,
       notas: shouldClearDeviceFields ? CLEAR_ON_FREE_DEFAULTS.notas : notas || null,
@@ -715,7 +729,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const exportRows = filteredRecords.map((record) => ({
       'Dispositivo': record.dispositivo || '',
-      'Tipo': (record.tipo || 'pc').toUpperCase(),
+      'Tipo': record.tipo ? record.tipo.toUpperCase() : '',
       'Departamento': record.departamento || '',
       'Dirección IP': record.ip || '',
       'Máscara': record.mascara || '',
