@@ -23,10 +23,13 @@ const navbarHTML = `
                 <li class="nav-item"><a href="inventario.html" class="nav-link">🖧 Inventario</a></li>
                 <li class="nav-separator"></li>
                 <li class="nav-item nav-item-controls">
-                    <button id="theme-toggle" class="theme-btn nav-control-btn" title="Cambiar Tema">🌙</button>
-                    <button id="logout-btn" class="header-btn nav-control-btn" title="Cerrar Sesión">
-                        <img src="assets/images/icono-logout-dark.png" alt="Cerrar Sesión" class="icon-dark">
-                        <img src="assets/images/icono-logout-light.png" alt="Cerrar Sesión" class="icon-light">
+                    <button id="theme-toggle" class="theme-btn nav-control-btn" title="Cambiar Tema" aria-label="Cambiar a tema oscuro">
+                        <span class="icon icon-theme-dark icon-dark" aria-hidden="true"></span>
+                        <span class="icon icon-theme-light icon-light" aria-hidden="true"></span>
+                    </button>
+                    <button id="logout-btn" class="header-btn nav-control-btn" title="Cerrar Sesión" aria-label="Cerrar Sesión">
+                        <span class="icon icon-logout icon-dark" aria-hidden="true"></span>
+                        <span class="icon icon-logout icon-light" aria-hidden="true"></span>
                     </button>
                 </li>
             </ul>
@@ -94,16 +97,19 @@ document.addEventListener('DOMContentLoaded', () => {
    // --- LÓGICA DEL TEMA ---
     const themeToggleBtn = document.getElementById('theme-toggle');
     if (themeToggleBtn) {
-        // Al cargar, solo necesitamos ajustar el ícono, la clase ya está puesta.
-        if (document.documentElement.classList.contains('dark-mode')) {
-            themeToggleBtn.textContent = '☀️';
-        }
+        const updateThemeToggleLabels = (isDarkMode) => {
+            const label = isDarkMode ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro';
+            themeToggleBtn.setAttribute('aria-label', label);
+            themeToggleBtn.setAttribute('title', label);
+        };
+
+        updateThemeToggleLabels(document.documentElement.classList.contains('dark-mode'));
 
         themeToggleBtn.addEventListener('click', () => {
             document.documentElement.classList.toggle('dark-mode');
             const isDarkMode = document.documentElement.classList.contains('dark-mode');
             const theme = isDarkMode ? 'dark' : 'light';
-            themeToggleBtn.textContent = isDarkMode ? '☀️' : '🌙';
+            updateThemeToggleLabels(isDarkMode);
             localStorage.setItem('theme', theme);
         });
     }
