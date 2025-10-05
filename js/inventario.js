@@ -74,13 +74,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     dns2: '10.106.2.4'
   };
 
-  const CLEAR_ON_FREE_FIELDS = [
-    'dispositivo',
-    'tipo',
-    'departamento',
-    'notas',
-    'asignado_por'
-  ];
+  const CLEAR_ON_FREE_DEFAULTS = {
+    dispositivo: '',
+    tipo: 'pc',
+    departamento: '',
+    notas: '',
+    asignado_por: null
+  };
 
   async function ensureSession() {
     const { data, error } = await supabaseClient.auth.getSession();
@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       hideAvailableIpList();
     }
 
-    updateDepartmentRequirement();
+    applyEstadoRules();
   }
 
   function extractLastOctet(ip = '') {
@@ -205,6 +205,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         button.addEventListener('click', () => {
           ipOctetoInput.value = button.dataset.octet ?? '';
           estadoInput.value = 'asignada';
+          applyEstadoRules();
           selectedFreeRecordId = record.id;
           showToast(`IP ${record.ip} seleccionada para asignación.`, 'success', 2400);
           hideAvailableIpList();
@@ -228,11 +229,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     return el;
   }
 
-  function updateDepartmentRequirement() {
+  function clearDeviceFieldsForLibre() {
+    if (!dispositivoInput || !tipoSelect || !departamentoInput || !notasInput) return;
+    dispositivoInput.value = CLEAR_ON_FREE_DEFAULTS.dispositivo;
+    tipoSelect.value = CLEAR_ON_FREE_DEFAULTS.tipo;
+    departamentoInput.value = CLEAR_ON_FREE_DEFAULTS.departamento;
+    notasInput.value = CLEAR_ON_FREE_DEFAULTS.notas;
+    selectedFreeRecordId = null;
+    hideAvailableIpList();
+  }
+
+  function applyEstadoRules() {
     if (!estadoInput || !departamentoInput) return;
     const isLibre = estadoInput.value === 'libre';
     if (isLibre) {
       departamentoInput.removeAttribute('required');
+      clearDeviceFieldsForLibre();
     } else {
       departamentoInput.setAttribute('required', 'true');
     }
@@ -524,18 +536,26 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (!departamento) throw new Error('Para asignar una IP debes indicar el departamento.');
     }
 
-    return {
+    const shouldClearDeviceFields = estado === 'libre';
+
+    const payload = {
       ip,
-      dispositivo: dispositivo || null,
-      tipo: tipo || 'pc',
-      departamento: departamento || null,
+      dispositivo: shouldClearDeviceFields ? CLEAR_ON_FREE_DEFAULTS.dispositivo : dispositivo || null,
+      tipo: shouldClearDeviceFields ? CLEAR_ON_FREE_DEFAULTS.tipo : tipo || 'pc',
+      departamento: shouldClearDeviceFields ? CLEAR_ON_FREE_DEFAULTS.departamento : departamento || null,
       estado,
-      notas: notas || null,
+      notas: shouldClearDeviceFields ? CLEAR_ON_FREE_DEFAULTS.notas : notas || null,
       mascara,
       gateway,
       dns1,
       dns2
     };
+
+    if (shouldClearDeviceFields) {
+      payload.asignado_por = CLEAR_ON_FREE_DEFAULTS.asignado_por;
+    }
+
+    return payload;
   }
 
   async function handleFormSubmit(event) {
@@ -650,15 +670,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       selectEl.disabled = true;
 
       if (newEstado === 'libre') {
-        const clearPayload = { estado: 'libre' };
-        CLEAR_ON_FREE_FIELDS.forEach((field) => {
-          if (field in record) {
-            clearPayload[field] = null;
-          }
-        });
+        const clearPayload = {
+          estado: 'libre',
+          ...CLEAR_ON_FREE_DEFAULTS
+        };
 
         Object.keys(record).forEach((key) => {
-          if (key.startsWith('asignado_')) {
+          if (key.startsWith('asignado_') && !(key in clearPayload)) {
             clearPayload[key] = null;
           }
         });
@@ -738,7 +756,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     modalCloseBtns?.forEach((btn) => btn.addEventListener('click', closeModal));
     modalCancelBtn?.addEventListener('click', closeModal);
     formIp?.addEventListener('submit', handleFormSubmit);
-    estadoInput?.addEventListener('change', updateDepartmentRequirement);
+    estadoInput?.addEventListener('change', applyEstadoRules);
 
     ipOctetoInput?.addEventListener('focus', () => {
       if (!isEditing) {

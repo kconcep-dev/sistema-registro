@@ -57,6 +57,7 @@
   --inventario-libre-color: #0f766e;
   --inventario-asignada-color: #b91c1c;
   --inventario-revision-color: #b45309;
+  --inventario-table-border-color: color-mix(in srgb, var(--border-color) 55%, transparent);
 }
 
 html.dark-mode {
@@ -64,6 +65,7 @@ html.dark-mode {
   --inventario-libre-color: #34d399;
   --inventario-asignada-color: #f87171;
   --inventario-revision-color: #fbbf24;
+  --inventario-table-border-color: color-mix(in srgb, var(--border-color) 50%, transparent);
 }
 
 .stats-overview {
@@ -198,16 +200,29 @@ html.dark-mode .btn-export:hover {
 
 #tabla-inventario {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   min-width: 720px;
+  border: 1px solid var(--inventario-table-border-color);
+  border-radius: 14px;
+  overflow: hidden;
 }
 
 #tabla-inventario th,
 #tabla-inventario td {
   padding: 14px 16px;
   text-align: left;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 35%, transparent);
+  border: 1px solid var(--inventario-table-border-color);
   vertical-align: middle;
+  background-color: var(--card-bg-color);
+}
+
+#tabla-inventario tbody tr.inventory-row:hover > td {
+  background-color: color-mix(in srgb, var(--primary-color) 12%, var(--card-bg-color));
+}
+
+#tabla-inventario tbody tr.inventory-row-details:hover > td {
+  background-color: var(--card-bg-color);
 }
 
 #tabla-inventario thead {
@@ -394,27 +409,33 @@ html.dark-mode .btn-action.btn-danger:hover {
   color: color-mix(in srgb, var(--text-color) 70%, transparent);
 }
 
-.row-estado-libre {
+#tabla-inventario tbody tr.row-estado-libre > td,
+#tabla-inventario tbody tr.row-estado-libre.inventory-row-details > td {
   background-color: color-mix(in srgb, var(--inventario-libre-color) 24%, var(--card-bg-color));
 }
 
-.row-estado-asignada {
+#tabla-inventario tbody tr.row-estado-asignada > td,
+#tabla-inventario tbody tr.row-estado-asignada.inventory-row-details > td {
   background-color: color-mix(in srgb, var(--inventario-asignada-color) 24%, var(--card-bg-color));
 }
 
-.row-estado-en_revision {
+#tabla-inventario tbody tr.row-estado-en_revision > td,
+#tabla-inventario tbody tr.row-estado-en_revision.inventory-row-details > td {
   background-color: color-mix(in srgb, var(--inventario-revision-color) 24%, var(--card-bg-color));
 }
 
-html.dark-mode .row-estado-libre {
+html.dark-mode #tabla-inventario tbody tr.row-estado-libre > td,
+html.dark-mode #tabla-inventario tbody tr.row-estado-libre.inventory-row-details > td {
   background-color: color-mix(in srgb, var(--inventario-libre-color) 40%, var(--card-bg-color));
 }
 
-html.dark-mode .row-estado-asignada {
+html.dark-mode #tabla-inventario tbody tr.row-estado-asignada > td,
+html.dark-mode #tabla-inventario tbody tr.row-estado-asignada.inventory-row-details > td {
   background-color: color-mix(in srgb, var(--inventario-asignada-color) 40%, var(--card-bg-color));
 }
 
-html.dark-mode .row-estado-en_revision {
+html.dark-mode #tabla-inventario tbody tr.row-estado-en_revision > td,
+html.dark-mode #tabla-inventario tbody tr.row-estado-en_revision.inventory-row-details > td {
   background-color: color-mix(in srgb, var(--inventario-revision-color) 40%, var(--card-bg-color));
 }
 
