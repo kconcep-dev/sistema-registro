@@ -465,11 +465,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td>${formatDate(visitor.fecha)}</td>
         <td>${formatTime(visitor.hora)}</td>
         <td class="table-actions">
-          <button class="btn-editar button-with-icon" data-id="${visitor.id}" aria-label="Editar visitante">
+          <button class="btn-editar button-with-icon" data-id="${visitor.id}" aria-label="Editar visitante" title="Editar visitante">
             <span class="icon icon--sm icon-edit" aria-hidden="true"></span>
             <span class="button-label">Editar</span>
           </button>
-          <button class="btn-eliminar button-with-icon" data-id="${visitor.id}" aria-label="Eliminar visitante">
+          <button class="btn-eliminar button-with-icon" data-id="${visitor.id}" aria-label="Eliminar visitante" title="Eliminar visitante">
             <span class="icon icon--sm icon-trash" aria-hidden="true"></span>
             <span class="button-label">Eliminar</span>
           </button>
@@ -526,15 +526,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td>${session.observacion || '-'}</td>
         <td>${count}</td>
         <td class="table-actions">
-          <button class="btn-view-equipos button-with-icon" data-id="${session.id}" aria-label="Abrir sesión">
+          <button class="btn-view-equipos button-with-icon" data-id="${session.id}" aria-label="Abrir sesión" title="Abrir sesión">
             <span class="icon icon--sm icon-open" aria-hidden="true"></span>
             <span class="button-label">Abrir</span>
           </button>
-          <button class="btn-editar btn-editar-sesion button-with-icon" data-id="${session.id}" aria-label="Editar sesión">
+          <button class="btn-editar btn-editar-sesion button-with-icon" data-id="${session.id}" aria-label="Editar sesión" title="Editar sesión">
             <span class="icon icon--sm icon-edit" aria-hidden="true"></span>
             <span class="button-label">Editar</span>
           </button>
-          <button class="btn-eliminar-sesion button-with-icon" data-id="${session.id}" aria-label="Eliminar sesión">
+          <button class="btn-eliminar-sesion button-with-icon" data-id="${session.id}" aria-label="Eliminar sesión" title="Eliminar sesión">
             <span class="icon icon--sm icon-trash" aria-hidden="true"></span>
             <span class="button-label">Eliminar</span>
           </button>
@@ -615,11 +615,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td>${eq.estado_equipo || '-'}</td>
         <td>${eq.motivo_descarte || '-'}</td>
         <td class="table-actions">
-          <button class="btn-editar button-with-icon" data-id="${eq.id}" aria-label="Editar equipo">
+          <button class="btn-editar button-with-icon" data-id="${eq.id}" aria-label="Editar equipo" title="Editar equipo">
             <span class="icon icon--sm icon-edit" aria-hidden="true"></span>
             <span class="button-label">Editar</span>
           </button>
-          <button class="btn-eliminar button-with-icon" data-id="${eq.id}" aria-label="Eliminar equipo">
+          <button class="btn-eliminar button-with-icon" data-id="${eq.id}" aria-label="Eliminar equipo" title="Eliminar equipo">
             <span class="icon icon--sm icon-trash" aria-hidden="true"></span>
             <span class="button-label">Eliminar</span>
           </button>

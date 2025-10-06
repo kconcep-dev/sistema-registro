@@ -173,13 +173,24 @@ html.dark-mode .controls-area input[type="search"]{
   justify-content: flex-start;
 }
 
-.controls-area[data-controls] .controls-row--inline > .count-pill {
-  margin-left: auto;
-}
-
 .controls-area[data-controls] .controls-row--inline > .btn-export,
 .controls-area[data-controls] .controls-row--inline > .btn-clear-filters {
   flex: 0 0 auto;
+}
+
+.controls-area[data-controls="visitantes"] .controls-count,
+.controls-area[data-controls="descartes"] .controls-count {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.controls-area[data-controls="visitantes"] .controls-count {
+  justify-content: flex-end;
+}
+
+.controls-area[data-controls="descartes"] .controls-count {
+  justify-content: flex-end;
 }
 
 .controls-area[data-controls] .btn-clear-filters {
@@ -423,13 +434,8 @@ html.dark-mode .controls-area .date-field {
     flex: 0 0 auto;
   }
 
-  .controls-area[data-controls] .controls-row--inline > .count-pill {
-    margin-left: 0;
-    flex: 0 0 auto;
-  }
-
   .controls-area[data-controls] .controls-row--inline > .btn-export {
-    margin-left: auto;
+    margin-left: 0;
   }
 
   .controls-area[data-controls] .btn-clear-filters,
@@ -488,6 +494,54 @@ html.dark-mode .controls-area .date-field {
   .controls-area[data-controls].search-expanded .btn-export,
   .controls-area[data-controls].search-expanded .btn-clear-filters {
     margin-top: 8px;
+  }
+
+  .controls-area[data-controls="visitantes"] .controls-count,
+  .controls-area[data-controls="descartes"] .controls-count {
+    justify-content: center;
+  }
+
+  .controls-area[data-controls="visitantes"].search-expanded .filters-group,
+  .controls-area[data-controls="descartes"].search-expanded .filters-group {
+    width: auto;
+    flex: 0 0 auto;
+    order: initial;
+    margin-top: 0;
+  }
+
+  .controls-area[data-controls="visitantes"].search-expanded .btn-export,
+  .controls-area[data-controls="visitantes"].search-expanded .btn-clear-filters,
+  .controls-area[data-controls="descartes"].search-expanded .btn-export,
+  .controls-area[data-controls="descartes"].search-expanded .btn-clear-filters {
+    margin-top: 0;
+  }
+}
+
+@media (min-width: 769px) {
+  .controls-area[data-controls="visitantes"],
+  .controls-area[data-controls="descartes"] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 16px;
+    row-gap: 12px;
+    align-items: center;
+  }
+
+  .controls-area[data-controls="visitantes"] .controls-row--inline,
+  .controls-area[data-controls="descartes"] .controls-row--inline {
+    grid-column: 1 / 2;
+  }
+
+  .controls-area[data-controls="visitantes"] .controls-count,
+  .controls-area[data-controls="descartes"] .controls-count {
+    grid-column: 2 / 3;
+    justify-content: flex-end;
+    align-self: start;
+  }
+
+  .controls-area[data-controls="visitantes"] .controls-row--inline > .btn-export,
+  .controls-area[data-controls="descartes"] .controls-row--inline > .btn-export {
+    margin-left: auto;
   }
 }
 
@@ -652,6 +706,22 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   box-shadow: 0 2px 6px var(--shadow-color);
 }
 
+#table-visitantes th:last-child,
+#table-descartes th:last-child,
+#table-equipos-sesion th:last-child {
+  width: 1%;
+  white-space: nowrap;
+}
+
+#table-visitantes td.table-actions,
+#table-descartes td.table-actions,
+#table-equipos-sesion td.table-actions {
+  width: 1%;
+  white-space: nowrap;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
 /* Variantes */
 .btn-editar         { background-color: #4B5563; }
 .btn-editar:hover   { background-color: #374151; }
@@ -667,37 +737,7 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   background-color: var(--primary-color);
 }
 
-/* --- Columna ACCIONES sticky (última columna) --- */
-#table-visitantes th:last-child,
-#table-descartes th:last-child,
-#table-equipos-sesion th:last-child {
-  position: sticky;
-  right: 0;
-  z-index: 4;
-  box-shadow: -6px 0 8px -4px rgba(0,0,0,0.08);
-}
-
-#table-visitantes td:last-child,
-#table-descartes td:last-child,
-#table-equipos-sesion td:last-child {
-  position: sticky;
-  right: 0;
-  z-index: 3;
-  background-color: var(--card-bg-color);
-  box-shadow: -6px 0 8px -4px rgba(0,0,0,0.06);
-  min-width: 140px; /* ancho mínimo para botones */
-}
-
 @media (max-width: 768px) {
-  #table-visitantes th:last-child,
-  #table-descartes th:last-child,
-  #table-equipos-sesion th:last-child,
-  #table-visitantes td:last-child,
-  #table-descartes td:last-child,
-  #table-equipos-sesion td:last-child {
-    min-width: 120px;
-  }
-
   .table-actions button {
     padding: 6px;
     width: 36px;
