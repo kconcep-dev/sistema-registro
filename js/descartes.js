@@ -147,11 +147,11 @@ document.addEventListener('DOMContentLoaded', () => {
       <td>${equipo.estado_equipo || '-'}</td>
       <td>${equipo.motivo_descarte || '-'}</td>
       <td class="actions-cell">
-        <button class="btn-accion btn-editar button-with-icon" data-id="${equipo.id}">
+        <button class="btn-accion btn-editar button-with-icon" data-id="${equipo.id}" aria-label="Editar equipo">
           <span class="icon icon--sm icon-edit" aria-hidden="true"></span>
           <span class="button-label">Editar</span>
         </button>
-        <button class="btn-accion btn-eliminar button-with-icon" data-id="${equipo.id}">
+        <button class="btn-accion btn-eliminar button-with-icon" data-id="${equipo.id}" aria-label="Eliminar equipo">
           <span class="icon icon--sm icon-trash" aria-hidden="true"></span>
           <span class="button-label">Eliminar</span>
         </button>

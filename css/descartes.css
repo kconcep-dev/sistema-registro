@@ -132,14 +132,22 @@
 
 .btn-accion {
     border: none;
-    padding: 5px 10px;
+    padding: 0;
+    width: 40px;
+    height: 40px;
     border-radius: var(--button-radius);
     cursor: pointer;
     font-size: 0.85rem;
     color: white;
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
+    justify-content: center;
+    gap: 0;
+    line-height: 1;
+}
+
+.actions-cell .button-label {
+    display: none;
 }
 
 .btn-editar {
