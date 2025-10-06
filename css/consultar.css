@@ -517,14 +517,22 @@ html.dark-mode .controls-area .date-field {
 
   .controls-area[data-controls="equipos"] .controls-row--primary {
     width: 100%;
-    display: grid;
-    grid-template-columns: auto 1fr;
+    display: flex;
+    align-items: center;
     gap: 8px;
-    align-items: stretch;
+  }
+
+  .controls-area[data-controls="equipos"] .controls-row--primary .search-toggle {
+    flex: 0 0 auto;
+    order: 0;
   }
 
   .controls-area[data-controls="equipos"] #btn-agregar-equipo {
-    width: 100%;
+    width: auto;
+    min-width: 0;
+    flex: 0 0 auto;
+    order: 1;
+    margin-left: auto;
     justify-content: center;
   }
 }
@@ -584,15 +592,6 @@ html.dark-mode .controls-area .date-field {
 }
 
 /* Botón Añadir Equipo en móvil acompaña al contador */
-@media (max-width: 768px) {
-  #btn-agregar-equipo {
-    display: inline-flex;
-    width: auto;
-    text-align: center;
-    margin-top: 0;
-  }
-}
-
 #btn-agregar-equipo:hover{
   background-color: var(--primary-hover-color);
 }
@@ -618,16 +617,6 @@ html.dark-mode .controls-area .date-field {
   .controls-area:not([data-controls]) .btn-export {
     grid-column: 1 / -1;
     width: 100%;
-  }
-
-  #btn-agregar-equipo {
-    grid-column: 1 / -1;
-    width: 100%;
-    justify-content: center; /* centra ícono + texto dentro del ancho */
-    text-align: center;      /* extra, por compatibilidad */
-    display: inline-flex;    /* mantiene el gap */
-    align-items: center;
-    gap: 8px;                /* espacio entre icono y texto */
   }
 
   #table-visitantes th,
