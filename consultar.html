@@ -194,6 +194,9 @@
           </div>
 
           <div class="controls-area" data-controls="equipos">
+            <div class="controls-count">
+              <span id="equipos-total" class="count-pill" aria-live="polite">0 equipos</span>
+            </div>
             <div class="controls-row controls-row--primary">
               <button class="search-toggle button-with-icon" type="button" aria-expanded="false" aria-controls="search-equipos" title="Mostrar búsqueda">
                 <span class="icon icon--sm icon-search" aria-hidden="true"></span>
@@ -205,7 +208,6 @@
                   id="search-equipos"
                   placeholder="Buscar por descripción, marca, modelo, serie o marbete..." />
               </div>
-              <span id="equipos-total" class="count-pill" aria-live="polite">0 equipos</span>
               <button id="btn-agregar-equipo" class="btn-principal btn-anadir-equipo button-with-icon" type="button">
                 <span class="icon icon--sm icon-plus" aria-hidden="true"></span>
                 <span class="button-label">Añadir Equipo</span>
