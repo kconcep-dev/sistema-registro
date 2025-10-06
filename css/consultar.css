@@ -532,16 +532,19 @@ html.dark-mode .controls-area .date-field {
   .controls-area[data-controls="visitantes"] .controls-row--inline,
   .controls-area[data-controls="descartes"] .controls-row--inline {
     grid-column: 1 / 2;
+    grid-row: 1;
   }
 
   .controls-area[data-controls="equipos"] .controls-row--primary {
     grid-column: 1 / 2;
+    grid-row: 1;
   }
 
   .controls-area[data-controls="visitantes"] .controls-count,
   .controls-area[data-controls="descartes"] .controls-count,
   .controls-area[data-controls="equipos"] .controls-count {
     grid-column: 2 / 3;
+    grid-row: 1;
     justify-content: flex-end;
     align-self: center;
   }
