@@ -659,10 +659,10 @@ html.dark-mode .theme-btn {
     --icon-url: url("../assets/images/icono-nav-descartes.svg");
 }
 
-.hamburger img {
+.hamburger svg {
     width: 26px;
     height: 26px;
-    vertical-align: middle;
+    display: block;
 }
 .icon-dark { display: block; }
 .icon-light { display: none; }
