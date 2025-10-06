@@ -296,6 +296,7 @@ html.dark-mode .controls-area[data-controls] .search-toggle {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  height: 42px;
   min-height: 42px;
   padding: 0 16px 0 44px;
   border: 1px solid var(--border-color);
@@ -305,6 +306,7 @@ html.dark-mode .controls-area[data-controls] .search-toggle {
   cursor: pointer;
   transition: padding .2s ease, border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
   box-shadow: 0 2px 6px color-mix(in srgb, var(--shadow-color) 55%, transparent);
+  box-sizing: border-box;
 }
 
 .controls-area .date-field::before {
@@ -327,6 +329,7 @@ html.dark-mode .controls-area[data-controls] .search-toggle {
   padding: 0;
   min-width: 42px;
   width: 42px;
+  height: 42px;
   aspect-ratio: 1;
   box-shadow: 0 2px 4px color-mix(in srgb, var(--shadow-color) 45%, transparent);
 }
@@ -352,6 +355,7 @@ html.dark-mode .controls-area[data-controls] .search-toggle {
   white-space: nowrap;
   position: relative;
   z-index: 0;
+  line-height: 1;
 }
 
 .controls-area .date-display__text {
@@ -398,6 +402,48 @@ html.dark-mode .controls-area .date-field {
     justify-content: center;
   }
 
+  .controls-area[data-controls] .controls-row--inline {
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
+  .controls-area[data-controls] .search-field {
+    display: none;
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .controls-area[data-controls] .filters-group {
+    flex: 0 1 auto;
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .controls-area[data-controls] .filters-group .date-field {
+    flex: 0 0 auto;
+  }
+
+  .controls-area[data-controls] .controls-row--inline > .count-pill {
+    margin-left: 0;
+    flex: 0 0 auto;
+  }
+
+  .controls-area[data-controls] .controls-row--inline > .btn-export {
+    margin-left: auto;
+  }
+
+  .controls-area[data-controls] .btn-clear-filters,
+  .controls-area[data-controls] .btn-export {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+  }
+
+  .controls-area[data-controls] .btn-clear-filters .button-label,
+  .controls-area[data-controls] .btn-export .button-label {
+    display: none;
+  }
+
   .controls-area[data-controls="equipos"] .controls-row--inline {
     flex-wrap: nowrap;
   }
@@ -418,36 +464,18 @@ html.dark-mode .controls-area .date-field {
     margin-top: 8px;
   }
 
-  .controls-area[data-controls] .controls-row--inline {
+  .controls-area[data-controls].search-expanded .controls-row--inline {
     flex-wrap: wrap;
-    align-items: stretch;
   }
 
-  .controls-area[data-controls] .search-field {
-    display: none;
-    flex: 1 1 100%;
-    width: 100%;
-  }
-
-  .controls-area[data-controls] .filters-group {
-    flex: 0 1 auto;
-    min-width: 0;
-    gap: 8px;
-  }
-
-  .controls-area[data-controls] .filters-group .date-field {
-    flex: 0 0 auto;
-  }
-
-  .controls-area[data-controls] .btn-clear-filters,
-  .controls-area[data-controls] .btn-export {
-    min-height: 40px;
-    padding: 0 12px;
+  .controls-area[data-controls].search-expanded .controls-row--inline > .btn-export {
+    margin-left: 0;
   }
 
   .controls-area[data-controls].search-expanded .search-field {
     display: block;
-    flex: 1 1 auto;
+    flex: 1 1 100%;
+    width: 100%;
   }
 
   .controls-area[data-controls].search-expanded .filters-group {
@@ -455,6 +483,11 @@ html.dark-mode .controls-area .date-field {
     flex: 1 1 100%;
     order: 3;
     margin-top: 4px;
+  }
+
+  .controls-area[data-controls].search-expanded .btn-export,
+  .controls-area[data-controls].search-expanded .btn-clear-filters {
+    margin-top: 8px;
   }
 }
 
@@ -594,13 +627,18 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   display: flex;
   gap: 8px;
 }
+.table-actions .button-label {
+  display: none;
+}
 .table-actions button,
 .btn-view-equipos,
 .btn-eliminar-sesion,
 .btn-editar,
 .btn-eliminar {
   border: none;
-  padding: 8px 12px;
+  padding: 0;
+  width: 40px;
+  height: 40px;
   border-radius: var(--button-radius);
   cursor: pointer;
   font-size: 0.85rem;
@@ -647,7 +685,7 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   z-index: 3;
   background-color: var(--card-bg-color);
   box-shadow: -6px 0 8px -4px rgba(0,0,0,0.06);
-  min-width: 180px; /* ancho mínimo para botones */
+  min-width: 140px; /* ancho mínimo para botones */
 }
 
 @media (max-width: 768px) {
@@ -658,14 +696,6 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   #table-descartes td:last-child,
   #table-equipos-sesion td:last-child {
     min-width: 120px;
-  }
-
-  .table-actions {
-    gap: 6px;
-  }
-
-  .table-actions .button-label {
-    display: none;
   }
 
   .table-actions button {
