@@ -401,6 +401,7 @@ html.dark-mode .controls-area .date-field {
   .controls-area[data-controls] {
     padding: 12px;
     gap: 8px;
+    position: relative;
   }
 
   .controls-area[data-controls] .controls-row {
@@ -413,14 +414,24 @@ html.dark-mode .controls-area .date-field {
     justify-content: center;
   }
 
-  .controls-area[data-controls] .controls-row--inline {
+  .controls-area[data-controls] .controls-row--inline,
+  .controls-area[data-controls] .controls-row--primary {
     flex-wrap: nowrap;
     align-items: stretch;
   }
 
   .controls-area[data-controls] .search-field {
     display: none;
-    flex: 1 1 100%;
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    width: auto;
+    flex: 0 0 auto;
+    z-index: 5;
+  }
+
+  .controls-area[data-controls] .search-field input[type="search"] {
     width: 100%;
   }
 
@@ -467,50 +478,25 @@ html.dark-mode .controls-area .date-field {
     display: none;
   }
 
-  .controls-area[data-controls="equipos"] .controls-row--inline {
-    flex-wrap: nowrap;
-  }
-
-  .controls-area[data-controls="equipos"].search-expanded .controls-row--inline {
-    flex-wrap: wrap;
-  }
-
-  .controls-area[data-controls="equipos"].search-expanded .search-field {
-    order: 4;
-    display: block;
-    flex: 1 1 100%;
-    width: 100%;
-  }
-
-  .controls-area[data-controls="equipos"].search-expanded #equipos-total,
-  .controls-area[data-controls="equipos"].search-expanded #btn-agregar-equipo {
-    margin-top: 8px;
-  }
-
-  .controls-area[data-controls].search-expanded .controls-row--inline {
-    flex-wrap: wrap;
-  }
-
-  .controls-area[data-controls].search-expanded .controls-row--inline > .btn-export {
-    margin-left: 0;
+  .controls-area[data-controls].search-expanded {
+    padding-bottom: calc(12px + 42px + 8px);
   }
 
   .controls-area[data-controls].search-expanded .search-field {
     display: block;
-    flex: 1 1 100%;
-    width: 100%;
   }
 
-  .controls-area[data-controls].search-expanded .filters-group {
-    width: 100%;
-    flex: 1 1 100%;
-    order: 3;
-    margin-top: 4px;
+  .controls-area[data-controls].search-expanded .controls-row--inline {
+    flex-wrap: nowrap;
   }
 
+  .controls-area[data-controls].search-expanded .filters-group,
   .controls-area[data-controls].search-expanded .btn-export,
   .controls-area[data-controls].search-expanded .btn-clear-filters {
-    margin-top: 8px;
+    margin-top: 0;
+    flex: 0 0 auto;
+    width: auto;
+    order: initial;
   }
 
   .controls-area[data-controls="visitantes"] .controls-count,
@@ -518,18 +504,8 @@ html.dark-mode .controls-area .date-field {
     justify-content: center;
   }
 
-  .controls-area[data-controls="visitantes"].search-expanded .filters-group,
-  .controls-area[data-controls="descartes"].search-expanded .filters-group {
-    width: auto;
-    flex: 0 0 auto;
-    order: initial;
-    margin-top: 0;
-  }
-
-  .controls-area[data-controls="visitantes"].search-expanded .btn-export,
-  .controls-area[data-controls="visitantes"].search-expanded .btn-clear-filters,
-  .controls-area[data-controls="descartes"].search-expanded .btn-export,
-  .controls-area[data-controls="descartes"].search-expanded .btn-clear-filters {
+  .controls-area[data-controls="equipos"].search-expanded #equipos-total,
+  .controls-area[data-controls="equipos"].search-expanded #btn-agregar-equipo {
     margin-top: 0;
   }
 }
@@ -695,7 +671,9 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
 
 /* Acciones como chips */
 .table-actions {
-  display: flex;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   gap: 8px;
 }
 .table-actions .button-label {
@@ -721,22 +699,25 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   gap: 6px;
   color: #fff;
   box-shadow: 0 2px 6px var(--shadow-color);
+  flex-shrink: 0;
 }
 
 #table-visitantes th:last-child,
 #table-descartes th:last-child,
 #table-equipos-sesion th:last-child {
-  width: 1%;
   white-space: nowrap;
+  width: auto;
+  min-width: 120px;
 }
 
 #table-visitantes td.table-actions,
 #table-descartes td.table-actions,
 #table-equipos-sesion td.table-actions {
-  width: 1%;
   white-space: nowrap;
   padding-left: 12px;
   padding-right: 12px;
+  width: auto;
+  min-width: 120px;
 }
 
 /* Variantes */
