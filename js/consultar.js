@@ -1249,14 +1249,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         input.showPicker();
         return;
       }
-      try { input.focus(); } catch(_) {}
+      try { input.focus({ preventScroll: true }); }
+      catch(_) {
+        try { input.focus(); } catch(_) {}
+      }
       try { input.click(); } catch(_) {}
     };
 
-    wrapper.addEventListener('click', (e) => {
-      if (e.target === input) return;
-      e.preventDefault();
-      openPicker();
+    wrapper.addEventListener('click', (event) => {
+      if (event.target === input) return;
+      if (typeof input.showPicker === 'function') {
+        event.preventDefault();
+        openPicker();
+      }
     });
 
     if (!wrapper.hasAttribute('tabindex')) {
