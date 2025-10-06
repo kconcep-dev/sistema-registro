@@ -1257,11 +1257,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     wrapper.addEventListener('click', (event) => {
-      if (event.target === input) return;
       if (typeof input.showPicker === 'function') {
         event.preventDefault();
-        openPicker();
       }
+      openPicker();
     });
 
     if (!wrapper.hasAttribute('tabindex')) {
