@@ -174,23 +174,38 @@
               <span class="button-label">Volver a Sesiones</span>
             </button>
             <h2 id="detalle-titulo">Sesión</h2>
-            <span class="detalle-unidad"><strong>Unidad:</strong> <span id="detalle-unidad">—</span></span>
+
+            <div class="detalle-info-grid">
+              <article class="detalle-card detalle-card--principal">
+                <p class="detalle-card-label">Unidad</p>
+                <p class="detalle-card-value" id="detalle-unidad">—</p>
+              </article>
+
+              <!-- Botón toggle SOLO para móvil -->
+              <button id="btn-toggle-detalles" class="btn-secondary btn-toggle button-with-icon" type="button" data-expanded="false">
+                <span class="icon icon--sm icon-arrow-down" aria-hidden="true"></span>
+                <span class="button-label">Ver más detalles</span>
+              </button>
+
+              <!-- Bloque de detalles extra -->
+              <div id="detalle-extra" class="detalle-extra">
+                <article class="detalle-card">
+                  <p class="detalle-card-label">Código SIACE</p>
+                  <p class="detalle-card-value" id="detalle-siace">—</p>
+                </article>
+                <article class="detalle-card">
+                  <p class="detalle-card-label">Fecha</p>
+                  <p class="detalle-card-value" id="detalle-fecha">—</p>
+                </article>
+                <article class="detalle-card">
+                  <p class="detalle-card-label">Técnico</p>
+                  <p class="detalle-card-value" id="detalle-tecnico">—</p>
+                </article>
+              </div>
+            </div>
 
             <!-- 🔥 Observación aparte, siempre debajo -->
             <div id="detalle-observacion" class="detalle-observacion"></div>
-
-            <!-- Botón toggle SOLO para móvil -->
-            <button id="btn-toggle-detalles" class="btn-secondary btn-toggle button-with-icon" type="button" data-expanded="false">
-              <span class="icon icon--sm icon-arrow-down" aria-hidden="true"></span>
-              <span class="button-label">Ver más detalles</span>
-            </button>
-
-            <!-- Bloque de detalles extra -->
-            <div id="detalle-extra" class="detalle-extra">
-              <span><strong>SIACE:</strong> <span id="detalle-siace">—</span></span>
-              <span><strong>Fecha:</strong> <span id="detalle-fecha">—</span></span>
-              <span><strong>Técnico:</strong> <span id="detalle-tecnico">—</span></span>
-            </div>
           </div>
 
           <div class="controls-area" data-controls="equipos">
