@@ -308,6 +308,7 @@ html.dark-mode .controls-area[data-controls] .search-toggle {
   gap: 8px;
   height: 42px;
   min-height: 42px;
+  margin: 0;
   padding: 0 16px 0 44px;
   border: 1px solid var(--border-color);
   border-radius: var(--button-radius);
