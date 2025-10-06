@@ -178,7 +178,8 @@ html.dark-mode .controls-area input[type="search"]{
 }
 
 .controls-area[data-controls="visitantes"] .controls-count,
-.controls-area[data-controls="descartes"] .controls-count {
+.controls-area[data-controls="descartes"] .controls-count,
+.controls-area[data-controls="equipos"] .controls-count {
   width: 100%;
   display: flex;
   align-items: center;
@@ -188,7 +189,8 @@ html.dark-mode .controls-area input[type="search"]{
   justify-content: flex-end;
 }
 
-.controls-area[data-controls="descartes"] .controls-count {
+.controls-area[data-controls="descartes"] .controls-count,
+.controls-area[data-controls="equipos"] .controls-count {
   justify-content: flex-end;
 }
 
@@ -273,17 +275,6 @@ html.dark-mode .controls-area[data-controls] .search-toggle {
 
 .controls-area[data-controls="equipos"] .search-field {
   order: 2;
-}
-
-.controls-area[data-controls="equipos"] #equipos-total {
-  order: 3;
-  margin-left: auto;
-  flex: 0 0 auto;
-}
-
-.controls-area[data-controls="equipos"] #btn-agregar-equipo {
-  order: 4;
-  flex: 0 0 auto;
 }
 
 .controls-area[data-controls] .search-field input[type="search"] {
@@ -508,11 +499,29 @@ html.dark-mode .controls-area .date-field {
   .controls-area[data-controls="equipos"].search-expanded #btn-agregar-equipo {
     margin-top: 0;
   }
+
+  .controls-area[data-controls="equipos"] .controls-count {
+    justify-content: center;
+  }
+
+  .controls-area[data-controls="equipos"] .controls-row--primary {
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .controls-area[data-controls="equipos"] #btn-agregar-equipo {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 @media (min-width: 769px) {
   .controls-area[data-controls="visitantes"],
-  .controls-area[data-controls="descartes"] {
+  .controls-area[data-controls="descartes"],
+  .controls-area[data-controls="equipos"] {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     column-gap: 16px;
@@ -525,11 +534,16 @@ html.dark-mode .controls-area .date-field {
     grid-column: 1 / 2;
   }
 
+  .controls-area[data-controls="equipos"] .controls-row--primary {
+    grid-column: 1 / 2;
+  }
+
   .controls-area[data-controls="visitantes"] .controls-count,
-  .controls-area[data-controls="descartes"] .controls-count {
+  .controls-area[data-controls="descartes"] .controls-count,
+  .controls-area[data-controls="equipos"] .controls-count {
     grid-column: 2 / 3;
     justify-content: flex-end;
-    align-self: start;
+    align-self: center;
   }
 
   .controls-area[data-controls="visitantes"] .controls-row--inline > .btn-export,
