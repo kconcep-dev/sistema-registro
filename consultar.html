@@ -52,8 +52,11 @@
       <!-- Tab: Visitantes -->
       <div id="visitantes-content" class="tab-content active">
         <div class="controls-area" data-controls="visitantes">
+          <div class="controls-count">
+            <span id="visitantes-total" class="count-pill" aria-live="polite">0 registros</span>
+          </div>
           <div class="controls-row controls-row--inline">
-            <button class="search-toggle button-with-icon" type="button" aria-expanded="false" aria-controls="search-visitantes">
+            <button class="search-toggle button-with-icon" type="button" aria-expanded="false" aria-controls="search-visitantes" title="Mostrar búsqueda">
               <span class="icon icon--sm icon-search" aria-hidden="true"></span>
               <span class="sr-only">Mostrar búsqueda</span>
             </button>
@@ -74,7 +77,6 @@
                 <input type="date" id="date-end-visitantes" title="Fecha de fin" aria-label="Fecha de fin" />
               </label>
             </div>
-            <span id="visitantes-total" class="count-pill" aria-live="polite">0 registros</span>
             <button id="export-visitantes-btn" class="btn-export button-with-icon" aria-label="Exportar registros de visitantes">
               <span class="icon icon--sm icon-export" aria-hidden="true"></span>
               <span class="button-label">Exportar Excel</span>
@@ -109,8 +111,11 @@
         <!-- Lista de sesiones -->
         <section id="sesiones-lista">
           <div class="controls-area" data-controls="descartes">
+            <div class="controls-count">
+              <span id="sesiones-total" class="count-pill" aria-live="polite">0 sesiones</span>
+            </div>
             <div class="controls-row controls-row--inline">
-              <button class="search-toggle button-with-icon" type="button" aria-expanded="false" aria-controls="search-descartes">
+              <button class="search-toggle button-with-icon" type="button" aria-expanded="false" aria-controls="search-descartes" title="Mostrar búsqueda">
                 <span class="icon icon--sm icon-search" aria-hidden="true"></span>
                 <span class="sr-only">Mostrar búsqueda</span>
               </button>
@@ -131,7 +136,6 @@
                   <input type="date" id="date-end-descartes" title="Fecha de fin" aria-label="Fecha de fin" />
                 </label>
               </div>
-              <span id="sesiones-total" class="count-pill" aria-live="polite">0 sesiones</span>
               <button id="export-descartes-btn" class="btn-export button-with-icon" aria-label="Exportar sesiones de descartes">
                 <span class="icon icon--sm icon-export" aria-hidden="true"></span>
                 <span class="button-label">Exportar Excel</span>
@@ -191,7 +195,7 @@
 
           <div class="controls-area" data-controls="equipos">
             <div class="controls-row controls-row--primary">
-              <button class="search-toggle button-with-icon" type="button" aria-expanded="false" aria-controls="search-equipos">
+              <button class="search-toggle button-with-icon" type="button" aria-expanded="false" aria-controls="search-equipos" title="Mostrar búsqueda">
                 <span class="icon icon--sm icon-search" aria-hidden="true"></span>
                 <span class="sr-only">Mostrar búsqueda</span>
               </button>
