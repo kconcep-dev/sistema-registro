@@ -72,7 +72,7 @@
                 </div>
 
                 <form id="registro-form" novalidate>
-                    <h2>Datos del Visitante (Manual)</h2>
+                    <h2>Datos del Visitante</h2>
                     <label for="nombre">Nombre:</label>
                     <input type="text" id="nombre" required>
                     
@@ -141,37 +141,39 @@
             <h2>Completar Registro</h2>
             <p class="section-subtitle" style="margin-top: 0;">Datos obtenidos del QR. Por favor, completa el motivo.</p>
             
-            <form id="modal-form-registro" novalidate>
-                <label for="modal-nombre">Nombre:</label>
-                <input type="text" id="modal-nombre" required>
-                
-                <label for="modal-apellido">Apellido:</label>
-                <input type="text" id="modal-apellido" required>
-                
-                <label for="modal-cedula">Cédula:</label>
-                <input type="text" id="modal-cedula" required>
-                
-                <label for="modal-sexo">Sexo:</label>
-                <select id="modal-sexo" required>
-                    <option value="" disabled>Selecciona una opción...</option>
-                    <option value="Masculino">Masculino</option>
-                    <option value="Femenino">Femenino</option>
-                </select>
+            <div class="modal-form-container">
+                <form id="modal-form-registro" novalidate>
+                    <label for="modal-nombre">Nombre:</label>
+                    <input type="text" id="modal-nombre" required>
 
-                <label for="modal-motivo">Motivo de visita:</label>
-                <input type="text" id="modal-motivo" required placeholder="Escribe el motivo aquí...">
-                
-                <div class="modal-buttons">
-                    <button type="button" id="btn-cancelar-modal-registro" class="btn-secondary button-with-icon">
-                        <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
-                        <span class="button-label">Cancelar</span>
-                    </button>
-                    <button type="submit" id="btn-submit-modal-registro" class="btn-principal button-with-icon">
-                        <span class="icon icon--sm icon-save" aria-hidden="true"></span>
-                        <span class="button-label">Registrar</span>
-                    </button>
-                </div>
-            </form>
+                    <label for="modal-apellido">Apellido:</label>
+                    <input type="text" id="modal-apellido" required>
+
+                    <label for="modal-cedula">Cédula:</label>
+                    <input type="text" id="modal-cedula" required>
+
+                    <label for="modal-sexo">Sexo:</label>
+                    <select id="modal-sexo" required>
+                        <option value="" disabled>Selecciona una opción...</option>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Femenino">Femenino</option>
+                    </select>
+
+                    <label for="modal-motivo">Motivo de visita:</label>
+                    <input type="text" id="modal-motivo" required placeholder="Escribe el motivo aquí...">
+
+                    <div class="modal-buttons">
+                        <button type="button" id="btn-cancelar-modal-registro" class="btn-secondary button-with-icon">
+                            <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+                            <span class="button-label">Cancelar</span>
+                        </button>
+                        <button type="submit" id="btn-submit-modal-registro" class="btn-principal button-with-icon">
+                            <span class="icon icon--sm icon-save" aria-hidden="true"></span>
+                            <span class="button-label">Registrar</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
