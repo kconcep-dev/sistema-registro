@@ -42,7 +42,6 @@ html.dark-mode .tabs-nav{
 .tab-btn.active {
   background-color: var(--primary-color);
   color: #fff;
-  transform: translateY(-1px);
 }
 
 /* Contenidos por pestaña */
@@ -415,7 +414,7 @@ html.dark-mode .controls-area .date-field {
 
   .controls-area[data-controls] .controls-row--inline {
     flex-wrap: nowrap;
-    align-items: center;
+    align-items: stretch;
   }
 
   .controls-area[data-controls] .search-field {
@@ -428,10 +427,15 @@ html.dark-mode .controls-area .date-field {
     flex: 0 1 auto;
     min-width: 0;
     gap: 8px;
+    align-items: stretch;
   }
 
   .controls-area[data-controls] .filters-group .date-field {
     flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
   }
 
   .controls-area[data-controls] .controls-row--inline > .btn-export {
@@ -443,6 +447,18 @@ html.dark-mode .controls-area .date-field {
     width: 42px;
     height: 42px;
     padding: 0;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .controls-area[data-controls] .controls-row--inline > .button-with-icon,
+  .controls-area[data-controls] .controls-row--inline > .search-toggle {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .controls-area[data-controls] .btn-clear-filters .button-label,
