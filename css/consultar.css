@@ -908,6 +908,53 @@ html.dark-mode .detalle-card-value {
     background-color: var(--primary-hover-color);
   }
 
+  /* Layout móvil restaurado */
+  .detalle-info-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .detalle-card {
+    background: none;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    position: static;
+    min-height: auto;
+  }
+
+  .detalle-card::before,
+  .detalle-card::after {
+    content: none;
+  }
+
+  .detalle-card-label {
+    font-size: 0.95rem;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text-color);
+  }
+
+  .detalle-card-value {
+    font-size: 0.95rem;
+    font-weight: 400;
+  }
+
+  .detalle-card-label::after {
+    content: ':';
+    margin-left: 0;
+    margin-right: 4px;
+  }
+
+  .detalle-card--principal {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 6px;
+    grid-column: auto;
+  }
+
   /* Detalles ocultos por defecto */
   .detalle-info-grid {
     display: flex;
@@ -931,6 +978,24 @@ html.dark-mode .detalle-card-value {
 
   .detalle-card--principal {
     grid-column: auto;
+  }
+
+  #detalle-extra .detalle-card {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  #detalle-extra .detalle-card-value {
+    flex: 1;
+  }
+
+  .detalle-observacion {
+    padding: 10px 14px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px var(--shadow-color);
+    line-height: 1.4;
   }
 }
 
