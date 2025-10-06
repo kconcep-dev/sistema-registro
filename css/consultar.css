@@ -486,8 +486,19 @@ html.dark-mode .controls-area .date-field {
   .controls-area[data-controls].search-expanded .btn-clear-filters {
     margin-top: 0;
     flex: 0 0 auto;
-    width: auto;
     order: initial;
+  }
+
+  .controls-area[data-controls].search-expanded .btn-export,
+  .controls-area[data-controls].search-expanded .btn-clear-filters {
+    width: auto;
+    min-width: 0;
+    padding: 0 16px;
+  }
+
+  .controls-area[data-controls].search-expanded .btn-export .button-label,
+  .controls-area[data-controls].search-expanded .btn-clear-filters .button-label {
+    display: inline-flex;
   }
 
   .controls-area[data-controls="visitantes"] .controls-count,
