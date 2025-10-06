@@ -51,12 +51,26 @@ const navbarHTML = `
             <div class="nav-controls">
                 <button class="hamburger" id="hamburger-btn" aria-label="Abrir menú">
                     <div class="icon-menu">
-                        <img src="assets/images/icono-menu-light.png" alt="Abrir menú" class="icon-light">
-                        <img src="assets/images/icono-menu-dark.png" alt="Abrir menú" class="icon-dark">
+                        <svg class="icon-light" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-hidden="true">
+                            <line x1="4" y1="7" x2="20" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line>
+                            <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line>
+                            <line x1="4" y1="17" x2="20" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line>
+                        </svg>
+                        <svg class="icon-dark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-hidden="true">
+                            <line x1="4" y1="7" x2="20" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line>
+                            <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line>
+                            <line x1="4" y1="17" x2="20" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line>
+                        </svg>
                     </div>
                     <div class="icon-close">
-                        <img src="assets/images/icono-cerrar-light.png" alt="Cerrar menú" class="icon-light">
-                        <img src="assets/images/icono-cerrar-dark.png" alt="Cerrar menú" class="icon-dark">
+                        <svg class="icon-light" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-hidden="true">
+                            <line x1="5" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line>
+                            <line x1="19" y1="5" x2="5" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line>
+                        </svg>
+                        <svg class="icon-dark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-hidden="true">
+                            <line x1="5" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line>
+                            <line x1="19" y1="5" x2="5" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line>
+                        </svg>
                     </div>
                 </button>
             </div>
