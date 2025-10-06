@@ -662,7 +662,6 @@ html.dark-mode .theme-btn {
 .hamburger svg {
     width: 26px;
     height: 26px;
-    display: block;
 }
 .icon-dark { display: block; }
 .icon-light { display: none; }
