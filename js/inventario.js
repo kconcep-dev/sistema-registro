@@ -38,6 +38,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const tipoSelect = document.getElementById('input-tipo');
   const tipoCustomInput = document.getElementById('input-tipo-custom');
   const departamentoInput = document.getElementById('input-departamento');
+  const departamentoDatalist = document.getElementById('departamento-options');
+  const departamentoCustomInput = document.getElementById('input-departamento-custom');
   const ipOctetoInput = document.getElementById('input-ip-octeto');
   const mascaraInput = document.getElementById('input-mascara');
   const gatewayInput = document.getElementById('input-gateway');
@@ -80,6 +82,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
 
   const PREDEFINED_TIPOS = ['pc', 'router', 'impresora', 'switch'];
+  const PREDEFINED_DEPARTAMENTOS = [
+    'Administración',
+    'Finanzas',
+    'Operaciones',
+    'Recursos Humanos',
+    'Sistemas',
+    'Logística'
+  ];
+
+  const DIACRITICS_REGEX = /[\u0300-\u036f]/g;
+
+  let departmentOptionsMap = new Map();
+  let departmentOptions = [...PREDEFINED_DEPARTAMENTOS];
 
   const CLEAR_ON_FREE_DEFAULTS = {
     dispositivo: '',
@@ -172,6 +187,150 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!value) {
       deactivateCustomTipoInput();
     }
+  }
+
+  function normalizeDepartment(value) {
+    if (typeof value !== 'string') return '';
+    return value.trim().replace(/\s+/g, ' ');
+  }
+
+  function createDepartmentKey(value) {
+    const normalized = normalizeDepartment(value);
+    if (!normalized) return '';
+    return normalized.normalize('NFD').replace(DIACRITICS_REGEX, '').toLowerCase();
+  }
+
+  function isCustomDepartamentoInputActive() {
+    return !!departamentoCustomInput && !departamentoCustomInput.hidden;
+  }
+
+  function activateCustomDepartamentoInput(value = '', { focus = false } = {}) {
+    if (!departamentoCustomInput) return;
+    departamentoCustomInput.hidden = false;
+    departamentoCustomInput.value = value;
+    if (focus) {
+      departamentoCustomInput.focus();
+      departamentoCustomInput.select();
+    }
+    updateDepartamentoRequiredState();
+  }
+
+  function deactivateCustomDepartamentoInput(clearValue = true) {
+    if (!departamentoCustomInput) return;
+    if (clearValue) {
+      departamentoCustomInput.value = '';
+    }
+    departamentoCustomInput.hidden = true;
+    updateDepartamentoRequiredState();
+  }
+
+  function updateDepartamentoRequiredState() {
+    if (!estadoInput || !departamentoInput) return;
+    const isLibre = estadoInput.value === 'libre';
+
+    if (isLibre) {
+      departamentoInput.removeAttribute('required');
+      departamentoCustomInput?.removeAttribute('required');
+      return;
+    }
+
+    if (isCustomDepartamentoInputActive()) {
+      departamentoInput.removeAttribute('required');
+      departamentoCustomInput?.setAttribute('required', 'true');
+    } else {
+      departamentoInput.setAttribute('required', 'true');
+      departamentoCustomInput?.removeAttribute('required');
+    }
+  }
+
+  function findDepartmentMatch(value) {
+    const key = createDepartmentKey(value);
+    if (!key) return '';
+    return departmentOptionsMap.get(key) || '';
+  }
+
+  function setDepartamentoFieldValue(value) {
+    if (!departamentoInput) return;
+    const normalizedValue = normalizeDepartment(value);
+
+    if (!normalizedValue) {
+      departamentoInput.value = '';
+      deactivateCustomDepartamentoInput();
+      return;
+    }
+
+    const match = findDepartmentMatch(normalizedValue);
+    if (match) {
+      departamentoInput.value = match;
+      deactivateCustomDepartamentoInput();
+      return;
+    }
+
+    departamentoInput.value = '';
+    activateCustomDepartamentoInput(normalizedValue, { focus: false });
+  }
+
+  function resolveDepartamentoValue({ requireMatch = false } = {}) {
+    const isCustomActive = isCustomDepartamentoInputActive();
+    const sourceInput = isCustomActive ? departamentoCustomInput : departamentoInput;
+    const value = normalizeDepartment(sourceInput?.value || '');
+
+    if (isCustomActive) {
+      return { value, isCustom: true, isFromList: false };
+    }
+
+    if (!value) {
+      return { value: '', isCustom: false, isFromList: false };
+    }
+
+    const match = findDepartmentMatch(value);
+    if (match) {
+      return { value: match, isCustom: false, isFromList: true };
+    }
+
+    if (requireMatch && value) {
+      throw new Error('Selecciona un departamento de la lista o usa "Otro" para añadir uno nuevo.');
+    }
+
+    return { value, isCustom: false, isFromList: false };
+  }
+
+  function handleDepartamentoInputChange() {
+    if (!departamentoInput) return;
+    const value = normalizeDepartment(departamentoInput.value);
+
+    if (!value) {
+      deactivateCustomDepartamentoInput(false);
+      return;
+    }
+
+    if (value.toLowerCase() === 'otro') {
+      departamentoInput.value = '';
+      activateCustomDepartamentoInput('', { focus: true });
+      return;
+    }
+
+    const match = findDepartmentMatch(value);
+    if (match) {
+      departamentoInput.value = match;
+    }
+
+    deactivateCustomDepartamentoInput(false);
+  }
+
+  function updateDepartamentoFormOptions(options = departmentOptions) {
+    if (!departamentoDatalist) return;
+
+    departamentoDatalist.innerHTML = '';
+    options.forEach((dept) => {
+      const option = document.createElement('option');
+      option.value = dept;
+      departamentoDatalist.appendChild(option);
+    });
+
+    const otherOption = document.createElement('option');
+    otherOption.value = 'Otro';
+    departamentoDatalist.appendChild(otherOption);
   }
 
   async function ensureSession() {
@@ -314,6 +473,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     resetModalState();
     formIp?.reset();
     deactivateCustomTipoInput();
+    deactivateCustomDepartamentoInput();
     hideAvailableIpList();
   }
 
@@ -334,7 +494,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       dispositivoInput.value = record.dispositivo ?? '';
       setTipoSelectValue(record.tipo ?? '');
-      departamentoInput.value = record.departamento ?? '';
+      setDepartamentoFieldValue(record.departamento ?? '');
       estadoInput.value = record.estado ?? 'libre';
       notasInput.value = record.notas ?? '';
       mascaraInput.value = record.mascara ?? DEFAULTS.mascara;
@@ -358,7 +518,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       ipOctetoInput.value = '';
       notasInput.value = '';
       dispositivoInput.value = '';
-      departamentoInput.value = '';
+      setDepartamentoFieldValue('');
       hideAvailableIpList();
     }
 
@@ -432,7 +592,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!dispositivoInput || !tipoSelect || !departamentoInput || !notasInput) return;
     dispositivoInput.value = CLEAR_ON_FREE_DEFAULTS.dispositivo;
     setTipoSelectValue(CLEAR_ON_FREE_DEFAULTS.tipo);
-    departamentoInput.value = CLEAR_ON_FREE_DEFAULTS.departamento;
+    setDepartamentoFieldValue(CLEAR_ON_FREE_DEFAULTS.departamento);
     notasInput.value = CLEAR_ON_FREE_DEFAULTS.notas;
     selectedFreeRecordId = null;
     hideAvailableIpList();
@@ -442,10 +602,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!estadoInput || !departamentoInput) return;
     const isLibre = estadoInput.value === 'libre';
     if (isLibre) {
-      departamentoInput.removeAttribute('required');
       clearDeviceFieldsForLibre();
+      departamentoInput.removeAttribute('required');
+      departamentoCustomInput?.removeAttribute('required');
     } else {
-      departamentoInput.setAttribute('required', 'true');
+      updateDepartamentoRequiredState();
     }
   }
 
@@ -655,27 +816,41 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function populateDepartmentOptions() {
-    if (!departamentoSelect) return;
-    const selected = departamentoSelect.value;
-    const uniqueDepartments = Array.from(
-      new Set(
-        allRecords
-          .map((record) => record.departamento)
-          .filter((dept) => typeof dept === 'string' && dept.trim() !== '')
-      )
-    ).sort((a, b) => a.localeCompare(b));
+    const selectedFilter = departamentoSelect?.value || '';
+    const map = new Map();
 
-    departamentoSelect.innerHTML = '<option value="">Todos los departamentos</option>';
-    uniqueDepartments.forEach((dept) => {
-      const option = document.createElement('option');
-      option.value = dept;
-      option.textContent = dept;
-      departamentoSelect.appendChild(option);
-    });
+    const addOption = (value) => {
+      const normalized = normalizeDepartment(value);
+      if (!normalized) return;
+      const key = createDepartmentKey(normalized);
+      if (!key || map.has(key)) return;
+      map.set(key, normalized);
+    };
 
-    if (selected && uniqueDepartments.includes(selected)) {
-      departamentoSelect.value = selected;
+    PREDEFINED_DEPARTAMENTOS.forEach(addOption);
+    allRecords.forEach((record) => addOption(record?.departamento));
+
+    departmentOptionsMap = map;
+    departmentOptions = Array.from(map.values()).sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+
+    if (departamentoSelect) {
+      departamentoSelect.innerHTML = '<option value="">Todos los departamentos</option>';
+      departmentOptions.forEach((dept) => {
+        const option = document.createElement('option');
+        option.value = dept;
+        option.textContent = dept;
+        departamentoSelect.appendChild(option);
+      });
+
+      if (selectedFilter) {
+        const matched = findDepartmentMatch(selectedFilter);
+        if (matched) {
+          departamentoSelect.value = matched;
+        }
+      }
     }
+
+    updateDepartamentoFormOptions(departmentOptions);
   }
 
   async function fetchRecords({ showLoader = false } = {}) {
@@ -714,8 +889,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const dispositivo = dispositivoInput.value.trim();
     const customTipoActive = isCustomTipoInputActive();
     const tipoSeleccionado = customTipoActive ? tipoCustomInput.value.trim() : tipoSelect.value;
-    const departamento = departamentoInput.value.trim();
     const estado = estadoInput.value;
+    const { value: departamento } = resolveDepartamentoValue({ requireMatch: estado !== 'libre' });
     const notas = notasInput.value.trim();
 
     const mascara = mascaraInput.value.trim() || DEFAULTS.mascara;
@@ -958,6 +1133,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     formIp?.addEventListener('submit', handleFormSubmit);
     estadoInput?.addEventListener('change', applyEstadoRules);
     tipoSelect?.addEventListener('change', handleTipoSelectChange);
+    departamentoInput?.addEventListener('input', handleDepartamentoInputChange);
+    departamentoInput?.addEventListener('change', handleDepartamentoInputChange);
+    departamentoInput?.addEventListener('focus', () => {
+      if (typeof departamentoInput.showPicker === 'function') {
+        departamentoInput.showPicker();
+      }
+    });
+    departamentoCustomInput?.addEventListener('input', updateDepartamentoRequiredState);
 
     ipOctetoInput?.addEventListener('focus', () => {
       if (!isEditing) {
@@ -1073,6 +1256,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   attachEventListeners();
   initializeStatsToggle();
   initializeFilterToolbar();
+  populateDepartmentOptions();
   await fetchRecords({ showLoader: false });
   toggleLoader(false);
 });
