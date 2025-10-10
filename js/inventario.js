@@ -581,7 +581,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       dispositivoInput.value = record.dispositivo ?? '';
       setTipoSelectValue(record.tipo ?? '');
       setDepartamentoFieldValue(record.departamento ?? '');
-      estadoInput.value = record.estado ?? 'libre';
+      estadoInput.value = record.estado ?? '';
       notasInput.value = record.notas ?? '';
       if (propietarioInput) propietarioInput.value = record.propietario ?? '';
       if (usuarioInput) usuarioInput.value = record.usuario ?? '';
@@ -739,6 +739,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       estadoFieldGroup?.removeAttribute('hidden');
       if (estadoInput) {
         estadoInput.disabled = false;
+        if (!estadoInput.value) {
+          estadoInput.value = 'libre';
+        }
       }
     } else {
       ipInput.readOnly = true;
@@ -748,7 +751,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         estadoFieldGroup.setAttribute('hidden', 'true');
       }
       if (estadoInput) {
-        estadoInput.value = 'libre';
+        estadoInput.value = '';
         estadoInput.disabled = true;
       }
       departamentoInput?.removeAttribute('required');
@@ -783,6 +786,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   function applyRowStateClass(row, estado) {
     if (!row) return;
     row.classList.remove('row-estado-libre', 'row-estado-asignada', 'row-estado-en_revision');
+    if (!estado) return;
     if (estado === 'libre') row.classList.add('row-estado-libre');
     else if (estado === 'asignada') row.classList.add('row-estado-asignada');
     else if (estado === 'en_revision') row.classList.add('row-estado-en_revision');
@@ -858,8 +862,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     emptyState.hidden = true;
 
     records.forEach((record) => {
-      const estadoValue = record.estado || 'libre';
       const hasIp = hasIpValue(record.ip);
+      const rawEstadoValue = record.estado ?? null;
+      const estadoValue = hasIp ? rawEstadoValue : null;
       const mainRow = document.createElement('tr');
       mainRow.dataset.id = record.id;
       mainRow.classList.add('inventory-row');
@@ -870,22 +875,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       const tipoTd = createElement('td', null, record.tipo ? record.tipo.toUpperCase() : '—');
       const departamentoTd = createElement('td', null, record.departamento || '—');
       const propietarioTd = createElement('td', null, record.propietario || '—');
-      const usuarioTd = createElement('td', null, record.usuario || '—');
       const ipTd = createElement('td', null, hasIp ? record.ip : NO_IP_LABEL);
-      const mascaraTd = createElement('td', null, hasIp ? record.mascara || '—' : '—');
-      const gatewayTd = createElement('td', null, hasIp ? record.gateway || '—' : '—');
-      const dns1Td = createElement('td', null, hasIp ? record.dns1 || '—' : '—');
-      const dns2Td = createElement('td', null, hasIp ? record.dns2 || '—' : '—');
 
       const estadoTd = document.createElement('td');
       estadoTd.classList.add('estado-cell');
-      const estadoPill = createElement('span', `estado-pill estado-pill--${estadoValue}`);
-      estadoPill.textContent = STATE_LABELS[estadoValue] || estadoValue;
-      estadoTd.appendChild(estadoPill);
-
-      const notasTd = createElement('td', 'cell-notas', record.notas ? record.notas : '—');
-      if (record.notas) {
-        notasTd.title = record.notas;
+      if (estadoValue) {
+        const estadoPill = createElement('span', `estado-pill estado-pill--${estadoValue}`);
+        estadoPill.textContent = STATE_LABELS[estadoValue] || estadoValue;
+        estadoTd.appendChild(estadoPill);
       }
 
       const accionesTd = document.createElement('td');
@@ -910,9 +907,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         const option = document.createElement('option');
         option.value = estado;
         option.textContent = STATE_LABELS[estado];
-        if (estado === estadoValue) option.selected = true;
         estadoSelectQuick.appendChild(option);
       });
+      if (hasIp && rawEstadoValue) {
+        estadoSelectQuick.value = rawEstadoValue;
+      } else if (!hasIp) {
+        const placeholderOption = document.createElement('option');
+        placeholderOption.value = '';
+        placeholderOption.textContent = 'Sin estado';
+        placeholderOption.selected = true;
+        placeholderOption.disabled = true;
+        placeholderOption.hidden = true;
+        estadoSelectQuick.insertBefore(placeholderOption, estadoSelectQuick.firstChild);
+      }
+      estadoSelectQuick.disabled = !hasIp;
 
       actionWrapper.append(editarBtn, eliminarBtn, estadoSelectQuick);
       accionesTd.appendChild(actionWrapper);
@@ -922,35 +930,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         tipoTd,
         departamentoTd,
         propietarioTd,
-        usuarioTd,
         ipTd,
-        mascaraTd,
-        gatewayTd,
-        dns1Td,
-        dns2Td,
         estadoTd,
-        notasTd,
         accionesTd
       );
 
       const detailItems = [];
 
-      if (hasIp) {
-        detailItems.push(
-          { label: 'Dirección IP', value: record.ip || NO_IP_LABEL },
-          { label: 'Máscara', value: record.mascara || '—' },
-          { label: 'Gateway', value: record.gateway || '—' },
-          { label: 'DNS 1', value: record.dns1 || '—' },
-          { label: 'DNS 2', value: record.dns2 || '—' }
-        );
-      }
+      detailItems.push({ label: 'Usuario', value: record.usuario || '—' });
+      detailItems.push(
+        { label: 'Máscara', value: hasIp ? record.mascara || '—' : '—' },
+        { label: 'Gateway', value: hasIp ? record.gateway || '—' : '—' },
+        { label: 'DNS 1', value: hasIp ? record.dns1 || '—' : '—' },
+        { label: 'DNS 2', value: hasIp ? record.dns2 || '—' : '—' }
+      );
 
-      if (record.propietario) {
-        detailItems.push({ label: 'Propietario', value: record.propietario });
-      }
-      if (record.usuario) {
-        detailItems.push({ label: 'Usuario', value: record.usuario });
-      }
       if (record.notas) {
         detailItems.push({ label: 'Notas', value: record.notas });
       }
@@ -1135,7 +1129,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const customTipoActive = isCustomTipoInputActive();
     const tipoSeleccionado = customTipoActive ? tipoCustomInput.value.trim() : tipoSelect.value;
     const hasIp = getTieneIpSelection();
-    const estadoSeleccionado = hasIp ? estadoInput.value : 'libre';
+    let estadoSeleccionado = null;
+    if (hasIp) {
+      estadoSeleccionado = estadoInput.value;
+      if (!estadoSeleccionado) {
+        throw new Error('Debes seleccionar un estado.');
+      }
+    }
     const { value: departamento } = resolveDepartamentoValue({ requireMatch: hasIp && estadoSeleccionado !== 'libre' });
     const notas = notasInput.value.trim();
     const propietario = propietarioInput?.value.trim() || '';
