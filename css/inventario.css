@@ -335,11 +335,31 @@ html.dark-mode .btn-export:hover {
 
 #tabla-inventario th,
 #tabla-inventario td {
-  padding: 14px 16px;
+  padding: 16px 20px;
   text-align: left;
   border: 1px solid var(--inventario-table-border-color);
   vertical-align: middle;
   background-color: var(--card-bg-color);
+}
+
+#tabla-inventario th:nth-child(2),
+#tabla-inventario td:nth-child(2) {
+  min-width: 140px;
+}
+
+#tabla-inventario th:nth-child(3),
+#tabla-inventario td:nth-child(3) {
+  min-width: 190px;
+}
+
+#tabla-inventario th:nth-child(4),
+#tabla-inventario td:nth-child(4) {
+  min-width: 180px;
+}
+
+#tabla-inventario th:nth-child(5),
+#tabla-inventario td:nth-child(5) {
+  min-width: 200px;
 }
 
 .cell-notas {
