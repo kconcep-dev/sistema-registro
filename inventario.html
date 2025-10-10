@@ -197,7 +197,23 @@
             </div>
             <div class="form-group">
               <label for="input-departamento">Departamento</label>
-              <input id="input-departamento" name="departamento" type="text" placeholder="Departamento" autocomplete="off" />
+              <input
+                id="input-departamento"
+                name="departamento"
+                type="text"
+                placeholder="Departamento"
+                list="departamento-options"
+                autocomplete="off"
+              />
+              <datalist id="departamento-options"></datalist>
+              <input
+                id="input-departamento-custom"
+                class="departamento-custom-input"
+                type="text"
+                placeholder="Especifica el departamento"
+                autocomplete="off"
+                hidden
+              />
             </div>
             <div class="form-group ip-field-group">
               <label for="input-ip-octeto">Dirección IP</label>
