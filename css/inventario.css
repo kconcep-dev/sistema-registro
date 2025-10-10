@@ -327,7 +327,7 @@ html.dark-mode .btn-export:hover {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  min-width: 880px;
+  min-width: 1180px;
   border: 1px solid var(--inventario-table-border-color);
   border-radius: 14px;
   overflow: hidden;
@@ -340,6 +340,12 @@ html.dark-mode .btn-export:hover {
   border: 1px solid var(--inventario-table-border-color);
   vertical-align: middle;
   background-color: var(--card-bg-color);
+}
+
+.cell-notas {
+  max-width: 260px;
+  white-space: normal;
+  word-break: break-word;
 }
 
 #tabla-inventario tbody tr.inventory-row:hover > td {
@@ -742,6 +748,12 @@ html.dark-mode .stat-card {
   gap: 8px;
 }
 
+.form-group[hidden],
+.form-group-inline[hidden],
+.ip-details-container[hidden] {
+  display: none !important;
+}
+
 .form-group-inline {
   grid-column: 1 / -1;
   padding: 16px;
@@ -781,6 +793,10 @@ html.dark-mode .stat-card {
   display: contents;
 }
 
+.ip-details-container[hidden] {
+  display: none !important;
+}
+
 .ip-field-group input[readonly] {
   background-color: color-mix(in srgb, var(--border-color) 22%, var(--input-bg-color));
   cursor: not-allowed;
@@ -806,7 +822,7 @@ html.dark-mode .stat-card {
   }
 
   #tabla-inventario {
-    min-width: 880px;
+    min-width: 1180px;
   }
 }
 

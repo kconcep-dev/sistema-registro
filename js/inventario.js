@@ -863,22 +863,30 @@ document.addEventListener('DOMContentLoaded', async () => {
       const mainRow = document.createElement('tr');
       mainRow.dataset.id = record.id;
       mainRow.classList.add('inventory-row');
-      mainRow.setAttribute('data-expandable', 'true');
-      mainRow.setAttribute('aria-expanded', 'false');
-      mainRow.tabIndex = 0;
+      mainRow.tabIndex = -1;
       applyRowStateClass(mainRow, estadoValue);
 
       const dispositivoTd = createElement('td', 'cell-dispositivo', record.dispositivo || '—');
       const tipoTd = createElement('td', null, record.tipo ? record.tipo.toUpperCase() : '—');
       const departamentoTd = createElement('td', null, record.departamento || '—');
       const propietarioTd = createElement('td', null, record.propietario || '—');
+      const usuarioTd = createElement('td', null, record.usuario || '—');
       const ipTd = createElement('td', null, hasIp ? record.ip : NO_IP_LABEL);
+      const mascaraTd = createElement('td', null, hasIp ? record.mascara || '—' : '—');
+      const gatewayTd = createElement('td', null, hasIp ? record.gateway || '—' : '—');
+      const dns1Td = createElement('td', null, hasIp ? record.dns1 || '—' : '—');
+      const dns2Td = createElement('td', null, hasIp ? record.dns2 || '—' : '—');
 
       const estadoTd = document.createElement('td');
       estadoTd.classList.add('estado-cell');
       const estadoPill = createElement('span', `estado-pill estado-pill--${estadoValue}`);
       estadoPill.textContent = STATE_LABELS[estadoValue] || estadoValue;
       estadoTd.appendChild(estadoPill);
+
+      const notasTd = createElement('td', 'cell-notas', record.notas ? record.notas : '—');
+      if (record.notas) {
+        notasTd.title = record.notas;
+      }
 
       const accionesTd = document.createElement('td');
       accionesTd.classList.add('acciones-cell');
@@ -914,26 +922,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         tipoTd,
         departamentoTd,
         propietarioTd,
+        usuarioTd,
         ipTd,
+        mascaraTd,
+        gatewayTd,
+        dns1Td,
+        dns2Td,
         estadoTd,
+        notasTd,
         accionesTd
       );
-
-      const detailRow = document.createElement('tr');
-      detailRow.dataset.id = record.id;
-      detailRow.classList.add('inventory-row-details');
-      applyRowStateClass(detailRow, estadoValue);
-      detailRow.hidden = true;
-      detailRow.setAttribute('aria-hidden', 'true');
-
-      const detailTd = document.createElement('td');
-      detailTd.colSpan = mainRow.children.length;
-      const detailGrid = createElement('div', 'row-detail-grid');
 
       const detailItems = [];
 
       if (hasIp) {
         detailItems.push(
+          { label: 'Dirección IP', value: record.ip || NO_IP_LABEL },
           { label: 'Máscara', value: record.mascara || '—' },
           { label: 'Gateway', value: record.gateway || '—' },
           { label: 'DNS 1', value: record.dns1 || '—' },
@@ -941,23 +945,49 @@ document.addEventListener('DOMContentLoaded', async () => {
         );
       }
 
-      detailItems.push(
-        { label: 'Usuario', value: record.usuario || '—' },
-        { label: 'Notas', value: record.notas || '—' }
-      );
+      if (record.propietario) {
+        detailItems.push({ label: 'Propietario', value: record.propietario });
+      }
+      if (record.usuario) {
+        detailItems.push({ label: 'Usuario', value: record.usuario });
+      }
+      if (record.notas) {
+        detailItems.push({ label: 'Notas', value: record.notas });
+      }
 
-      detailItems.forEach(({ label, value }) => {
-        const item = createElement('div', 'row-detail-item');
-        const itemLabel = createElement('span', 'row-detail-label', label);
-        const itemValue = createElement('span', 'row-detail-value', value);
-        item.append(itemLabel, itemValue);
-        detailGrid.appendChild(item);
-      });
+      if (detailItems.length) {
+        mainRow.setAttribute('data-expandable', 'true');
+        mainRow.setAttribute('aria-expanded', 'false');
+        mainRow.tabIndex = 0;
 
-      detailTd.appendChild(detailGrid);
-      detailRow.appendChild(detailTd);
+        const detailRow = document.createElement('tr');
+        detailRow.dataset.id = record.id;
+        detailRow.classList.add('inventory-row-details');
+        applyRowStateClass(detailRow, estadoValue);
+        detailRow.hidden = true;
+        detailRow.setAttribute('aria-hidden', 'true');
 
-      tablaBody.append(mainRow, detailRow);
+        const detailTd = document.createElement('td');
+        detailTd.colSpan = mainRow.children.length;
+        const detailGrid = createElement('div', 'row-detail-grid');
+
+        detailItems.forEach(({ label, value }) => {
+          const item = createElement('div', 'row-detail-item');
+          const itemLabel = createElement('span', 'row-detail-label', label);
+          const itemValue = createElement('span', 'row-detail-value', value);
+          item.append(itemLabel, itemValue);
+          detailGrid.appendChild(item);
+        });
+
+        detailTd.appendChild(detailGrid);
+        detailRow.appendChild(detailTd);
+        tablaBody.append(mainRow, detailRow);
+      } else {
+        mainRow.removeAttribute('data-expandable');
+        mainRow.removeAttribute('aria-expanded');
+        mainRow.tabIndex = -1;
+        tablaBody.appendChild(mainRow);
+      }
     });
 
     updateSortIndicators();
@@ -965,6 +995,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function toggleRowDetails(row) {
     if (!row || !row.classList.contains('inventory-row')) return;
+    if (row.dataset.expandable !== 'true') return;
     const detailsRow = row.nextElementSibling;
     if (!(detailsRow instanceof HTMLTableRowElement) || !detailsRow.classList.contains('inventory-row-details')) {
       return;

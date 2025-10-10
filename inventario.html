@@ -131,8 +131,14 @@
                 <th scope="col" data-sort="tipo">Tipo</th>
                 <th scope="col" data-sort="departamento">Departamento</th>
                 <th scope="col" data-sort="propietario">Propietario</th>
+                <th scope="col" data-sort="usuario">Usuario</th>
                 <th scope="col" data-sort="ip">Dirección IP</th>
+                <th scope="col" data-sort="mascara">Máscara</th>
+                <th scope="col" data-sort="gateway">Gateway</th>
+                <th scope="col" data-sort="dns1">DNS 1</th>
+                <th scope="col" data-sort="dns2">DNS 2</th>
                 <th scope="col" data-sort="estado">Estado</th>
+                <th scope="col" data-sort="notas">Notas</th>
                 <th scope="col" class="acciones">Acciones</th>
               </tr>
             </thead>
@@ -218,6 +224,10 @@
               <label for="input-propietario">Propietario</label>
               <input id="input-propietario" name="propietario" type="text" placeholder="Nombre del propietario" autocomplete="off" />
             </div>
+            <div class="form-group">
+              <label for="input-usuario">Usuario</label>
+              <input id="input-usuario" name="usuario" type="text" placeholder="Usuario asignado" autocomplete="off" />
+            </div>
             <fieldset class="form-group form-group-inline" role="radiogroup" aria-labelledby="label-tiene-ip">
               <legend id="label-tiene-ip">¿Tiene dirección IP?</legend>
               <div class="radio-group">
@@ -235,10 +245,6 @@
               <label for="input-ip">Dirección IP</label>
               <input id="input-ip" name="ip" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej. 10.106.113.25" />
               <div id="available-ip-list" class="available-ip-dropdown" hidden></div>
-            </div>
-            <div class="form-group">
-              <label for="input-usuario">Usuario</label>
-              <input id="input-usuario" name="usuario" type="text" placeholder="Usuario asignado" autocomplete="off" />
             </div>
             <div id="ip-details-container" class="ip-details-container">
               <div class="form-group">
@@ -258,10 +264,6 @@
                 <input id="input-dns2" name="dns2" type="text" />
               </div>
             </div>
-            <div class="form-group form-group-full">
-              <label for="input-notas">Notas</label>
-              <textarea id="input-notas" name="notas" rows="3" placeholder="Comentarios adicionales"></textarea>
-            </div>
             <div class="form-group" id="estado-field-group">
               <label for="input-estado">Estado</label>
               <select id="input-estado" name="estado">
@@ -269,6 +271,10 @@
                 <option value="asignada">Asignada</option>
                 <option value="en_revision">En revisión</option>
               </select>
+            </div>
+            <div class="form-group form-group-full">
+              <label for="input-notas">Notas</label>
+              <textarea id="input-notas" name="notas" rows="3" placeholder="Comentarios adicionales"></textarea>
             </div>
           </div>
           <div class="modal-buttons">
