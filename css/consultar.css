@@ -1,7 +1,6 @@
 /* --- 1) Estructura Principal y Pestañas --- */
 .container {
-  width: min(100%, var(--layout-max-width-wide));
-  margin: 0 auto;
+  max-width: 100%; /* contenedor ancho para tablas */
 }
 
 /* Píldora de pestañas centrada (similar a la barra de navegación) */
@@ -9,10 +8,10 @@
   display: flex;
   width: -moz-fit-content;       /* Firefox */
   width: fit-content;            /* resto */
-  margin: 0 auto clamp(24px, 4vh, 40px);           /* centra horizontal */
+  margin: 0 auto 25px;           /* centra horizontal */
   align-items: center;
-  gap: clamp(10px, 1.2vw, 18px);
-  padding: clamp(6px, 1vw, 12px);
+  gap: 10px;
+  padding: 6px;
   background-color: var(--card-bg-color);
   border-radius: var(--button-radius);
   box-shadow: 0 0 0 1px rgba(0,0,0,0.25);
@@ -23,18 +22,18 @@ html.dark-mode .tabs-nav{
 
 /* Botones de pestaña dentro de la cápsula */
 .tab-btn {
-  padding: clamp(10px, 1.2vw, 16px) clamp(18px, 2.5vw, 28px);
+  padding: 10px 18px;
   border: none;
   background: transparent;
   color: var(--text-color);
-  font-size: clamp(1rem, 0.98rem + 0.12vw, 1.2rem);
+  font-size: 1.05rem;
   font-weight: 600;
   cursor: pointer;
   border-radius: var(--button-radius);
   transition: background-color .2s ease, color .2s ease, transform .1s ease;
   display: inline-flex;
   align-items: center;
-  gap: var(--button-gap);
+  gap: 0.5rem;
 }
 .tab-btn .label-short {
   display: none;
@@ -75,12 +74,12 @@ html.dark-mode .tabs-nav{
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: clamp(12px, 2vw, 24px);
-  margin-bottom: clamp(24px, 4vh, 40px);
-  padding: clamp(16px, 2.2vw, 28px);
+  gap: 12px;
+  margin-bottom: 25px;
+  padding: 14px;
   background-color: var(--card-bg-color);
-  border-radius: var(--surface-radius);
-  box-shadow: 0 6px 18px var(--shadow-color);
+  border-radius: var(--button-radius);
+  box-shadow: 0 2px 10px var(--shadow-color);
 }
 
 .controls-area:not([data-controls]) .count-pill {
@@ -91,14 +90,14 @@ html.dark-mode .tabs-nav{
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--button-gap);
-  min-height: clamp(40px, 3.5vh, 52px);
-  padding: 0 clamp(16px, 2vw, 24px);
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 16px;
   border-radius: var(--button-radius);
   background-color: color-mix(in srgb, var(--primary-color) 15%, transparent);
   color: var(--primary-color);
   font-weight: 600;
-  font-size: clamp(0.95rem, 0.92rem + 0.12vw, 1.1rem);
+  font-size: 0.95rem;
   white-space: nowrap;
 }
 
@@ -109,8 +108,8 @@ html.dark-mode .count-pill {
 
 /* Inputs principales */
 .controls-area input[type="search"] {
-  height: var(--form-element-height);
-  padding: 0 clamp(14px, 2vw, 22px);
+  height: 42px;
+  padding: 0 14px;
   border: 1px solid var(--border-color);
   border-radius: var(--button-radius);
   background-color: var(--input-bg-color);
@@ -133,8 +132,8 @@ html.dark-mode .count-pill {
 
 /* Botón export con misma altura/cápsula */
 .btn-export{
-  height: var(--button-height);
-  padding: 0 clamp(16px, 2.2vw, 28px);
+  height: 42px;
+  padding: 0 16px;
   border-radius: var(--button-radius);
   background-color: var(--success-color);
   color: #fff;
@@ -144,7 +143,7 @@ html.dark-mode .count-pill {
   transition: background-color .2s;
   display: inline-flex;
   align-items: center;
-  gap: var(--button-gap);
+  gap: 0.5rem;
 }
 .btn-export:hover { background-color: #1f7b34; }
 html.dark-mode .btn-export:hover { background-color: #1a5d2a; }
@@ -165,7 +164,7 @@ html.dark-mode .controls-area input[type="search"]{
 .controls-area[data-controls] .controls-row {
   display: flex;
   align-items: center;
-  gap: clamp(12px, 2vw, 24px);
+  gap: 12px;
   flex-wrap: wrap;
 }
 
@@ -287,7 +286,7 @@ html.dark-mode .controls-area[data-controls] .search-toggle {
 .controls-area[data-controls] .filters-group {
   display: flex;
   align-items: center;
-  gap: clamp(10px, 1.6vw, 20px);
+  gap: 12px;
   flex: 0 0 auto;
   flex-wrap: wrap;
 }
@@ -297,11 +296,11 @@ html.dark-mode .controls-area[data-controls] .search-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(6px, 1vw, 12px);
-  height: var(--form-element-height);
-  min-height: var(--form-element-height);
+  gap: 8px;
+  height: 42px;
+  min-height: 42px;
   margin: 0;
-  padding: 0 clamp(18px, 2vw, 26px) 0 clamp(44px, 6vw, 58px);
+  padding: 0 16px 0 44px;
   border: 1px solid var(--border-color);
   border-radius: var(--button-radius);
   background-color: var(--input-bg-color);
@@ -330,9 +329,9 @@ html.dark-mode .controls-area[data-controls] .search-toggle {
 
 .controls-area .date-field[data-empty="true"] {
   padding: 0;
-  min-width: var(--form-element-height);
-  width: var(--form-element-height);
-  height: var(--form-element-height);
+  min-width: 42px;
+  width: 42px;
+  height: 42px;
   aspect-ratio: 1;
   box-shadow: 0 2px 4px color-mix(in srgb, var(--shadow-color) 45%, transparent);
 }
@@ -350,10 +349,10 @@ html.dark-mode .controls-area[data-controls] .search-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(6px, 1vw, 12px);
+  gap: 8px;
   pointer-events: none;
   color: inherit;
-  font-size: var(--font-size-small);
+  font-size: 0.9rem;
   font-weight: 600;
   white-space: nowrap;
   position: relative;
@@ -544,8 +543,8 @@ html.dark-mode .controls-area .date-field {
   .controls-area[data-controls="equipos"] {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    column-gap: clamp(16px, 3vw, 28px);
-    row-gap: clamp(12px, 2vh, 20px);
+    column-gap: 16px;
+    row-gap: 12px;
     align-items: center;
   }
 
@@ -577,8 +576,8 @@ html.dark-mode .controls-area .date-field {
 
 /* Botón Agregar Equipo: estilo pill como Exportar */
 #btn-agregar-equipo{
-  height: var(--button-height);
-  padding: 0 clamp(18px, 2.4vw, 26px);
+  height: 42px;
+  padding: 0 16px;
   border-radius: var(--button-radius);
   background-color: var(--primary-color);
   color: #fff;
@@ -588,7 +587,7 @@ html.dark-mode .controls-area .date-field {
   transition: background-color .2s;
   display: inline-flex;
   align-items: center;
-  gap: var(--button-gap);                 /* espacio entre icono y texto */
+  gap: 8px;                 /* espacio entre icono y texto */
   box-shadow: 0 2px 6px var(--shadow-color);
 }
 
@@ -641,9 +640,9 @@ html.dark-mode .controls-area .date-field {
   position: relative;                 /* necesario para sticky right */
   overflow-x: auto;
   background-color: var(--card-bg-color);
-  padding: clamp(18px, 2.5vw, 28px);
-  border-radius: var(--surface-radius);
-  box-shadow: 0 6px 18px var(--shadow-color);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 /* Bordes visibles en tablas */
@@ -663,7 +662,7 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
 #table-visitantes th, #table-visitantes td,
 #table-descartes th, #table-descartes td,
 #table-equipos-sesion th, #table-equipos-sesion td {
-  padding: clamp(12px, 1.6vw, 18px) clamp(15px, 2vw, 22px);
+  padding: 12px 15px;
   text-align: left;
   border: 1px solid var(--table-border-color);
   white-space: nowrap;
@@ -674,7 +673,7 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
 #table-descartes th,
 #table-equipos-sesion th {
   background-color: var(--input-bg-color);
-  font-size: clamp(0.95rem, 0.9rem + 0.12vw, 1.1rem);
+  font-size: 0.9rem;
   font-weight: bold;
   position: sticky;
   top: 0;
@@ -692,7 +691,7 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(6px, 1vw, 12px);
+  gap: 8px;
 }
 .table-actions .button-label {
   display: none;
@@ -704,17 +703,17 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
 .btn-eliminar {
   border: none;
   padding: 0;
-  width: clamp(40px, 3vw, 48px);
-  height: clamp(40px, 3vw, 48px);
+  width: 40px;
+  height: 40px;
   border-radius: var(--button-radius);
   cursor: pointer;
-  font-size: clamp(0.85rem, 0.82rem + 0.08vw, 0.95rem);
+  font-size: 0.85rem;
   font-weight: 600;
   line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(4px, 0.8vw, 8px);
+  gap: 6px;
   color: #fff;
   box-shadow: 0 2px 6px var(--shadow-color);
   flex-shrink: 0;
@@ -765,12 +764,12 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
 
 .detalle-header {
   background-color: var(--card-bg-color);
-  padding: clamp(18px, 2.2vw, 28px);
-  border-radius: var(--surface-radius);
-  box-shadow: 0 6px 18px var(--shadow-color);
-  margin-bottom: clamp(18px, 3vh, 32px);
+  padding: 18px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px var(--shadow-color);
+  margin-bottom: 18px;
   display: grid;
-  gap: clamp(14px, 2vw, 24px);
+  gap: 16px;
 }
 
 /* Título limpio */
@@ -783,19 +782,19 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
 .detalle-info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: clamp(12px, 2vw, 24px);
+  gap: 12px;
   align-items: stretch;
 }
 
 .detalle-card {
   position: relative;
-  padding: clamp(16px, 2.2vw, 26px);
-  border-radius: var(--surface-radius);
+  padding: 16px 18px;
+  border-radius: 14px;
   background: linear-gradient(135deg, color-mix(in srgb, var(--primary-color) 12%, transparent) 0%, var(--card-bg-color) 55%);
   box-shadow: 0 6px 18px color-mix(in srgb, var(--shadow-color) 70%, transparent);
   display: flex;
   flex-direction: column;
-  gap: clamp(6px, 1.2vw, 12px);
+  gap: 6px;
   min-height: 100%;
 }
 
@@ -803,7 +802,7 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: var(--surface-radius);
+  border-radius: 14px;
   background: radial-gradient(circle at top right, color-mix(in srgb, var(--primary-color) 25%, transparent) 0%, transparent 55%);
   opacity: 0.5;
   pointer-events: none;
@@ -813,14 +812,14 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: var(--surface-radius);
+  border-radius: 14px;
   border: 1px solid color-mix(in srgb, var(--primary-color) 15%, transparent);
   pointer-events: none;
 }
 
 .detalle-card-label {
   margin: 0;
-  font-size: clamp(0.75rem, 0.7rem + 0.12vw, 0.85rem);
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--text-color) 55%, transparent);
@@ -829,7 +828,7 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
 
 .detalle-card-value {
   margin: 0;
-  font-size: clamp(1.05rem, 1rem + 0.2vw, 1.3rem);
+  font-size: 1.1rem;
   color: var(--text-color);
   font-weight: 600;
   word-break: break-word;
@@ -880,12 +879,12 @@ html.dark-mode .detalle-card-value {
 
 .detalle-observacion {
   margin-top: 0px;
-  padding: clamp(14px, 2vw, 22px);
+  padding: 12px 16px;
   background-color: var(--card-bg-color);
-  border-radius: var(--surface-radius);
-  box-shadow: 0 6px 18px var(--shadow-color);
+  border-radius: 10px;
+  box-shadow: 0 4px 12px var(--shadow-color);
   color: var(--text-color);
-  font-size: clamp(0.95rem, 0.92rem + 0.12vw, 1.1rem);
+  font-size: 0.95rem;
   line-height: 1.5;
 }
 

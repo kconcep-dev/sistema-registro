@@ -1,13 +1,12 @@
 /* --- Estilos de la Página de Registro --- */
 
 /* Aplica el estilo de "cápsula" a la sección del QR y al formulario */
-#qr-section,
-#registro-form {
+#qr-section, #registro-form {
     background-color: var(--card-bg-color);
-    padding: var(--surface-padding);
-    border-radius: var(--surface-radius);
-    box-shadow: 0 4px 18px var(--shadow-color);
-    margin-bottom: clamp(20px, 3vh, 32px);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    margin-bottom: 20px;
 }
 
 #registro-form {
@@ -17,48 +16,46 @@
 
 /* Estilo para el texto de ayuda debajo del título de la sección */
 .section-subtitle {
-    font-size: var(--font-size-small);
+    font-size: 0.9rem;
     color: var(--border-color);
     text-align: center;
-    margin: clamp(8px, 1.5vh, 14px) 0 clamp(18px, 3vh, 28px);
-    line-height: 1.5;
+    margin-top: -10px;
+    margin-bottom: 20px;
 }
 
 /* Estilo base para los botones principales de la página */
 .btn-principal {
     width: 100%;
-    min-height: var(--button-height);
-    padding: 0 clamp(18px, 3vw, 26px);
-    margin-top: clamp(18px, 2.5vh, 28px);
+    padding: 12px 20px;
+    margin-top: 20px;
     background-color: var(--primary-color);
     color: white;
     border: none;
     border-radius: var(--button-radius);
     cursor: pointer;
-    font-size: clamp(1rem, 0.95rem + 0.15vw, 1.15rem);
+    font-size: 1.1rem;
     font-weight: bold;
-    transition: background-color 0.2s, transform 0.2s ease;
+    transition: background-color 0.2s;
     text-align: center;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--button-gap);
+    gap: 0.5rem;
     text-decoration: none;
 }
 
 .btn-principal:hover {
     background-color: var(--primary-hover-color);
-    transform: translateY(-1px);
 }
 
 /* Estilo para mostrar el nombre del archivo seleccionado */
 .file-name-display {
     display: block;
-    margin-top: clamp(14px, 2vh, 20px);
-    font-size: var(--font-size-small);
+    margin-top: 15px;
+    font-size: 0.9em;
     color: var(--text-color);
     text-align: center;
-    padding: clamp(8px, 1.2vw, 12px);
+    padding: 8px;
     border: 1px dashed var(--border-color);
     border-radius: 4px;
     background-color: var(--input-bg-color);
@@ -70,22 +67,22 @@
     color: var(--input-text-color);
     border: 1px solid var(--border-color);
     border-radius: 6px;
-    padding: clamp(12px, 1.6vw, 18px);
-    margin-top: clamp(14px, 2vh, 20px);
-    font-size: var(--font-size-small);
+    padding: 10px;
+    margin-top: 15px;
+    font-size: 0.85rem;
     white-space: pre-wrap;
     word-wrap: break-word;
-    min-height: clamp(60px, 12vh, 120px);
+    min-height: 60px;
     overflow-y: auto;
 }
 
 .card-ultimo-visitante {
     background-color: var(--card-bg-color);
     border-left: 5px solid var(--primary-color);
-    padding: var(--surface-padding);
-    border-radius: var(--surface-radius);
-    margin-top: clamp(24px, 3vh, 36px);
-    box-shadow: 0 4px 18px var(--shadow-color);
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-top: 25px;
+    box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .card-ultimo-visitante h4 {
@@ -95,25 +92,29 @@
 }
 
 .card-ultimo-visitante p {
-    margin: clamp(6px, 1vh, 12px) 0;
+    margin: 8px 0;
 }
 
 /* --- Responsivo --- */
 @media (min-width: 768px) {
     .container {
-        max-width: var(--layout-max-width-wide);
+        max-width: 1000px;
     }
-
     .layout-wrapper {
         display: flex;
-        gap: clamp(28px, 3.2vw, 48px);
+        gap: 25px;
         align-items: flex-start;
     }
-
-    #qr-section,
-    #registro-form {
+    #qr-section, #registro-form {
         flex: 1;
         margin-bottom: 0;
+    }
+}
+
+/* --- Estilos solo para Escritorio --- */
+@media (min-width: 768px) {
+    #main-content {
+        padding-top: 50px;
     }
 }
 
