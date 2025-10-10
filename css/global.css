@@ -13,26 +13,26 @@
     --error-color: #DC3545;
     --button-radius: 999px;
 
-    --layout-max-width-narrow: clamp(640px, 68vw, 880px);
-    --layout-max-width: clamp(880px, 74vw, 1160px);
-    --layout-max-width-wide: clamp(1040px, 80vw, 1320px);
-    --layout-padding-inline: clamp(20px, 5vw, 72px);
-    --layout-padding-block-start: clamp(72px, 12vh, 140px);
-    --layout-padding-block-end: clamp(56px, 10vh, 128px);
-    --layout-section-gap: clamp(24px, 6vh, 56px);
-    --surface-padding: clamp(22px, 2.6vw, 36px);
+    --layout-max-width-narrow: clamp(600px, 64vw, 880px);
+    --layout-max-width: clamp(820px, 70vw, 1120px);
+    --layout-max-width-wide: clamp(980px, 76vw, 1280px);
+    --layout-padding-inline: clamp(16px, calc(12px + 2vw), 56px);
+    --layout-padding-block-start: clamp(56px, calc(40px + 6vh), 120px);
+    --layout-padding-block-end: clamp(48px, calc(32px + 5vh), 112px);
+    --layout-section-gap: clamp(20px, calc(16px + 2vh), 48px);
+    --surface-padding: clamp(18px, calc(14px + 1.4vw), 32px);
     --surface-radius: 18px;
-    --surface-gap: clamp(18px, 2.8vw, 32px);
-    --font-size-base: clamp(0.96rem, 0.92rem + 0.2vw, 1.08rem);
-    --font-size-small: clamp(0.85rem, 0.82rem + 0.12vw, 0.96rem);
-    --font-size-large: clamp(1.2rem, 1.05rem + 0.8vw, 2rem);
-    --heading-1: clamp(2rem, 1.6rem + 1.8vw, 3.2rem);
-    --heading-2: clamp(1.45rem, 1.2rem + 1vw, 2.2rem);
-    --heading-3: clamp(1.25rem, 1.1rem + 0.6vw, 1.8rem);
-    --form-element-height: clamp(44px, 3.6vh, 56px);
-    --form-element-padding-inline: clamp(12px, 1.5vw, 18px);
-    --button-height: clamp(44px, 3.8vh, 56px);
-    --button-gap: clamp(0.4rem, 0.3rem + 0.3vw, 0.75rem);
+    --surface-gap: clamp(14px, calc(12px + 1.2vw), 26px);
+    --font-size-base: clamp(0.94rem, calc(0.9rem + 0.12vw), 1.04rem);
+    --font-size-small: clamp(0.82rem, calc(0.78rem + 0.08vw), 0.92rem);
+    --font-size-large: clamp(1.1rem, calc(1rem + 0.6vw), 1.8rem);
+    --heading-1: clamp(1.8rem, calc(1.4rem + 1.4vw), 3rem);
+    --heading-2: clamp(1.35rem, calc(1.1rem + 0.9vw), 2rem);
+    --heading-3: clamp(1.18rem, calc(1.05rem + 0.5vw), 1.6rem);
+    --form-element-height: clamp(40px, calc(30px + 2.4vh), 52px);
+    --form-element-padding-inline: clamp(12px, calc(10px + 1vw), 18px);
+    --button-height: clamp(40px, calc(30px + 2.6vh), 54px);
+    --button-gap: clamp(0.35rem, calc(0.32rem + 0.2vw), 0.65rem);
 }
 
 html.dark-mode {
@@ -491,6 +491,23 @@ html.dark-mode .theme-btn {
     #logout-btn {
         width: 45px;
         height: 45px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1440px) {
+    .nav-container {
+        max-width: min(1100px, calc(100% - 32px));
+    }
+
+    .nav-link {
+        font-size: 0.95rem;
+        padding: 8px 20px;
+    }
+
+    #theme-toggle.theme-btn,
+    #logout-btn {
+        width: 40px;
+        height: 40px;
     }
 }
 
