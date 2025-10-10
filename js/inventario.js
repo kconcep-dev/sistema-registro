@@ -38,7 +38,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const tipoSelect = document.getElementById('input-tipo');
   const tipoCustomInput = document.getElementById('input-tipo-custom');
   const departamentoInput = document.getElementById('input-departamento');
-  const departamentoDatalist = document.getElementById('departamento-options');
   const departamentoCustomInput = document.getElementById('input-departamento-custom');
   const ipOctetoInput = document.getElementById('input-ip-octeto');
   const mascaraInput = document.getElementById('input-mascara');
@@ -83,15 +82,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const PREDEFINED_TIPOS = ['pc', 'router', 'impresora', 'switch'];
   const PREDEFINED_DEPARTAMENTOS = [
-    'Administración',
-    'Finanzas',
-    'Operaciones',
-    'Recursos Humanos',
-    'Sistemas',
-    'Logística'
+    'Arte y Cultura',
+    'Compras',
+    'Contabilidad',
+    'Dirección',
+    'Estadística',
+    'FECE',
+    'Fondo Agropecuario',
+    'Ingeniería',
+    'Mantenimiento',
+    'RR. HH.',
+    'SIACE',
+    'Soporte Técnico',
+    'Subdirección',
+    'Supervición'
   ];
 
   const DIACRITICS_REGEX = /[\u0300-\u036f]/g;
+
+  const OTHER_DEPARTMENT_VALUE = '__other__';
 
   let departmentOptionsMap = new Map();
   let departmentOptions = [...PREDEFINED_DEPARTAMENTOS];
@@ -206,6 +215,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function activateCustomDepartamentoInput(value = '', { focus = false } = {}) {
     if (!departamentoCustomInput) return;
+    if (departamentoInput) {
+      departamentoInput.value = OTHER_DEPARTMENT_VALUE;
+    }
     departamentoCustomInput.hidden = false;
     departamentoCustomInput.value = value;
     if (focus) {
@@ -249,6 +261,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     return departmentOptionsMap.get(key) || '';
   }
 
+  function setDepartamentoSelectValue(selectEl, value) {
+    if (!selectEl) return false;
+    const targetKey = createDepartmentKey(value);
+    if (!targetKey) {
+      selectEl.value = '';
+      return false;
+    }
+
+    const option = Array.from(selectEl.options || []).find(
+      (opt) => createDepartmentKey(opt.value) === targetKey
+    );
+
+    if (option) {
+      selectEl.value = option.value;
+      return true;
+    }
+
+    return false;
+  }
+
   function setDepartamentoFieldValue(value) {
     if (!departamentoInput) return;
     const normalizedValue = normalizeDepartment(value);
@@ -260,77 +292,116 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const match = findDepartmentMatch(normalizedValue);
-    if (match) {
-      departamentoInput.value = match;
+    if (match && setDepartamentoSelectValue(departamentoInput, match)) {
       deactivateCustomDepartamentoInput();
       return;
     }
 
-    departamentoInput.value = '';
+    departamentoInput.value = OTHER_DEPARTMENT_VALUE;
     activateCustomDepartamentoInput(normalizedValue, { focus: false });
   }
 
   function resolveDepartamentoValue({ requireMatch = false } = {}) {
     const isCustomActive = isCustomDepartamentoInputActive();
-    const sourceInput = isCustomActive ? departamentoCustomInput : departamentoInput;
-    const value = normalizeDepartment(sourceInput?.value || '');
 
     if (isCustomActive) {
+      const value = normalizeDepartment(departamentoCustomInput?.value || '');
+      if (requireMatch && !value) {
+        throw new Error('Selecciona un departamento de la lista o usa "Otro" para añadir uno nuevo.');
+      }
       return { value, isCustom: true, isFromList: false };
     }
 
-    if (!value) {
+    if (!departamentoInput) {
       return { value: '', isCustom: false, isFromList: false };
     }
 
-    const match = findDepartmentMatch(value);
+    const selectedValue = departamentoInput.value;
+
+    if (!selectedValue) {
+      return { value: '', isCustom: false, isFromList: false };
+    }
+
+    if (selectedValue === OTHER_DEPARTMENT_VALUE) {
+      const customValue = normalizeDepartment(departamentoCustomInput?.value || '');
+      if (requireMatch && !customValue) {
+        throw new Error('Selecciona un departamento de la lista o usa "Otro" para añadir uno nuevo.');
+      }
+      return { value: customValue, isCustom: true, isFromList: false };
+    }
+
+    const match = findDepartmentMatch(selectedValue);
     if (match) {
       return { value: match, isCustom: false, isFromList: true };
     }
 
-    if (requireMatch && value) {
+    if (requireMatch) {
       throw new Error('Selecciona un departamento de la lista o usa "Otro" para añadir uno nuevo.');
     }
 
-    return { value, isCustom: false, isFromList: false };
+    return { value: normalizeDepartment(selectedValue), isCustom: false, isFromList: false };
   }
 
   function handleDepartamentoInputChange() {
     if (!departamentoInput) return;
-    const value = normalizeDepartment(departamentoInput.value);
+    const { value } = departamentoInput;
 
     if (!value) {
       deactivateCustomDepartamentoInput(false);
       return;
     }
 
-    if (value.toLowerCase() === 'otro') {
-      departamentoInput.value = '';
+    if (value === OTHER_DEPARTMENT_VALUE) {
       activateCustomDepartamentoInput('', { focus: true });
       return;
     }
 
     const match = findDepartmentMatch(value);
     if (match) {
-      departamentoInput.value = match;
+      setDepartamentoSelectValue(departamentoInput, match);
     }
 
     deactivateCustomDepartamentoInput(false);
   }
 
   function updateDepartamentoFormOptions(options = departmentOptions) {
-    if (!departamentoDatalist) return;
+    if (!departamentoInput) return;
 
-    departamentoDatalist.innerHTML = '';
+    const previousValue = departamentoInput.value;
+    const previousCustomValue = departamentoCustomInput?.value || '';
+
+    departamentoInput.innerHTML = '';
+
+    const placeholderOption = document.createElement('option');
+    placeholderOption.value = '';
+    placeholderOption.textContent = 'Selecciona un departamento';
+    departamentoInput.appendChild(placeholderOption);
+
     options.forEach((dept) => {
       const option = document.createElement('option');
       option.value = dept;
-      departamentoDatalist.appendChild(option);
+      option.textContent = dept;
+      departamentoInput.appendChild(option);
     });
 
     const otherOption = document.createElement('option');
-    otherOption.value = 'Otro';
-    departamentoDatalist.appendChild(otherOption);
+    otherOption.value = OTHER_DEPARTMENT_VALUE;
+    otherOption.textContent = 'Otro';
+    departamentoInput.appendChild(otherOption);
+
+    if (previousValue === OTHER_DEPARTMENT_VALUE) {
+      departamentoInput.value = OTHER_DEPARTMENT_VALUE;
+      if (previousCustomValue) {
+        activateCustomDepartamentoInput(previousCustomValue, { focus: false });
+      }
+      return;
+    }
+
+    if (previousValue) {
+      if (!setDepartamentoSelectValue(departamentoInput, previousValue)) {
+        departamentoInput.value = '';
+      }
+    }
   }
 
   async function ensureSession() {
@@ -1133,13 +1204,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     formIp?.addEventListener('submit', handleFormSubmit);
     estadoInput?.addEventListener('change', applyEstadoRules);
     tipoSelect?.addEventListener('change', handleTipoSelectChange);
-    departamentoInput?.addEventListener('input', handleDepartamentoInputChange);
     departamentoInput?.addEventListener('change', handleDepartamentoInputChange);
-    departamentoInput?.addEventListener('focus', () => {
-      if (typeof departamentoInput.showPicker === 'function') {
-        departamentoInput.showPicker();
-      }
-    });
     departamentoCustomInput?.addEventListener('input', updateDepartamentoRequiredState);
 
     ipOctetoInput?.addEventListener('focus', () => {
