@@ -1141,7 +1141,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const propietario = propietarioInput?.value.trim() || '';
     const usuario = usuarioInput?.value.trim() || '';
 
-    let ip = NO_IP_LABEL;
+    let ip = null;
     let mascara = null;
     let gateway = null;
     let dns1 = null;
