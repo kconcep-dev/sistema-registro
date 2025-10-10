@@ -42,7 +42,7 @@ html.dark-mode #btn-toggle-totales.is-active {
   color: #fff;
 }
 
-#btn-nueva-ip {
+#btn-nuevo {
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -63,7 +63,8 @@ html.dark-mode #btn-toggle-totales.is-active {
 }
 
 :root {
-  --inventario-total-color: #334155;
+  --inventario-total-general-color: #1d4ed8;
+  --inventario-total-ip-color: #4338ca;
   --inventario-libre-color: #0f766e;
   --inventario-asignada-color: #b91c1c;
   --inventario-revision-color: #b45309;
@@ -71,7 +72,8 @@ html.dark-mode #btn-toggle-totales.is-active {
 }
 
 html.dark-mode {
-  --inventario-total-color: #94a3b8;
+  --inventario-total-general-color: #93c5fd;
+  --inventario-total-ip-color: #a5b4fc;
   --inventario-libre-color: #34d399;
   --inventario-asignada-color: #f87171;
   --inventario-revision-color: #fbbf24;
@@ -85,7 +87,7 @@ html.dark-mode {
 }
 
 .stat-card {
-  --stat-color: var(--inventario-total-color);
+  --stat-color: var(--inventario-total-general-color);
   background-color: color-mix(in srgb, var(--stat-color) 24%, var(--card-bg-color));
   border-radius: 16px;
   padding: 14px 16px;
@@ -108,8 +110,12 @@ html.dark-mode {
   color: color-mix(in srgb, var(--stat-color) 85%, var(--text-color));
 }
 
-.stat-card--total {
-  --stat-color: var(--inventario-total-color);
+.stat-card--total-general {
+  --stat-color: var(--inventario-total-general-color);
+}
+
+.stat-card--total-ip {
+  --stat-color: var(--inventario-total-ip-color);
 }
 
 .stat-card--libre {
@@ -321,7 +327,7 @@ html.dark-mode .btn-export:hover {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  min-width: 720px;
+  min-width: 880px;
   border: 1px solid var(--inventario-table-border-color);
   border-radius: 14px;
   overflow: hidden;
@@ -736,6 +742,50 @@ html.dark-mode .stat-card {
   gap: 8px;
 }
 
+.form-group-inline {
+  grid-column: 1 / -1;
+  padding: 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background-color: color-mix(in srgb, var(--card-bg-color) 92%, transparent);
+}
+
+.form-group-inline legend {
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0 8px;
+}
+
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+
+.radio-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.radio-option input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary-color);
+}
+
+.ip-details-container {
+  display: contents;
+}
+
+.ip-field-group input[readonly] {
+  background-color: color-mix(in srgb, var(--border-color) 22%, var(--input-bg-color));
+  cursor: not-allowed;
+}
+
 .form-group-full {
   grid-column: 1 / -1;
 }
@@ -756,7 +806,7 @@ html.dark-mode .stat-card {
   }
 
   #tabla-inventario {
-    min-width: 720px;
+    min-width: 880px;
   }
 }
 

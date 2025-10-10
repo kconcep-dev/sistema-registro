@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Inventario de IPs - Sistema de Registro</title>
+  <title>Inventario de Equipos - Sistema de Registro</title>
 
   <script>
     (function () {
@@ -29,25 +29,29 @@
     <div class="inventory-container">
       <header class="inventory-header">
         <div class="inventory-heading">
-          <h1>Inventario de IPs</h1>
-          <p class="page-description">Control y registro de direcciones IP estáticas de equipos y dispositivos</p>
+          <h1>Inventario de Equipos</h1>
+          <p class="page-description">Control y registro de equipos</p>
         </div>
         <div class="inventory-header-actions">
           <button id="btn-toggle-totales" class="btn-secondary button-with-icon btn-toggle-totales" type="button" aria-expanded="false">
             <span class="icon icon--sm icon-stats" aria-hidden="true"></span>
             <span class="button-label">Totales</span>
           </button>
-          <button id="btn-nueva-ip" class="btn-principal button-with-icon" type="button">
+          <button id="btn-nuevo" class="btn-principal button-with-icon" type="button">
             <span class="icon icon--sm icon-plus" aria-hidden="true"></span>
-            <span class="button-label">Nueva IP</span>
+            <span class="button-label">Nuevo</span>
           </button>
         </div>
       </header>
 
       <section class="stats-overview" aria-live="polite">
-        <article class="stat-card stat-card--total">
-          <span class="stat-label">Total de IPs</span>
-          <span id="stat-total" class="stat-value">0</span>
+        <article class="stat-card stat-card--total-general">
+          <span class="stat-label">Total</span>
+          <span id="stat-total-general" class="stat-value">0</span>
+        </article>
+        <article class="stat-card stat-card--total-ip">
+          <span class="stat-label">Total con IPs</span>
+          <span id="stat-total-ip" class="stat-value">0</span>
         </article>
         <article class="stat-card stat-card--libre">
           <span class="stat-label">Libres</span>
@@ -85,7 +89,7 @@
             <input
               id="filter-search"
               type="search"
-              placeholder="Buscar por dispositivo, RVE, IP o departamento"
+              placeholder="Buscar por dispositivo, RVE, IP, departamento o propietario"
               autocomplete="off"
             />
           </div>
@@ -126,6 +130,7 @@
                 <th scope="col" data-sort="dispositivo">Dispositivo</th>
                 <th scope="col" data-sort="tipo">Tipo</th>
                 <th scope="col" data-sort="departamento">Departamento</th>
+                <th scope="col" data-sort="propietario">Propietario</th>
                 <th scope="col" data-sort="ip">Dirección IP</th>
                 <th scope="col" data-sort="estado">Estado</th>
                 <th scope="col" class="acciones">Acciones</th>
@@ -168,7 +173,7 @@
       <button class="modal-close-btn" type="button" aria-label="Cerrar" data-close-modal>
         <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
       </button>
-      <h2 id="modal-ip-title">Nueva IP</h2>
+      <h2 id="modal-ip-title">Nuevo registro</h2>
       <div class="modal-form-container">
         <form id="form-ip">
           <div class="form-grid">
@@ -209,35 +214,55 @@
                 hidden
               />
             </div>
-            <div class="form-group ip-field-group">
-              <label for="input-ip-octeto">Dirección IP</label>
-              <div class="ip-input-wrapper">
-                <span class="ip-prefix" aria-hidden="true">10.106.113.</span>
-                <input id="input-ip-octeto" name="ip_octeto" type="number" min="0" max="254" inputmode="numeric" placeholder="0-254" />
+            <div class="form-group">
+              <label for="input-propietario">Propietario</label>
+              <input id="input-propietario" name="propietario" type="text" placeholder="Nombre del propietario" autocomplete="off" />
+            </div>
+            <fieldset class="form-group form-group-inline" role="radiogroup" aria-labelledby="label-tiene-ip">
+              <legend id="label-tiene-ip">¿Tiene dirección IP?</legend>
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input type="radio" name="tiene_ip" id="radio-tiene-ip-si" value="si" checked />
+                  <span>Sí</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="tiene_ip" id="radio-tiene-ip-no" value="no" />
+                  <span>No</span>
+                </label>
               </div>
+            </fieldset>
+            <div class="form-group ip-field-group">
+              <label for="input-ip">Dirección IP</label>
+              <input id="input-ip" name="ip" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej. 10.106.113.25" />
               <div id="available-ip-list" class="available-ip-dropdown" hidden></div>
             </div>
             <div class="form-group">
-              <label for="input-mascara">Máscara</label>
-              <input id="input-mascara" name="mascara" type="text" />
+              <label for="input-usuario">Usuario</label>
+              <input id="input-usuario" name="usuario" type="text" placeholder="Usuario asignado" autocomplete="off" />
             </div>
-            <div class="form-group">
-              <label for="input-gateway">Gateway</label>
-              <input id="input-gateway" name="gateway" type="text" />
-            </div>
-            <div class="form-group">
-              <label for="input-dns1">DNS 1</label>
-              <input id="input-dns1" name="dns1" type="text" />
-            </div>
-            <div class="form-group">
-              <label for="input-dns2">DNS 2</label>
-              <input id="input-dns2" name="dns2" type="text" />
+            <div id="ip-details-container" class="ip-details-container">
+              <div class="form-group">
+                <label for="input-mascara">Máscara</label>
+                <input id="input-mascara" name="mascara" type="text" />
+              </div>
+              <div class="form-group">
+                <label for="input-gateway">Gateway</label>
+                <input id="input-gateway" name="gateway" type="text" />
+              </div>
+              <div class="form-group">
+                <label for="input-dns1">DNS 1</label>
+                <input id="input-dns1" name="dns1" type="text" />
+              </div>
+              <div class="form-group">
+                <label for="input-dns2">DNS 2</label>
+                <input id="input-dns2" name="dns2" type="text" />
+              </div>
             </div>
             <div class="form-group form-group-full">
               <label for="input-notas">Notas</label>
               <textarea id="input-notas" name="notas" rows="3" placeholder="Comentarios adicionales"></textarea>
             </div>
-            <div class="form-group">
+            <div class="form-group" id="estado-field-group">
               <label for="input-estado">Estado</label>
               <select id="input-estado" name="estado">
                 <option value="libre">Libre</option>

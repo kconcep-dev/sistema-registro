@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const departamentoSelect = document.getElementById('filter-departamento');
   const actualizarBtn = document.getElementById('btn-actualizar');
   const exportarBtn = document.getElementById('btn-exportar');
-  const nuevaIpBtn = document.getElementById('btn-nueva-ip');
+  const nuevoBtn = document.getElementById('btn-nuevo');
   const totalsToggleBtn = document.getElementById('btn-toggle-totales');
   const inventoryContainerEl = document.querySelector('.inventory-container');
   const statsOverviewSection = document.querySelector('.stats-overview');
@@ -19,7 +19,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const tableHeaders = document.querySelectorAll('#tabla-inventario thead th[data-sort]');
   const emptyState = document.getElementById('empty-state');
 
-  const statTotal = document.getElementById('stat-total');
+  const statTotalGeneral = document.getElementById('stat-total-general');
+  const statTotalIp = document.getElementById('stat-total-ip');
   const statLibres = document.getElementById('stat-libres');
   const statAsignadas = document.getElementById('stat-asignadas');
   const statRevision = document.getElementById('stat-revision');
@@ -39,13 +40,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   const tipoCustomInput = document.getElementById('input-tipo-custom');
   const departamentoInput = document.getElementById('input-departamento');
   const departamentoCustomInput = document.getElementById('input-departamento-custom');
-  const ipOctetoInput = document.getElementById('input-ip-octeto');
+  const ipInput = document.getElementById('input-ip');
   const mascaraInput = document.getElementById('input-mascara');
   const gatewayInput = document.getElementById('input-gateway');
   const dns1Input = document.getElementById('input-dns1');
   const dns2Input = document.getElementById('input-dns2');
   const notasInput = document.getElementById('input-notas');
   const estadoInput = document.getElementById('input-estado');
+  const propietarioInput = document.getElementById('input-propietario');
+  const usuarioInput = document.getElementById('input-usuario');
+  const tieneIpRadios = document.querySelectorAll('input[name="tiene_ip"]');
+  const ipDetailsContainer = document.getElementById('ip-details-container');
+  const estadoFieldGroup = document.getElementById('estado-field-group');
   const availableIpList = document.getElementById('available-ip-list');
 
   const confirmModal = document.getElementById('modal-confirmacion');
@@ -53,6 +59,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const confirmCancelBtn = document.getElementById('btn-confirmar-cancelar');
 
   const IP_PREFIX = '10.106.113.';
+  const NO_IP_LABEL = 'Sin Dirección IP';
+  const NO_IP_LABEL_LOWER = NO_IP_LABEL.toLowerCase();
   const LAST_OCTET_MIN = 0;
   const LAST_OCTET_MAX = 254;
 
@@ -110,8 +118,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     tipo: null,
     departamento: '',
     notas: '',
+    propietario: '',
+    usuario: '',
     asignado_por: null
   };
+
+  function hasIpValue(value) {
+    if (!value) return false;
+    return String(value).toLowerCase() !== NO_IP_LABEL_LOWER;
+  }
 
   function isPredefinedTipo(value) {
     if (!value) return false;
@@ -546,6 +561,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     deactivateCustomTipoInput();
     deactivateCustomDepartamentoInput();
     hideAvailableIpList();
+    setTieneIpState(true, { preserveValue: false });
   }
 
   function openModal({ mode = 'create', record = null } = {}) {
@@ -555,30 +571,45 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.body.classList.add('modal-open');
 
     selectedFreeRecordId = null;
-    ipOctetoInput.disabled = mode === 'edit';
-    availableIpList.hidden = mode === 'edit';
+    hideAvailableIpList();
 
     if (mode === 'edit' && record) {
       isEditing = true;
       editingId = record.id;
-      modalTitle.textContent = 'Editar IP';
+      modalTitle.textContent = 'Editar registro';
 
       dispositivoInput.value = record.dispositivo ?? '';
       setTipoSelectValue(record.tipo ?? '');
       setDepartamentoFieldValue(record.departamento ?? '');
       estadoInput.value = record.estado ?? 'libre';
       notasInput.value = record.notas ?? '';
-      mascaraInput.value = record.mascara ?? DEFAULTS.mascara;
-      gatewayInput.value = record.gateway ?? DEFAULTS.gateway;
-      dns1Input.value = record.dns1 ?? DEFAULTS.dns1;
-      dns2Input.value = record.dns2 ?? DEFAULTS.dns2;
+      if (propietarioInput) propietarioInput.value = record.propietario ?? '';
+      if (usuarioInput) usuarioInput.value = record.usuario ?? '';
 
-      const lastOctet = extractLastOctet(record.ip);
-      ipOctetoInput.value = Number.isFinite(lastOctet) ? lastOctet : '';
+      const hasIp = hasIpValue(record.ip);
+      tieneIpRadios.forEach((radio) => {
+        radio.checked = hasIp ? radio.value === 'si' : radio.value === 'no';
+      });
+
+      if (hasIp) {
+        ipInput.value = record.ip ?? IP_PREFIX;
+        mascaraInput.value = record.mascara ?? DEFAULTS.mascara;
+        gatewayInput.value = record.gateway ?? DEFAULTS.gateway;
+        dns1Input.value = record.dns1 ?? DEFAULTS.dns1;
+        dns2Input.value = record.dns2 ?? DEFAULTS.dns2;
+      } else {
+        ipInput.value = NO_IP_LABEL;
+        mascaraInput.value = '';
+        gatewayInput.value = '';
+        dns1Input.value = '';
+        dns2Input.value = '';
+      }
+
+      setTieneIpState(hasIp, { preserveValue: true });
     } else {
       isEditing = false;
       editingId = null;
-      modalTitle.textContent = 'Nueva IP';
+      modalTitle.textContent = 'Nuevo registro';
       formIp.reset();
       setTipoSelectValue('pc');
       estadoInput.value = 'libre';
@@ -586,43 +617,48 @@ document.addEventListener('DOMContentLoaded', async () => {
       gatewayInput.value = DEFAULTS.gateway;
       dns1Input.value = DEFAULTS.dns1;
       dns2Input.value = DEFAULTS.dns2;
-      ipOctetoInput.value = '';
       notasInput.value = '';
       dispositivoInput.value = '';
       setDepartamentoFieldValue('');
-      hideAvailableIpList();
+      if (propietarioInput) propietarioInput.value = '';
+      if (usuarioInput) usuarioInput.value = '';
+      tieneIpRadios.forEach((radio) => {
+        radio.checked = radio.value === 'si';
+      });
+      setTieneIpState(true, { preserveValue: false });
     }
 
     applyEstadoRules();
   }
 
-  function extractLastOctet(ip = '') {
-    if (!ip) return null;
-    const parts = ip.split('.');
-    const last = Number(parts[parts.length - 1]);
-    return Number.isFinite(last) ? last : null;
-  }
-
   function populateAvailableIpList() {
     if (!availableIpList) return;
-    const libres = allRecords.filter((record) => record.estado === 'libre');
+    if (!getTieneIpSelection()) {
+      hideAvailableIpList();
+      return;
+    }
+
+    const libres = allRecords.filter((record) => record.estado === 'libre' && hasIpValue(record.ip));
     availableIpList.innerHTML = '';
 
     if (!libres.length) {
       availableIpList.appendChild(createElement('div', 'available-ip-empty', 'No hay IPs libres registradas.'));
     } else {
       libres.forEach((record) => {
-        const lastOctet = extractLastOctet(record.ip);
         const button = createElement('button', 'available-ip-item');
         button.type = 'button';
         button.dataset.id = record.id;
-        button.dataset.octet = lastOctet ?? '';
+        button.dataset.ip = record.ip || '';
 
         const ipLabel = createElement('span', null, record.ip || '');
         const deptLabel = createElement('span', null, record.departamento || 'Sin depto.');
         button.append(ipLabel, deptLabel);
         button.addEventListener('click', () => {
-          ipOctetoInput.value = button.dataset.octet ?? '';
+          tieneIpRadios.forEach((radio) => {
+            radio.checked = radio.value === 'si';
+          });
+          setTieneIpState(true, { preserveValue: true });
+          ipInput.value = record.ip || IP_PREFIX;
           estadoInput.value = 'asignada';
           applyEstadoRules();
           selectedFreeRecordId = record.id;
@@ -665,14 +701,77 @@ document.addEventListener('DOMContentLoaded', async () => {
     setTipoSelectValue(CLEAR_ON_FREE_DEFAULTS.tipo);
     setDepartamentoFieldValue(CLEAR_ON_FREE_DEFAULTS.departamento);
     notasInput.value = CLEAR_ON_FREE_DEFAULTS.notas;
+    if (propietarioInput) propietarioInput.value = CLEAR_ON_FREE_DEFAULTS.propietario;
+    if (usuarioInput) usuarioInput.value = CLEAR_ON_FREE_DEFAULTS.usuario;
     selectedFreeRecordId = null;
     hideAvailableIpList();
+  }
+
+  function getTieneIpSelection() {
+    const selected = Array.from(tieneIpRadios || []).find((radio) => radio.checked);
+    return (selected?.value || 'si') === 'si';
+  }
+
+  function setTieneIpState(hasIp, { preserveValue = false } = {}) {
+    if (!ipInput) return;
+
+    if (hasIp) {
+      ipInput.readOnly = false;
+      if (!preserveValue) {
+        const currentValue = ipInput.value?.trim();
+        if (!currentValue || currentValue === NO_IP_LABEL) {
+          ipInput.value = IP_PREFIX;
+          requestAnimationFrame(() => {
+            if (typeof ipInput.setSelectionRange === 'function') {
+              const cursorPosition = ipInput.value.length;
+              ipInput.setSelectionRange(cursorPosition, cursorPosition);
+            }
+          });
+        }
+      }
+
+      if (mascaraInput && !mascaraInput.value) mascaraInput.value = DEFAULTS.mascara;
+      if (gatewayInput && !gatewayInput.value) gatewayInput.value = DEFAULTS.gateway;
+      if (dns1Input && !dns1Input.value) dns1Input.value = DEFAULTS.dns1;
+      if (dns2Input && !dns2Input.value) dns2Input.value = DEFAULTS.dns2;
+
+      ipDetailsContainer?.removeAttribute('hidden');
+      estadoFieldGroup?.removeAttribute('hidden');
+      if (estadoInput) {
+        estadoInput.disabled = false;
+      }
+    } else {
+      ipInput.readOnly = true;
+      ipInput.value = NO_IP_LABEL;
+      ipDetailsContainer?.setAttribute('hidden', 'true');
+      if (estadoFieldGroup) {
+        estadoFieldGroup.setAttribute('hidden', 'true');
+      }
+      if (estadoInput) {
+        estadoInput.value = 'libre';
+        estadoInput.disabled = true;
+      }
+      departamentoInput?.removeAttribute('required');
+      departamentoCustomInput?.removeAttribute('required');
+      if (mascaraInput) mascaraInput.value = '';
+      if (gatewayInput) gatewayInput.value = '';
+      if (dns1Input) dns1Input.value = '';
+      if (dns2Input) dns2Input.value = '';
+      selectedFreeRecordId = null;
+      hideAvailableIpList();
+    }
   }
 
   function applyEstadoRules() {
     if (!estadoInput || !departamentoInput) return;
     const isLibre = estadoInput.value === 'libre';
-    if (isLibre) {
+    const hasIp = getTieneIpSelection();
+    if (!hasIp) {
+      departamentoInput.removeAttribute('required');
+      departamentoCustomInput?.removeAttribute('required');
+      return;
+    }
+    if (isLibre && hasIp) {
       clearDeviceFieldsForLibre();
       departamentoInput.removeAttribute('required');
       departamentoCustomInput?.removeAttribute('required');
@@ -698,6 +797,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       const matchesSearch = !searchTerm
         || (record.dispositivo || '').toLowerCase().includes(searchTerm)
         || (record.departamento || '').toLowerCase().includes(searchTerm)
+        || (record.propietario || '').toLowerCase().includes(searchTerm)
+        || (record.usuario || '').toLowerCase().includes(searchTerm)
         || (record.ip || '').toLowerCase().includes(searchTerm);
 
       const matchesEstado = !estadoValue || record.estado === estadoValue;
@@ -708,7 +809,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     filteredRecords = sortRecords(filteredRecords);
     renderTable(filteredRecords);
-    updateCounters();
+    updateCounters(filteredRecords);
   }
 
   function sortRecords(records) {
@@ -727,7 +828,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   function getComparableValue(record, column) {
     const value = record?.[column];
     if (column === 'ip') {
-      return value ? value.split('.').map(Number).reduce((acc, part) => acc * 256 + part, 0) : -1;
+      if (!hasIpValue(value)) {
+        return -1;
+      }
+      const parts = String(value).split('.');
+      if (parts.length !== 4 || parts.some((part) => Number.isNaN(Number(part)))) {
+        return Number.MAX_SAFE_INTEGER;
+      }
+      return parts.map(Number).reduce((acc, part) => acc * 256 + part, 0);
     }
     if (typeof value === 'string') {
       return value.toLowerCase();
@@ -751,6 +859,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     records.forEach((record) => {
       const estadoValue = record.estado || 'libre';
+      const hasIp = hasIpValue(record.ip);
       const mainRow = document.createElement('tr');
       mainRow.dataset.id = record.id;
       mainRow.classList.add('inventory-row');
@@ -762,7 +871,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       const dispositivoTd = createElement('td', 'cell-dispositivo', record.dispositivo || '—');
       const tipoTd = createElement('td', null, record.tipo ? record.tipo.toUpperCase() : '—');
       const departamentoTd = createElement('td', null, record.departamento || '—');
-      const ipTd = createElement('td', null, record.ip || '—');
+      const propietarioTd = createElement('td', null, record.propietario || '—');
+      const ipTd = createElement('td', null, hasIp ? record.ip : NO_IP_LABEL);
 
       const estadoTd = document.createElement('td');
       estadoTd.classList.add('estado-cell');
@@ -803,6 +913,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         dispositivoTd,
         tipoTd,
         departamentoTd,
+        propietarioTd,
         ipTd,
         estadoTd,
         accionesTd
@@ -816,15 +927,26 @@ document.addEventListener('DOMContentLoaded', async () => {
       detailRow.setAttribute('aria-hidden', 'true');
 
       const detailTd = document.createElement('td');
-      detailTd.colSpan = 6;
+      detailTd.colSpan = mainRow.children.length;
       const detailGrid = createElement('div', 'row-detail-grid');
 
-      [
-        { label: 'Máscara', value: record.mascara || '—' },
-        { label: 'Gateway', value: record.gateway || '—' },
-        { label: 'DNS 1', value: record.dns1 || '—' },
-        { label: 'DNS 2', value: record.dns2 || '—' }
-      ].forEach(({ label, value }) => {
+      const detailItems = [];
+
+      if (hasIp) {
+        detailItems.push(
+          { label: 'Máscara', value: record.mascara || '—' },
+          { label: 'Gateway', value: record.gateway || '—' },
+          { label: 'DNS 1', value: record.dns1 || '—' },
+          { label: 'DNS 2', value: record.dns2 || '—' }
+        );
+      }
+
+      detailItems.push(
+        { label: 'Usuario', value: record.usuario || '—' },
+        { label: 'Notas', value: record.notas || '—' }
+      );
+
+      detailItems.forEach(({ label, value }) => {
         const item = createElement('div', 'row-detail-item');
         const itemLabel = createElement('span', 'row-detail-label', label);
         const itemValue = createElement('span', 'row-detail-value', value);
@@ -863,16 +985,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  function updateCounters() {
-    const total = allRecords.length;
-    const libres = allRecords.filter((r) => r.estado === 'libre').length;
-    const asignadas = allRecords.filter((r) => r.estado === 'asignada').length;
-    const revision = allRecords.filter((r) => r.estado === 'en_revision').length;
+  function updateCounters(records = filteredRecords) {
+    const dataset = Array.isArray(records) ? records : [];
 
-    statTotal.textContent = total;
-    statLibres.textContent = libres;
-    statAsignadas.textContent = asignadas;
-    statRevision.textContent = revision;
+    const total = dataset.length;
+    const totalConIp = dataset.filter((r) => hasIpValue(r.ip)).length;
+    const libres = dataset.filter((r) => r.estado === 'libre').length;
+    const asignadas = dataset.filter((r) => r.estado === 'asignada').length;
+    const revision = dataset.filter((r) => r.estado === 'en_revision').length;
+
+    if (statTotalGeneral) statTotalGeneral.textContent = total;
+    if (statTotalIp) statTotalIp.textContent = totalConIp;
+    if (statLibres) statLibres.textContent = libres;
+    if (statAsignadas) statAsignadas.textContent = asignadas;
+    if (statRevision) statRevision.textContent = revision;
   }
 
   function updateSortIndicators() {
@@ -939,48 +1065,75 @@ document.addEventListener('DOMContentLoaded', async () => {
       applyFilters();
     } catch (error) {
       console.error('Error al obtener inventario', error);
-      showToast('Error al cargar el inventario de IPs.', 'error');
+      showToast('Error al cargar el inventario de equipos.', 'error');
     } finally {
       if (showLoader) toggleLoader(false);
     }
   }
 
-  function validateIp(octetValue) {
-    if (octetValue === '' || octetValue === null || octetValue === undefined) {
-      return { valid: false, message: 'Debes indicar el último octeto de la IP.' };
+  function validateIp(value) {
+    const rawValue = typeof value === 'string' ? value.trim() : '';
+    if (!rawValue) {
+      return { valid: false, message: 'Debes indicar la dirección IP.' };
     }
-    const octet = Number(octetValue);
-    if (!Number.isInteger(octet) || octet < LAST_OCTET_MIN || octet > LAST_OCTET_MAX) {
-      return { valid: false, message: 'El último octeto debe estar entre 0 y 254.' };
+
+    if (/^\d{1,3}$/.test(rawValue)) {
+      const octet = Number(rawValue);
+      if (!Number.isInteger(octet) || octet < LAST_OCTET_MIN || octet > LAST_OCTET_MAX) {
+        return { valid: false, message: 'El último octeto debe estar entre 0 y 254.' };
+      }
+      return { valid: true, value: `${IP_PREFIX}${octet}` };
     }
-    return { valid: true, value: `${IP_PREFIX}${octet}` };
+
+    const normalized = rawValue.replace(/\s+/g, '');
+    const match = normalized.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+    if (!match) {
+      return { valid: false, message: 'Debes indicar una dirección IP válida.' };
+    }
+
+    const parts = match.slice(1).map(Number);
+    if (parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) {
+      return { valid: false, message: 'Cada octeto debe estar entre 0 y 255.' };
+    }
+
+    return { valid: true, value: parts.join('.') };
   }
 
   function buildPayloadFromForm() {
     const dispositivo = dispositivoInput.value.trim();
     const customTipoActive = isCustomTipoInputActive();
     const tipoSeleccionado = customTipoActive ? tipoCustomInput.value.trim() : tipoSelect.value;
-    const estado = estadoInput.value;
-    const { value: departamento } = resolveDepartamentoValue({ requireMatch: estado !== 'libre' });
+    const hasIp = getTieneIpSelection();
+    const estadoSeleccionado = hasIp ? estadoInput.value : 'libre';
+    const { value: departamento } = resolveDepartamentoValue({ requireMatch: hasIp && estadoSeleccionado !== 'libre' });
     const notas = notasInput.value.trim();
+    const propietario = propietarioInput?.value.trim() || '';
+    const usuario = usuarioInput?.value.trim() || '';
 
-    const mascara = mascaraInput.value.trim() || DEFAULTS.mascara;
-    const gateway = gatewayInput.value.trim() || DEFAULTS.gateway;
-    const dns1 = dns1Input.value.trim() || DEFAULTS.dns1;
-    const dns2 = dns2Input.value.trim() || DEFAULTS.dns2;
+    let ip = NO_IP_LABEL;
+    let mascara = null;
+    let gateway = null;
+    let dns1 = null;
+    let dns2 = null;
 
-    const octetValidation = validateIp(ipOctetoInput.value);
-    if (!octetValidation.valid) {
-      throw new Error(octetValidation.message);
+    if (hasIp) {
+      const ipValidation = validateIp(ipInput.value);
+      if (!ipValidation.valid) {
+        throw new Error(ipValidation.message);
+      }
+      ip = ipValidation.value;
+      mascara = (mascaraInput?.value || '').trim() || DEFAULTS.mascara;
+      gateway = (gatewayInput?.value || '').trim() || DEFAULTS.gateway;
+      dns1 = (dns1Input?.value || '').trim() || DEFAULTS.dns1;
+      dns2 = (dns2Input?.value || '').trim() || DEFAULTS.dns2;
     }
-    const ip = octetValidation.value;
 
-    if (estado === 'asignada') {
+    if (hasIp && estadoSeleccionado === 'asignada') {
       if (!dispositivo) throw new Error('Para asignar una IP debes indicar el dispositivo.');
       if (!departamento) throw new Error('Para asignar una IP debes indicar el departamento.');
     }
 
-    const shouldClearDeviceFields = estado === 'libre';
+    const shouldClearDeviceFields = hasIp && estadoSeleccionado === 'libre';
 
     const payload = {
       ip,
@@ -989,12 +1142,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         ? CLEAR_ON_FREE_DEFAULTS.tipo
         : (tipoSeleccionado ? tipoSeleccionado : null),
       departamento: shouldClearDeviceFields ? CLEAR_ON_FREE_DEFAULTS.departamento : departamento || null,
-      estado,
+      propietario: shouldClearDeviceFields ? CLEAR_ON_FREE_DEFAULTS.propietario : propietario || null,
+      usuario: shouldClearDeviceFields ? CLEAR_ON_FREE_DEFAULTS.usuario : usuario || null,
+      estado: estadoSeleccionado,
       notas: shouldClearDeviceFields ? CLEAR_ON_FREE_DEFAULTS.notas : notas || null,
-      mascara,
-      gateway,
-      dns1,
-      dns2
+      mascara: hasIp ? mascara : null,
+      gateway: hasIp ? gateway : null,
+      dns1: hasIp ? dns1 : null,
+      dns2: hasIp ? dns2 : null
     };
 
     if (shouldClearDeviceFields) {
@@ -1019,10 +1174,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         showToast('Registro actualizado correctamente.');
       } else if (selectedFreeRecordId) {
         await updateRecord(selectedFreeRecordId, { ...payload, estado: 'asignada' });
-        showToast('IP libre asignada correctamente.');
+        showToast('Registro libre asignado correctamente.');
       } else {
         await createRecord(payload);
-        showToast('IP creada correctamente.');
+        showToast('Registro creado correctamente.');
       }
 
       closeModal();
@@ -1030,7 +1185,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (error) {
       const message = error?.message || 'No se pudo guardar el registro.';
       showToast(message, 'error', 4200);
-      console.error('Error guardando IP', error);
+      console.error('Error guardando el registro', error);
     } finally {
       isSubmitting = false;
       modalSubmitBtn.disabled = false;
@@ -1078,7 +1233,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (error) {
       if (error.code === '42501') {
-        throw new Error('No tienes permisos para eliminar esta IP.');
+        throw new Error('No tienes permisos para eliminar este registro.');
       }
       throw error;
     }
@@ -1088,21 +1243,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     const record = allRecords.find((item) => item.id === id);
     if (!record) return;
 
+    const hasIp = hasIpValue(record.ip);
+    const descriptor = record.dispositivo
+      ? `del dispositivo ${record.dispositivo}`
+      : hasIp
+        ? `de la IP ${record.ip}`
+        : 'seleccionado';
+
     const confirmed = await window.showConfirmationModal(
-      'Eliminar IP',
-      `¿Deseas eliminar la IP ${record.ip}?`
+      'Eliminar registro',
+      `¿Deseas eliminar el registro ${descriptor}?`
     );
 
     if (!confirmed) return;
 
     try {
       await deleteRecord(id);
-      showToast('IP eliminada correctamente.');
+      showToast('Registro eliminado correctamente.');
       await fetchRecords();
     } catch (error) {
-      const message = error?.message || 'No se pudo eliminar la IP.';
+      const message = error?.message || 'No se pudo eliminar el registro.';
       showToast(message, 'error', 4200);
-      console.error('Error eliminando IP', error);
+      console.error('Error eliminando registro', error);
     }
   }
 
@@ -1112,35 +1274,46 @@ document.addEventListener('DOMContentLoaded', async () => {
     const record = allRecords.find((item) => item.id === id);
     if (!record) return;
 
+    const recordHasIp = hasIpValue(record.ip);
+
     try {
       selectEl.disabled = true;
 
       if (newEstado === 'libre') {
-        const clearPayload = {
-          estado: 'libre',
-          ...CLEAR_ON_FREE_DEFAULTS
-        };
+        const clearPayload = { estado: 'libre' };
 
-        Object.keys(record).forEach((key) => {
-          if (key.startsWith('asignado_') && !(key in clearPayload)) {
-            clearPayload[key] = null;
-          }
-        });
+        if (recordHasIp) {
+          Object.assign(clearPayload, {
+            dispositivo: CLEAR_ON_FREE_DEFAULTS.dispositivo,
+            tipo: CLEAR_ON_FREE_DEFAULTS.tipo,
+            departamento: CLEAR_ON_FREE_DEFAULTS.departamento,
+            notas: CLEAR_ON_FREE_DEFAULTS.notas,
+            propietario: CLEAR_ON_FREE_DEFAULTS.propietario,
+            usuario: CLEAR_ON_FREE_DEFAULTS.usuario,
+            asignado_por: CLEAR_ON_FREE_DEFAULTS.asignado_por
+          });
+
+          Object.keys(record).forEach((key) => {
+            if (key.startsWith('asignado_') && !(key in clearPayload)) {
+              clearPayload[key] = null;
+            }
+          });
+        }
 
         await updateRecord(id, clearPayload);
-        showToast(`La IP ${record.ip} ahora está libre.`);
+        showToast(recordHasIp ? `La IP ${record.ip} ahora está libre.` : 'El registro se marcó como libre.');
       } else if (newEstado === 'asignada') {
         if (!record.dispositivo || !record.departamento) {
-          showToast('Completa los datos obligatorios antes de asignar esta IP.', 'error', 4200);
+          showToast('Completa los datos obligatorios antes de asignar este registro.', 'error', 4200);
           selectEl.value = record.estado;
           openModal({ mode: 'edit', record });
           return;
         }
         await updateRecord(id, { estado: 'asignada' });
-        showToast(`La IP ${record.ip} fue marcada como asignada.`);
+        showToast(recordHasIp ? `La IP ${record.ip} fue marcada como asignada.` : 'El registro fue marcado como asignado.');
       } else if (newEstado === 'en_revision') {
         await updateRecord(id, { estado: 'en_revision' });
-        showToast(`La IP ${record.ip} se marcó en revisión.`);
+        showToast(recordHasIp ? `La IP ${record.ip} se marcó en revisión.` : 'El registro se marcó en revisión.');
       }
 
       await fetchRecords();
@@ -1163,12 +1336,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       'Dispositivo': record.dispositivo || '',
       'Tipo': record.tipo ? record.tipo.toUpperCase() : '',
       'Departamento': record.departamento || '',
-      'Dirección IP': record.ip || '',
+      'Propietario': record.propietario || '',
+      'Usuario': record.usuario || '',
+      'Dirección IP': hasIpValue(record.ip) ? record.ip : NO_IP_LABEL,
       'Máscara': record.mascara || '',
       'Gateway': record.gateway || '',
       'DNS 1': record.dns1 || '',
       'DNS 2': record.dns2 || '',
-      'Estado': STATE_LABELS[record.estado] || record.estado
+      'Estado': STATE_LABELS[record.estado] || record.estado,
+      'Notas': record.notas || ''
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(exportRows, {
@@ -1176,17 +1352,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         'Dispositivo',
         'Tipo',
         'Departamento',
+        'Propietario',
+        'Usuario',
         'Dirección IP',
         'Máscara',
         'Gateway',
         'DNS 1',
         'DNS 2',
-        'Estado'
+        'Estado',
+        'Notas'
       ]
     });
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Inventario IPs');
-    const fileName = `Inventario_IPs_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Inventario Equipos');
+    const fileName = `Inventario_Equipos_${new Date().toISOString().split('T')[0]}.xlsx`;
     XLSX.writeFile(workbook, fileName);
     showToast('Exportación completada.');
   }
@@ -1197,7 +1376,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     departamentoSelect?.addEventListener('change', () => applyFilters());
     actualizarBtn?.addEventListener('click', () => fetchRecords());
     exportarBtn?.addEventListener('click', exportToExcel);
-    nuevaIpBtn?.addEventListener('click', () => openModal({ mode: 'create' }));
+    nuevoBtn?.addEventListener('click', () => openModal({ mode: 'create' }));
 
     modalCloseBtns?.forEach((btn) => btn.addEventListener('click', closeModal));
     modalCancelBtn?.addEventListener('click', closeModal);
@@ -1207,22 +1386,41 @@ document.addEventListener('DOMContentLoaded', async () => {
     departamentoInput?.addEventListener('change', handleDepartamentoInputChange);
     departamentoCustomInput?.addEventListener('input', updateDepartamentoRequiredState);
 
-    ipOctetoInput?.addEventListener('focus', () => {
-      if (!isEditing) {
-        populateAvailableIpList();
-      }
+    tieneIpRadios.forEach((radio) => {
+      radio.addEventListener('change', () => {
+        const hasIp = radio.value === 'si';
+        setTieneIpState(hasIp, { preserveValue: false });
+        if (!hasIp) {
+          selectedFreeRecordId = null;
+          hideAvailableIpList();
+        }
+        applyEstadoRules();
+      });
     });
 
-    ipOctetoInput?.addEventListener('input', () => {
-      selectedFreeRecordId = null;
-      if (Number(ipOctetoInput.value) > LAST_OCTET_MAX) {
-        ipOctetoInput.value = LAST_OCTET_MAX;
+    ipInput?.addEventListener('focus', () => {
+      if (!getTieneIpSelection()) return;
+      if (!ipInput.readOnly && !ipInput.value) {
+        ipInput.value = IP_PREFIX;
+        requestAnimationFrame(() => {
+          if (typeof ipInput.setSelectionRange === 'function') {
+            const cursorPosition = ipInput.value.length;
+            ipInput.setSelectionRange(cursorPosition, cursorPosition);
+          }
+        });
       }
+      populateAvailableIpList();
+    });
+
+    ipInput?.addEventListener('input', () => {
+      if (!getTieneIpSelection()) return;
+      selectedFreeRecordId = null;
+      hideAvailableIpList();
     });
 
     document.addEventListener('click', (event) => {
       if (!availableIpList || availableIpList.hidden) return;
-      const isInside = availableIpList.contains(event.target) || event.target === ipOctetoInput;
+      const isInside = availableIpList.contains(event.target) || event.target === ipInput;
       if (!isInside) {
         hideAvailableIpList();
       }
