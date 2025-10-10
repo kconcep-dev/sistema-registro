@@ -74,6 +74,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   let selectedFreeRecordId = null;
   let isSubmitting = false;
   let toastTimeout;
+  let lastTieneIpSelection = true;
+  let lastKnownEstadoValue = null;
+  let skipClearDeviceFieldsOnNextEstadoApply = false;
 
   const STATE_LABELS = {
     libre: 'Libre',
@@ -550,6 +553,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     selectedFreeRecordId = null;
     isModalOpen = false;
     isSubmitting = false;
+    lastKnownEstadoValue = null;
+    skipClearDeviceFieldsOnNextEstadoApply = false;
+    lastTieneIpSelection = getTieneIpSelection();
   }
 
   function closeModal() {
@@ -561,6 +567,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     deactivateCustomTipoInput();
     deactivateCustomDepartamentoInput();
     hideAvailableIpList();
+    lastKnownEstadoValue = null;
+    skipClearDeviceFieldsOnNextEstadoApply = false;
     setTieneIpState(true, { preserveValue: false });
   }
 
@@ -586,6 +594,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (propietarioInput) propietarioInput.value = record.propietario ?? '';
       if (usuarioInput) usuarioInput.value = record.usuario ?? '';
 
+      lastKnownEstadoValue = record.estado ?? null;
       const hasIp = hasIpValue(record.ip);
       tieneIpRadios.forEach((radio) => {
         radio.checked = hasIp ? radio.value === 'si' : radio.value === 'no';
@@ -740,7 +749,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (estadoInput) {
         estadoInput.disabled = false;
         if (!estadoInput.value) {
-          estadoInput.value = 'libre';
+          if (lastKnownEstadoValue) {
+            estadoInput.value = lastKnownEstadoValue;
+          } else {
+            estadoInput.value = 'libre';
+          }
         }
       }
     } else {
@@ -751,6 +764,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         estadoFieldGroup.setAttribute('hidden', 'true');
       }
       if (estadoInput) {
+        if (estadoInput.value) {
+          lastKnownEstadoValue = estadoInput.value;
+        }
         estadoInput.value = '';
         estadoInput.disabled = true;
       }
@@ -763,6 +779,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       selectedFreeRecordId = null;
       hideAvailableIpList();
     }
+
+    lastTieneIpSelection = hasIp;
   }
 
   function applyEstadoRules() {
@@ -772,14 +790,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!hasIp) {
       departamentoInput.removeAttribute('required');
       departamentoCustomInput?.removeAttribute('required');
+      skipClearDeviceFieldsOnNextEstadoApply = false;
       return;
     }
+
     if (isLibre && hasIp) {
-      clearDeviceFieldsForLibre();
+      if (!skipClearDeviceFieldsOnNextEstadoApply) {
+        clearDeviceFieldsForLibre();
+      }
       departamentoInput.removeAttribute('required');
       departamentoCustomInput?.removeAttribute('required');
     } else {
       updateDepartamentoRequiredState();
+    }
+
+    skipClearDeviceFieldsOnNextEstadoApply = false;
+    if (estadoInput.value) {
+      lastKnownEstadoValue = estadoInput.value;
     }
   }
 
@@ -1420,6 +1447,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     tieneIpRadios.forEach((radio) => {
       radio.addEventListener('change', () => {
         const hasIp = radio.value === 'si';
+        const wasHavingIp = lastTieneIpSelection;
+        if (hasIp && !wasHavingIp) {
+          skipClearDeviceFieldsOnNextEstadoApply = true;
+        }
         setTieneIpState(hasIp, { preserveValue: false });
         if (!hasIp) {
           selectedFreeRecordId = null;
