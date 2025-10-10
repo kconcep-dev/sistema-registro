@@ -84,6 +84,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     en_revision: 'En revisión'
   };
 
+  const tipoOptionLabelMap = new Map(
+    Array.from(tipoSelect?.options || [])
+      .filter((option) => option.value)
+      .map((option) => [option.value.toLowerCase(), option.textContent.trim()])
+  );
+
   const DEFAULTS = {
     mascara: '255.255.255.0',
     gateway: '10.106.113.1',
@@ -129,6 +135,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   function hasIpValue(value) {
     if (!value) return false;
     return String(value).toLowerCase() !== NO_IP_LABEL_LOWER;
+  }
+
+  function formatTipoLabel(value, { fallback = '—' } = {}) {
+    if (value === undefined || value === null) {
+      return fallback;
+    }
+
+    const trimmed = String(value).trim();
+    if (!trimmed) {
+      return fallback;
+    }
+
+    const label = tipoOptionLabelMap.get(trimmed.toLowerCase());
+    return label || trimmed;
   }
 
   function isPredefinedTipo(value) {
@@ -899,7 +919,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       applyRowStateClass(mainRow, estadoValue);
 
       const dispositivoTd = createElement('td', 'cell-dispositivo', record.dispositivo || '—');
-      const tipoTd = createElement('td', null, record.tipo ? record.tipo.toUpperCase() : '—');
+      const tipoTd = createElement('td', null, formatTipoLabel(record.tipo));
       const departamentoTd = createElement('td', null, record.departamento || '—');
       const propietarioTd = createElement('td', null, record.propietario || '—');
       const ipTd = createElement('td', null, hasIp ? record.ip : NO_IP_LABEL);
@@ -1392,7 +1412,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const exportRows = filteredRecords.map((record) => ({
       'Dispositivo': record.dispositivo || '',
-      'Tipo': record.tipo ? record.tipo.toUpperCase() : '',
+      'Tipo': formatTipoLabel(record.tipo, { fallback: '' }),
       'Departamento': record.departamento || '',
       'Propietario': record.propietario || '',
       'Usuario': record.usuario || '',
