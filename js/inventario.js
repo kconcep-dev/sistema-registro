@@ -36,6 +36,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const formIp = document.getElementById('form-ip');
 
   const dispositivoInput = document.getElementById('input-dispositivo');
+  const dispositivoFormGroup = dispositivoInput?.closest('.form-group') || null;
+  const dispositivoFeedback = document.getElementById('input-dispositivo-feedback');
   const tipoSelect = document.getElementById('input-tipo');
   const tipoCustomInput = document.getElementById('input-tipo-custom');
   const departamentoInput = document.getElementById('input-departamento');
@@ -136,6 +138,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     usuario: '',
     asignado_por: null
   };
+
+  const MESSAGE_LIBRE_WITH_DATA = 'Con estado Libre la IP no puede tener datos de equipo; limpia los campos o cámbiala a Asignada.';
+  const MESSAGE_NO_IP_MISSING_FIELDS = 'Para registrar un equipo sin IP indica el dispositivo y al menos otro dato (tipo, departamento, propietario o usuario).';
+  const MESSAGE_DUPLICATE_RECORD = 'Este registro ya existe en el inventario. Búscalo en la tabla y edítalo en lugar de duplicarlo.';
+  const MESSAGE_DUPLICATE_DEVICE_INLINE = 'Este dispositivo ya existe en la base de datos. Edita el registro existente desde la tabla.';
 
   function hasIpValue(value) {
     if (!value) return false;
@@ -259,6 +266,38 @@ document.addEventListener('DOMContentLoaded', async () => {
       .normalize('NFD')
       .replace(DIACRITICS_REGEX, '')
       .toLowerCase();
+  }
+
+  function normalizeDeviceValue(value) {
+    if (typeof value !== 'string') return '';
+    return value.trim();
+  }
+
+  function createDeviceKey(value) {
+    const normalized = normalizeDeviceValue(value);
+    return normalized ? normalized.toLowerCase() : '';
+  }
+
+  function findDeviceDuplicate(value, { excludeId = null } = {}) {
+    const key = createDeviceKey(value);
+    if (!key) return null;
+
+    return allRecords.find((record) => {
+      if (!record?.dispositivo) return false;
+      if (excludeId && record.id === excludeId) return false;
+      return createDeviceKey(record.dispositivo) === key;
+    }) || null;
+  }
+
+  function findIpDuplicate(value, { excludeId = null } = {}) {
+    const normalized = typeof value === 'string' ? value.trim() : '';
+    if (!normalized || !hasIpValue(normalized)) return null;
+
+    return allRecords.find((record) => {
+      if (!record?.ip || !hasIpValue(record.ip)) return false;
+      if (excludeId && record.id === excludeId) return false;
+      return String(record.ip).trim() === normalized;
+    }) || null;
   }
 
   function formatDepartmentLabel(value) {
@@ -417,6 +456,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function clearDepartamentoFeedback() {
     setDepartamentoFeedback('');
+  }
+
+  function setDispositivoFeedback(message = '') {
+    if (!dispositivoFeedback || !dispositivoFormGroup) return;
+    if (message) {
+      dispositivoFeedback.textContent = message;
+      dispositivoFeedback.hidden = false;
+      dispositivoFormGroup.classList.add('has-error');
+      dispositivoInput?.setAttribute('aria-invalid', 'true');
+    } else {
+      dispositivoFeedback.textContent = '';
+      dispositivoFeedback.hidden = true;
+      dispositivoFormGroup.classList.remove('has-error');
+      dispositivoInput?.removeAttribute('aria-invalid');
+    }
+  }
+
+  function clearDispositivoFeedback() {
+    setDispositivoFeedback('');
   }
 
   function validateCustomDepartmentInput(value, { allowExistingMatch = false } = {}) {
@@ -654,6 +712,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  function handleDispositivoInputValidation() {
+    if (!dispositivoInput) return;
+    const value = dispositivoInput.value;
+    const currentId = isEditing ? editingId : selectedFreeRecordId;
+    const duplicate = findDeviceDuplicate(value, { excludeId: currentId });
+    if (duplicate) {
+      setDispositivoFeedback(MESSAGE_DUPLICATE_DEVICE_INLINE);
+    } else {
+      clearDispositivoFeedback();
+    }
+  }
+
   function updateDepartamentoFormOptions(options = departmentOptions) {
     if (!departamentoInput) return;
 
@@ -840,6 +910,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     deactivateCustomDepartamentoInput();
     hideAvailableIpList();
     clearDepartamentoFeedback();
+    clearDispositivoFeedback();
     lastKnownEstadoValue = null;
     skipClearDeviceFieldsOnNextEstadoApply = false;
     setTieneIpState(true, { preserveValue: false });
@@ -854,6 +925,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     selectedFreeRecordId = null;
     hideAvailableIpList();
     clearDepartamentoFeedback();
+    clearDispositivoFeedback();
 
     if (mode === 'edit' && record) {
       isEditing = true;
@@ -988,6 +1060,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (usuarioInput) usuarioInput.value = CLEAR_ON_FREE_DEFAULTS.usuario;
     selectedFreeRecordId = null;
     hideAvailableIpList();
+    clearDispositivoFeedback();
   }
 
   function getTieneIpSelection() {
@@ -1059,8 +1132,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function applyEstadoRules() {
     if (!estadoInput || !departamentoInput) return;
-    const isLibre = estadoInput.value === 'libre';
     const hasIp = getTieneIpSelection();
+    const currentEstado = estadoInput.value;
+    const previousEstado = lastKnownEstadoValue;
+    const transitionedFromAssignment = hasIp
+      && currentEstado === 'libre'
+      && previousEstado
+      && previousEstado !== 'libre';
+
     if (!hasIp) {
       departamentoInput.removeAttribute('required');
       departamentoCustomInput?.removeAttribute('required');
@@ -1068,19 +1147,23 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
-    if (isLibre && hasIp) {
-      if (!skipClearDeviceFieldsOnNextEstadoApply) {
-        clearDeviceFieldsForLibre();
-      }
+    if (transitionedFromAssignment && !skipClearDeviceFieldsOnNextEstadoApply) {
+      clearDeviceFieldsForLibre();
+    }
+
+    if (currentEstado === 'libre') {
       departamentoInput.removeAttribute('required');
       departamentoCustomInput?.removeAttribute('required');
-    } else {
+    } else if (currentEstado === 'asignada') {
       updateDepartamentoRequiredState();
+    } else {
+      departamentoInput.removeAttribute('required');
+      departamentoCustomInput?.removeAttribute('required');
     }
 
     skipClearDeviceFieldsOnNextEstadoApply = false;
-    if (estadoInput.value) {
-      lastKnownEstadoValue = estadoInput.value;
+    if (currentEstado) {
+      lastKnownEstadoValue = currentEstado;
     }
   }
 
@@ -1393,6 +1476,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       allRecords = Array.isArray(data) ? data : [];
       populateDepartmentOptions();
       applyFilters();
+      handleDispositivoInputValidation();
     } catch (error) {
       console.error('Error al obtener inventario', error);
       showToast('Error al cargar el inventario de equipos.', 'error');
@@ -1433,6 +1517,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const dispositivo = dispositivoInput.value.trim();
     const customTipoActive = isCustomTipoInputActive();
     const tipoSeleccionado = customTipoActive ? tipoCustomInput.value.trim() : tipoSelect.value;
+    const tipoValue = typeof tipoSeleccionado === 'string' ? tipoSeleccionado.trim() : '';
     const hasIp = getTieneIpSelection();
     let estadoSeleccionado = null;
     if (hasIp) {
@@ -1441,11 +1526,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         throw new Error('Debes seleccionar un estado.');
       }
     }
-    const departmentResolution = resolveDepartamentoValue({ requireMatch: hasIp && estadoSeleccionado !== 'libre' });
-    let departamento = departmentResolution.value;
+    const departmentResolution = resolveDepartamentoValue({ requireMatch: hasIp && estadoSeleccionado === 'asignada' });
+    const departamentoBaseValue = departmentResolution.value || '';
+    const departamentoNormalizedValue = normalizeDepartment(departamentoBaseValue);
+    let departamento = departamentoBaseValue;
     const notas = notasInput.value.trim();
     const propietario = propietarioInput?.value.trim() || '';
     const usuario = usuarioInput?.value.trim() || '';
+
+    if (hasIp && estadoSeleccionado === 'libre') {
+      const hasEquipoData = Boolean(dispositivo || tipoValue || departamentoNormalizedValue || propietario || usuario);
+      if (hasEquipoData) {
+        throw new Error(MESSAGE_LIBRE_WITH_DATA);
+      }
+    }
+
+    if (!hasIp) {
+      if (!dispositivo) {
+        throw new Error('Debes indicar el dispositivo para registrar un equipo sin IP.');
+      }
+      const hasAdditionalData = Boolean(tipoValue || departamentoNormalizedValue || propietario || usuario);
+      if (!hasAdditionalData) {
+        throw new Error(MESSAGE_NO_IP_MISSING_FIELDS);
+      }
+    }
 
     let ip = null;
     let mascara = null;
@@ -1484,7 +1588,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (hasIp && estadoSeleccionado === 'asignada') {
       if (!dispositivo) throw new Error('Para asignar una IP debes indicar el dispositivo.');
+      if (!tipoValue) throw new Error('Para asignar una IP debes indicar el tipo de dispositivo.');
       if (!departamento) throw new Error('Para asignar una IP debes indicar el departamento.');
+      if (!propietario) throw new Error('Para asignar una IP debes indicar el propietario.');
+      if (!usuario) throw new Error('Para asignar una IP debes indicar el usuario.');
     }
 
     const shouldClearDeviceFields = hasIp && estadoSeleccionado === 'libre';
@@ -1494,7 +1601,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       dispositivo: shouldClearDeviceFields ? CLEAR_ON_FREE_DEFAULTS.dispositivo : dispositivo || null,
       tipo: shouldClearDeviceFields
         ? CLEAR_ON_FREE_DEFAULTS.tipo
-        : (tipoSeleccionado ? tipoSeleccionado : null),
+        : (tipoValue ? tipoValue : null),
       departamento: shouldClearDeviceFields ? CLEAR_ON_FREE_DEFAULTS.departamento : departamento || null,
       propietario: shouldClearDeviceFields ? CLEAR_ON_FREE_DEFAULTS.propietario : propietario || null,
       usuario: shouldClearDeviceFields ? CLEAR_ON_FREE_DEFAULTS.usuario : usuario || null,
@@ -1513,12 +1620,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     return payload;
   }
 
+  function ensureNoDuplicateRecords({ dispositivo, ip, excludeId = null }) {
+    if (dispositivo) {
+      const duplicateDevice = findDeviceDuplicate(dispositivo, { excludeId });
+      if (duplicateDevice) {
+        setDispositivoFeedback(MESSAGE_DUPLICATE_DEVICE_INLINE);
+        throw new Error(MESSAGE_DUPLICATE_RECORD);
+      }
+    }
+
+    clearDispositivoFeedback();
+
+    if (ip && hasIpValue(ip)) {
+      const duplicateIp = findIpDuplicate(ip, { excludeId });
+      if (duplicateIp) {
+        throw new Error(MESSAGE_DUPLICATE_RECORD);
+      }
+    }
+  }
+
   async function handleFormSubmit(event) {
     event.preventDefault();
     if (isSubmitting) return;
 
     try {
       const payload = buildPayloadFromForm();
+      const targetRecordId = isEditing ? editingId : selectedFreeRecordId;
+      ensureNoDuplicateRecords({
+        dispositivo: payload.dispositivo || dispositivoInput.value.trim(),
+        ip: payload.ip,
+        excludeId: targetRecordId || null
+      });
       isSubmitting = true;
       modalSubmitBtn.disabled = true;
       modalCancelBtn.disabled = true;
@@ -1740,6 +1872,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     departamentoInput?.addEventListener('change', handleDepartamentoInputChange);
     departamentoCustomInput?.addEventListener('input', handleDepartamentoCustomInput);
     departamentoCustomInput?.addEventListener('blur', handleDepartamentoCustomInput);
+    dispositivoInput?.addEventListener('input', handleDispositivoInputValidation);
+    dispositivoInput?.addEventListener('blur', handleDispositivoInputValidation);
 
     tieneIpRadios.forEach((radio) => {
       radio.addEventListener('change', () => {
