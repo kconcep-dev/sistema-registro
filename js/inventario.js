@@ -121,7 +121,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const DIACRITICS_REGEX = /[\u0300-\u036f]/g;
 
-  const LOWERCASE_CONNECTORS = new Set(['y', 'e', 'de', 'del', 'la', 'las', 'los', 'el', 'en', 'para', 'por', 'al']);
   const SIMILAR_DEPARTMENT_DISTANCE_THRESHOLD = 1;
 
   const OTHER_DEPARTMENT_VALUE = '__other__';
@@ -304,52 +303,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const normalized = normalizeDepartment(value);
     if (!normalized) return '';
 
-    const formatSegment = (segment, { forceUppercase = false } = {}) => {
-      if (!segment) return '';
-      const upperVariant = segment.toLocaleUpperCase('es');
-      if (forceUppercase || upperVariant === segment) {
-        return upperVariant;
-      }
-      const lowerVariant = segment.toLocaleLowerCase('es');
-      const firstChar = segment.charAt(0);
-      const formattedFirst = firstChar.toLocaleUpperCase('es');
-      const formattedRest = segment.slice(1).toLocaleLowerCase('es');
-      return formattedFirst + formattedRest;
-    };
+    const firstChar = normalized.charAt(0);
+    const rest = normalized.slice(1);
+    const upperFirstChar = firstChar.toLocaleUpperCase('es');
 
-    const formatWord = (word, index) => {
-      if (!word) return '';
-      const isAllUppercase = word === word.toLocaleUpperCase('es');
-      if (isAllUppercase) {
-        return word.toLocaleUpperCase('es');
-      }
-
-      const uppercaseWithoutPunctuation = word.replace(/[.]/g, '');
-      if (uppercaseWithoutPunctuation && uppercaseWithoutPunctuation === uppercaseWithoutPunctuation.toLocaleUpperCase('es')) {
-        return word.toLocaleUpperCase('es');
-      }
-
-      const lowerWord = word.toLocaleLowerCase('es');
-      if (index > 0 && LOWERCASE_CONNECTORS.has(lowerWord)) {
-        return lowerWord;
-      }
-
-      if (word.includes('-')) {
-        return word
-          .split('-')
-          .map((segment) => formatSegment(segment, { forceUppercase: segment === segment.toLocaleUpperCase('es') && /[A-ZÁÉÍÓÚÜÑ]/i.test(segment) }))
-          .join('-');
-      }
-
-      return formatSegment(word);
-    };
-
-    return normalized
-      .split(' ')
-      .map((word, index) => formatWord(word, index))
-      .join(' ')
-      .replace(/\s+/g, ' ') // ensure connectors keep single spaces
-      .trim();
+    return `${upperFirstChar}${rest}`;
   }
 
   function detectOrthographyIssue(value) {
