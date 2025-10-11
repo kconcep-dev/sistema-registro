@@ -40,6 +40,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const tipoCustomInput = document.getElementById('input-tipo-custom');
   const departamentoInput = document.getElementById('input-departamento');
   const departamentoCustomInput = document.getElementById('input-departamento-custom');
+  const departamentoFormGroup = departamentoInput?.closest('.form-group') || null;
+  const departamentoFeedback = document.getElementById('input-departamento-feedback');
   const ipInput = document.getElementById('input-ip');
   const mascaraInput = document.getElementById('input-mascara');
   const gatewayInput = document.getElementById('input-gateway');
@@ -116,6 +118,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   ];
 
   const DIACRITICS_REGEX = /[\u0300-\u036f]/g;
+
+  const LOWERCASE_CONNECTORS = new Set(['y', 'e', 'de', 'del', 'la', 'las', 'los', 'el', 'en', 'para', 'por', 'al']);
+  const SIMILAR_DEPARTMENT_DISTANCE_THRESHOLD = 1;
 
   const OTHER_DEPARTMENT_VALUE = '__other__';
 
@@ -247,6 +252,230 @@ document.addEventListener('DOMContentLoaded', async () => {
     return normalized.normalize('NFD').replace(DIACRITICS_REGEX, '').toLowerCase();
   }
 
+  function normalizeForSearch(value) {
+    if (typeof value !== 'string') return '';
+    return value
+      .trim()
+      .normalize('NFD')
+      .replace(DIACRITICS_REGEX, '')
+      .toLowerCase();
+  }
+
+  function formatDepartmentLabel(value) {
+    const normalized = normalizeDepartment(value);
+    if (!normalized) return '';
+
+    const formatSegment = (segment, { forceUppercase = false } = {}) => {
+      if (!segment) return '';
+      const upperVariant = segment.toLocaleUpperCase('es');
+      if (forceUppercase || upperVariant === segment) {
+        return upperVariant;
+      }
+      const lowerVariant = segment.toLocaleLowerCase('es');
+      const firstChar = segment.charAt(0);
+      const formattedFirst = firstChar.toLocaleUpperCase('es');
+      const formattedRest = segment.slice(1).toLocaleLowerCase('es');
+      return formattedFirst + formattedRest;
+    };
+
+    const formatWord = (word, index) => {
+      if (!word) return '';
+      const isAllUppercase = word === word.toLocaleUpperCase('es');
+      if (isAllUppercase) {
+        return word.toLocaleUpperCase('es');
+      }
+
+      const uppercaseWithoutPunctuation = word.replace(/[.]/g, '');
+      if (uppercaseWithoutPunctuation && uppercaseWithoutPunctuation === uppercaseWithoutPunctuation.toLocaleUpperCase('es')) {
+        return word.toLocaleUpperCase('es');
+      }
+
+      const lowerWord = word.toLocaleLowerCase('es');
+      if (index > 0 && LOWERCASE_CONNECTORS.has(lowerWord)) {
+        return lowerWord;
+      }
+
+      if (word.includes('-')) {
+        return word
+          .split('-')
+          .map((segment) => formatSegment(segment, { forceUppercase: segment === segment.toLocaleUpperCase('es') && /[A-ZÁÉÍÓÚÜÑ]/i.test(segment) }))
+          .join('-');
+      }
+
+      return formatSegment(word);
+    };
+
+    return normalized
+      .split(' ')
+      .map((word, index) => formatWord(word, index))
+      .join(' ')
+      .replace(/\s+/g, ' ') // ensure connectors keep single spaces
+      .trim();
+  }
+
+  function detectOrthographyIssue(value) {
+    const normalized = normalizeDepartment(value);
+    if (!normalized) return null;
+    const words = normalized.split(/\s+/);
+    let hasCorrection = false;
+
+    const correctedWords = words.map((word) => {
+      if (!word) return word;
+
+      const isAcronym = word === word.toLocaleUpperCase('es');
+      if (isAcronym) return word;
+
+      const simplified = word.normalize('NFD').replace(DIACRITICS_REGEX, '').toLowerCase();
+
+      if (/(cion|sion|xion)\b/.test(simplified) && !/(ción|sión|xión)\b/i.test(word)) {
+        hasCorrection = true;
+        return word.replace(/(cion|sion|xion)\b/i, (match) => {
+          const lowerMatch = match.toLowerCase();
+          if (lowerMatch === 'cion') return 'ción';
+          if (lowerMatch === 'sion') return 'sión';
+          return 'xión';
+        });
+      }
+
+      return word;
+    });
+
+    if (hasCorrection) {
+      const suggestion = formatDepartmentLabel(correctedWords.join(' '));
+      return {
+        message: `Revisa la ortografía del departamento. Debe escribirse "${suggestion}".`,
+        suggestion
+      };
+    }
+
+    return null;
+  }
+
+  function getLevenshteinDistance(a, b) {
+    if (a === b) return 0;
+    const lenA = a.length;
+    const lenB = b.length;
+    if (lenA === 0) return lenB;
+    if (lenB === 0) return lenA;
+
+    const matrix = Array.from({ length: lenA + 1 }, () => new Array(lenB + 1).fill(0));
+
+    for (let i = 0; i <= lenA; i += 1) matrix[i][0] = i;
+    for (let j = 0; j <= lenB; j += 1) matrix[0][j] = j;
+
+    for (let i = 1; i <= lenA; i += 1) {
+      for (let j = 1; j <= lenB; j += 1) {
+        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j - 1] + cost
+        );
+      }
+    }
+
+    return matrix[lenA][lenB];
+  }
+
+  function findSimilarDepartment(value, { excludeKey = '' } = {}) {
+    const targetKey = createDepartmentKey(value);
+    if (!targetKey) return null;
+
+    let closest = null;
+    let bestDistance = Number.POSITIVE_INFINITY;
+
+    departmentOptionsMap.forEach((existingValue, existingKey) => {
+      if (!existingKey || existingKey === excludeKey) return;
+      const distance = getLevenshteinDistance(targetKey, existingKey);
+      if (distance > 0 && distance <= SIMILAR_DEPARTMENT_DISTANCE_THRESHOLD && distance < bestDistance) {
+        bestDistance = distance;
+        closest = existingValue;
+      }
+    });
+
+    if (closest) {
+      return { match: closest, distance: bestDistance };
+    }
+
+    return null;
+  }
+
+  function setDepartamentoFeedback(message = '') {
+    if (!departamentoFeedback || !departamentoFormGroup) return;
+    if (message) {
+      departamentoFeedback.textContent = message;
+      departamentoFeedback.hidden = false;
+      departamentoFormGroup.classList.add('has-error');
+      departamentoCustomInput?.setAttribute('aria-invalid', 'true');
+    } else {
+      departamentoFeedback.textContent = '';
+      departamentoFeedback.hidden = true;
+      departamentoFormGroup.classList.remove('has-error');
+      departamentoCustomInput?.removeAttribute('aria-invalid');
+    }
+  }
+
+  function clearDepartamentoFeedback() {
+    setDepartamentoFeedback('');
+  }
+
+  function validateCustomDepartmentInput(value, { allowExistingMatch = false } = {}) {
+    const normalizedValue = normalizeDepartment(value);
+
+    if (!normalizedValue) {
+      return { valid: false, message: 'Debes escribir el nombre del departamento.' };
+    }
+
+    if (!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/.test(normalizedValue)) {
+      return { valid: false, message: 'El nombre del departamento debe iniciar con una letra.' };
+    }
+
+    if (!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9 .,&()/+-]*$/.test(normalizedValue)) {
+      return { valid: false, message: 'El nombre del departamento contiene caracteres no permitidos.' };
+    }
+
+    const firstChar = normalizedValue.charAt(0);
+    const firstCharUpper = firstChar.toLocaleUpperCase('es');
+    const firstCharLower = firstChar.toLocaleLowerCase('es');
+
+    if (firstCharUpper === firstCharLower || firstChar !== firstCharUpper) {
+      const isAllUppercase = normalizedValue === normalizedValue.toLocaleUpperCase('es');
+      if (!isAllUppercase) {
+        return { valid: false, message: 'La primera letra debe estar en mayúscula.' };
+      }
+    }
+
+    const formatted = formatDepartmentLabel(normalizedValue);
+    const orthographyIssue = detectOrthographyIssue(normalizedValue);
+    if (orthographyIssue) {
+      return { valid: false, message: orthographyIssue.message, suggestion: orthographyIssue.suggestion };
+    }
+
+    const key = createDepartmentKey(formatted);
+    const existingValue = departmentOptionsMap.get(key);
+
+    if (existingValue && !allowExistingMatch) {
+      return {
+        valid: false,
+        message: 'Ese departamento ya existe en la lista. Selecciónalo desde el menú desplegable.',
+        duplicateValue: existingValue
+      };
+    }
+
+    if (!existingValue) {
+      const similar = findSimilarDepartment(formatted, { excludeKey: key });
+      if (similar) {
+        return {
+          valid: false,
+          message: `Revisa la ortografía del departamento. Ya existe "${similar.match}" en la lista.`,
+          suggestion: similar.match
+        };
+      }
+    }
+
+    return { valid: true, formatted, normalized: normalizedValue };
+  }
+
   function isCustomDepartamentoInputActive() {
     return !!departamentoCustomInput && !departamentoCustomInput.hidden;
   }
@@ -262,6 +491,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       departamentoCustomInput.focus();
       departamentoCustomInput.select();
     }
+    clearDepartamentoFeedback();
     updateDepartamentoRequiredState();
   }
 
@@ -271,6 +501,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       departamentoCustomInput.value = '';
     }
     departamentoCustomInput.hidden = true;
+    clearDepartamentoFeedback();
     updateDepartamentoRequiredState();
   }
 
@@ -322,6 +553,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   function setDepartamentoFieldValue(value) {
     if (!departamentoInput) return;
     const normalizedValue = normalizeDepartment(value);
+    const formattedValue = formatDepartmentLabel(normalizedValue);
 
     if (!normalizedValue) {
       departamentoInput.value = '';
@@ -329,14 +561,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
-    const match = findDepartmentMatch(normalizedValue);
+    const match = findDepartmentMatch(formattedValue || normalizedValue);
     if (match && setDepartamentoSelectValue(departamentoInput, match)) {
       deactivateCustomDepartamentoInput();
       return;
     }
 
     departamentoInput.value = OTHER_DEPARTMENT_VALUE;
-    activateCustomDepartamentoInput(normalizedValue, { focus: false });
+    activateCustomDepartamentoInput(formattedValue || normalizedValue, { focus: false });
   }
 
   function resolveDepartamentoValue({ requireMatch = false } = {}) {
@@ -386,6 +618,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!value) {
       deactivateCustomDepartamentoInput(false);
+      clearDepartamentoFeedback();
       return;
     }
 
@@ -399,7 +632,26 @@ document.addEventListener('DOMContentLoaded', async () => {
       setDepartamentoSelectValue(departamentoInput, match);
     }
 
+    clearDepartamentoFeedback();
     deactivateCustomDepartamentoInput(false);
+  }
+
+  function handleDepartamentoCustomInput() {
+    if (!departamentoCustomInput) return;
+    updateDepartamentoRequiredState();
+
+    const value = departamentoCustomInput.value;
+    if (!normalizeDepartment(value)) {
+      clearDepartamentoFeedback();
+      return;
+    }
+
+    const validation = validateCustomDepartmentInput(value);
+    if (!validation.valid) {
+      setDepartamentoFeedback(validation.message);
+    } else {
+      clearDepartamentoFeedback();
+    }
   }
 
   function updateDepartamentoFormOptions(options = departmentOptions) {
@@ -587,6 +839,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     deactivateCustomTipoInput();
     deactivateCustomDepartamentoInput();
     hideAvailableIpList();
+    clearDepartamentoFeedback();
     lastKnownEstadoValue = null;
     skipClearDeviceFieldsOnNextEstadoApply = false;
     setTieneIpState(true, { preserveValue: false });
@@ -600,6 +853,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     selectedFreeRecordId = null;
     hideAvailableIpList();
+    clearDepartamentoFeedback();
 
     if (mode === 'edit' && record) {
       isEditing = true;
@@ -840,20 +1094,23 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function applyFilters() {
-    const searchTerm = (searchInput?.value || '').trim().toLowerCase();
+    const rawSearchTerm = (searchInput?.value || '').trim();
+    const normalizedSearchTerm = normalizeForSearch(rawSearchTerm);
     const estadoValue = estadoSelect?.value || '';
     const departamentoValue = departamentoSelect?.value || '';
+    const departamentoKey = createDepartmentKey(departamentoValue);
 
     filteredRecords = allRecords.filter((record) => {
-      const matchesSearch = !searchTerm
-        || (record.dispositivo || '').toLowerCase().includes(searchTerm)
-        || (record.departamento || '').toLowerCase().includes(searchTerm)
-        || (record.propietario || '').toLowerCase().includes(searchTerm)
-        || (record.usuario || '').toLowerCase().includes(searchTerm)
-        || (record.ip || '').toLowerCase().includes(searchTerm);
+      const matchesSearch = !normalizedSearchTerm
+        || normalizeForSearch(record.dispositivo || '').includes(normalizedSearchTerm)
+        || normalizeForSearch(record.departamento || '').includes(normalizedSearchTerm)
+        || normalizeForSearch(record.propietario || '').includes(normalizedSearchTerm)
+        || normalizeForSearch(record.usuario || '').includes(normalizedSearchTerm)
+        || normalizeForSearch(record.ip || '').includes(normalizedSearchTerm);
 
       const matchesEstado = !estadoValue || record.estado === estadoValue;
-      const matchesDepartamento = !departamentoValue || (record.departamento || '') === departamentoValue;
+      const matchesDepartamento = !departamentoKey
+        || createDepartmentKey(record.departamento || '') === departamentoKey;
 
       return matchesSearch && matchesEstado && matchesDepartamento;
     });
@@ -1091,9 +1348,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const addOption = (value) => {
       const normalized = normalizeDepartment(value);
       if (!normalized) return;
-      const key = createDepartmentKey(normalized);
+      const formatted = formatDepartmentLabel(normalized);
+      const key = createDepartmentKey(formatted);
       if (!key || map.has(key)) return;
-      map.set(key, normalized);
+      map.set(key, formatted);
     };
 
     PREDEFINED_DEPARTAMENTOS.forEach(addOption);
@@ -1183,7 +1441,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         throw new Error('Debes seleccionar un estado.');
       }
     }
-    const { value: departamento } = resolveDepartamentoValue({ requireMatch: hasIp && estadoSeleccionado !== 'libre' });
+    const departmentResolution = resolveDepartamentoValue({ requireMatch: hasIp && estadoSeleccionado !== 'libre' });
+    let departamento = departmentResolution.value;
     const notas = notasInput.value.trim();
     const propietario = propietarioInput?.value.trim() || '';
     const usuario = usuarioInput?.value.trim() || '';
@@ -1204,6 +1463,23 @@ document.addEventListener('DOMContentLoaded', async () => {
       gateway = (gatewayInput?.value || '').trim() || DEFAULTS.gateway;
       dns1 = (dns1Input?.value || '').trim() || DEFAULTS.dns1;
       dns2 = (dns2Input?.value || '').trim() || DEFAULTS.dns2;
+    }
+
+    if (departmentResolution.isCustom) {
+      const customValue = departamentoCustomInput?.value || '';
+      const validation = validateCustomDepartmentInput(customValue);
+      if (!validation.valid) {
+        setDepartamentoFeedback(validation.message);
+        departamentoCustomInput?.focus();
+        throw new Error(validation.message);
+      }
+      clearDepartamentoFeedback();
+      departamento = validation.formatted;
+    } else if (departamento) {
+      departamento = formatDepartmentLabel(departamento);
+      clearDepartamentoFeedback();
+    } else {
+      clearDepartamentoFeedback();
     }
 
     if (hasIp && estadoSeleccionado === 'asignada') {
@@ -1462,7 +1738,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     estadoInput?.addEventListener('change', applyEstadoRules);
     tipoSelect?.addEventListener('change', handleTipoSelectChange);
     departamentoInput?.addEventListener('change', handleDepartamentoInputChange);
-    departamentoCustomInput?.addEventListener('input', updateDepartamentoRequiredState);
+    departamentoCustomInput?.addEventListener('input', handleDepartamentoCustomInput);
+    departamentoCustomInput?.addEventListener('blur', handleDepartamentoCustomInput);
 
     tieneIpRadios.forEach((radio) => {
       radio.addEventListener('change', () => {
