@@ -201,38 +201,142 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- TEMPORIZADOR DE INACTIVIDAD ---
-    let inactivityTimer;
-    const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutos
+    const INACTIVITY_WARNING_TIMEOUT = 10 * 60 * 1000; // 10 minutos para aviso
+    const FORCED_LOGOUT_DELAY = 5 * 60 * 1000; // 5 minutos adicionales para cierre forzado
 
-    async function logoutUserByInactivity() {
-        const confirmed = await window.showConfirmationModal(
-            'Sesión por Expirar',
-            'Has estado inactivo por un tiempo. ¿Deseas cerrar la sesión ahora?'
-        );
+    let inactivityWarningTimer;
+    let forcedLogoutTimer;
+    let countdownInterval;
+    let isInactivityModalOpen = false;
 
-        if (confirmed) {
-            if (typeof window.clearWorkInProgress === 'function') {
-                window.clearWorkInProgress();
-            }
-            await supabaseClient.auth.signOut();
-            window.location.href = 'login.html';
-        } else {
-            // Si el usuario cancela, reseteamos el timer
-            resetInactivityTimer();
+    const formatCountdown = (totalSeconds) => {
+        const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+        const seconds = String(totalSeconds % 60).padStart(2, '0');
+        return `${minutes}:${seconds}`;
+    };
+
+    const cleanupInactivityCountdown = () => {
+        clearTimeout(forcedLogoutTimer);
+        clearInterval(countdownInterval);
+        forcedLogoutTimer = null;
+        countdownInterval = null;
+    };
+
+    const logoutAndRedirect = async () => {
+        clearTimeout(inactivityWarningTimer);
+        cleanupInactivityCountdown();
+
+        if (typeof window.clearWorkInProgress === 'function') {
+            window.clearWorkInProgress();
         }
-    }
+
+        try {
+            await supabaseClient.auth.signOut();
+        } finally {
+            window.location.href = 'login.html';
+        }
+    };
+
+    const showInactivityWarning = () => {
+        const modal = document.getElementById('modal-confirmacion');
+        const confirmTitle = document.getElementById('confirm-title');
+        const confirmMessage = document.getElementById('confirm-message');
+        const btnAceptar = document.getElementById('btn-confirmar-aceptar');
+        const btnCancelar = document.getElementById('btn-confirmar-cancelar');
+
+        if (!modal || !confirmTitle || !confirmMessage || !btnAceptar || !btnCancelar) {
+            forcedLogoutTimer = setTimeout(logoutAndRedirect, FORCED_LOGOUT_DELAY);
+            return;
+        }
+
+        const acceptLabel = btnAceptar.querySelector('.button-label');
+        const cancelLabel = btnCancelar.querySelector('.button-label');
+        const previousAcceptText = acceptLabel ? acceptLabel.textContent : '';
+        const previousCancelText = cancelLabel ? cancelLabel.textContent : '';
+
+        const closeModal = () => {
+            modal.classList.remove('visible');
+            btnAceptar.onclick = null;
+            btnCancelar.onclick = null;
+
+            if (acceptLabel) {
+                acceptLabel.textContent = previousAcceptText;
+            }
+            if (cancelLabel) {
+                cancelLabel.textContent = previousCancelText;
+            }
+
+            confirmMessage.textContent = '';
+            cleanupInactivityCountdown();
+            isInactivityModalOpen = false;
+        };
+
+        confirmTitle.textContent = 'Cierre de sesión por inactividad';
+        confirmMessage.innerHTML = 'Se ha detectado inactividad en el sitio web. La sesión se cerrará automáticamente en <span id="inactivity-countdown">05:00</span>.';
+
+        if (acceptLabel) {
+            acceptLabel.textContent = 'Cerrar sesión ahora';
+        }
+        if (cancelLabel) {
+            cancelLabel.textContent = 'Continuar aquí';
+        }
+
+        btnAceptar.onclick = () => {
+            closeModal();
+            logoutAndRedirect();
+        };
+
+        btnCancelar.onclick = () => {
+            closeModal();
+            resetInactivityTimer();
+        };
+
+        isInactivityModalOpen = true;
+        modal.classList.add('visible');
+
+        const countdownElement = document.getElementById('inactivity-countdown');
+        if (countdownElement) {
+            let remainingSeconds = Math.floor(FORCED_LOGOUT_DELAY / 1000);
+            const updateCountdown = () => {
+                countdownElement.textContent = formatCountdown(Math.max(remainingSeconds, 0));
+            };
+
+            updateCountdown();
+            countdownInterval = setInterval(() => {
+                remainingSeconds -= 1;
+                if (remainingSeconds < 0) {
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+                    return;
+                }
+                updateCountdown();
+            }, 1000);
+        }
+
+        forcedLogoutTimer = setTimeout(() => {
+            closeModal();
+            logoutAndRedirect();
+        }, FORCED_LOGOUT_DELAY);
+    };
 
     function resetInactivityTimer() {
-        clearTimeout(inactivityTimer);
-        inactivityTimer = setTimeout(logoutUserByInactivity, INACTIVITY_TIMEOUT);
+        cleanupInactivityCountdown();
+        clearTimeout(inactivityWarningTimer);
+        inactivityWarningTimer = setTimeout(showInactivityWarning, INACTIVITY_WARNING_TIMEOUT);
     }
 
-    const pagesWithInactivityTimer = ['index.html', 'inicio.html', 'descartes.html'];
+    const handleUserActivity = () => {
+        if (!isInactivityModalOpen) {
+            resetInactivityTimer();
+        }
+    };
+
+    const pagesWithInactivityTimer = ['index.html', 'inicio.html', 'descartes.html', 'consultar.html', 'inventario.html'];
     if (pagesWithInactivityTimer.some(page => window.location.pathname.includes(page))) {
-        window.onload = resetInactivityTimer;
-        document.onmousemove = resetInactivityTimer;
-        document.onkeydown = resetInactivityTimer;
-        document.onclick = resetInactivityTimer;
+        window.addEventListener('load', resetInactivityTimer);
+        document.onmousemove = handleUserActivity;
+        document.onkeydown = handleUserActivity;
+        document.onclick = handleUserActivity;
     }
 });
 
