@@ -806,6 +806,23 @@ html.dark-mode .stat-card {
   gap: 8px;
 }
 
+.form-group.has-error select,
+.form-group.has-error input[type="text"],
+.form-group.has-error textarea {
+  border-color: color-mix(in srgb, var(--error-color) 68%, var(--border-color));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--error-color) 55%, transparent);
+}
+
+.form-input-feedback {
+  font-size: 0.85rem;
+  color: color-mix(in srgb, var(--error-color) 85%, #1d1d1d);
+  line-height: 1.3;
+}
+
+.form-input-feedback[hidden] {
+  display: none !important;
+}
+
 .form-group[hidden],
 .form-group-inline[hidden],
 .ip-details-container[hidden] {
