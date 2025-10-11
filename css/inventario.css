@@ -142,6 +142,14 @@ html.dark-mode .stat-card {
   border-color: color-mix(in srgb, var(--stat-color) 65%, transparent);
 }
 
+html.dark-mode .stat-label {
+  color: color-mix(in srgb, var(--stat-color) 65%, #f9fafb);
+}
+
+html.dark-mode .stat-value {
+  color: color-mix(in srgb, var(--stat-color) 78%, #ffffff);
+}
+
 
 .filters-bar {
   display: flex;
@@ -469,6 +477,24 @@ html.dark-mode .btn-export:hover {
   color: color-mix(in srgb, var(--inventario-revision-color) 96%, #000);
 }
 
+html.dark-mode .estado-pill--libre {
+  background-color: color-mix(in srgb, var(--inventario-libre-color) 52%, transparent);
+  border-color: color-mix(in srgb, var(--inventario-libre-color) 85%, transparent);
+  color: color-mix(in srgb, var(--inventario-libre-color) 35%, #ffffff);
+}
+
+html.dark-mode .estado-pill--asignada {
+  background-color: color-mix(in srgb, var(--inventario-asignada-color) 52%, transparent);
+  border-color: color-mix(in srgb, var(--inventario-asignada-color) 85%, transparent);
+  color: color-mix(in srgb, var(--inventario-asignada-color) 30%, #ffffff);
+}
+
+html.dark-mode .estado-pill--en_revision {
+  background-color: color-mix(in srgb, var(--inventario-revision-color) 52%, transparent);
+  border-color: color-mix(in srgb, var(--inventario-revision-color) 85%, transparent);
+  color: color-mix(in srgb, var(--inventario-revision-color) 35%, #ffffff);
+}
+
 .action-buttons {
   display: grid;
   grid-template-columns: repeat(2, max-content);
@@ -522,23 +548,27 @@ html.dark-mode .btn-export:hover {
 }
 
 html.dark-mode .btn-action {
-  background-color: color-mix(in srgb, var(--primary-color) 60%, var(--card-bg-color));
-  color: #fff;
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary-color) 65%, transparent);
+  background-color: color-mix(in srgb, var(--primary-color) 32%, var(--card-bg-color));
+  color: color-mix(in srgb, #f8fafc 75%, var(--primary-color));
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25);
 }
 
 html.dark-mode .btn-action:hover {
-  background-color: color-mix(in srgb, var(--primary-color) 80%, #000);
+  background-color: color-mix(in srgb, var(--primary-color) 75%, #000);
+  color: #fff;
 }
 
 html.dark-mode .btn-action.btn-danger {
-  background-color: color-mix(in srgb, var(--error-color) 65%, var(--card-bg-color));
-  color: #fff;
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--error-color) 70%, transparent);
+  background-color: color-mix(in srgb, var(--error-color) 38%, var(--card-bg-color));
+  color: color-mix(in srgb, #fef2f2 75%, var(--error-color));
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25);
 }
 
 html.dark-mode .btn-action.btn-danger:hover {
-  background-color: color-mix(in srgb, var(--error-color) 82%, #000);
+  background-color: color-mix(in srgb, var(--error-color) 78%, #000);
+  color: #fff;
 }
 
 .estado-quick-select {
