@@ -302,8 +302,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     return rowHeightToPixels(height);
   }
 
-  function calculateImageSizeWithinBounds(worksheet, bounds, imageSize) {
+  function getAvailableSpaceWithinBounds(worksheet, bounds) {
+    if (!bounds) return null;
     const { startCol, endCol, startRow, endRow } = bounds;
+
     let availableWidth = 0;
     for (let columnNumber = startCol; columnNumber <= endCol; columnNumber++) {
       availableWidth += getWorksheetColumnWidthPixels(worksheet, columnNumber);
@@ -314,17 +316,90 @@ document.addEventListener('DOMContentLoaded', async () => {
       availableHeight += getWorksheetRowHeightPixels(worksheet, rowNumber);
     }
 
-    if (!availableWidth || !availableHeight || !imageSize?.width || !imageSize?.height) {
+    if (!availableWidth || !availableHeight) {
       return null;
     }
 
-    const widthRatio = availableWidth / imageSize.width;
-    const heightRatio = availableHeight / imageSize.height;
+    return { width: availableWidth, height: availableHeight };
+  }
+
+  function calculateImageSizeWithinBounds(worksheet, bounds, imageSize) {
+    if (!imageSize?.width || !imageSize?.height) {
+      return null;
+    }
+
+    const availableSpace = getAvailableSpaceWithinBounds(worksheet, bounds);
+    if (!availableSpace) {
+      return null;
+    }
+
+    const widthRatio = availableSpace.width / imageSize.width;
+    const heightRatio = availableSpace.height / imageSize.height;
     const scale = Math.min(widthRatio, heightRatio, 1);
 
     return {
       width: Math.max(1, Math.floor(imageSize.width * scale)),
       height: Math.max(1, Math.floor(imageSize.height * scale))
+    };
+  }
+
+  function calculateOffsetCoordinate(getSizeFn, startIndex, endIndex, pixelOffset) {
+    let remaining = Math.max(0, pixelOffset);
+    let currentIndex = startIndex;
+
+    while (currentIndex <= endIndex) {
+      const size = getSizeFn(currentIndex);
+      const safeSize = size > 0 ? size : 1;
+
+      if (remaining <= 0) {
+        return currentIndex - 1;
+      }
+
+      if (remaining < safeSize) {
+        return (currentIndex - 1) + (remaining / safeSize);
+      }
+
+      remaining -= safeSize;
+      currentIndex++;
+    }
+
+    return endIndex - 1;
+  }
+
+  function calculateImagePlacementWithinBounds(worksheet, bounds, imageSize) {
+    if (!imageSize?.width || !imageSize?.height) {
+      return null;
+    }
+
+    const availableSpace = getAvailableSpaceWithinBounds(worksheet, bounds);
+    if (!availableSpace) {
+      return null;
+    }
+
+    const horizontalOffset = Math.max(0, (availableSpace.width - imageSize.width) / 2);
+    const verticalOffset = Math.max(0, (availableSpace.height - imageSize.height) / 2);
+
+    const columnCoordinate = calculateOffsetCoordinate(
+      (columnNumber) => getWorksheetColumnWidthPixels(worksheet, columnNumber),
+      bounds.startCol,
+      bounds.endCol,
+      horizontalOffset
+    );
+
+    const rowCoordinate = calculateOffsetCoordinate(
+      (rowNumber) => getWorksheetRowHeightPixels(worksheet, rowNumber),
+      bounds.startRow,
+      bounds.endRow,
+      verticalOffset
+    );
+
+    if (!Number.isFinite(columnCoordinate) || !Number.isFinite(rowCoordinate)) {
+      return null;
+    }
+
+    return {
+      tl: { col: columnCoordinate, row: rowCoordinate },
+      ext: imageSize
     };
   }
 
@@ -1506,17 +1581,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       row3.alignment = { horizontal: 'center', vertical: 'middle' };
 
       if (logoImageId !== null) {
+        const bounds = { startCol: 7, endCol: 10, startRow: 1, endRow: 5 };
         const imageSize = calculateImageSizeWithinBounds(
           worksheet,
-          { startCol: 7, endCol: 10, startRow: 1, endRow: 5 },
+          bounds,
           logoDimensions
         );
 
-        if (imageSize) {
-          worksheet.addImage(logoImageId, {
-            tl: { col: 6, row: 0 },
-            ext: imageSize
-          });
+        const placement = imageSize
+          ? calculateImagePlacementWithinBounds(worksheet, bounds, imageSize)
+          : null;
+
+        if (placement) {
+          worksheet.addImage(logoImageId, placement);
         } else {
           worksheet.addImage(logoImageId, 'G1:J5');
         }
