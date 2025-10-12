@@ -1317,7 +1317,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       const sheetNumber = sheetIndex + 1;
       const worksheet = workbook.addWorksheet(`Sesión ${sheetNumber}`);
 
-      const columnWidths = [6, 40, 28, 28, 18, 18, 20, 20, 20, 34];
+      const descripcionHeader = 'DESCRIPCIÓN';
+      const columnWidths = [6, descripcionHeader.length, 28, 28, 18, 18, 20, 20, 20, 34];
       columnWidths.forEach((width, idx) => {
         worksheet.getColumn(idx + 1).width = width;
       });
