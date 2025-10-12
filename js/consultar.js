@@ -728,8 +728,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       scannerCloseButton = document.createElement('button');
       scannerCloseButton.type = 'button';
-      scannerCloseButton.className = 'scanbot-overlay__close';
-      scannerCloseButton.textContent = 'Cancelar escaneo';
+      scannerCloseButton.className = 'scanbot-overlay__close button-with-icon';
+      scannerCloseButton.innerHTML = '<span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span><span class="button-label">Cancelar escaneo</span>';
+      scannerCloseButton.setAttribute('aria-label', 'Cancelar escaneo');
       scannerCloseButton.addEventListener('click', () => closeActiveScanner());
 
       scannerViewEl = document.createElement('div');
