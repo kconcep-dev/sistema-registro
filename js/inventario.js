@@ -88,12 +88,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     en_revision: 'En revisión'
   };
 
-  const tipoOptionLabelMap = new Map(
-    Array.from(tipoSelect?.options || [])
-      .filter((option) => option.value)
-      .map((option) => [option.value.toLowerCase(), option.textContent.trim()])
-  );
-
   const DEFAULTS = {
     mascara: '255.255.255.0',
     gateway: '10.106.113.1',
@@ -101,7 +95,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     dns2: '10.106.2.4'
   };
 
-  const PREDEFINED_TIPOS = ['pc', 'router', 'impresora', 'switch'];
+  const PREDEFINED_TIPO_OPTIONS = [
+    { value: 'pc', label: 'PC' },
+    { value: 'router', label: 'Router' },
+    { value: 'impresora', label: 'Impresora' },
+    { value: 'switch', label: 'Switch' }
+  ];
+  const PREDEFINED_TIPOS = PREDEFINED_TIPO_OPTIONS.map((option) => option.value);
   const PREDEFINED_DEPARTAMENTOS = [
     'Arte y Cultura',
     'Compras',
@@ -124,9 +124,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const SIMILAR_DEPARTMENT_DISTANCE_THRESHOLD = 1;
 
   const OTHER_DEPARTMENT_VALUE = '__other__';
+  const OTHER_TIPO_VALUE = 'otro';
 
   let departmentOptionsMap = new Map();
   let departmentOptions = [...PREDEFINED_DEPARTAMENTOS];
+  let tipoOptionsMap = new Map();
+  let tipoOptions = [];
 
   const CLEAR_ON_FREE_DEFAULTS = {
     dispositivo: '',
@@ -153,18 +156,25 @@ document.addEventListener('DOMContentLoaded', async () => {
       return fallback;
     }
 
-    const trimmed = String(value).trim();
+    const trimmed = normalizeTipo(value);
     if (!trimmed) {
       return fallback;
     }
 
-    const label = tipoOptionLabelMap.get(trimmed.toLowerCase());
-    return label || trimmed;
-  }
+    const key = createTipoKey(trimmed);
+    if (key) {
+      const option = tipoOptionsMap.get(key);
+      if (option) {
+        return option.label;
+      }
+    }
 
-  function isPredefinedTipo(value) {
-    if (!value) return false;
-    return PREDEFINED_TIPOS.includes(String(value).toLowerCase());
+    const predefined = PREDEFINED_TIPO_OPTIONS.find((option) => option.value === trimmed.toLowerCase());
+    if (predefined) {
+      return predefined.label;
+    }
+
+    return trimmed;
   }
 
   function activateCustomTipoInput(value = '', { focus = false } = {}) {
@@ -200,8 +210,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
-    const valueAsString = String(value).toLowerCase();
-    if (valueAsString === 'otro') {
+    const valueAsString = String(value);
+    if (valueAsString.toLowerCase() === OTHER_TIPO_VALUE) {
       tipoSelect.value = '';
       if (tipoSelect.value !== '') {
         tipoSelect.selectedIndex = -1;
@@ -210,17 +220,25 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
-    if (isPredefinedTipo(valueAsString)) {
-      tipoSelect.value = valueAsString;
-      deactivateCustomTipoInput();
-      return;
+    const targetKey = createTipoKey(valueAsString);
+    if (targetKey) {
+      const matchingOption = Array.from(tipoSelect.options || []).find((option) => {
+        if (option.value === OTHER_TIPO_VALUE) return false;
+        return createTipoKey(option.value) === targetKey;
+      });
+
+      if (matchingOption) {
+        tipoSelect.value = matchingOption.value;
+        deactivateCustomTipoInput();
+        return;
+      }
     }
 
     tipoSelect.value = '';
     if (tipoSelect.value !== '') {
       tipoSelect.selectedIndex = -1;
     }
-    const displayValue = typeof value === 'string' && valueAsString !== 'otro' ? value : '';
+    const displayValue = typeof value === 'string' && valueAsString.toLowerCase() !== OTHER_TIPO_VALUE ? value : '';
     activateCustomTipoInput(displayValue, { focus: false });
   }
 
@@ -228,7 +246,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!tipoSelect) return;
     const { value } = tipoSelect;
 
-    if (value === 'otro') {
+    if (value === OTHER_TIPO_VALUE) {
       tipoSelect.value = '';
       if (tipoSelect.value !== '') {
         tipoSelect.selectedIndex = -1;
@@ -237,15 +255,72 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
-    if (isPredefinedTipo(value)) {
+    if (!value) {
       deactivateCustomTipoInput();
       return;
     }
 
-    if (!value) {
-      deactivateCustomTipoInput();
-    }
+    deactivateCustomTipoInput();
   }
+
+  function normalizeTipo(value) {
+    if (typeof value !== 'string') return '';
+    return value.trim().replace(/\s+/g, ' ');
+  }
+
+  function createTipoKey(value) {
+    const normalized = normalizeTipo(value);
+    if (!normalized) return '';
+    return normalized.normalize('NFD').replace(DIACRITICS_REGEX, '').toLowerCase();
+  }
+
+  function scoreTipoLabel(label) {
+    const normalized = normalizeTipo(label);
+    if (!normalized) return 0;
+
+    let score = 0;
+
+    const normalizedNfd = normalized.normalize('NFD');
+    if (/[\u0300-\u036f]/.test(normalizedNfd)) {
+      score += 2;
+    }
+
+    if (normalized === normalized.toLocaleUpperCase('es')) {
+      score += 3;
+    }
+
+    normalized.split(/\s+/).forEach((word) => {
+      if (!word) return;
+      const firstChar = word.charAt(0);
+      if (firstChar === firstChar.toLocaleUpperCase('es')) {
+        score += 1;
+      }
+    });
+
+    return score + normalized.length / 100;
+  }
+
+  function chooseBetterTipoOption(existingOption, candidateOption) {
+    if (!existingOption) return candidateOption;
+    if (!candidateOption) return existingOption;
+
+    const existingScore = scoreTipoLabel(existingOption.label);
+    const candidateScore = scoreTipoLabel(candidateOption.label);
+
+    if (candidateScore > existingScore) {
+      return candidateOption;
+    }
+
+    if (candidateScore < existingScore) {
+      return existingOption;
+    }
+
+    return candidateOption.label.localeCompare(existingOption.label, 'es', { sensitivity: 'accent' }) < 0
+      ? candidateOption
+      : existingOption;
+  }
+
+  const OTHER_TIPO_KEY = createTipoKey(OTHER_TIPO_VALUE);
 
   function normalizeDepartment(value) {
     if (typeof value !== 'string') return '';
@@ -309,6 +384,56 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     return `${upperFirstChar}${rest}`;
   }
+
+  function scoreDepartmentLabel(value) {
+    const normalized = normalizeDepartment(value);
+    if (!normalized) return 0;
+
+    let score = 0;
+
+    const normalizedNfd = normalized.normalize('NFD');
+    if (/[\u0300-\u036f]/.test(normalizedNfd)) {
+      score += 4;
+    }
+
+    const words = normalized.split(/\s+/);
+    words.forEach((word) => {
+      if (!word) return;
+      const firstChar = word.charAt(0);
+      if (firstChar === firstChar.toLocaleUpperCase('es')) {
+        score += 1;
+      }
+      if (word === word.toLocaleUpperCase('es') && word.length > 1) {
+        score += 2;
+      }
+    });
+
+    return score + normalized.length / 100;
+  }
+
+  function chooseBetterDepartmentLabel(currentValue, candidateValue) {
+    if (!currentValue) return candidateValue;
+    if (!candidateValue) return currentValue;
+
+    const currentScore = scoreDepartmentLabel(currentValue);
+    const candidateScore = scoreDepartmentLabel(candidateValue);
+
+    if (candidateScore > currentScore) {
+      return candidateValue;
+    }
+
+    if (candidateScore < currentScore) {
+      return currentValue;
+    }
+
+    return candidateValue.localeCompare(currentValue, 'es', { sensitivity: 'accent' }) < 0
+      ? candidateValue
+      : currentValue;
+  }
+
+  const DEPARTMENT_DICTIONARY = new Map(
+    PREDEFINED_DEPARTAMENTOS.map((dept) => [createDepartmentKey(dept), formatDepartmentLabel(dept)])
+  );
 
   function detectOrthographyIssue(value) {
     const normalized = normalizeDepartment(value);
@@ -462,19 +587,41 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const formatted = formatDepartmentLabel(normalizedValue);
+    const key = createDepartmentKey(formatted);
+
+    const dictionaryMatch = DEPARTMENT_DICTIONARY.get(key);
+    if (dictionaryMatch && dictionaryMatch !== formatted) {
+      return {
+        valid: false,
+        message: `Revisa la ortografía del departamento. Debe escribirse "${dictionaryMatch}".`,
+        suggestion: dictionaryMatch
+      };
+    }
+
     const orthographyIssue = detectOrthographyIssue(normalizedValue);
     if (orthographyIssue) {
       return { valid: false, message: orthographyIssue.message, suggestion: orthographyIssue.suggestion };
     }
 
-    const key = createDepartmentKey(formatted);
     const existingValue = departmentOptionsMap.get(key);
 
     if (existingValue && !allowExistingMatch) {
+      if (existingValue === formatted) {
+        return {
+          valid: false,
+          message: 'Ese departamento ya existe en la lista. Selecciónalo desde el menú desplegable.',
+          duplicateValue: existingValue
+        };
+      }
+
       return {
-        valid: false,
-        message: 'Ese departamento ya existe en la lista. Selecciónalo desde el menú desplegable.',
-        duplicateValue: existingValue
+        valid: true,
+        formatted,
+        normalized: normalizedValue,
+        key,
+        replacesExisting: true,
+        shouldRegisterOption: true,
+        previousValue: existingValue
       };
     }
 
@@ -489,7 +636,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
 
-    return { valid: true, formatted, normalized: normalizedValue };
+    return {
+      valid: true,
+      formatted,
+      normalized: normalizedValue,
+      key,
+      replacesExisting: false,
+      shouldRegisterOption: !existingValue
+    };
   }
 
   function isCustomDepartamentoInputActive() {
@@ -680,6 +834,54 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
       clearDispositivoFeedback();
     }
+  }
+
+  function updateTipoFormOptions({ previousValue = '', previousCustomValue = '', customActive = false } = {}) {
+    if (!tipoSelect) return;
+
+    tipoSelect.innerHTML = '';
+
+    const placeholderOption = document.createElement('option');
+    placeholderOption.value = '';
+    placeholderOption.textContent = 'Selecciona un tipo';
+    tipoSelect.appendChild(placeholderOption);
+
+    tipoOptions.forEach((option) => {
+      const optionEl = document.createElement('option');
+      optionEl.value = option.value;
+      optionEl.textContent = option.label;
+      tipoSelect.appendChild(optionEl);
+    });
+
+    const otherOption = document.createElement('option');
+    otherOption.value = OTHER_TIPO_VALUE;
+    otherOption.textContent = 'Otro';
+    tipoSelect.appendChild(otherOption);
+
+    if (customActive) {
+      tipoSelect.value = '';
+      activateCustomTipoInput(previousCustomValue, { focus: false });
+      return;
+    }
+
+    if (previousValue && previousValue !== OTHER_TIPO_VALUE) {
+      const previousKey = createTipoKey(previousValue);
+      if (previousKey) {
+        const matchingOption = Array.from(tipoSelect.options || []).find((option) => {
+          if (option.value === OTHER_TIPO_VALUE) return false;
+          return createTipoKey(option.value) === previousKey;
+        });
+
+        if (matchingOption) {
+          tipoSelect.value = matchingOption.value;
+          deactivateCustomTipoInput();
+          return;
+        }
+      }
+    }
+
+    tipoSelect.value = '';
+    deactivateCustomTipoInput();
   }
 
   function updateDepartamentoFormOptions(options = departmentOptions) {
@@ -1244,30 +1446,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       eliminarBtn.dataset.id = record.id;
       eliminarBtn.title = 'Eliminar';
 
-      const estadoSelectQuick = document.createElement('select');
-      estadoSelectQuick.className = 'estado-quick-select';
-      estadoSelectQuick.dataset.id = record.id;
-      estadoSelectQuick.title = 'Estado';
-      ['libre', 'asignada', 'en_revision'].forEach((estado) => {
-        const option = document.createElement('option');
-        option.value = estado;
-        option.textContent = STATE_LABELS[estado];
-        estadoSelectQuick.appendChild(option);
-      });
-      if (hasIp && rawEstadoValue) {
-        estadoSelectQuick.value = rawEstadoValue;
-      } else if (!hasIp) {
-        const placeholderOption = document.createElement('option');
-        placeholderOption.value = '';
-        placeholderOption.textContent = 'Sin estado';
-        placeholderOption.selected = true;
-        placeholderOption.disabled = true;
-        placeholderOption.hidden = true;
-        estadoSelectQuick.insertBefore(placeholderOption, estadoSelectQuick.firstChild);
-      }
-      estadoSelectQuick.disabled = !hasIp;
-
-      actionWrapper.append(editarBtn, eliminarBtn, estadoSelectQuick);
+      actionWrapper.append(editarBtn, eliminarBtn);
       accionesTd.appendChild(actionWrapper);
 
       mainRow.append(
@@ -1382,6 +1561,95 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  function populateTipoOptions() {
+    const previousValue = tipoSelect?.value || '';
+    const previousCustomValue = tipoCustomInput?.value || '';
+    const customActive = isCustomTipoInputActive();
+
+    const map = new Map();
+
+    const registerOption = (value, label, { allowOverride = true } = {}) => {
+      const normalizedValue = normalizeTipo(value);
+      if (!normalizedValue) return;
+      const key = createTipoKey(normalizedValue);
+      if (!key || key === OTHER_TIPO_KEY) return;
+
+      const candidate = {
+        value: normalizedValue,
+        label: label || normalizedValue
+      };
+
+      const existing = map.get(key);
+      if (!existing) {
+        map.set(key, candidate);
+        return;
+      }
+
+      if (!allowOverride) {
+        return;
+      }
+
+      const preferred = chooseBetterTipoOption(existing, candidate);
+      if (preferred !== existing) {
+        map.set(key, preferred);
+      }
+    };
+
+    PREDEFINED_TIPO_OPTIONS.forEach((option) => {
+      registerOption(option.value, option.label, { allowOverride: false });
+    });
+
+    allRecords.forEach((record) => {
+      if (!record?.tipo) return;
+      const rawValue = record.tipo;
+      if (typeof rawValue !== 'string') return;
+      const normalized = normalizeTipo(rawValue);
+      if (!normalized) return;
+
+      const lower = normalized.toLowerCase();
+      if (PREDEFINED_TIPOS.includes(lower)) {
+        const predefined = PREDEFINED_TIPO_OPTIONS.find((option) => option.value === lower);
+        if (predefined) {
+          registerOption(predefined.value, predefined.label, { allowOverride: false });
+        }
+        return;
+      }
+
+      registerOption(normalized, normalized);
+    });
+
+    tipoOptionsMap = map;
+
+    const ordered = [];
+    const addedKeys = new Set();
+
+    PREDEFINED_TIPO_OPTIONS.forEach((option) => {
+      const key = createTipoKey(option.value);
+      if (!key) return;
+      const stored = map.get(key);
+      if (stored) {
+        ordered.push({ value: stored.value, label: stored.label });
+        addedKeys.add(key);
+      }
+    });
+
+    Array.from(map.entries())
+      .filter(([key]) => !addedKeys.has(key))
+      .map(([, option]) => option)
+      .sort((a, b) => a.label.localeCompare(b.label, 'es', { sensitivity: 'base' }))
+      .forEach((option) => {
+        ordered.push(option);
+      });
+
+    tipoOptions = ordered;
+
+    updateTipoFormOptions({
+      previousValue,
+      previousCustomValue,
+      customActive
+    });
+  }
+
   function populateDepartmentOptions() {
     const selectedFilter = departamentoSelect?.value || '';
     const map = new Map();
@@ -1391,10 +1659,21 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (!normalized) return;
       const formatted = formatDepartmentLabel(normalized);
       const key = createDepartmentKey(formatted);
-      if (!key || map.has(key)) return;
-      map.set(key, formatted);
+      if (!key) return;
+
+      const existing = map.get(key);
+      if (!existing) {
+        map.set(key, formatted);
+        return;
+      }
+
+      const preferred = chooseBetterDepartmentLabel(existing, formatted);
+      if (preferred !== existing) {
+        map.set(key, preferred);
+      }
     };
 
+    DEPARTMENT_DICTIONARY.forEach((dictionaryValue) => addOption(dictionaryValue));
     PREDEFINED_DEPARTAMENTOS.forEach(addOption);
     allRecords.forEach((record) => addOption(record?.departamento));
 
@@ -1432,6 +1711,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (error) throw error;
 
       allRecords = Array.isArray(data) ? data : [];
+      populateTipoOptions();
       populateDepartmentOptions();
       applyFilters();
       handleDispositivoInputValidation();
@@ -1578,9 +1858,44 @@ document.addEventListener('DOMContentLoaded', async () => {
     return payload;
   }
 
-  function ensureNoDuplicateRecords({ dispositivo, ip, excludeId = null }) {
-    if (dispositivo) {
-      const duplicateDevice = findDeviceDuplicate(dispositivo, { excludeId });
+  function ensureNoDuplicateRecords({ dispositivo, ipInput, excludeId = null, hasIpSelection = true }) {
+    const normalizedDevice = normalizeDeviceValue(dispositivo);
+
+    if (normalizedDevice) {
+      const duplicateDevice = findDeviceDuplicate(normalizedDevice, { excludeId });
+      if (duplicateDevice) {
+        setDispositivoFeedback(MESSAGE_DUPLICATE_DEVICE_INLINE);
+        throw new Error(MESSAGE_DUPLICATE_RECORD);
+      }
+    }
+
+    clearDispositivoFeedback();
+
+    if (!hasIpSelection) {
+      return;
+    }
+
+    const rawIpValue = typeof ipInput === 'string' ? ipInput.trim() : '';
+    if (!rawIpValue) {
+      return;
+    }
+
+    const ipValidation = validateIp(rawIpValue);
+    if (!ipValidation.valid) {
+      return;
+    }
+
+    const duplicateIp = findIpDuplicate(ipValidation.value, { excludeId });
+    if (duplicateIp) {
+      throw new Error(MESSAGE_DUPLICATE_RECORD);
+    }
+  }
+
+  function ensureNoDuplicateRecordsFromPayload({ dispositivo, ip, excludeId = null }) {
+    const normalizedDevice = normalizeDeviceValue(dispositivo);
+
+    if (normalizedDevice) {
+      const duplicateDevice = findDeviceDuplicate(normalizedDevice, { excludeId });
       if (duplicateDevice) {
         setDispositivoFeedback(MESSAGE_DUPLICATE_DEVICE_INLINE);
         throw new Error(MESSAGE_DUPLICATE_RECORD);
@@ -1602,9 +1917,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (isSubmitting) return;
 
     try {
-      const payload = buildPayloadFromForm();
       const targetRecordId = isEditing ? editingId : selectedFreeRecordId;
+      const hasIpSelection = getTieneIpSelection();
+
       ensureNoDuplicateRecords({
+        dispositivo: dispositivoInput?.value || '',
+        ipInput: hasIpSelection ? ipInput?.value || '' : '',
+        excludeId: targetRecordId || null,
+        hasIpSelection
+      });
+
+      const payload = buildPayloadFromForm();
+
+      ensureNoDuplicateRecordsFromPayload({
         dispositivo: payload.dispositivo || dispositivoInput.value.trim(),
         ip: payload.ip,
         excludeId: targetRecordId || null
@@ -1709,64 +2034,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       const message = error?.message || 'No se pudo eliminar el registro.';
       showToast(message, 'error', 4200);
       console.error('Error eliminando registro', error);
-    }
-  }
-
-  async function handleQuickEstadoChange(selectEl) {
-    const id = selectEl.dataset.id;
-    const newEstado = selectEl.value;
-    const record = allRecords.find((item) => item.id === id);
-    if (!record) return;
-
-    const recordHasIp = hasIpValue(record.ip);
-
-    try {
-      selectEl.disabled = true;
-
-      if (newEstado === 'libre') {
-        const clearPayload = { estado: 'libre' };
-
-        if (recordHasIp) {
-          Object.assign(clearPayload, {
-            dispositivo: CLEAR_ON_FREE_DEFAULTS.dispositivo,
-            tipo: CLEAR_ON_FREE_DEFAULTS.tipo,
-            departamento: CLEAR_ON_FREE_DEFAULTS.departamento,
-            notas: CLEAR_ON_FREE_DEFAULTS.notas,
-            propietario: CLEAR_ON_FREE_DEFAULTS.propietario,
-            usuario: CLEAR_ON_FREE_DEFAULTS.usuario,
-            asignado_por: CLEAR_ON_FREE_DEFAULTS.asignado_por
-          });
-
-          Object.keys(record).forEach((key) => {
-            if (key.startsWith('asignado_') && !(key in clearPayload)) {
-              clearPayload[key] = null;
-            }
-          });
-        }
-
-        await updateRecord(id, clearPayload);
-        showToast(recordHasIp ? `La IP ${record.ip} ahora está libre.` : 'El registro se marcó como libre.');
-      } else if (newEstado === 'asignada') {
-        if (!record.dispositivo || !record.departamento) {
-          showToast('Completa los datos obligatorios antes de asignar este registro.', 'error', 4200);
-          selectEl.value = record.estado;
-          openModal({ mode: 'edit', record });
-          return;
-        }
-        await updateRecord(id, { estado: 'asignada' });
-        showToast(recordHasIp ? `La IP ${record.ip} fue marcada como asignada.` : 'El registro fue marcado como asignado.');
-      } else if (newEstado === 'en_revision') {
-        await updateRecord(id, { estado: 'en_revision' });
-        showToast(recordHasIp ? `La IP ${record.ip} se marcó en revisión.` : 'El registro se marcó en revisión.');
-      }
-
-      await fetchRecords();
-    } catch (error) {
-      showToast('No se pudo actualizar el estado.', 'error', 4200);
-      console.error('Error cambiando estado', error);
-      selectEl.value = record.estado;
-    } finally {
-      selectEl.disabled = false;
     }
   }
 
@@ -1896,7 +2163,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
 
-      if (target.closest('.estado-quick-select') || target.closest('.action-buttons')) {
+      if (target.closest('.action-buttons')) {
         return;
       }
 
@@ -1912,14 +2179,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       const row = target.closest('.inventory-row');
       if (row instanceof HTMLTableRowElement) {
         toggleRowDetails(row);
-      }
-    });
-
-    tablaBody?.addEventListener('change', (event) => {
-      const target = event.target;
-      if (!(target instanceof HTMLSelectElement)) return;
-      if (target.matches('.estado-quick-select')) {
-        handleQuickEstadoChange(target);
       }
     });
 
@@ -1970,6 +2229,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   attachEventListeners();
   initializeStatsToggle();
   initializeFilterToolbar();
+  populateTipoOptions();
   populateDepartmentOptions();
   await fetchRecords({ showLoader: false });
   toggleLoader(false);
