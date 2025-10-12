@@ -1136,13 +1136,33 @@ html.dark-mode .btn-scan.btn-scan--disabled {
   flex-shrink: 0;
 }
 
+.btn-reload-scan--icon-only {
+  padding: 0 12px;
+  min-width: 42px;
+  min-height: 42px;
+  border: none;
+  background-color: var(--primary-color);
+  color: #FFFFFF;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
 .btn-reload-scan:hover {
   background-color: var(--border-color);
   color: var(--bg-color);
 }
 
+.btn-reload-scan--icon-only:hover {
+  background-color: var(--primary-hover-color);
+  color: #FFFFFF;
+}
+
 .btn-reload-scan:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--border-color) 35%, transparent);
+  outline-offset: 2px;
+}
+
+.btn-reload-scan--icon-only:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary-color) 35%, transparent);
   outline-offset: 2px;
 }
 
@@ -1166,6 +1186,11 @@ html.dark-mode .btn-scan.btn-scan--disabled {
   .btn-reload-scan {
     min-height: 40px;
     padding: 0 12px;
+  }
+
+  .btn-reload-scan--icon-only {
+    min-height: 40px;
+    min-width: 40px;
   }
 }
 

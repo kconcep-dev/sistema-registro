@@ -286,6 +286,10 @@ window.createScannerSessionGuard = ({
             }
             btn.hidden = true;
             btn.setAttribute('aria-hidden', 'true');
+            if (!btn.dataset.originalDisplay) {
+                btn.dataset.originalDisplay = btn.style.display || '';
+            }
+            btn.style.display = 'none';
         });
     };
 
