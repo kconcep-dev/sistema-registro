@@ -1550,7 +1550,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     for (let sheetIndex = 0; sheetIndex < totalSheets; sheetIndex++) {
       const sheetNumber = sheetIndex + 1;
-      const worksheet = workbook.addWorksheet(`Sesión ${sheetNumber}`);
+      const worksheet = workbook.addWorksheet(`Hoja ${sheetNumber}`);
 
       const descripcionHeader = 'DESCRIPCIÓN';
       const unidadAdministrativaLabel = 'UNIDAD ADMINISTRATIVA:';
