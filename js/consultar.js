@@ -1661,13 +1661,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         worksheet.getCell(excelRow, 1).alignment  = { horizontal: 'center', vertical: 'middle' };
-        worksheet.getCell(excelRow, 2).alignment  = { horizontal: 'left', vertical: 'top', wrapText: true };
-        worksheet.getCell(excelRow, 3).alignment  = { horizontal: 'left', vertical: 'top', wrapText: true };
-        worksheet.getCell(excelRow, 4).alignment  = { horizontal: 'left', vertical: 'top', wrapText: true };
-        worksheet.getCell(excelRow, 5).alignment  = { horizontal: 'left', vertical: 'top', wrapText: true };
-        worksheet.getCell(excelRow, 6).alignment  = { horizontal: 'left', vertical: 'top', wrapText: true };
-        worksheet.getCell(excelRow, 7).alignment  = { horizontal: 'left', vertical: 'top', wrapText: true };
-        worksheet.getCell(excelRow, 10).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
+        worksheet.getCell(excelRow, 2).alignment  = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        worksheet.getCell(excelRow, 3).alignment  = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        worksheet.getCell(excelRow, 4).alignment  = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        worksheet.getCell(excelRow, 5).alignment  = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        worksheet.getCell(excelRow, 6).alignment  = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        worksheet.getCell(excelRow, 7).alignment  = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        worksheet.getCell(excelRow, 10).alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
       }
 
       worksheet.mergeCells('A26:J26');
@@ -1681,10 +1681,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       worksheet.getCell('J28').value = '______________________';
 
       worksheet.mergeCells('C29:D29');
-      worksheet.getCell('C29').value = 'FIRMA:';
+      worksheet.getCell('C29').value = 'FIRMA';
       worksheet.mergeCells('F29:G29');
-      worksheet.getCell('F29').value = 'FIRMA:';
-      worksheet.getCell('J29').value = 'FIRMA:';
+      worksheet.getCell('F29').value = 'FIRMA';
+      worksheet.getCell('J29').value = 'FIRMA';
 
       worksheet.mergeCells('C30:D30');
       worksheet.getCell('C30').value = 'ADALBERTO FERNÁNDEZ C.';
