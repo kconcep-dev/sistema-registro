@@ -1318,7 +1318,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       const worksheet = workbook.addWorksheet(`Sesión ${sheetNumber}`);
 
       const descripcionHeader = 'DESCRIPCIÓN';
-      const columnWidths = [6, descripcionHeader.length, 28, 28, 18, 18, 20, 20, 20, 34];
+      const unidadAdministrativaLabel = 'UNIDAD ADMINISTRATIVA:';
+      const columnAWidth = 6;
+      const columnBWidth = Math.max(
+        descripcionHeader.length,
+        Math.max(unidadAdministrativaLabel.length - columnAWidth, 0)
+      );
+      const columnWidths = [columnAWidth, columnBWidth, 28, 28, 18, 18, 20, 20, 20, 34];
       columnWidths.forEach((width, idx) => {
         worksheet.getColumn(idx + 1).width = width;
       });
@@ -1352,7 +1358,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       worksheet.getCell('I5').alignment = { horizontal: 'left', vertical: 'middle' };
 
       worksheet.mergeCells('A6:B6');
-      worksheet.getCell('A6').value = 'UNIDAD ADMINISTRATIVA:';
+      worksheet.getCell('A6').value = unidadAdministrativaLabel;
       worksheet.getCell('A6').alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
       worksheet.getCell('C6').value = currentSessionData.unidad_administrativa || '';
       worksheet.getCell('C6').alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
