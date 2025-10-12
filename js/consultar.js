@@ -376,7 +376,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       return null;
     }
 
-    const horizontalOffset = Math.max(0, (availableSpace.width - imageSize.width) / 2);
+    // Alinear el logo con el borde derecho del rango disponible
+    const horizontalOffset = Math.max(0, availableSpace.width - imageSize.width);
     const verticalOffset = Math.max(0, (availableSpace.height - imageSize.height) / 2);
 
     const columnCoordinate = calculateOffsetCoordinate(
