@@ -541,12 +541,6 @@ html.dark-mode .estado-pill--en_revision {
   color: #fff;
 }
 
-.action-buttons .estado-quick-select {
-  grid-column: 1 / -1;
-  width: 100%;
-  min-width: 0;
-}
-
 html.dark-mode .btn-action {
   background-color: color-mix(in srgb, var(--primary-color) 32%, var(--card-bg-color));
   color: color-mix(in srgb, #f8fafc 75%, var(--primary-color));
@@ -571,27 +565,9 @@ html.dark-mode .btn-action.btn-danger:hover {
   color: #fff;
 }
 
-.estado-quick-select {
-  height: 38px;
-  border-radius: var(--button-radius);
-  border: 1px solid var(--border-color);
-  background-color: var(--input-bg-color);
-  color: var(--input-text-color);
-  padding: 0 16px;
-}
-
-.estado-quick-select:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 @media (max-width: 640px) {
   .action-buttons {
     grid-template-columns: 1fr;
-  }
-
-  .action-buttons .estado-quick-select {
-    grid-column: 1;
   }
 }
 
