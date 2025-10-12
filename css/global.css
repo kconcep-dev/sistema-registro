@@ -46,6 +46,34 @@ button {
     border-radius: var(--button-radius);
 }
 
+.page-heading {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 24px;
+    text-align: center;
+    justify-items: center;
+}
+
+.page-heading h1 {
+    margin-bottom: 0;
+}
+
+.page-heading--left {
+    text-align: left;
+    justify-items: start;
+}
+
+.page-description {
+    font-size: 1.05rem;
+    color: color-mix(in srgb, var(--text-color) 85%, transparent);
+    max-width: 680px;
+    margin: 0;
+}
+
+.page-heading--left .page-description {
+    max-width: none;
+}
+
 .sr-only {
     position: absolute;
     width: 1px;

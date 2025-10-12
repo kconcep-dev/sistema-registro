@@ -20,13 +20,30 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnIniciar = document.getElementById('btn-iniciar-descarte');
   const btnAnadirEquipo = document.getElementById('btn-anadir-equipo');
   const btnFinalizar = document.getElementById('btn-finalizar-descarte');
+  const pageDescription = document.getElementById('descartes-description');
   const iconButtons = document.querySelectorAll('.button-with-icon');
   const mobileLabelQuery = window.matchMedia('(max-width: 600px)');
-  
+
   // Modales
   const modalSesion = document.getElementById('modal-nueva-sesion');
   const btnCerrarModalSesion = document.getElementById('btn-cerrar-modal');
   const formNuevaSesion = document.getElementById('form-nueva-sesion');
+
+  const nuevaSesionRequiredInputs = formNuevaSesion
+    ? Array.from(formNuevaSesion.querySelectorAll('input[required]'))
+    : [];
+
+  nuevaSesionRequiredInputs.forEach((input) => {
+    input.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter') return;
+      event.preventDefault();
+      if (!formNuevaSesion.reportValidity()) return;
+      const submitBtn = formNuevaSesion.querySelector('button[type="submit"]');
+      if (submitBtn && !submitBtn.disabled) {
+        submitBtn.click();
+      }
+    });
+  });
   
   const modalEditar = document.getElementById('modal-editar-equipo');
   const formEditar = document.getElementById('form-editar-equipo');
@@ -149,6 +166,9 @@ document.addEventListener('DOMContentLoaded', () => {
       setButtonLoading(btnFinalizar, false);
       inicioSection.style.display = 'flex';
       registroSection.style.display = 'none';
+      if (pageDescription) {
+        pageDescription.hidden = false;
+      }
     }
   };
 
@@ -197,6 +217,9 @@ document.addEventListener('DOMContentLoaded', () => {
     registroSection.style.display = 'flex';
     window.isWorkInProgress = true;
     document.body.classList.remove('page-descartes-inicio');
+    if (pageDescription) {
+      pageDescription.hidden = true;
+    }
   }
   
   // --- 4. LÓGICA DE SESIÓN Y RESTAURACIÓN ---

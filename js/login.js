@@ -52,6 +52,11 @@ document.addEventListener('DOMContentLoaded', () => {
         focusField(fieldToFocus);
     };
 
+    const clickIfEnabled = (button) => {
+        if (!button || button.disabled) return;
+        button.click();
+    };
+
     // --- LÓGICA DEL FORMULARIO MULTI-PASO ---
     nextBtn.addEventListener('click', () => {
         const email = emailInput.value.trim();
@@ -66,6 +71,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     backBtn.addEventListener('click', () => {
         toggleStepVisibility(stepPassword, stepEmail, emailInput);
+    });
+
+    emailInput.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter') return;
+        event.preventDefault();
+        clickIfEnabled(nextBtn);
+    });
+
+    passwordInput.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter') return;
+        event.preventDefault();
+        clickIfEnabled(loginBtn);
     });
 
     // --- LÓGICA DE ENVÍO FINAL ---
