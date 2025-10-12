@@ -183,6 +183,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Cache del logo para exportación
   let cachedLogoMeducaBase64;
+  let cachedLogoMeducaDimensions;
 
   async function getLogoMeducaBase64() {
     if (cachedLogoMeducaBase64 !== undefined) {
@@ -218,6 +219,113 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     return cachedLogoMeducaBase64;
+  }
+
+  async function getLogoMeducaDimensions() {
+    if (cachedLogoMeducaDimensions !== undefined) {
+      return cachedLogoMeducaDimensions;
+    }
+
+    const base64 = await getLogoMeducaBase64();
+    if (!base64) {
+      cachedLogoMeducaDimensions = null;
+      return cachedLogoMeducaDimensions;
+    }
+
+    try {
+      cachedLogoMeducaDimensions = await getImageDimensionsFromBase64(base64);
+    } catch (error) {
+      console.error('No se pudieron obtener las dimensiones del logo del MEDUCA.', error);
+      cachedLogoMeducaDimensions = null;
+    }
+
+    return cachedLogoMeducaDimensions;
+  }
+
+  function getImageDimensionsFromBase64(base64) {
+    return new Promise((resolve, reject) => {
+      if (!base64) {
+        reject(new Error('No hay datos base64 para la imagen.'));
+        return;
+      }
+
+      if (typeof Image === 'undefined') {
+        reject(new Error('La API Image no está disponible en este entorno.'));
+        return;
+      }
+
+      const image = new Image();
+      image.decoding = 'async';
+      image.onload = () => {
+        const width = image.naturalWidth || image.width;
+        const height = image.naturalHeight || image.height;
+        if (!width || !height) {
+          reject(new Error('Dimensiones inválidas para la imagen.'));
+          return;
+        }
+        resolve({ width, height });
+      };
+      image.onerror = () => {
+        reject(new Error('Error al cargar la imagen base64.'));
+      };
+      image.src = `data:image/png;base64,${base64}`;
+    });
+  }
+
+  function columnWidthToPixels(width) {
+    if (typeof width !== 'number' || Number.isNaN(width)) {
+      return 0;
+    }
+
+    if (width <= 0) {
+      return 0;
+    }
+
+    const pixels = Math.floor(((256 * width + Math.floor(128 / 7)) / 256) * 7);
+    return pixels > 0 ? pixels : 0;
+  }
+
+  function rowHeightToPixels(height) {
+    const points = (typeof height === 'number' && !Number.isNaN(height) && height > 0) ? height : 15;
+    return Math.floor(points * (96 / 72));
+  }
+
+  function getWorksheetColumnWidthPixels(worksheet, columnNumber) {
+    const column = worksheet.getColumn(columnNumber);
+    const width = (column && typeof column.width === 'number' && !Number.isNaN(column.width)) ? column.width : 8.43;
+    return columnWidthToPixels(width);
+  }
+
+  function getWorksheetRowHeightPixels(worksheet, rowNumber) {
+    const row = worksheet.getRow(rowNumber);
+    const height = (row && typeof row.height === 'number' && !Number.isNaN(row.height)) ? row.height : 15;
+    return rowHeightToPixels(height);
+  }
+
+  function calculateImageSizeWithinBounds(worksheet, bounds, imageSize) {
+    const { startCol, endCol, startRow, endRow } = bounds;
+    let availableWidth = 0;
+    for (let columnNumber = startCol; columnNumber <= endCol; columnNumber++) {
+      availableWidth += getWorksheetColumnWidthPixels(worksheet, columnNumber);
+    }
+
+    let availableHeight = 0;
+    for (let rowNumber = startRow; rowNumber <= endRow; rowNumber++) {
+      availableHeight += getWorksheetRowHeightPixels(worksheet, rowNumber);
+    }
+
+    if (!availableWidth || !availableHeight || !imageSize?.width || !imageSize?.height) {
+      return null;
+    }
+
+    const widthRatio = availableWidth / imageSize.width;
+    const heightRatio = availableHeight / imageSize.height;
+    const scale = Math.min(widthRatio, heightRatio, 1);
+
+    return {
+      width: Math.max(1, Math.floor(imageSize.width * scale)),
+      height: Math.max(1, Math.floor(imageSize.height * scale))
+    };
   }
 
   // dd-mm-aaaa
@@ -1338,6 +1446,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     showToast('Generando formulario de descarte...', 'success');
 
     const logoBase64 = await getLogoMeducaBase64();
+    const logoDimensions = await getLogoMeducaDimensions();
 
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'Sistema de Registro';
@@ -1397,7 +1506,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       row3.alignment = { horizontal: 'center', vertical: 'middle' };
 
       if (logoImageId !== null) {
-        worksheet.addImage(logoImageId, 'G1:J4');
+        const imageSize = calculateImageSizeWithinBounds(
+          worksheet,
+          { startCol: 8, endCol: 10, startRow: 1, endRow: 4 },
+          logoDimensions
+        );
+
+        if (imageSize) {
+          worksheet.addImage(logoImageId, {
+            tl: { col: 7, row: 0 },
+            ext: imageSize
+          });
+        } else {
+          worksheet.addImage(logoImageId, 'H1:J4');
+        }
       }
 
       worksheet.mergeCells('A5:B5');
