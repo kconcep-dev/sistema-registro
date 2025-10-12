@@ -92,6 +92,24 @@ document.addEventListener('DOMContentLoaded', () => {
   let toastTimeout;
   let equipoActualEditandoId = null;
   const SESSION_STORAGE_KEY = 'activeDescarteSessionId';
+
+  function shouldRestoreActiveSession() {
+    const navigationEntry = performance.getEntriesByType('navigation')[0];
+    const navigationType = navigationEntry?.type || 'navigate';
+
+    let referrerPathname = '';
+    try {
+      const referrerUrl = new URL(document.referrer, window.location.origin);
+      referrerPathname = referrerUrl.pathname;
+    } catch (error) {
+      referrerPathname = '';
+    }
+
+    const samePageReferrer = referrerPathname === window.location.pathname;
+    if (navigationType === 'reload') return true;
+    if (navigationType === 'back_forward' && samePageReferrer) return true;
+    return false;
+  }
   let scanbotSDK;
   let activeBarcodeScanner;
 
@@ -499,8 +517,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const activeSessionId = sessionStorage.getItem(SESSION_STORAGE_KEY);
-      if (activeSessionId) {
+      const canRestoreSession = shouldRestoreActiveSession();
+      if (activeSessionId && canRestoreSession) {
         await restoreSession(activeSessionId);
+      } else if (activeSessionId && !canRestoreSession) {
+        window.clearWorkInProgress();
       }
 
       document.getElementById('main-content').style.display = 'flex';

@@ -96,6 +96,53 @@ document.addEventListener('DOMContentLoaded', async () => {
   let searchDebounceTimeout;
   let toastTimeout;
 
+  const TAB_STORAGE_KEY = 'consultar:activeTab';
+  const DETAIL_STORAGE_KEY = 'consultar:detailSessionId';
+
+  const navigationEntry = performance.getEntriesByType('navigation')[0];
+  const navigationType = navigationEntry?.type || 'navigate';
+
+  let referrerPathname = '';
+  try {
+    const referrerUrl = new URL(document.referrer, window.location.origin);
+    referrerPathname = referrerUrl.pathname;
+  } catch (error) {
+    referrerPathname = '';
+  }
+
+  const samePageReferrer = referrerPathname === window.location.pathname;
+  const canRestorePageState = navigationType === 'reload'
+    || (navigationType === 'back_forward' && samePageReferrer);
+
+  if (!canRestorePageState) {
+    sessionStorage.removeItem(TAB_STORAGE_KEY);
+    sessionStorage.removeItem(DETAIL_STORAGE_KEY);
+  }
+
+  const currentUrl = new URL(window.location.href);
+  const urlTab = currentUrl.searchParams.get('tab');
+  const urlSessionId = currentUrl.searchParams.get('session');
+
+  let activeTabId = 'visitantes';
+  if (canRestorePageState) {
+    const storedTab = sessionStorage.getItem(TAB_STORAGE_KEY);
+    if (storedTab === 'visitantes' || storedTab === 'descartes') {
+      activeTabId = storedTab;
+    }
+    if (urlTab === 'visitantes' || urlTab === 'descartes') {
+      activeTabId = urlTab;
+    }
+  }
+
+  let pendingDetailSessionId = null;
+  if (canRestorePageState && activeTabId === 'descartes') {
+    pendingDetailSessionId = sessionStorage.getItem(DETAIL_STORAGE_KEY);
+    if (urlSessionId) {
+      pendingDetailSessionId = urlSessionId;
+    }
+  }
+
+
   function collapseSearchArea(area) {
     if (!area || !area.classList.contains('search-expanded')) return;
     area.classList.remove('search-expanded');
@@ -177,8 +224,82 @@ document.addEventListener('DOMContentLoaded', async () => {
     toastMessageEl.textContent = message;
     toastEl.className = `toast show ${type}`;
     toastTimeout = setTimeout(() => {
-      toastEl.className = toastEl.className.replace('show', '');
+    toastEl.className = toastEl.className.replace('show', '');
     }, 3000);
+  }
+
+  const buildStateUrl = (state) => {
+    const url = new URL(window.location.href);
+    if (state.view === 'session-detail') {
+      url.searchParams.set('tab', 'descartes');
+      url.searchParams.set('session', state.sessionId);
+    } else {
+      if (!state.tab || state.tab === 'visitantes') {
+        url.searchParams.delete('tab');
+      } else {
+        url.searchParams.set('tab', state.tab);
+      }
+      url.searchParams.delete('session');
+    }
+    url.hash = '';
+    return `${url.pathname}${url.search}`;
+  };
+
+  const pushHistoryState = (state, { replace = false } = {}) => {
+    const currentState = history.state || {};
+    const normalizedSessionId = state.sessionId !== undefined ? String(state.sessionId) : undefined;
+    const currentSessionId = currentState.sessionId !== undefined ? String(currentState.sessionId) : undefined;
+    const isSameState = currentState.view === state.view
+      && currentState.tab === state.tab
+      && currentSessionId === normalizedSessionId;
+
+    const targetUrl = buildStateUrl(state);
+    if (isSameState && !replace) {
+      history.replaceState(state, '', targetUrl);
+      return;
+    }
+
+    const method = replace ? 'replaceState' : 'pushState';
+    history[method](state, '', targetUrl);
+  };
+
+  const updateTabInterface = (tabId) => {
+    if (tabsNav) {
+      tabsNav.querySelectorAll('.tab-btn').forEach((button) => {
+        const isActive = button.dataset.tab === tabId;
+        button.classList.toggle('active', isActive);
+        button.setAttribute('aria-selected', String(isActive));
+      });
+    }
+
+    tabContents.forEach((content) => {
+      const isActive = content.id === `${tabId}-content`;
+      content.classList.toggle('active', isActive);
+    });
+  };
+
+  async function setActiveTab(tabId, { pushState = true, fromPopState = false } = {}) {
+    const normalizedTab = tabId === 'descartes' ? 'descartes' : 'visitantes';
+    activeTabId = normalizedTab;
+
+    updateTabInterface(normalizedTab);
+    sessionStorage.setItem(TAB_STORAGE_KEY, normalizedTab);
+
+    if (normalizedTab !== 'descartes') {
+      closeSessionDetail({ fromTabChange: true });
+    }
+
+    collapseAllSearchAreas();
+
+    if (normalizedTab === 'visitantes') {
+      await fetchVisitantes();
+    } else {
+      await fetchDescartes();
+    }
+
+    if (pushState) {
+      pushHistoryState({ view: 'tab', tab: normalizedTab }, { replace: fromPopState });
+    }
   }
 
   // Cache del logo para exportación
@@ -865,7 +986,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateEquiposTotalBadge(equipos.length);
   }
 
-  async function openSessionDetail(sessionId) {
+  async function openSessionDetail(sessionId, { skipHistory = false, fromPopState = false } = {}) {
     const parsedId = Number(sessionId);
     const sessionKey = Number.isNaN(parsedId) ? sessionId : parsedId;
     currentSessionId = sessionKey;
@@ -901,9 +1022,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     const term = searchEquiposInput?.value.trim() || '';
     currentEquiposData = await fetchEquiposBySession(sessionKey, term);
     renderEquiposTable(currentEquiposData);
+
+    sessionStorage.setItem(DETAIL_STORAGE_KEY, String(sessionKey));
+
+    if (!skipHistory) {
+      pushHistoryState({ view: 'session-detail', tab: 'descartes', sessionId: sessionKey });
+    } else if (fromPopState) {
+      pushHistoryState({ view: 'session-detail', tab: 'descartes', sessionId: sessionKey }, { replace: true });
+    }
   }
 
-  function closeSessionDetail() {
+  function closeSessionDetail({ fromPopState = false, fromTabChange = false } = {}) {
     currentSessionId   = null;
     currentEquiposData = [];
     currentSessionEquiposTotal = 0;
@@ -915,6 +1044,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateMobileDetailsToggle(false);
     collapseAllSearchAreas();
     if (tabsNav) tabsNav.classList.remove('is-hidden-mobile');
+    sessionStorage.removeItem(DETAIL_STORAGE_KEY);
+
+    if (!fromPopState && !fromTabChange && history.state?.view === 'session-detail') {
+      pushHistoryState({ view: 'tab', tab: activeTabId }, { replace: true });
+    }
   }
 
   updateVisitantesTotal(0);
@@ -943,6 +1077,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  await setActiveTab(activeTabId, { pushState: false, fromPopState: !canRestorePageState });
+
+  if (pendingDetailSessionId) {
+    await openSessionDetail(pendingDetailSessionId, { skipHistory: true });
+  }
+
+  const initialHistoryState = pendingDetailSessionId
+    ? { view: 'session-detail', tab: 'descartes', sessionId: pendingDetailSessionId }
+    : { view: 'tab', tab: activeTabId };
+
+  pushHistoryState(initialHistoryState, { replace: true });
+
   // --- 5) Eventos ---
 
   // Tabs
@@ -951,17 +1097,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       const button = e.target.closest('.tab-btn');
       if (!button) return;
       const tabId = button.dataset.tab;
-
-      tabsNav.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      button.classList.add('active');
-
-      tabContents.forEach(c => c.classList.toggle('active', c.id === `${tabId}-content`));
-
-      closeSessionDetail();
-      collapseAllSearchAreas();
-
-      if (tabId === 'visitantes') fetchVisitantes();
-      if (tabId === 'descartes') fetchDescartes();
+      if (!tabId) return;
+      setActiveTab(tabId);
     });
   }
 
@@ -1095,7 +1232,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       await fetchDescartes();
 
       if (currentSessionId && Number(currentSessionId) === editingSessionId) {
-        await openSessionDetail(currentSessionId);
+        await openSessionDetail(currentSessionId, { skipHistory: true });
       }
 
       editingSessionId = null;
@@ -1308,9 +1445,39 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (btnVolverSesiones) {
     btnVolverSesiones.addEventListener('click', () => {
+      if (history.state && history.state.view === 'session-detail') {
+        history.back();
+        return;
+      }
       closeSessionDetail();
+      pushHistoryState({ view: 'tab', tab: activeTabId }, { replace: true });
     });
   }
+
+  window.addEventListener('popstate', async (event) => {
+    const state = event.state;
+    if (!state) {
+      closeSessionDetail({ fromPopState: true });
+      await setActiveTab('visitantes', { pushState: false, fromPopState: true });
+      sessionStorage.removeItem(TAB_STORAGE_KEY);
+      sessionStorage.removeItem(DETAIL_STORAGE_KEY);
+      return;
+    }
+
+    if (state.view === 'session-detail') {
+      await setActiveTab('descartes', { pushState: false, fromPopState: true });
+      await openSessionDetail(state.sessionId, { skipHistory: true, fromPopState: true });
+      return;
+    }
+
+    if (state.view === 'tab') {
+      closeSessionDetail({ fromPopState: true });
+      await setActiveTab(state.tab || 'visitantes', { pushState: false, fromPopState: true });
+      if ((state.tab || 'visitantes') !== 'descartes') {
+        sessionStorage.removeItem(DETAIL_STORAGE_KEY);
+      }
+    }
+  });
 
     // Toggle de detalles extra (solo móvil)
   if (btnToggleDetalles && detalleExtra) {
