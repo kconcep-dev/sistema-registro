@@ -1136,6 +1136,15 @@ html.dark-mode .btn-scan.btn-scan--disabled {
   flex-shrink: 0;
 }
 
+.btn-reload-scan.btn-principal {
+  border: none;
+  background-color: var(--primary-color);
+  color: #FFFFFF;
+  font-weight: 700;
+  padding: 10px 25px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
 .btn-reload-scan--icon-only {
   padding: 0 12px;
   min-width: 42px;
@@ -1151,6 +1160,11 @@ html.dark-mode .btn-scan.btn-scan--disabled {
   color: var(--bg-color);
 }
 
+.btn-reload-scan.btn-principal:hover {
+  background-color: var(--primary-hover-color);
+  color: #FFFFFF;
+}
+
 .btn-reload-scan--icon-only:hover {
   background-color: var(--primary-hover-color);
   color: #FFFFFF;
@@ -1158,6 +1172,11 @@ html.dark-mode .btn-scan.btn-scan--disabled {
 
 .btn-reload-scan:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--border-color) 35%, transparent);
+  outline-offset: 2px;
+}
+
+.btn-reload-scan.btn-principal:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary-color) 35%, transparent);
   outline-offset: 2px;
 }
 
