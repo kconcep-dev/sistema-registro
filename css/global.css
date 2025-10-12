@@ -78,11 +78,7 @@ button {
 }
 
 .text-variant--block {
-    display: block;
-}
-
-.text-variant--desktop.text-variant--block {
-    display: block;
+    display: inline;
 }
 
 @media (max-width: 767px) {
@@ -95,7 +91,7 @@ button {
     }
 
     .text-variant--mobile.text-variant--block {
-        display: block;
+        display: inline;
     }
 }
 
@@ -103,6 +99,18 @@ button {
     .page-heading--left {
         text-align: left;
         justify-items: start;
+    }
+
+    .page-heading h1,
+    .page-heading .page-description {
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 767px) {
+    .page-heading h1,
+    .page-heading .page-description {
+        white-space: normal;
     }
 }
 
