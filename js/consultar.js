@@ -1166,15 +1166,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   if (exportVisitantesBtn) {
-    exportVisitantesBtn.addEventListener('click', () => {
+    exportVisitantesBtn.addEventListener('click', async () => {
+      if (typeof ExcelJS === 'undefined') {
+        showToast('La librería ExcelJS no está disponible.', 'error');
+        return;
+      }
+
       const exportData = getVisibleVisitorData();
       if (!exportData.length) {
         showToast("No hay registros para exportar.", "error");
         return;
       }
 
-      const titleRows = [["Reporte de Visitantes"]];
-      const headerRows = [["Nombre", "Apellido", "Cédula", "Sexo", "Motivo", "Fecha", "Hora"]];
+      const headers = ["Nombre", "Apellido", "Cédula", "Sexo", "Motivo", "Fecha", "Hora"];
       const dataRows = exportData.map(v => [
         v.nombre,
         v.apellido,
@@ -1185,68 +1189,56 @@ document.addEventListener('DOMContentLoaded', async () => {
         formatTime(v.hora)
       ]);
 
-      const worksheet = XLSX.utils.aoa_to_sheet([...titleRows, [], ...headerRows, ...dataRows]);
-      const columnCount = headerRows[0].length;
-
-      const headerRowIndex = titleRows.length + 1; // +1 por la fila en blanco
-      const dataStartRowIndex = headerRowIndex + headerRows.length;
-
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Visitantes');
       const borderAll = {
-        top:    { style: 'thin', color: { rgb: 'FF000000' } },
-        right:  { style: 'thin', color: { rgb: 'FF000000' } },
-        bottom: { style: 'thin', color: { rgb: 'FF000000' } },
-        left:   { style: 'thin', color: { rgb: 'FF000000' } }
+        top:    { style: 'thin', color: { argb: 'FF000000' } },
+        left:   { style: 'thin', color: { argb: 'FF000000' } },
+        bottom: { style: 'thin', color: { argb: 'FF000000' } },
+        right:  { style: 'thin', color: { argb: 'FF000000' } }
       };
 
-      const titleCell = worksheet['A1'];
-      if (titleCell) {
-        titleCell.s = {
-          font: { bold: true, sz: 14 },
-          alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
-          border: borderAll
-        };
-      }
+      worksheet.mergeCells(1, 1, 1, headers.length);
+      const titleCell = worksheet.getCell(1, 1);
+      titleCell.value = 'Reporte de Visitantes';
+      titleCell.font = { bold: true, size: 14 };
+      titleCell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      titleCell.border = borderAll;
 
-      worksheet['!merges'] = [...(worksheet['!merges'] || []), { s: { r: 0, c: 0 }, e: { r: 0, c: columnCount - 1 } }];
+      worksheet.addRow([]);
 
-      for (let col = 0; col < columnCount; col += 1) {
-        const headerCellAddress = XLSX.utils.encode_cell({ r: headerRowIndex, c: col });
-        const headerCell = worksheet[headerCellAddress];
-        if (headerCell) {
-          headerCell.s = {
-            font: { bold: true },
-            alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
-            border: borderAll
+      const headerRow = worksheet.addRow(headers);
+
+      headerRow.font = { bold: true };
+      headerRow.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      headerRow.eachCell(cell => {
+        cell.border = borderAll;
+      });
+
+      dataRows.forEach(rowValues => {
+        const row = worksheet.addRow(rowValues);
+        row.eachCell((cell, colNumber) => {
+          cell.alignment = {
+            horizontal: colNumber >= 6 ? 'center' : 'left',
+            vertical: 'top',
+            wrapText: true
           };
-        }
-      }
-
-      dataRows.forEach((rowValues, rowIndex) => {
-        rowValues.forEach((_, colIndex) => {
-          const cellAddress = XLSX.utils.encode_cell({ r: dataStartRowIndex + rowIndex, c: colIndex });
-          const cell = worksheet[cellAddress];
-          if (!cell) return;
-
-          cell.s = {
-            alignment: {
-              horizontal: colIndex >= 5 ? 'center' : 'left',
-              vertical: 'top',
-              wrapText: true
-            },
-            border: borderAll
-          };
+          cell.border = borderAll;
         });
       });
 
-      const columnWidths = headerRows[0].map((header, columnIndex) => {
+      const columnWidths = headers.map((header, columnIndex) => {
         const maxCellLength = Math.max(
           header.length,
           ...dataRows.map(row => (row[columnIndex] ? row[columnIndex].toString().length : 0))
         );
 
-        return { wch: Math.min(Math.max(maxCellLength + 2, 12), 40) };
+        return Math.min(Math.max(maxCellLength + 2, 12), 40);
       });
-      worksheet['!cols'] = columnWidths;
+
+      columnWidths.forEach((width, index) => {
+        worksheet.getColumn(index + 1).width = width;
+      });
 
       const today = new Date();
       const fileDate = [
@@ -1255,9 +1247,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         String(today.getDate()).padStart(2, '0')
       ].join('-');
 
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Visitantes");
-      XLSX.writeFile(workbook, `Reporte_Visitantes_${fileDate}.xlsx`);
+      try {
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Reporte_Visitantes_${fileDate}.xlsx`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error(error);
+        showToast('No se pudo generar el archivo de Excel.', 'error');
+      }
     });
   }
 
