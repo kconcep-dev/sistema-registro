@@ -181,6 +181,45 @@ document.addEventListener('DOMContentLoaded', async () => {
     }, 3000);
   }
 
+  // Cache del logo para exportación
+  let cachedLogoMeducaBase64;
+
+  async function getLogoMeducaBase64() {
+    if (cachedLogoMeducaBase64 !== undefined) {
+      return cachedLogoMeducaBase64;
+    }
+
+    try {
+      const response = await fetch('assets/images/logo_meduca.png');
+      if (!response.ok) {
+        throw new Error(`Respuesta ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const result = reader.result;
+          if (typeof result !== 'string') {
+            reject(new Error('Resultado inesperado al leer la imagen.'));
+            return;
+          }
+          const [, data = ''] = result.split(',');
+          resolve(data);
+        };
+        reader.onerror = () => reject(new Error('No se pudo convertir la imagen a base64.'));
+        reader.readAsDataURL(blob);
+      });
+
+      cachedLogoMeducaBase64 = base64;
+    } catch (error) {
+      console.error('No se pudo cargar el logo del MEDUCA.', error);
+      cachedLogoMeducaBase64 = null;
+    }
+
+    return cachedLogoMeducaBase64;
+  }
+
   // dd-mm-aaaa
   function formatDate(isoString) {
     if (!isoString) return '-';
@@ -1298,6 +1337,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     showToast('Generando formulario de descarte...', 'success');
 
+    const logoBase64 = await getLogoMeducaBase64();
+
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'Sistema de Registro';
     workbook.created = new Date();
@@ -1312,6 +1353,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     const boldRows = new Set([1, 2, 3, 5, 6, 8, 26, 29, 30, 31, 32]);
     const rowsPerSheet = 17;
     const totalSheets = Math.max(1, Math.ceil(equipos.length / rowsPerSheet));
+
+    let logoImageId = null;
+    if (logoBase64) {
+      try {
+        logoImageId = workbook.addImage({ base64: logoBase64, extension: 'png' });
+      } catch (error) {
+        console.error('No se pudo agregar el logo del MEDUCA al archivo de Excel.', error);
+      }
+    }
 
     for (let sheetIndex = 0; sheetIndex < totalSheets; sheetIndex++) {
       const sheetNumber = sheetIndex + 1;
@@ -1345,6 +1395,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       const row3 = worksheet.getCell('A3');
       row3.value = 'DEPARTAMENTO DE SOPORTE TÉCNICO';
       row3.alignment = { horizontal: 'center', vertical: 'middle' };
+
+      if (logoImageId !== null) {
+        worksheet.addImage(logoImageId, 'G1:J4');
+      }
 
       worksheet.mergeCells('A5:B5');
       const titleRow = worksheet.getCell('A5');
