@@ -1309,7 +1309,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       right:  { style: 'thin', color: { argb: 'FF000000' } }
     };
 
-    const boldRows = [1, 2, 3, 5, 6, 8, 26, 29, 30, 31, 32];
+    const boldRows = new Set([1, 2, 3, 5, 6, 8, 26, 29, 30, 31, 32]);
     const rowsPerSheet = 17;
     const totalSheets = Math.max(1, Math.ceil(equipos.length / rowsPerSheet));
 
@@ -1317,7 +1317,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const sheetNumber = sheetIndex + 1;
       const worksheet = workbook.addWorksheet(`Sesión ${sheetNumber}`);
 
-      const columnWidths = [6, 40, 14, 18, 16, 18, 18, 14, Math.max(10, String(sheetNumber).length + 6), 28];
+      const columnWidths = [6, 40, 28, 28, 18, 18, 20, 20, 20, 34];
       columnWidths.forEach((width, idx) => {
         worksheet.getColumn(idx + 1).width = width;
       });
@@ -1348,11 +1348,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       worksheet.getCell('E5').alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
       worksheet.getCell('H5').value = 'CUADRO N°:';
       worksheet.getCell('I5').value = sheetNumber;
-      worksheet.getCell('I5').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('I5').alignment = { horizontal: 'left', vertical: 'middle' };
 
       worksheet.mergeCells('A6:B6');
-      worksheet.getCell('A6').value = `UNIDAD ADMINISTRATIVA: ${currentSessionData.unidad_administrativa || ''}`;
+      worksheet.getCell('A6').value = 'UNIDAD ADMINISTRATIVA:';
       worksheet.getCell('A6').alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
+      worksheet.getCell('C6').value = currentSessionData.unidad_administrativa || '';
+      worksheet.getCell('C6').alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
       worksheet.getCell('D6').value = 'FECHA:';
       worksheet.getCell('E6').value = formatDate(currentSessionData.fecha);
       
@@ -1405,12 +1407,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         worksheet.getCell(excelRow, 10).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
       }
 
-      worksheet.mergeCells('A26:B26');
-      worksheet.getCell('A26').value = 'OBSERVACIÓN:';
-      worksheet.getCell('A26').alignment = { horizontal: 'left', vertical: 'middle' };
-      worksheet.mergeCells('C26:J26');
-      worksheet.getCell('C26').value = currentSessionData.observacion || '';
-      worksheet.getCell('C26').alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
+      worksheet.mergeCells('A26:J26');
+      worksheet.getCell('A26').value = `OBSERVACIÓN: ${currentSessionData.observacion || ''}`;
+      worksheet.getCell('A26').alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
 
       worksheet.mergeCells('C28:D28');
       worksheet.getCell('C28').value = '______________________';
@@ -1448,8 +1447,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       }
 
-      boldRows.forEach(rowNumber => {
-        worksheet.getRow(rowNumber).font = { bold: true };
+      const fontSizeByRow = {};
+      [1, 2, 3].forEach(rowNumber => {
+        fontSizeByRow[rowNumber] = 12;
+      });
+      [5, 6].forEach(rowNumber => {
+        fontSizeByRow[rowNumber] = 11;
+      });
+      fontSizeByRow[8] = 10;
+      for (let rowNumber = 9; rowNumber <= 25; rowNumber++) {
+        fontSizeByRow[rowNumber] = 11;
+      }
+      fontSizeByRow[26] = 11;
+      fontSizeByRow[29] = 8;
+      fontSizeByRow[30] = 10;
+      fontSizeByRow[31] = 8;
+      fontSizeByRow[32] = 8;
+
+      Object.entries(fontSizeByRow).forEach(([rowNumber, size]) => {
+        const numericRow = Number(rowNumber);
+        const fontConfig = { size };
+        if (boldRows.has(numericRow)) {
+          fontConfig.bold = true;
+        }
+        worksheet.getRow(numericRow).font = fontConfig;
       });
 
       worksheet.getRow(8).alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
