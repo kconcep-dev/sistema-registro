@@ -58,11 +58,6 @@ button {
     margin-bottom: 0;
 }
 
-.page-heading--left {
-    text-align: left;
-    justify-items: start;
-}
-
 .page-description {
     font-size: 1.05rem;
     color: color-mix(in srgb, var(--text-color) 85%, transparent);
@@ -72,6 +67,43 @@ button {
 
 .page-heading--left .page-description {
     max-width: none;
+}
+
+.text-variant--desktop {
+    display: inline;
+}
+
+.text-variant--mobile {
+    display: none;
+}
+
+.text-variant--block {
+    display: block;
+}
+
+.text-variant--desktop.text-variant--block {
+    display: block;
+}
+
+@media (max-width: 767px) {
+    .text-variant--desktop {
+        display: none;
+    }
+
+    .text-variant--mobile {
+        display: inline;
+    }
+
+    .text-variant--mobile.text-variant--block {
+        display: block;
+    }
+}
+
+@media (min-width: 768px) {
+    .page-heading--left {
+        text-align: left;
+        justify-items: start;
+    }
 }
 
 .sr-only {
@@ -673,6 +705,18 @@ html.dark-mode .theme-btn {
 
 .icon-arrow-up {
     --icon-url: url("../assets/images/icono-arrow-up.svg");
+}
+
+.icon-next {
+    --icon-url: url("../assets/images/icono-next.svg");
+}
+
+.icon-back {
+    --icon-url: url("../assets/images/icono-back.svg");
+}
+
+.icon-login {
+    --icon-url: url("../assets/images/icono-login.svg");
 }
 
 .icon-save {

@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextBtn = document.getElementById('next-btn');
     const backBtn = document.getElementById('back-btn');
     const loginBtn = document.getElementById('login-btn');
+    const loginBtnLabel = loginBtn ? loginBtn.querySelector('.button-label') : null;
 
     const focusField = (field) => {
         requestAnimationFrame(() => {
@@ -102,7 +103,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         loginBtn.disabled = true;
         backBtn.disabled = true;
-        loginBtn.textContent = 'Ingresando...';
+        if (loginBtnLabel) {
+            loginBtnLabel.textContent = 'Ingresando...';
+        } else {
+            loginBtn.textContent = 'Ingresando...';
+        }
 
         try {
             await new Promise(resolve => setTimeout(resolve, 1000));
@@ -125,7 +130,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             loginBtn.disabled = false;
             backBtn.disabled = false;
-            loginBtn.textContent = 'Ingresar';
+            if (loginBtnLabel) {
+                loginBtnLabel.textContent = 'Ingresar';
+            } else {
+                loginBtn.textContent = 'Ingresar';
+            }
         }
     });
 });
