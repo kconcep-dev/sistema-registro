@@ -59,11 +59,10 @@ html.dark-mode #btn-toggle-totales.is-active {
 
 .inventory-heading h1 {
   margin-bottom: 8px;
-  text-align: left;
 }
 
 .inventory-heading .page-description {
-  text-align: left;
+  text-align: inherit;
 }
 
 :root {
