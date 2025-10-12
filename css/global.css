@@ -69,16 +69,16 @@ button {
     max-width: none;
 }
 
+.text-variant--block {
+    display: inline;
+}
+
 .text-variant--desktop {
     display: inline;
 }
 
 .text-variant--mobile {
     display: none;
-}
-
-.text-variant--block {
-    display: inline;
 }
 
 @media (max-width: 767px) {
