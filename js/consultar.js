@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const searchDescartesInput     = document.getElementById('search-descartes');
   const dateStartDescartesInput  = document.getElementById('date-start-descartes');
   const dateEndDescartesInput    = document.getElementById('date-end-descartes');
-  const exportDescartesBtn       = document.getElementById('export-descartes-btn');
   const clearVisitantesBtn       = document.getElementById('clear-visitantes-filters');
   const clearDescartesBtn        = document.getElementById('clear-descartes-filters');
   const tableDescartesBody       = document.querySelector('#table-descartes tbody');
@@ -43,6 +42,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const detalleExtra            = document.getElementById('detalle-extra');
   const searchEquiposInput       = document.getElementById('search-equipos');
   const tableEquiposSesionBody   = document.querySelector('#table-equipos-sesion tbody');
+  const exportSesionDescartesBtn = document.getElementById('export-sesion-descartes-btn');
 
   // Modales visitantes
   const modalEditarVisitante     = document.getElementById('modal-editar-visitante');
@@ -90,6 +90,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   let editingSessionId      = null;
   let currentSessionId      = null;
   let currentSessionEquiposTotal = 0;
+  let currentSessionData         = null;
   let scanbotInstance;
   let activeBarcodeScanner;
   let searchDebounceTimeout;
@@ -199,6 +200,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       minute: '2-digit',
       hour12: true
     }).format(date);
+  }
+
+  function sanitizeForFilename(text) {
+    return (text || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9\-_. ]/g, '')
+      .trim()
+      .replace(/\s+/g, '_')
+      || 'Sesion';
   }
 
   function updateMobileDetailsToggle(isOpen = false) {
@@ -647,6 +658,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
+    currentSessionData = sesion;
+
     if (detalleTitulo)      detalleTitulo.textContent      = `Sesión #${sesion.id}`;
     if (detalleUnidad)      detalleUnidad.textContent      = sesion.unidad_administrativa || '-';
     if (detalleSiace)       detalleSiace.textContent       = sesion.codigo_siace || '-';
@@ -671,6 +684,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     currentSessionId   = null;
     currentEquiposData = [];
     currentSessionEquiposTotal = 0;
+    currentSessionData = null;
     if (searchEquiposInput) searchEquiposInput.value = '';
     if (sesionDetalleSection) sesionDetalleSection.style.display = 'none';
     if (sesionesListaSection) sesionesListaSection.style.display = 'block';
@@ -1265,45 +1279,214 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  if (exportDescartesBtn) {
-    exportDescartesBtn.addEventListener('click', async () => {
-      showToast('Generando reporte, esto puede tardar...', 'success');
+  async function exportCurrentSessionToExcel() {
+    if (typeof ExcelJS === 'undefined') {
+      showToast('La librería ExcelJS no está disponible.', 'error');
+      return;
+    }
 
-      const sessionIds = currentDescartesData.map(s => s.id);
-      if (!sessionIds.length) {
-        showToast('No hay sesiones para exportar.', 'error');
-        return;
+    if (!currentSessionId || !currentSessionData) {
+      showToast('Primero debes abrir una sesión para exportar.', 'error');
+      return;
+    }
+
+    const equipos = await fetchEquiposBySession(currentSessionId);
+    if (!equipos.length) {
+      showToast('No hay equipos registrados en esta sesión.', 'error');
+      return;
+    }
+
+    showToast('Generando formulario de descarte...', 'success');
+
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = 'Sistema de Registro';
+    workbook.created = new Date();
+
+    const borderAll = {
+      top:    { style: 'thin', color: { argb: 'FF000000' } },
+      left:   { style: 'thin', color: { argb: 'FF000000' } },
+      bottom: { style: 'thin', color: { argb: 'FF000000' } },
+      right:  { style: 'thin', color: { argb: 'FF000000' } }
+    };
+
+    const boldRows = [1, 2, 3, 5, 6, 8, 26, 29, 30, 31, 32];
+    const rowsPerSheet = 17;
+    const totalSheets = Math.max(1, Math.ceil(equipos.length / rowsPerSheet));
+
+    for (let sheetIndex = 0; sheetIndex < totalSheets; sheetIndex++) {
+      const sheetNumber = sheetIndex + 1;
+      const worksheet = workbook.addWorksheet(`Sesión ${sheetNumber}`);
+
+      const columnWidths = [6, 40, 14, 18, 16, 18, 18, 14, Math.max(10, String(sheetNumber).length + 6), 28];
+      columnWidths.forEach((width, idx) => {
+        worksheet.getColumn(idx + 1).width = width;
+      });
+
+      worksheet.mergeCells('A1:J1');
+      const row1 = worksheet.getCell('A1');
+      row1.value = 'MINISTERIO DE EDUCACIÓN';
+      row1.alignment = { horizontal: 'center', vertical: 'middle' };
+
+      worksheet.mergeCells('A2:J2');
+      const row2 = worksheet.getCell('A2');
+      row2.value = 'DIRECCIÓN NACIONAL DE INFORMÁTICA';
+      row2.alignment = { horizontal: 'center', vertical: 'middle' };
+
+      worksheet.mergeCells('A3:J3');
+      const row3 = worksheet.getCell('A3');
+      row3.value = 'DEPARTAMENTO DE SOPORTE TÉCNICO';
+      row3.alignment = { horizontal: 'center', vertical: 'middle' };
+
+      worksheet.mergeCells('A5:B5');
+      const titleRow = worksheet.getCell('A5');
+      titleRow.value = 'FORMULARIO DE DESCARTE';
+      titleRow.alignment = { horizontal: 'left', vertical: 'middle' };
+
+      worksheet.getCell('D5').value = 'TÉCNICO ENCARGADO:';
+      worksheet.mergeCells('E5:F5');
+      worksheet.getCell('E5').value = currentSessionData.tecnico_encargado || '';
+      worksheet.getCell('E5').alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
+      worksheet.getCell('H5').value = 'CUADRO N°:';
+      worksheet.getCell('I5').value = sheetNumber;
+      worksheet.getCell('I5').alignment = { horizontal: 'center', vertical: 'middle' };
+
+      worksheet.mergeCells('A6:B6');
+      worksheet.getCell('A6').value = `UNIDAD ADMINISTRATIVA: ${currentSessionData.unidad_administrativa || ''}`;
+      worksheet.getCell('A6').alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
+      worksheet.getCell('D6').value = 'FECHA:';
+      worksheet.getCell('E6').value = formatDate(currentSessionData.fecha);
+      
+      worksheet.getCell('A8').value = 'N°';
+      worksheet.getCell('B8').value = 'DESCRIPCIÓN';
+      worksheet.getCell('C8').value = 'MARBETE';
+      worksheet.getCell('D8').value = 'SERIE';
+      worksheet.getCell('E8').value = 'MARCA';
+      worksheet.getCell('F8').value = 'MODELO';
+      worksheet.mergeCells('G8:I8');
+      worksheet.getCell('G8').value = 'ESTADO DEL EQUIPO';
+      worksheet.getCell('J8').value = 'MOTIVO DE DESCARTE';
+
+      const startIndex = sheetIndex * rowsPerSheet;
+      for (let rowOffset = 0; rowOffset < rowsPerSheet; rowOffset++) {
+        const excelRow = 9 + rowOffset;
+        const dataIndex = startIndex + rowOffset;
+        const equipo = equipos[dataIndex];
+        const consecutiveNumber = sheetIndex * rowsPerSheet + rowOffset + 1;
+
+        worksheet.mergeCells(excelRow, 7, excelRow, 9);
+
+        worksheet.getCell(excelRow, 1).value = consecutiveNumber;
+
+        if (equipo) {
+          worksheet.getCell(excelRow, 2).value = equipo.descripcion || '';
+          worksheet.getCell(excelRow, 3).value = equipo.marbete || '';
+          worksheet.getCell(excelRow, 4).value = equipo.serie || '';
+          worksheet.getCell(excelRow, 5).value = equipo.marca || '';
+          worksheet.getCell(excelRow, 6).value = equipo.modelo || '';
+          worksheet.getCell(excelRow, 7).value = equipo.estado_equipo || '';
+          worksheet.getCell(excelRow, 10).value = equipo.motivo_descarte || '';
+        } else {
+          worksheet.getCell(excelRow, 2).value = '';
+          worksheet.getCell(excelRow, 3).value = '';
+          worksheet.getCell(excelRow, 4).value = '';
+          worksheet.getCell(excelRow, 5).value = '';
+          worksheet.getCell(excelRow, 6).value = '';
+          worksheet.getCell(excelRow, 7).value = '';
+          worksheet.getCell(excelRow, 10).value = '';
+        }
+
+        worksheet.getCell(excelRow, 1).alignment  = { horizontal: 'center', vertical: 'middle' };
+        worksheet.getCell(excelRow, 2).alignment  = { horizontal: 'left', vertical: 'top', wrapText: true };
+        worksheet.getCell(excelRow, 3).alignment  = { horizontal: 'left', vertical: 'top', wrapText: true };
+        worksheet.getCell(excelRow, 4).alignment  = { horizontal: 'left', vertical: 'top', wrapText: true };
+        worksheet.getCell(excelRow, 5).alignment  = { horizontal: 'left', vertical: 'top', wrapText: true };
+        worksheet.getCell(excelRow, 6).alignment  = { horizontal: 'left', vertical: 'top', wrapText: true };
+        worksheet.getCell(excelRow, 7).alignment  = { horizontal: 'left', vertical: 'top', wrapText: true };
+        worksheet.getCell(excelRow, 10).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
       }
 
-      const { data: equipos, error } = await supabaseClient
-        .from('equipos_descartados')
-        .select('*, descartes_sesiones(unidad_administrativa, codigo_siace, tecnico_encargado, fecha)')
-        .in('sesion_id', sessionIds);
+      worksheet.mergeCells('A26:B26');
+      worksheet.getCell('A26').value = 'OBSERVACIÓN:';
+      worksheet.getCell('A26').alignment = { horizontal: 'left', vertical: 'middle' };
+      worksheet.mergeCells('C26:J26');
+      worksheet.getCell('C26').value = currentSessionData.observacion || '';
+      worksheet.getCell('C26').alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
 
-      if (error) {
-        showToast('Error al obtener los datos para el reporte.', 'error');
-        return;
+      worksheet.mergeCells('C28:D28');
+      worksheet.getCell('C28').value = '______________________';
+      worksheet.mergeCells('F28:G28');
+      worksheet.getCell('F28').value = '______________________';
+      worksheet.getCell('J28').value = '______________________';
+
+      worksheet.mergeCells('C29:D29');
+      worksheet.getCell('C29').value = 'FIRMA:';
+      worksheet.mergeCells('F29:G29');
+      worksheet.getCell('F29').value = 'FIRMA:';
+      worksheet.getCell('J29').value = 'FIRMA:';
+
+      worksheet.mergeCells('C30:D30');
+      worksheet.getCell('C30').value = 'ADALBERTO FERNÁNDEZ C.';
+      worksheet.mergeCells('F30:G30');
+      worksheet.getCell('F30').value = 'RONNIE DÍAZ';
+      worksheet.getCell('J30').value = 'RAFAEL ZAMBRANO';
+
+      worksheet.mergeCells('C31:D31');
+      worksheet.getCell('C31').value = 'NOMBRE DEL FUNCIONARIO';
+      worksheet.mergeCells('F31:G31');
+      worksheet.getCell('F31').value = 'NOMBRE DEL FUNCIONARIO';
+      worksheet.getCell('J31').value = 'NOMBRE DEL FUNCIONARIO';
+
+      worksheet.mergeCells('C32:D32');
+      worksheet.getCell('C32').value = 'Técnico Encargado de Informática';
+      worksheet.mergeCells('F32:G32');
+      worksheet.getCell('F32').value = 'Jefe o Encargado del Departamento';
+      worksheet.getCell('J32').value = 'Jefe o Encargado de Bienes Patrimoniales';
+
+      for (let rowNumber = 8; rowNumber <= 25; rowNumber++) {
+        for (let colNumber = 1; colNumber <= 10; colNumber++) {
+          worksheet.getCell(rowNumber, colNumber).border = borderAll;
+        }
       }
 
-      const formattedData = (equipos || []).map(e => ({
-        "Unidad Administrativa": e.descartes_sesiones.unidad_administrativa,
-        "Código SIACE":          e.descartes_sesiones.codigo_siace,
-        "Descripción":           e.descripcion,
-        "Marca":                 e.marca,
-        "Modelo":                e.modelo,
-        "Serie":                 e.serie,
-        "Marbete":               e.marbete,
-        "Estado del Equipo":     e.estado_equipo,
-        "Motivo del Descarte":   e.motivo_descarte,
-        "Técnico":               e.descartes_sesiones.tecnico_encargado,
-        "Fecha":                 formatDate(e.descartes_sesiones.fecha)
-      }));
+      boldRows.forEach(rowNumber => {
+        worksheet.getRow(rowNumber).font = { bold: true };
+      });
 
-      const ws = XLSX.utils.json_to_sheet(formattedData);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Equipos Descartados");
-      XLSX.writeFile(wb, `Reporte_Descartes_${new Date().toISOString().split('T')[0]}.xlsx`);
-    });
+      worksheet.getRow(8).alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      worksheet.getRow(28).alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getRow(29).alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getRow(30).alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getRow(31).alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      worksheet.getRow(32).alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+
+      worksheet.getCell('H5').alignment = { horizontal: 'right', vertical: 'middle' };
+      worksheet.getCell('D5').alignment = { horizontal: 'right', vertical: 'middle' };
+      worksheet.getCell('D6').alignment = { horizontal: 'right', vertical: 'middle' };
+      worksheet.getCell('E6').alignment = { horizontal: 'left', vertical: 'middle' };
+    }
+
+    try {
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+
+      const unit = sanitizeForFilename(currentSessionData.unidad_administrativa || 'Sesion');
+      const date = formatDate(currentSessionData.fecha).replace(/-/g, '');
+      link.download = `Formulario_Descartes_${unit}_${date}.xlsx`;
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+      showToast('No se pudo generar el archivo de Excel.', 'error');
+    }
+  }
+
+  if (exportSesionDescartesBtn) {
+    exportSesionDescartesBtn.addEventListener('click', exportCurrentSessionToExcel);
   }
 
   // --- 7) Inicialización ---
