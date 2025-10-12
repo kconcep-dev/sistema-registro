@@ -187,14 +187,83 @@ window.createScannerSessionGuard = ({
     toast = () => {},
     onBeforeReload = () => {},
     timeoutMessage = 'El escáner dejó de estar disponible. Recarga la página para volver a usarlo.',
-    autoCloseDelayMs = 50000,
-    disableTooltip = 'Recarga la página para reactivar el escáner'
+    autoCloseDelayMs = 60000,
+    disableTooltip = 'Recarga la página para reactivar el escáner',
+    countdownDisplay = null
 } = {}) => {
     const launchButtons = Array.from(buttons).filter((btn) => btn instanceof HTMLElement);
     const reloadTriggers = Array.from(reloadButtons).filter((btn) => btn instanceof HTMLElement);
     let timerId = null;
     let expired = false;
     let effectsApplied = false;
+    let countdownIntervalId = null;
+
+    const countdownProvider = typeof countdownDisplay === 'function'
+        ? countdownDisplay
+        : () => countdownDisplay;
+
+    const getCountdownElement = () => {
+        const element = countdownProvider ? countdownProvider() : null;
+        return element instanceof HTMLElement ? element : null;
+    };
+
+    const formatRemaining = (milliseconds) => {
+        const totalSeconds = Math.max(0, Math.ceil(milliseconds / 1000));
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    };
+
+    const updateCountdownText = (milliseconds) => {
+        const countdownEl = getCountdownElement();
+        if (!countdownEl) return;
+        countdownEl.textContent = `Tiempo restante: ${formatRemaining(milliseconds)}`;
+    };
+
+    const showCountdown = () => {
+        const countdownEl = getCountdownElement();
+        if (!countdownEl) return;
+        countdownEl.hidden = false;
+        countdownEl.setAttribute('aria-hidden', 'false');
+    };
+
+    const hideCountdown = () => {
+        const countdownEl = getCountdownElement();
+        if (!countdownEl) return;
+        countdownEl.hidden = true;
+        countdownEl.setAttribute('aria-hidden', 'true');
+    };
+
+    const clearCountdownInterval = () => {
+        if (countdownIntervalId) {
+            clearInterval(countdownIntervalId);
+            countdownIntervalId = null;
+        }
+    };
+
+    const resetCountdown = () => {
+        clearCountdownInterval();
+        updateCountdownText(autoCloseDelayMs);
+        hideCountdown();
+    };
+
+    const beginCountdown = () => {
+        const countdownEl = getCountdownElement();
+        if (!countdownEl) return;
+        clearCountdownInterval();
+        let remainingMs = autoCloseDelayMs;
+        updateCountdownText(remainingMs);
+        showCountdown();
+        countdownIntervalId = setInterval(() => {
+            remainingMs -= 1000;
+            if (remainingMs <= 0) {
+                updateCountdownText(0);
+                clearCountdownInterval();
+            } else {
+                updateCountdownText(remainingMs);
+            }
+        }, 1000);
+    };
 
     const clearTimer = () => {
         if (timerId) {
@@ -210,8 +279,13 @@ window.createScannerSessionGuard = ({
             btn.classList.add('btn-scan--disabled');
             btn.setAttribute('aria-disabled', 'true');
             if (disableTooltip) {
+                if (!btn.dataset.originalTitle) {
+                    btn.dataset.originalTitle = btn.getAttribute('title') || '';
+                }
                 btn.setAttribute('title', disableTooltip);
             }
+            btn.hidden = true;
+            btn.setAttribute('aria-hidden', 'true');
         });
     };
 
@@ -252,6 +326,7 @@ window.createScannerSessionGuard = ({
         startTimer(triggerClose) {
             if (expired) return;
             clearTimer();
+            beginCountdown();
             timerId = setTimeout(() => {
                 timerId = null;
                 expired = true;
@@ -269,6 +344,7 @@ window.createScannerSessionGuard = ({
                 expired = true;
             }
             clearTimer();
+            resetCountdown();
             if (timedOut) {
                 applyTimeoutEffects();
             }
@@ -277,6 +353,8 @@ window.createScannerSessionGuard = ({
             return expired;
         }
     };
+
+    resetCountdown();
 };
 
 // ✅ FUNCIÓN GLOBAL PARA MOSTRAR MODAL DE CONFIRMACIÓN: CORREGIDA

@@ -58,6 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let scannerOverlayEl;
   let scannerViewEl;
   let scannerCloseButton;
+  let scannerControlsEl;
+  let scannerCountdownEl;
   let scannerPopStateHandler = null;
   let ignoreNextPopState = false;
   let hasScannerHistoryEntry = false;
@@ -109,6 +111,9 @@ document.addEventListener('DOMContentLoaded', () => {
       scannerOverlayEl.className = 'scanbot-overlay';
       scannerOverlayEl.setAttribute('aria-hidden', 'true');
 
+      scannerControlsEl = document.createElement('div');
+      scannerControlsEl.className = 'scanbot-overlay__controls';
+
       scannerCloseButton = document.createElement('button');
       scannerCloseButton.type = 'button';
       scannerCloseButton.className = 'scanbot-overlay__close button-with-icon';
@@ -116,11 +121,21 @@ document.addEventListener('DOMContentLoaded', () => {
       scannerCloseButton.setAttribute('aria-label', 'Cancelar escaneo');
       scannerCloseButton.addEventListener('click', () => closeActiveScanner());
 
+      scannerCountdownEl = document.createElement('div');
+      scannerCountdownEl.className = 'scanbot-overlay__timer button-with-icon';
+      scannerCountdownEl.setAttribute('role', 'timer');
+      scannerCountdownEl.setAttribute('aria-live', 'polite');
+      scannerCountdownEl.textContent = 'Tiempo restante: 01:00';
+      scannerCountdownEl.hidden = true;
+
+      scannerControlsEl.appendChild(scannerCloseButton);
+      scannerControlsEl.appendChild(scannerCountdownEl);
+
       scannerViewEl = document.createElement('div');
       scannerViewEl.id = 'scanbot-scanner-view';
       scannerViewEl.className = 'scanbot-overlay__view';
 
-      scannerOverlayEl.appendChild(scannerCloseButton);
+      scannerOverlayEl.appendChild(scannerControlsEl);
       scannerOverlayEl.appendChild(scannerViewEl);
       document.body.appendChild(scannerOverlayEl);
     }
@@ -149,13 +164,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- 3. FUNCIONES AUXILIARES ---
-  function showToast(message, type = 'success') {
+  function showToast(message, type = 'success', duration = 5000) {
     clearTimeout(toastTimeout);
     toastMessageEl.textContent = message;
     toastEl.className = `toast show ${type}`;
     toastTimeout = setTimeout(() => {
       toastEl.className = toastEl.className.replace('show', '');
-    }, 3000);
+    }, duration);
   }
 
   const reloadButtons = Array.from(document.querySelectorAll('.btn-reload-scan'));
@@ -167,7 +182,8 @@ document.addEventListener('DOMContentLoaded', () => {
     reloadButtons,
     toast: showToast,
     onBeforeReload: () => reloadPersistence.store(),
-    timeoutMessage: 'El escáner se desactivó tras permanecer abierto un minuto. Recarga la página para volver a usarlo.'
+    timeoutMessage: 'El escáner se desactivó tras permanecer abierto un minuto. Recarga la página para volver a usarlo.',
+    countdownDisplay: () => scannerCountdownEl
   });
   
   // Esta función es el "interruptor de apagado" para la advertencia
