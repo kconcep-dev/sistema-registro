@@ -61,9 +61,9 @@ La solución opera como una aplicación estática enriquecida con servicios gest
 ```mermaid
 flowchart LR
     Usuario -->|Navegador web| Interfaz[Interfaz HTML/CSS/JS]
-    Interfaz -->|Supabase JS SDK| Supabase[(Supabase\nAuth + Postgres + Storage)]
-    Interfaz -->|Scanbot SDK| Scanbot[Scanbot SDK\nEscaneo de códigos]
-    Interfaz -->|ExcelJS| Reportes[Generador de Reportes\n(Excel)]
+    Interfaz -->|Supabase JS SDK| Supabase[(Supabase<br/>Auth + Postgres + Storage)]
+    Interfaz -->|Scanbot SDK| Scanbot[Scanbot SDK<br/>Escaneo de códigos]
+    Interfaz -->|ExcelJS| Reportes[Generador de Reportes<br/>(Excel)]
     Supabase -->|Políticas RLS| Seguridad[Seguridad y Auditoría]
 ```
 
