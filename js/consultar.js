@@ -1319,10 +1319,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const descripcionHeader = 'DESCRIPCIÓN';
       const unidadAdministrativaLabel = 'UNIDAD ADMINISTRATIVA:';
+      const formularioTitulo = 'FORMULARIO DE DESCARTE';
       const columnAWidth = 6;
+      const combinedHeaderWidth = Math.max(unidadAdministrativaLabel.length, formularioTitulo.length);
       const columnBWidth = Math.max(
         descripcionHeader.length,
-        Math.max(unidadAdministrativaLabel.length - columnAWidth, 0)
+        Math.max(combinedHeaderWidth - columnAWidth + 4, 0)
       );
       const columnWidths = [columnAWidth, columnBWidth, 28, 28, 18, 18, 20, 20, 20, 34];
       columnWidths.forEach((width, idx) => {
