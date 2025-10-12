@@ -193,6 +193,7 @@ button {
 
 .toast.warning {
     background-color: var(--warning-color);
+    color: #111827;
 }
 
 /* --- 4. Contenido Principal y Formularios Base --- */
@@ -838,7 +839,7 @@ body.nav-open .icon-menu { display: none; }
     color: var(--border-color);
     cursor: pointer;
     line-height: 1;
-    padding: 6px;
+    padding: 8px;
     border-radius: 999px;
     display: inline-flex;
     align-items: center;
@@ -852,8 +853,8 @@ body.nav-open .icon-menu { display: none; }
 }
 
 .modal-close-btn .icon {
-    width: 1em;
-    height: 1em;
+    width: 1.35em;
+    height: 1.35em;
 }
 
 .modal-buttons {
@@ -1186,8 +1187,16 @@ html.dark-mode .btn-scan.btn-scan--disabled {
   display: flex;
 }
 
+.scanbot-overlay__controls {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .scanbot-overlay__close {
-  align-self: flex-end;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1207,6 +1216,27 @@ html.dark-mode .btn-scan.btn-scan--disabled {
 .scanbot-overlay__close .icon {
   width: 1.05em;
   height: 1.05em;
+}
+
+.scanbot-overlay__timer {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 12px 24px;
+  border-radius: var(--button-radius);
+  background-color: var(--error-color);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  cursor: default;
+  transition: opacity 0.2s ease;
+}
+
+.scanbot-overlay__timer[hidden] {
+  display: none;
 }
 
 .scanbot-overlay__close:hover,
@@ -1233,7 +1263,12 @@ html.dark-mode .btn-scan.btn-scan--disabled {
     gap: 12px;
   }
 
-  .scanbot-overlay__close {
+  .scanbot-overlay__controls {
+    justify-content: center;
+  }
+
+  .scanbot-overlay__close,
+  .scanbot-overlay__timer {
     width: 100%;
     text-align: center;
   }
