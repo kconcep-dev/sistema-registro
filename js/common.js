@@ -200,6 +200,154 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // --- ORDENAMIENTO DE TABLAS ---
+    const NUMERIC_PATTERN = /^-?\d+(?:[.,]\d+)?$/;
+
+    const extractSortableValue = (row, columnIndex) => {
+        const cell = row.cells[columnIndex];
+        if (!cell) {
+            return { type: 'text', raw: '', value: '' };
+        }
+
+        const dataValue = cell.getAttribute('data-sort-value');
+        const rawText = dataValue !== null ? dataValue : cell.textContent;
+        const text = rawText ? rawText.trim() : '';
+
+        if (!text) {
+            return { type: 'text', raw: '', value: '' };
+        }
+
+        const normalizedNumeric = text.replace(/\s+/g, '').replace(',', '.');
+        if (NUMERIC_PATTERN.test(normalizedNumeric)) {
+            const numericValue = Number(normalizedNumeric);
+            if (!Number.isNaN(numericValue)) {
+                return { type: 'number', raw: text, value: numericValue };
+            }
+        }
+
+        const timestamp = Date.parse(text);
+        if (!Number.isNaN(timestamp)) {
+            return { type: 'date', raw: text, value: timestamp };
+        }
+
+        return { type: 'text', raw: text, value: text.toLocaleLowerCase('es') };
+    };
+
+    const compareSortableValues = (a, b, direction) => {
+        const dir = direction === 'asc' ? 1 : -1;
+
+        if (!a.raw && !b.raw) return 0;
+        if (!a.raw) return 1 * dir;
+        if (!b.raw) return -1 * dir;
+
+        if (a.type === 'number' && b.type === 'number') {
+            if (a.value === b.value) {
+                return a.raw.localeCompare(b.raw, 'es', { sensitivity: 'base', numeric: true }) * dir;
+            }
+            return (a.value - b.value) * dir;
+        }
+
+        if (a.type === 'date' && b.type === 'date') {
+            if (a.value === b.value) {
+                return a.raw.localeCompare(b.raw, 'es', { sensitivity: 'base', numeric: true }) * dir;
+            }
+            return (a.value - b.value) * dir;
+        }
+
+        if (a.type === 'text' && b.type === 'text') {
+            return a.value.localeCompare(b.value, 'es', { sensitivity: 'base', numeric: true }) * dir;
+        }
+
+        // Priorizamos números sobre fechas y texto, y fechas sobre texto
+        const typeRank = { number: 0, date: 1, text: 2 };
+        const rankA = typeRank[a.type] ?? 3;
+        const rankB = typeRank[b.type] ?? 3;
+        if (rankA === rankB) {
+            return a.raw.localeCompare(b.raw, 'es', { sensitivity: 'base', numeric: true }) * dir;
+        }
+        return (rankA - rankB) * dir;
+    };
+
+    const handleTableSort = (table, columnIndex) => {
+        const tbody = table.tBodies[0];
+        if (!tbody) return;
+
+        const headerCells = Array.from(table.tHead?.querySelectorAll('th') || []);
+        const currentColumn = Number.parseInt(table.dataset.sortColumn ?? '', 10);
+        let direction = 'asc';
+        if (!Number.isNaN(currentColumn) && currentColumn === columnIndex) {
+            direction = table.dataset.sortDirection === 'asc' ? 'desc' : 'asc';
+        }
+
+        table.dataset.sortColumn = String(columnIndex);
+        table.dataset.sortDirection = direction;
+
+        headerCells.forEach((cell, index) => {
+            if (index === columnIndex) {
+                cell.setAttribute('data-direction', direction);
+                cell.setAttribute('aria-sort', direction === 'asc' ? 'ascending' : 'descending');
+            } else {
+                cell.removeAttribute('data-direction');
+                cell.removeAttribute('aria-sort');
+            }
+        });
+
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        rows.sort((rowA, rowB) => {
+            const valueA = extractSortableValue(rowA, columnIndex);
+            const valueB = extractSortableValue(rowB, columnIndex);
+            return compareSortableValues(valueA, valueB, direction);
+        });
+
+        rows.forEach((row) => tbody.appendChild(row));
+    };
+
+    const initializeSortableTables = () => {
+        const tables = document.querySelectorAll('table');
+        tables.forEach((table) => {
+            if (table.dataset.sortableInitialized === 'true') return;
+            if (!table.tHead || !table.tBodies || !table.tBodies.length) return;
+
+            const headerCells = Array.from(table.tHead.querySelectorAll('th'));
+            if (!headerCells.length) return;
+
+            // Si la tabla ya define data-sort en los encabezados, asumimos que tiene una lógica personalizada (ej. inventario)
+            const hasCustomSort = headerCells.some((th) => th.hasAttribute('data-sort'));
+            if (hasCustomSort) {
+                table.dataset.sortableInitialized = 'custom';
+                return;
+            }
+
+            const sortableHeaders = headerCells.filter((th) => th.dataset.noSort !== 'true');
+            if (!sortableHeaders.length) {
+                table.dataset.sortableInitialized = 'true';
+                return;
+            }
+
+            table.dataset.sortColumn = '';
+            table.dataset.sortDirection = '';
+
+            headerCells.forEach((th, index) => {
+                if (th.dataset.noSort === 'true') return;
+                th.classList.add('is-sortable');
+                if (!th.hasAttribute('tabindex')) {
+                    th.tabIndex = 0;
+                }
+                th.addEventListener('click', () => handleTableSort(table, index));
+                th.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        handleTableSort(table, index);
+                    }
+                });
+            });
+
+            table.dataset.sortableInitialized = 'true';
+        });
+    };
+
+    initializeSortableTables();
+
     // --- TEMPORIZADOR DE INACTIVIDAD ---
     const INACTIVITY_WARNING_TIMEOUT = 10 * 60 * 1000; // 10 minutos para aviso
     const FORCED_LOGOUT_DELAY = 5 * 60 * 1000; // 5 minutos adicionales para cierre forzado
