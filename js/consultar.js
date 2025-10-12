@@ -1508,17 +1508,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (logoImageId !== null) {
         const imageSize = calculateImageSizeWithinBounds(
           worksheet,
-          { startCol: 8, endCol: 10, startRow: 1, endRow: 4 },
+          { startCol: 7, endCol: 10, startRow: 1, endRow: 5 },
           logoDimensions
         );
 
         if (imageSize) {
           worksheet.addImage(logoImageId, {
-            tl: { col: 7, row: 0 },
+            tl: { col: 6, row: 0 },
             ext: imageSize
           });
         } else {
-          worksheet.addImage(logoImageId, 'H1:J4');
+          worksheet.addImage(logoImageId, 'G1:J5');
         }
       }
 
