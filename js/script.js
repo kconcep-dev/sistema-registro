@@ -356,8 +356,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnScanLive) {
     btnScanLive.addEventListener('click', async () => {
       if (activeBarcodeScanner || scannerOpeningContext) return;
-      showToast("Iniciando cámara...", "success");
-
       try {
         if (!scanbotSDK) {
           scanbotSDK = await ScanbotSDK.initialize({

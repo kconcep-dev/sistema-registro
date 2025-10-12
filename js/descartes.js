@@ -551,8 +551,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      showToast("Iniciando cámara...", "success");
-
       try {
         if (!scanbotSDK) {
           scanbotSDK = await ScanbotSDK.initialize({
