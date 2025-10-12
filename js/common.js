@@ -93,6 +93,192 @@ window.clearWorkInProgress = () => {
     window.isWorkInProgress = false;
 };
 
+// Gestor para preservar formularios antes de recargar la página por el escáner
+window.createScannerReloadPersistence = (storageKey, formIds = []) => {
+    const resolveForms = () => formIds
+        .map((formRef) => {
+            if (!formRef) return null;
+            if (typeof formRef === 'string') {
+                return document.getElementById(formRef);
+            }
+            return formRef;
+        })
+        .filter((form) => form instanceof HTMLFormElement);
+
+    const collectFormValues = (form) => {
+        const values = {};
+        if (!form) return values;
+        const fields = form.querySelectorAll('input[id], textarea[id], select[id]');
+        fields.forEach((field) => {
+            const { id, type } = field;
+            if (!id) return;
+            if (type === 'checkbox' || type === 'radio') {
+                values[id] = field.checked;
+            } else {
+                values[id] = field.value;
+            }
+        });
+        return values;
+    };
+
+    const applyFormValues = (values) => {
+        if (!values || typeof values !== 'object') return;
+        Object.entries(values).forEach(([fieldId, storedValue]) => {
+            const field = document.getElementById(fieldId);
+            if (!field) return;
+            if (field.type === 'checkbox' || field.type === 'radio') {
+                field.checked = Boolean(storedValue);
+            } else if (storedValue !== undefined) {
+                field.value = storedValue;
+            }
+            field.dispatchEvent(new Event('input', { bubbles: true }));
+            field.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+    };
+
+    return {
+        store() {
+            try {
+                const forms = resolveForms();
+                if (!forms.length) {
+                    sessionStorage.removeItem(storageKey);
+                    return;
+                }
+
+                const payload = {};
+                let hasValues = false;
+
+                forms.forEach((form, index) => {
+                    const formValues = collectFormValues(form);
+                    if (Object.keys(formValues).length > 0) {
+                        const key = form.id || `form-${index}`;
+                        payload[key] = formValues;
+                        hasValues = true;
+                    }
+                });
+
+                if (hasValues) {
+                    sessionStorage.setItem(storageKey, JSON.stringify(payload));
+                } else {
+                    sessionStorage.removeItem(storageKey);
+                }
+            } catch (error) {
+                console.warn('No se pudo guardar el estado antes de recargar:', error);
+            }
+        },
+        restore() {
+            const raw = sessionStorage.getItem(storageKey);
+            if (!raw) return;
+            sessionStorage.removeItem(storageKey);
+            try {
+                const payload = JSON.parse(raw);
+                Object.values(payload || {}).forEach((values) => applyFormValues(values));
+            } catch (error) {
+                console.warn('No se pudo restaurar el estado tras la recarga:', error);
+            }
+        }
+    };
+};
+
+// Controlador del tiempo de vida del escáner en modo de prueba
+window.createScannerSessionGuard = ({
+    buttons = [],
+    reloadButtons = [],
+    toast = () => {},
+    onBeforeReload = () => {},
+    timeoutMessage = 'El escáner dejó de estar disponible. Recarga la página para volver a usarlo.',
+    autoCloseDelayMs = 50000,
+    disableTooltip = 'Recarga la página para reactivar el escáner'
+} = {}) => {
+    const launchButtons = Array.from(buttons).filter((btn) => btn instanceof HTMLElement);
+    const reloadTriggers = Array.from(reloadButtons).filter((btn) => btn instanceof HTMLElement);
+    let timerId = null;
+    let expired = false;
+    let effectsApplied = false;
+
+    const clearTimer = () => {
+        if (timerId) {
+            clearTimeout(timerId);
+            timerId = null;
+        }
+    };
+
+    const disableLaunchButtons = () => {
+        launchButtons.forEach((btn) => {
+            if (!btn) return;
+            btn.disabled = true;
+            btn.classList.add('btn-scan--disabled');
+            btn.setAttribute('aria-disabled', 'true');
+            if (disableTooltip) {
+                btn.setAttribute('title', disableTooltip);
+            }
+        });
+    };
+
+    const revealReloadButtons = () => {
+        reloadTriggers.forEach((btn) => {
+            if (!btn) return;
+            btn.hidden = false;
+            btn.removeAttribute('aria-hidden');
+        });
+    };
+
+    reloadTriggers.forEach((btn) => {
+        if (!btn) return;
+        btn.hidden = true;
+        btn.setAttribute('aria-hidden', 'true');
+        btn.addEventListener('click', (event) => {
+            event.preventDefault();
+            try {
+                onBeforeReload(btn);
+            } catch (error) {
+                console.error('Error al preparar la recarga del escáner:', error);
+            }
+            window.location.reload();
+        });
+    });
+
+    const applyTimeoutEffects = () => {
+        if (effectsApplied) return;
+        effectsApplied = true;
+        disableLaunchButtons();
+        revealReloadButtons();
+        if (typeof toast === 'function' && timeoutMessage) {
+            toast(timeoutMessage, 'warning');
+        }
+    };
+
+    return {
+        startTimer(triggerClose) {
+            if (expired) return;
+            clearTimer();
+            timerId = setTimeout(() => {
+                timerId = null;
+                expired = true;
+                if (typeof triggerClose === 'function') {
+                    triggerClose();
+                } else {
+                    applyTimeoutEffects();
+                }
+            }, autoCloseDelayMs);
+        },
+        clearTimer,
+        markClosed({ reason } = {}) {
+            const timedOut = expired || reason === 'timeout';
+            if (reason === 'timeout' && !expired) {
+                expired = true;
+            }
+            clearTimer();
+            if (timedOut) {
+                applyTimeoutEffects();
+            }
+        },
+        hasExpired() {
+            return expired;
+        }
+    };
+};
+
 // ✅ FUNCIÓN GLOBAL PARA MOSTRAR MODAL DE CONFIRMACIÓN: CORREGIDA
 window.showConfirmationModal = (title, message) => {
     const modal = document.getElementById('modal-confirmacion');

@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let ignoreNextPopState = false;
   let hasScannerHistoryEntry = false;
   let scannerOpeningContext = null;
+  let scannerGuard = null;
 
   function detachScannerHistory({ triggeredByPopState } = {}) {
     if (scannerPopStateHandler) {
@@ -78,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function closeActiveScanner({ triggeredByPopState } = {}) {
+  function closeActiveScanner({ triggeredByPopState, reason } = {}) {
     if (scannerOpeningContext) {
       scannerOpeningContext.cancelled = true;
       scannerOpeningContext = null;
@@ -95,6 +96,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     detachScannerHistory({ triggeredByPopState });
+
+    if (scannerGuard) {
+      scannerGuard.markClosed({ reason });
+    }
   }
 
   function ensureScannerOverlay() {
@@ -152,6 +157,18 @@ document.addEventListener('DOMContentLoaded', () => {
       toastEl.className = toastEl.className.replace('show', '');
     }, 3000);
   }
+
+  const reloadButtons = Array.from(document.querySelectorAll('.btn-reload-scan'));
+  const reloadPersistence = window.createScannerReloadPersistence('scannerReloadRegistro', ['registro-form', 'modal-form-registro']);
+  reloadPersistence.restore();
+
+  scannerGuard = window.createScannerSessionGuard({
+    buttons: btnScanLive ? [btnScanLive] : [],
+    reloadButtons,
+    toast: showToast,
+    onBeforeReload: () => reloadPersistence.store(),
+    timeoutMessage: 'El escáner se desactivó tras permanecer abierto un minuto. Recarga la página para volver a usarlo.'
+  });
   
   // Esta función es el "interruptor de apagado" para la advertencia
   window.clearWorkInProgress = () => {
@@ -357,6 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnScanLive) {
     btnScanLive.addEventListener('click', async () => {
       if (activeBarcodeScanner || scannerOpeningContext) return;
+      if (scannerGuard && scannerGuard.hasExpired()) return;
       try {
         if (!scanbotSDK) {
           scanbotSDK = await ScanbotSDK.initialize({
@@ -421,6 +439,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           activeBarcodeScanner = scannerInstance;
           scannerOpeningContext = null;
+          if (scannerGuard) {
+            scannerGuard.startTimer(() => closeActiveScanner({ reason: 'timeout' }));
+          }
         }
 
       } catch (e) {

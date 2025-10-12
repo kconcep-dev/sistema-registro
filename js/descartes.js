@@ -136,6 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let ignoreNextPopState = false;
   let hasScannerHistoryEntry = false;
   let scannerOpeningContext = null;
+  let scannerGuard = null;
 
   function detachScannerHistory({ triggeredByPopState } = {}) {
     if (scannerPopStateHandler) {
@@ -152,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function closeActiveScanner({ triggeredByPopState } = {}) {
+  function closeActiveScanner({ triggeredByPopState, reason } = {}) {
     if (scannerOpeningContext) {
       scannerOpeningContext.cancelled = true;
       scannerOpeningContext = null;
@@ -169,6 +170,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     detachScannerHistory({ triggeredByPopState });
+
+    if (scannerGuard) {
+      scannerGuard.markClosed({ reason });
+    }
   }
 
   function ensureScannerOverlay() {
@@ -237,6 +242,19 @@ document.addEventListener('DOMContentLoaded', () => {
       toastEl.className = toastEl.className.replace('show', '');
     }, 3000);
   }
+
+  const scannerLaunchButtons = Array.from(document.querySelectorAll('.btn-scan'));
+  const reloadButtons = Array.from(document.querySelectorAll('.btn-reload-scan'));
+  const reloadPersistence = window.createScannerReloadPersistence('scannerReloadDescartes', ['form-equipo', 'form-nueva-sesion', 'form-editar-equipo']);
+  reloadPersistence.restore();
+
+  scannerGuard = window.createScannerSessionGuard({
+    buttons: scannerLaunchButtons,
+    reloadButtons,
+    toast: showToast,
+    onBeforeReload: () => reloadPersistence.store(),
+    timeoutMessage: 'El escáner se desactivó tras permanecer abierto un minuto. Recarga la página para volver a usarlo.'
+  });
 
   window.clearWorkInProgress = () => {
     window.isWorkInProgress = false;
@@ -544,6 +562,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.btn-scan').forEach(button => {
     button.addEventListener('click', async () => {
       if (activeBarcodeScanner || scannerOpeningContext) return;
+      if (scannerGuard && scannerGuard.hasExpired()) return;
 
       const inputId = button.dataset.targetInput;
       const targetInput = document.getElementById(inputId);
@@ -594,6 +613,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           activeBarcodeScanner = scannerInstance;
           scannerOpeningContext = null;
+          if (scannerGuard) {
+            scannerGuard.startTimer(() => closeActiveScanner({ reason: 'timeout' }));
+          }
         }
 
       } catch (e) {
