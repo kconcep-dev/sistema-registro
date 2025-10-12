@@ -2037,48 +2037,142 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  function exportToExcel() {
-    if (!filteredRecords.length) {
+  async function exportToExcel() {
+    if (typeof ExcelJS === 'undefined') {
+      showToast('La librería ExcelJS no está disponible.', 'error');
+      return;
+    }
+
+    const exportData = Array.isArray(filteredRecords) ? filteredRecords : [];
+    if (!exportData.length) {
       showToast('No hay registros para exportar.', 'error', 3200);
       return;
     }
 
-    const exportRows = filteredRecords.map((record) => ({
-      'Dispositivo': record.dispositivo || '',
-      'Tipo': formatTipoLabel(record.tipo, { fallback: '' }),
-      'Departamento': record.departamento || '',
-      'Propietario': record.propietario || '',
-      'Usuario': record.usuario || '',
-      'Dirección IP': hasIpValue(record.ip) ? record.ip : NO_IP_LABEL,
-      'Máscara': record.mascara || '',
-      'Gateway': record.gateway || '',
-      'DNS 1': record.dns1 || '',
-      'DNS 2': record.dns2 || '',
-      'Estado': STATE_LABELS[record.estado] || record.estado,
-      'Notas': record.notas || ''
-    }));
+    const headers = [
+      'Dispositivo',
+      'Tipo',
+      'Departamento',
+      'Propietario',
+      'Usuario',
+      'Dirección IP',
+      'Máscara',
+      'Gateway',
+      'DNS 1',
+      'DNS 2',
+      'Estado',
+      'Notas'
+    ];
 
-    const worksheet = XLSX.utils.json_to_sheet(exportRows, {
-      header: [
-        'Dispositivo',
-        'Tipo',
-        'Departamento',
-        'Propietario',
-        'Usuario',
-        'Dirección IP',
-        'Máscara',
-        'Gateway',
-        'DNS 1',
-        'DNS 2',
-        'Estado',
-        'Notas'
-      ]
+    const dataRows = exportData.map((record) => {
+      const hasIp = hasIpValue(record.ip);
+      return [
+        record.dispositivo || '',
+        formatTipoLabel(record.tipo, { fallback: '' }),
+        record.departamento || '',
+        record.propietario || '',
+        record.usuario || '',
+        hasIp ? record.ip : NO_IP_LABEL,
+        hasIp ? (record.mascara || '') : '',
+        hasIp ? (record.gateway || '') : '',
+        hasIp ? (record.dns1 || '') : '',
+        hasIp ? (record.dns2 || '') : '',
+        record.estado ? (STATE_LABELS[record.estado] || record.estado) : '',
+        record.notas || ''
+      ];
     });
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Inventario Equipos');
-    const fileName = `Inventario_Equipos_${new Date().toISOString().split('T')[0]}.xlsx`;
-    XLSX.writeFile(workbook, fileName);
-    showToast('Exportación completada.');
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Inventario');
+
+    const borderAll = {
+      top:    { style: 'thin', color: { argb: 'FF000000' } },
+      left:   { style: 'thin', color: { argb: 'FF000000' } },
+      bottom: { style: 'thin', color: { argb: 'FF000000' } },
+      right:  { style: 'thin', color: { argb: 'FF000000' } }
+    };
+
+    worksheet.mergeCells(1, 1, 1, headers.length);
+    const titleCell = worksheet.getCell(1, 1);
+    titleCell.value = 'Inventario de Equipos';
+    titleCell.font = { bold: true, size: 14 };
+    titleCell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+    titleCell.border = borderAll;
+
+    worksheet.addRow([]);
+
+    const headerRow = worksheet.addRow(headers);
+    headerRow.font = { bold: true };
+    headerRow.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+    headerRow.eachCell((cell) => {
+      cell.border = borderAll;
+    });
+
+    const columnAlignments = [
+      { horizontal: 'left' },
+      { horizontal: 'left' },
+      { horizontal: 'left' },
+      { horizontal: 'left' },
+      { horizontal: 'left' },
+      { horizontal: 'center' },
+      { horizontal: 'center' },
+      { horizontal: 'center' },
+      { horizontal: 'center' },
+      { horizontal: 'center' },
+      { horizontal: 'center' },
+      { horizontal: 'left' }
+    ];
+
+    dataRows.forEach((rowValues) => {
+      const row = worksheet.addRow(rowValues);
+      row.eachCell((cell, colNumber) => {
+        const alignment = columnAlignments[colNumber - 1] || { horizontal: 'left' };
+        cell.alignment = { ...alignment, vertical: 'top', wrapText: true };
+        cell.border = borderAll;
+      });
+    });
+
+    const columnWidths = headers.map((header, columnIndex) => {
+      const maxCellLength = Math.max(
+        header.length,
+        ...dataRows.map((row) => {
+          const value = row[columnIndex];
+          return value ? value.toString().length : 0;
+        })
+      );
+
+      const minWidth = header === 'Notas' ? 20 : 12;
+      const maxWidth = header === 'Notas' ? 60 : 40;
+      return Math.min(Math.max(maxCellLength + 2, minWidth), maxWidth);
+    });
+
+    columnWidths.forEach((width, index) => {
+      worksheet.getColumn(index + 1).width = width;
+    });
+
+    const today = new Date();
+    const fileDate = [
+      today.getFullYear(),
+      String(today.getMonth() + 1).padStart(2, '0'),
+      String(today.getDate()).padStart(2, '0')
+    ].join('-');
+
+    try {
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Inventario_Equipos_${fileDate}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      showToast('Exportación completada.');
+    } catch (error) {
+      console.error(error);
+      showToast('No se pudo generar el archivo de Excel.', 'error');
+    }
   }
 
   function attachEventListeners() {
