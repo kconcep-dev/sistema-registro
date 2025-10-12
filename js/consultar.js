@@ -100,6 +100,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   let ignoreNextPopState = false;
   let hasScannerHistoryEntry = false;
   let scannerOpeningContext = null;
+  let scannerGuard = null;
   let searchDebounceTimeout;
   let toastTimeout;
 
@@ -231,9 +232,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     toastMessageEl.textContent = message;
     toastEl.className = `toast show ${type}`;
     toastTimeout = setTimeout(() => {
-    toastEl.className = toastEl.className.replace('show', '');
+      toastEl.className = toastEl.className.replace('show', '');
     }, 3000);
   }
+
+  const scannerLaunchButtons = Array.from(document.querySelectorAll('.btn-scan'));
+  const reloadButtons = Array.from(document.querySelectorAll('.btn-reload-scan'));
+  const reloadPersistence = window.createScannerReloadPersistence('scannerReloadConsultar', ['form-editar-equipo', 'form-agregar-equipo']);
+  reloadPersistence.restore();
+
+  scannerGuard = window.createScannerSessionGuard({
+    buttons: scannerLaunchButtons,
+    reloadButtons,
+    toast: showToast,
+    onBeforeReload: () => reloadPersistence.store(),
+    timeoutMessage: 'El escáner se desactivó tras permanecer abierto un minuto. Recarga la página para volver a usarlo.'
+  });
 
   const buildStateUrl = (state) => {
     const url = new URL(window.location.href);
@@ -696,7 +710,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  function closeActiveScanner({ triggeredByPopState } = {}) {
+  function closeActiveScanner({ triggeredByPopState, reason } = {}) {
     if (scannerOpeningContext) {
       scannerOpeningContext.cancelled = true;
       scannerOpeningContext = null;
@@ -717,6 +731,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     detachScannerHistory({ triggeredByPopState });
+
+    if (scannerGuard) {
+      scannerGuard.markClosed({ reason });
+    }
   }
 
   function ensureScannerOverlay() {
@@ -795,6 +813,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       button.addEventListener('click', async () => {
         if (activeBarcodeScanner || scannerOpeningContext) return;
+        if (scannerGuard && scannerGuard.hasExpired()) return;
 
         const targetId = button.dataset.targetInput;
         const targetInput = targetId ? document.getElementById(targetId) : null;
@@ -844,6 +863,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           } else {
             activeBarcodeScanner = scannerInstance;
             scannerOpeningContext = null;
+            if (scannerGuard) {
+              scannerGuard.startTimer(() => closeActiveScanner({ reason: 'timeout' }));
+            }
           }
         } catch (error) {
           console.error('Error al inicializar el escáner:', error);

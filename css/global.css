@@ -11,6 +11,7 @@
     --shadow-color: rgba(0, 0, 0, 0.05);
     --success-color: #28A745;
     --error-color: #DC3545;
+    --warning-color: #F59E0B;
     --button-radius: 999px;
 }
 
@@ -25,6 +26,7 @@ html.dark-mode {
     --border-color: #9CA3AF;
     --shadow-color: rgba(0, 0, 0, 0.2);
     --success-color: #166534; /* Verde más oscuro para dark mode */
+    --warning-color: #FBBF24;
 }
 
 /* --- 2. Estilos Generales y Cargador --- */
@@ -187,6 +189,10 @@ button {
 
 .toast.error {
     background-color: var(--error-color);
+}
+
+.toast.warning {
+    background-color: var(--warning-color);
 }
 
 /* --- 4. Contenido Principal y Formularios Base --- */
@@ -667,6 +673,10 @@ html.dark-mode .theme-btn {
     --icon-url: url("../assets/images/icono-export.svg");
 }
 
+.icon-reload {
+    --icon-url: url("../assets/images/icono-reload.svg");
+}
+
 .icon-refresh {
     --icon-url: url("../assets/images/icono-refresh.svg");
 }
@@ -1090,8 +1100,69 @@ html.dark-mode select option:hover {
   outline-offset: 2px;
 }
 
+.btn-scan:disabled,
+.btn-scan[aria-disabled="true"],
+.btn-scan.btn-scan--disabled {
+  background-color: color-mix(in srgb, var(--border-color) 65%, var(--bg-color) 35%);
+  color: color-mix(in srgb, #FFFFFF 85%, transparent);
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.75;
+}
+
+html.dark-mode .btn-scan:disabled,
+html.dark-mode .btn-scan[aria-disabled="true"],
+html.dark-mode .btn-scan.btn-scan--disabled {
+  background-color: color-mix(in srgb, var(--border-color) 60%, #0F172A 40%);
+  color: color-mix(in srgb, #E5E7EB 80%, transparent);
+  opacity: 0.85;
+}
+
+.btn-reload-scan {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0 14px;
+  min-height: 42px;
+  border-radius: var(--button-radius);
+  border: 1px solid var(--border-color);
+  background-color: var(--input-bg-color);
+  color: var(--text-color);
+  box-shadow: 0 2px 6px var(--shadow-color);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-reload-scan:hover {
+  background-color: var(--border-color);
+  color: var(--bg-color);
+}
+
+.btn-reload-scan:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--border-color) 35%, transparent);
+  outline-offset: 2px;
+}
+
+.btn-reload-scan[hidden] {
+  display: none !important;
+}
+
+.scanner-action-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 @media (max-width: 768px) {
   .btn-scan {
+    min-height: 40px;
+    padding: 0 12px;
+  }
+
+  .btn-reload-scan {
     min-height: 40px;
     padding: 0 12px;
   }
