@@ -129,6 +129,92 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   let scanbotSDK;
   let activeBarcodeScanner;
+  let scannerOverlayEl;
+  let scannerViewEl;
+  let scannerCloseButton;
+  let scannerPopStateHandler = null;
+  let ignoreNextPopState = false;
+  let hasScannerHistoryEntry = false;
+  let scannerOpeningContext = null;
+
+  function detachScannerHistory({ triggeredByPopState } = {}) {
+    if (scannerPopStateHandler) {
+      window.removeEventListener('popstate', scannerPopStateHandler);
+      scannerPopStateHandler = null;
+    }
+
+    if (hasScannerHistoryEntry) {
+      if (!triggeredByPopState) {
+        ignoreNextPopState = true;
+        history.back();
+      }
+      hasScannerHistoryEntry = false;
+    }
+  }
+
+  function closeActiveScanner({ triggeredByPopState } = {}) {
+    if (scannerOpeningContext) {
+      scannerOpeningContext.cancelled = true;
+      scannerOpeningContext = null;
+    }
+
+    if (activeBarcodeScanner) {
+      activeBarcodeScanner.dispose();
+      activeBarcodeScanner = null;
+    }
+
+    if (scannerOverlayEl) {
+      scannerOverlayEl.classList.remove('scanbot-overlay--visible');
+      scannerOverlayEl.setAttribute('aria-hidden', 'true');
+    }
+
+    detachScannerHistory({ triggeredByPopState });
+  }
+
+  function ensureScannerOverlay() {
+    if (!scannerOverlayEl) {
+      scannerOverlayEl = document.createElement('div');
+      scannerOverlayEl.id = 'scanbot-scanner-overlay';
+      scannerOverlayEl.className = 'scanbot-overlay';
+      scannerOverlayEl.setAttribute('aria-hidden', 'true');
+
+      scannerCloseButton = document.createElement('button');
+      scannerCloseButton.type = 'button';
+      scannerCloseButton.className = 'scanbot-overlay__close';
+      scannerCloseButton.textContent = 'Cancelar escaneo';
+      scannerCloseButton.addEventListener('click', () => closeActiveScanner());
+
+      scannerViewEl = document.createElement('div');
+      scannerViewEl.id = 'scanbot-scanner-view';
+      scannerViewEl.className = 'scanbot-overlay__view';
+
+      scannerOverlayEl.appendChild(scannerCloseButton);
+      scannerOverlayEl.appendChild(scannerViewEl);
+      document.body.appendChild(scannerOverlayEl);
+    }
+
+    return scannerViewEl;
+  }
+
+  function attachScannerHistory() {
+    if (hasScannerHistoryEntry) return;
+
+    history.pushState({ scanbotOverlay: true }, '', window.location.href);
+    hasScannerHistoryEntry = true;
+
+    scannerPopStateHandler = () => {
+      if (ignoreNextPopState) {
+        ignoreNextPopState = false;
+        return;
+      }
+
+      if (activeBarcodeScanner || scannerOpeningContext) {
+        closeActiveScanner({ triggeredByPopState: true });
+      }
+    };
+
+    window.addEventListener('popstate', scannerPopStateHandler);
+  }
 
   function recalcularNumeracionTabla() {
     const filas = Array.from(tablaEquiposBody.rows);
@@ -456,62 +542,69 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- LÓGICA DEL ESCÁNER CON SCANBOT SDK ---
   document.querySelectorAll('.btn-scan').forEach(button => {
     button.addEventListener('click', async () => {
-      if (activeBarcodeScanner) return;
-      
+      if (activeBarcodeScanner || scannerOpeningContext) return;
+
       const inputId = button.dataset.targetInput;
       const targetInput = document.getElementById(inputId);
-      
+      if (!targetInput) {
+        showToast('No se encontró el campo vinculado al escáner.', 'error');
+        return;
+      }
+
       showToast("Iniciando cámara...", "success");
 
       try {
         if (!scanbotSDK) {
           scanbotSDK = await ScanbotSDK.initialize({
-            licenseKey: '', 
+            licenseKey: '',
             enginePath: 'js/scanbot/'
           });
         }
 
+        const scannerView = ensureScannerOverlay();
+        scannerView.innerHTML = '';
+        scannerOverlayEl.classList.add('scanbot-overlay--visible');
+        scannerOverlayEl.setAttribute('aria-hidden', 'false');
+        attachScannerHistory();
+
+        const openingContext = { cancelled: false };
+        scannerOpeningContext = openingContext;
+
         const barcodeScannerConfig = {
-          containerId: 'scanner-container',
+          containerId: 'scanbot-scanner-view',
           onBarcodesDetected: (result) => {
             if (result.barcodes.length > 0) {
               const scannedValue = result.barcodes[0].text;
               targetInput.value = scannedValue;
-              
-              if (activeBarcodeScanner) {
-                activeBarcodeScanner.dispose();
-                activeBarcodeScanner = null;
-              }
-              const container = document.getElementById('scanner-container');
-              if (container) container.remove();
-              
               showToast('Código escaneado con éxito.', 'success');
+              closeActiveScanner();
             }
           },
           onError: (e) => {
             console.error('Error del escáner:', e);
             showToast('Error al escanear.', 'error');
-            if (activeBarcodeScanner) {
-              activeBarcodeScanner.dispose();
-              activeBarcodeScanner = null;
-            }
+            closeActiveScanner();
           },
           text: { scanningHint: "Apunte al código de barras del equipo" }
         };
 
-        let scannerContainer = document.getElementById('scanner-container');
-        if (!scannerContainer) {
-          scannerContainer = document.createElement('div');
-          scannerContainer.id = 'scanner-container';
-          scannerContainer.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; z-index:1000;';
-          document.body.appendChild(scannerContainer);
+        const scannerInstance = await scanbotSDK.createBarcodeScanner(barcodeScannerConfig);
+
+        if (openingContext.cancelled) {
+          scannerInstance.dispose();
+        } else {
+          activeBarcodeScanner = scannerInstance;
+          scannerOpeningContext = null;
         }
-        
-        activeBarcodeScanner = await scanbotSDK.createBarcodeScanner(barcodeScannerConfig);
 
       } catch (e) {
         console.error('Error al inicializar Scanbot SDK:', e);
         showToast('No se pudo iniciar el escáner.', 'error');
+        closeActiveScanner();
+      } finally {
+        if (scannerOpeningContext && scannerOpeningContext.cancelled) {
+          scannerOpeningContext = null;
+        }
       }
     });
   });
