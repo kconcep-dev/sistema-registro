@@ -1,8 +1,9 @@
 # Sistema de Registro - Soporte Técnico
 
 <p align="center">
-  <img src="assets/icons/icon-192.png" alt="Logo del Sistema de Registro" width="120" />
-  <img src="assets/images/logo_meduca.png" alt="Logo Ministerio de Educación" width="170" />
+  <img src="assets/images/logo.png" alt="Logo del Sistema de Registro" width="180" />
+  <img src="assets/images/meduca.png" alt="Logo del Ministerio de Educación" width="180" />
+  <img src="assets/images/oteima.png" alt="Logo de la Universidad Tecnológica OTEIMA" width="180" />
 </p>
 
 ## Tabla de contenidos
@@ -13,7 +14,6 @@
   - [Gestión de descartes de equipos](#gestión-de-descartes-de-equipos)
   - [Inventario de activos tecnológicos](#inventario-de-activos-tecnológicos)
   - [Consultas integrales](#consultas-integrales)
-- [Flujo y arquitectura](#flujo-y-arquitectura)
 - [Experiencia de usuario y accesibilidad](#experiencia-de-usuario-y-accesibilidad)
 - [Tecnologías clave](#tecnologías-clave)
 - [Despliegue y configuración](#despliegue-y-configuración)
@@ -54,23 +54,6 @@ El **Sistema de Registro - Soporte Técnico** es una plataforma web integral que
 - Búsquedas instantáneas por nombre, cédula, fecha o código SIACE, con filtros de rango de fechas y contadores en vivo.
 - Edición, eliminación y exportación selectiva de registros mediante acciones contextualizadas en cada fila.
 - Visualización detallada de cada sesión de descarte con metadatos ampliados y listado completo de los equipos asociados.
-
-## Flujo y arquitectura
-La solución opera como una aplicación estática enriquecida con servicios gestionados. El siguiente diagrama resume las interacciones principales:
-
-```mermaid
-flowchart LR
-    Usuario -->|Navegador web| Interfaz[Interfaz HTML/CSS/JS]
-    Interfaz -->|Supabase JS SDK| Supabase[(Supabase<br/>Auth + Postgres + Storage)]
-    Interfaz -->|Scanbot SDK| Scanbot[Scanbot SDK<br/>Escaneo de códigos]
-    Interfaz -->|ExcelJS| Reportes[Generador de Reportes<br/>(Excel)]
-    Supabase -->|Políticas RLS| Seguridad[Seguridad y Auditoría]
-```
-
-- **Interfaz:** Conjunto de páginas estáticas servidas desde GitHub Pages con lógica en JavaScript moderno.
-- **Supabase:** Provee autenticación, base de datos PostgreSQL y políticas Row Level Security (RLS) para proteger la información.
-- **Scanbot SDK:** Se utiliza para lectura de códigos QR y códigos de barras directamente en el navegador.
-- **ExcelJS:** Motor de generación de reportes que replica el formato oficial requerido por la institución.
 
 ## Experiencia de usuario y accesibilidad
 - Diseño responsivo optimizado para escritorios, tabletas y dispositivos móviles.

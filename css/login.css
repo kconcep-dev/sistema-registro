@@ -15,6 +15,7 @@
     min-height: 100svh;
     min-height: 100dvh;
     padding: 20px;
+    padding-bottom: 140px;
 }
 
 /* Título principal sobre la cápsula */
@@ -169,7 +170,7 @@ body.dark-mode .login-container {
         height: auto;
         justify-content: flex-start;
         align-items: stretch;
-        padding: calc(4.5rem + env(safe-area-inset-top, 0px)) 1.5rem 3.5rem;
+        padding: calc(4.5rem + env(safe-area-inset-top, 0px)) 1.5rem calc(7rem + env(safe-area-inset-bottom, 0px));
         gap: 1rem;
     }
     .page-main-title { font-size: 1.3rem; margin-bottom: 1.5rem; }
@@ -266,4 +267,71 @@ body {
 #theme-toggle.theme-btn {
     width: 40px;
     height: 40px;
+}
+
+.login-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--card-bg-color);
+    border-top: 1px solid color-mix(in srgb, var(--border-color, #CBD5F5) 60%, transparent);
+    box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.08);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: center;
+    z-index: 800;
+}
+
+body.dark-mode .login-footer {
+    border-top-color: color-mix(in srgb, var(--card-border-color, rgba(148, 163, 184, 0.35)) 65%, transparent);
+    box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.35);
+}
+
+.login-footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.login-footer-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 12px 22px;
+    border-radius: var(--button-radius);
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.login-footer-link:hover,
+.login-footer-link:focus-visible {
+    background-color: var(--primary-hover-color);
+    transform: translateY(-1px);
+}
+
+.login-footer-link:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--primary-color) 45%, transparent);
+    outline-offset: 4px;
+}
+
+.login-footer-icon {
+    width: 24px;
+    height: 24px;
+    color: currentColor;
+}
+
+@media (max-width: 768px) {
+    .login-footer {
+        padding: 14px 1.5rem;
+    }
+    .login-footer-link {
+        width: 100%;
+        justify-content: center;
+    }
 }
