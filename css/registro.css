@@ -1,0 +1,154 @@
+/* --- Estilos de la Página de Registro --- */
+
+/* Aplica el estilo de "cápsula" a la sección del QR y al formulario */
+#qr-section, #registro-form {
+    background-color: var(--card-bg-color);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    margin-bottom: 20px;
+}
+
+#registro-form {
+    position: relative;
+    z-index: 10;
+}
+
+/* Estilo para el texto de ayuda debajo del título de la sección */
+.section-subtitle {
+    font-size: 0.9rem;
+    color: var(--border-color);
+    text-align: center;
+    margin-top: -10px;
+    margin-bottom: 20px;
+}
+
+/* Estilo base para los botones principales de la página */
+.btn-principal {
+    width: 100%;
+    padding: 12px 20px;
+    margin-top: 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--button-radius);
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: bold;
+    transition: background-color 0.2s;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+
+.btn-principal:hover {
+    background-color: var(--primary-hover-color);
+}
+
+/* Estilo para mostrar el nombre del archivo seleccionado */
+.file-name-display {
+    display: block;
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: var(--text-color);
+    text-align: center;
+    padding: 8px;
+    border: 1px dashed var(--border-color);
+    border-radius: 4px;
+    background-color: var(--input-bg-color);
+}
+
+/* Estilo para el recuadro que muestra el resultado del QR */
+.qr-result-box {
+    background-color: var(--input-bg-color);
+    color: var(--input-text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px;
+    margin-top: 15px;
+    font-size: 0.85rem;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    min-height: 60px;
+    overflow-y: auto;
+}
+
+.card-ultimo-visitante {
+    background-color: var(--card-bg-color);
+    border-left: 5px solid var(--primary-color);
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-top: 25px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.card-ultimo-visitante h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+}
+
+.card-ultimo-visitante p {
+    margin: 8px 0;
+}
+
+/* --- Responsivo --- */
+@media (min-width: 768px) {
+    .container {
+        max-width: 1000px;
+    }
+    .layout-wrapper {
+        display: flex;
+        gap: 25px;
+        align-items: flex-start;
+    }
+    #qr-section, #registro-form {
+        flex: 1;
+        margin-bottom: 0;
+    }
+}
+
+/* --- Estilos solo para Escritorio --- */
+@media (min-width: 768px) {
+    #main-content {
+        padding-top: 50px;
+    }
+}
+
+
+/* 🔥 --- ESTILOS ACTUALIZADOS PARA LA SECCIÓN DE IMAGEN --- 🔥 */
+.botones-imagen-wrapper {
+    display: flex; /* Coloca los botones uno al lado del otro */
+    gap: 15px;     /* Añade un espacio entre los botones */
+    margin-top: 20px;
+    width: 100%;
+    justify-content: center; /* Centra los botones dentro del contenedor */
+}
+
+/* Ajuste para que los botones dentro del wrapper compartan el espacio */
+.botones-imagen-wrapper .btn-principal {
+    margin-top: 0; /* Quitamos el margen superior que ya no es necesario */
+    flex: 1 1 0;   /* Hacemos que ambos botones crezcan por igual para ocupar el espacio */
+    max-width: 100%;
+    font-size: 1rem; /* Reducimos un poco la fuente para que el texto quepa mejor */
+    padding: 12px 10px; /* Ajustamos el padding para que no se vea apretado */
+}
+
+@media (max-width: 600px) {
+    .botones-imagen-wrapper {
+        gap: 10px;
+    }
+
+    .botones-imagen-wrapper .btn-principal {
+        font-size: 0.95rem;
+        padding: 10px 12px;
+        gap: 0.4rem;
+    }
+
+    .botones-imagen-wrapper .btn-principal .button-label {
+        white-space: nowrap;
+    }
+}

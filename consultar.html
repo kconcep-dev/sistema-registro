@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Consultar - Sistema de Registro</title>
+
+  <script>
+    // Evitar “flash” del tema oscuro
+    (function () {
+      try {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'dark') document.documentElement.classList.add('dark-mode');
+      } catch (e) {}
+    })();
+  </script>
+
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/consultar.css" />
+  <link rel="icon" href="assets/icons/icon-192.png" />
+</head>
+
+<body>
+  <div id="navbar-placeholder"></div>
+
+  <div id="loader" class="loader-wrapper">
+    <div class="loader"></div>
+  </div>
+
+  <main id="main-content" style="display:none;">
+    <div class="container">
+      <div class="page-heading page-heading--left">
+        <h1>
+          <span class="text-variant--desktop text-variant--block">Consulta de Datos</span>
+          <span class="text-variant--mobile text-variant--block">Consultas</span>
+        </h1>
+        <p class="page-description">
+          <span class="text-variant--desktop text-variant--block">Revisa y gestiona datos en un solo lugar.</span>
+          <span class="text-variant--mobile text-variant--block">Gestiona visitas y descartes al instante.</span>
+        </p>
+      </div>
+
+      <!-- Pestañas -->
+      <div class="tabs-nav">
+        <button class="tab-btn active" data-tab="visitantes" aria-label="Registros de Visitantes">
+          <span class="icon icon--sm icon-nav-registrar" aria-hidden="true"></span>
+          <span class="button-label">
+            <span class="label-full">Registros de Visitantes</span>
+            <span class="label-short">Visitantes</span>
+          </span>
+        </button>
+        <button class="tab-btn" data-tab="descartes" aria-label="Sesiones de Descartes">
+          <span class="icon icon--sm icon-nav-descartes" aria-hidden="true"></span>
+          <span class="button-label">
+            <span class="label-full">Sesiones de Descartes</span>
+            <span class="label-short">Descartes</span>
+          </span>
+        </button>
+      </div>
+
+      <!-- Tab: Visitantes -->
+      <div id="visitantes-content" class="tab-content active">
+        <div class="controls-area" data-controls="visitantes">
+          <div class="controls-count">
+            <span id="visitantes-total" class="count-pill" aria-live="polite">0 registros</span>
+          </div>
+          <div class="controls-row controls-row--inline">
+            <button class="search-toggle button-with-icon" type="button" aria-expanded="false" aria-controls="search-visitantes" title="Mostrar búsqueda">
+              <span class="icon icon--sm icon-search" aria-hidden="true"></span>
+              <span class="sr-only">Mostrar búsqueda</span>
+            </button>
+            <div class="search-field">
+              <input type="search" id="search-visitantes" placeholder="Buscar por nombre, apellido o cédula..." />
+            </div>
+            <div class="filters-group" role="group" aria-label="Filtros de fecha">
+              <label class="date-field" data-empty="true">
+                <span class="date-display" aria-hidden="true">
+                  <span class="date-display__text"></span>
+                </span>
+                <input type="date" id="date-start-visitantes" title="Fecha de inicio" aria-label="Fecha de inicio" />
+              </label>
+              <label class="date-field" data-empty="true">
+                <span class="date-display" aria-hidden="true">
+                  <span class="date-display__text"></span>
+                </span>
+                <input type="date" id="date-end-visitantes" title="Fecha de fin" aria-label="Fecha de fin" />
+              </label>
+            </div>
+            <button id="export-visitantes-btn" class="btn-export button-with-icon" aria-label="Exportar registros de visitantes">
+              <span class="icon icon--sm icon-export" aria-hidden="true"></span>
+              <span class="button-label">Exportar Excel</span>
+            </button>
+            <button id="clear-visitantes-filters" class="btn-secondary button-with-icon btn-clear-filters" type="button" hidden aria-label="Limpiar filtros de visitantes">
+              <span class="icon icon--sm icon-broom" aria-hidden="true"></span>
+              <span class="button-label">Limpiar filtros</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table id="table-visitantes">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Cédula</th>
+                <th>Motivo</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+            <!-- Tab: Descartes (Lista de sesiones) -->
+      <div id="descartes-content" class="tab-content">
+        <!-- Lista de sesiones -->
+        <section id="sesiones-lista">
+          <div class="controls-area" data-controls="descartes">
+            <div class="controls-count">
+              <span id="sesiones-total" class="count-pill" aria-live="polite">0 sesiones</span>
+            </div>
+            <div class="controls-row controls-row--inline">
+              <button class="search-toggle button-with-icon" type="button" aria-expanded="false" aria-controls="search-descartes" title="Mostrar búsqueda">
+                <span class="icon icon--sm icon-search" aria-hidden="true"></span>
+                <span class="sr-only">Mostrar búsqueda</span>
+              </button>
+              <div class="search-field">
+                <input type="search" id="search-descartes" placeholder="Buscar por Unidad Administrativa o SIACE..." />
+              </div>
+              <div class="filters-group" role="group" aria-label="Filtros de fecha">
+                <label class="date-field" data-empty="true">
+                  <span class="date-display" aria-hidden="true">
+                    <span class="date-display__text"></span>
+                  </span>
+                  <input type="date" id="date-start-descartes" title="Fecha de inicio" aria-label="Fecha de inicio" />
+                </label>
+                <label class="date-field" data-empty="true">
+                  <span class="date-display" aria-hidden="true">
+                    <span class="date-display__text"></span>
+                  </span>
+                  <input type="date" id="date-end-descartes" title="Fecha de fin" aria-label="Fecha de fin" />
+                </label>
+              </div>
+              <button id="clear-descartes-filters" class="btn-secondary button-with-icon btn-clear-filters" type="button" hidden aria-label="Limpiar filtros de descartes">
+                <span class="icon icon--sm icon-broom" aria-hidden="true"></span>
+                <span class="button-label">Limpiar filtros</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table id="table-descartes">
+              <thead>
+                <tr>
+                  <th>Unidad Administrativa</th>
+                  <th>Código SIACE</th>
+                  <th>Fecha</th>
+                  <th>Técnico</th>
+                  <th>Observación</th>
+                  <th>Nº Equipos</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Detalle de una sesión (oculto inicialmente) -->
+        <section id="sesion-detalle" style="display:none;">
+          <div class="detalle-header">
+            <!-- Botón de volver: en móvil se verá más compacto -->
+            <button id="btn-volver-sesiones" class="btn-secondary btn-volver button-with-icon" type="button">
+              <span class="icon icon--sm icon-arrow-left" aria-hidden="true"></span>
+              <span class="button-label">Volver a Sesiones</span>
+            </button>
+            <h2 id="detalle-titulo">Sesión</h2>
+
+            <div class="detalle-info-grid">
+              <article class="detalle-card detalle-card--principal">
+                <p class="detalle-card-label">Unidad</p>
+                <p class="detalle-card-value" id="detalle-unidad">—</p>
+              </article>
+
+              <!-- Botón toggle SOLO para móvil -->
+              <button id="btn-toggle-detalles" class="btn-secondary btn-toggle button-with-icon" type="button" data-expanded="false">
+                <span class="icon icon--sm icon-arrow-down" aria-hidden="true"></span>
+                <span class="button-label">Ver más detalles</span>
+              </button>
+
+              <!-- Bloque de detalles extra -->
+              <div id="detalle-extra" class="detalle-extra">
+                <article class="detalle-card">
+                  <p class="detalle-card-label">Código SIACE</p>
+                  <p class="detalle-card-value" id="detalle-siace">—</p>
+                </article>
+                <article class="detalle-card">
+                  <p class="detalle-card-label">Fecha</p>
+                  <p class="detalle-card-value" id="detalle-fecha">—</p>
+                </article>
+                <article class="detalle-card">
+                  <p class="detalle-card-label">Técnico</p>
+                  <p class="detalle-card-value" id="detalle-tecnico">—</p>
+                </article>
+              </div>
+            </div>
+
+            <!-- 🔥 Observación aparte, siempre debajo -->
+            <div id="detalle-observacion" class="detalle-observacion"></div>
+          </div>
+
+          <div class="controls-area" data-controls="equipos">
+            <div class="controls-count">
+              <span id="equipos-total" class="count-pill" aria-live="polite">0 equipos</span>
+            </div>
+            <div class="controls-row controls-row--primary">
+              <button class="search-toggle button-with-icon" type="button" aria-expanded="false" aria-controls="search-equipos" title="Mostrar búsqueda">
+                <span class="icon icon--sm icon-search" aria-hidden="true"></span>
+                <span class="sr-only">Mostrar búsqueda</span>
+              </button>
+              <div class="search-field">
+                <input
+                  type="search"
+                  id="search-equipos"
+                  placeholder="Buscar por descripción, marca, modelo, serie o marbete..." />
+              </div>
+              <button id="export-sesion-descartes-btn" class="btn-export button-with-icon" type="button" aria-label="Exportar sesión de descartes">
+                <span class="icon icon--sm icon-export" aria-hidden="true"></span>
+                <span class="button-label">Exportar Excel</span>
+              </button>
+              <button id="btn-agregar-equipo" class="btn-principal btn-anadir-equipo button-with-icon" type="button">
+                <span class="icon icon--sm icon-plus" aria-hidden="true"></span>
+                <span class="button-label">Añadir Equipo</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table id="table-equipos-sesion">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Descripción</th>
+                  <th>Marbete</th>
+                  <th>Serie</th>
+                  <th>Marca</th>
+                  <th>Modelo</th>
+                  <th>Estado</th>
+                  <th>Motivo</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+    <!-- Modal genérico de confirmación -->
+  <div id="modal-confirmacion" class="modal-overlay">
+    <div class="modal-content">
+      <h2 id="confirm-title">¿Estás seguro?</h2>
+      <p id="confirm-message">Esta acción no se puede deshacer.</p>
+      <div class="modal-buttons">
+        <button id="btn-confirmar-cancelar" class="btn-secondary button-with-icon">
+          <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+          <span class="button-label">Cancelar</span>
+        </button>
+        <button id="btn-confirmar-aceptar" class="btn-danger button-with-icon">
+          <span class="icon icon--sm icon-check" aria-hidden="true"></span>
+          <span class="button-label">Aceptar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Editar visitante -->
+  <div id="modal-editar-visitante" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close-btn" type="button" aria-label="Cerrar modal">
+        <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+      </button>
+      <h2>Editar Visitante</h2>
+
+      <div class="modal-form-container">
+        <form id="form-editar-visitante" novalidate>
+          <label for="edit-nombre">Nombre:</label>
+          <input type="text" id="edit-nombre" required />
+
+          <label for="edit-apellido">Apellido:</label>
+          <input type="text" id="edit-apellido" required />
+
+          <label for="edit-cedula">Cédula:</label>
+          <input type="text" id="edit-cedula" required />
+
+          <label for="edit-sexo">Sexo:</label>
+          <select id="edit-sexo" required>
+            <option value="" disabled>Selecciona una opción...</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Femenino">Femenino</option>
+          </select>
+
+          <label for="edit-motivo">Motivo de visita:</label>
+          <input type="text" id="edit-motivo" required />
+
+          <div class="modal-buttons">
+            <button type="button" class="btn-secondary modal-cancel-btn button-with-icon">
+              <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+              <span class="button-label">Cancelar</span>
+            </button>
+            <button type="submit" class="btn-principal button-with-icon">
+              <span class="icon icon--sm icon-save" aria-hidden="true"></span>
+              <span class="button-label">
+                <span class="label-desktop">Guardar Cambios</span>
+                <span class="label-mobile">Aplicar</span>
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Editar equipo (para detalle de sesión) -->
+  <div id="modal-editar-equipo" class="modal-overlay">
+    <div class="modal-content">
+      <button id="btn-cerrar-modal-editar-equipo" class="modal-close-btn" type="button" aria-label="Cerrar modal">
+        <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+      </button>
+      <h2>Editar Equipo</h2>
+      <div class="modal-form-container">
+        <form id="form-editar-equipo" novalidate>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="editq-descripcion">Descripción:</label>
+              <input type="text" id="editq-descripcion" />
+            </div>
+            <div class="form-group">
+              <label for="editq-marbete">Marbete:</label>
+              <div class="input-with-button">
+                <input type="text" id="editq-marbete" />
+                <button type="button" class="btn-scan button-with-icon" data-target-input="editq-marbete">
+                  <span class="icon icon--sm icon-scan" aria-hidden="true"></span>
+                  <span class="sr-only">Escanear marbete</span>
+                </button>
+                <button type="button" class="btn-reload-scan btn-reload-scan--icon-only button-with-icon" hidden aria-label="Recargar página" title="Recargar página">
+                  <span class="icon icon--sm icon-reload" aria-hidden="true"></span>
+                  <span class="sr-only">Recargar</span>
+                </button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="editq-serie">Serie:</label>
+              <div class="input-with-button">
+                <input type="text" id="editq-serie" />
+                <button type="button" class="btn-scan button-with-icon" data-target-input="editq-serie">
+                  <span class="icon icon--sm icon-scan" aria-hidden="true"></span>
+                  <span class="sr-only">Escanear serie</span>
+                </button>
+                <button type="button" class="btn-reload-scan btn-reload-scan--icon-only button-with-icon" hidden aria-label="Recargar página" title="Recargar página">
+                  <span class="icon icon--sm icon-reload" aria-hidden="true"></span>
+                  <span class="sr-only">Recargar</span>
+                </button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="editq-marca">Marca:</label>
+              <input type="text" id="editq-marca" />
+            </div>
+            <div class="form-group">
+              <label for="editq-modelo">Modelo:</label>
+              <input type="text" id="editq-modelo" />
+            </div>
+          </div>
+          <div class="form-group-full">
+            <label for="editq-estado">Estado del Equipo:</label>
+            <input type="text" id="editq-estado" />
+          </div>
+          <div class="form-group-full">
+            <label for="editq-motivo">Motivo del Descarte:</label>
+            <input type="text" id="editq-motivo" />
+          </div>
+          <div class="modal-buttons">
+            <button type="button" id="btn-editar-equipo-cancelar" class="btn-secondary button-with-icon">
+              <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+              <span class="button-label">Cancelar</span>
+            </button>
+            <button type="submit" class="btn-principal button-with-icon">
+              <span class="icon icon--sm icon-save" aria-hidden="true"></span>
+              <span class="button-label">
+                <span class="label-desktop">Aplicar Cambios</span>
+                <span class="label-mobile">Aplicar</span>
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Agregar equipo (nuevo) -->
+  <div id="modal-agregar-equipo" class="modal-overlay">
+    <div class="modal-content">
+      <button id="btn-cerrar-modal-agregar-equipo" class="modal-close-btn" type="button" aria-label="Cerrar modal">
+        <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+      </button>
+      <h2>Agregar Equipo</h2>
+      <div class="modal-form-container">
+        <form id="form-agregar-equipo" novalidate>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="add-descripcion">Descripción:</label>
+              <input type="text" id="add-descripcion" required />
+            </div>
+            <div class="form-group">
+              <label for="add-marbete">Marbete:</label>
+              <div class="input-with-button">
+                <input type="text" id="add-marbete" required />
+                <button type="button" class="btn-scan button-with-icon" data-target-input="add-marbete">
+                  <span class="icon icon--sm icon-scan" aria-hidden="true"></span>
+                  <span class="sr-only">Escanear marbete</span>
+                </button>
+                <button type="button" class="btn-reload-scan btn-reload-scan--icon-only button-with-icon" hidden aria-label="Recargar página" title="Recargar página">
+                  <span class="icon icon--sm icon-reload" aria-hidden="true"></span>
+                  <span class="sr-only">Recargar</span>
+                </button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="add-serie">Serie:</label>
+              <div class="input-with-button">
+                <input type="text" id="add-serie" />
+                <button type="button" class="btn-scan button-with-icon" data-target-input="add-serie">
+                  <span class="icon icon--sm icon-scan" aria-hidden="true"></span>
+                  <span class="sr-only">Escanear serie</span>
+                </button>
+                <button type="button" class="btn-reload-scan btn-reload-scan--icon-only button-with-icon" hidden aria-label="Recargar página" title="Recargar página">
+                  <span class="icon icon--sm icon-reload" aria-hidden="true"></span>
+                  <span class="sr-only">Recargar</span>
+                </button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="add-marca">Marca:</label>
+              <input type="text" id="add-marca" />
+            </div>
+            <div class="form-group">
+              <label for="add-modelo">Modelo:</label>
+              <input type="text" id="add-modelo" />
+            </div>
+          </div>
+          <div class="form-group-full">
+            <label for="add-estado">Estado del Equipo:</label>
+            <input type="text" id="add-estado" />
+          </div>
+          <div class="form-group-full">
+            <label for="add-motivo">Motivo del Descarte:</label>
+            <input type="text" id="add-motivo" />
+          </div>
+          <div class="modal-buttons">
+            <button type="button" id="btn-agregar-equipo-cancelar" class="btn-secondary button-with-icon">
+              <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+              <span class="button-label">Cancelar</span>
+            </button>
+            <button type="submit" class="btn-principal button-with-icon">
+              <span class="icon icon--sm icon-plus" aria-hidden="true"></span>
+              <span class="button-label">Añadir</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Editar sesión de descarte -->
+  <div id="modal-editar-sesion" class="modal-overlay">
+    <div class="modal-content">
+      <button id="btn-cerrar-modal-editar-sesion" class="modal-close-btn" type="button" aria-label="Cerrar modal">
+        <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+      </button>
+      <h2>Editar Sesión</h2>
+      <div class="modal-form-container">
+        <form id="form-editar-sesion" novalidate>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="edit-sesion-unidad">Unidad Administrativa:</label>
+              <input type="text" id="edit-sesion-unidad" required />
+            </div>
+            <div class="form-group">
+              <label for="edit-sesion-siace">Código SIACE:</label>
+              <input type="text" id="edit-sesion-siace" />
+            </div>
+            <div class="form-group">
+              <label for="edit-sesion-fecha">Fecha:</label>
+              <input type="date" id="edit-sesion-fecha" required />
+            </div>
+            <div class="form-group">
+              <label for="edit-sesion-tecnico">Técnico Encargado:</label>
+              <input type="text" id="edit-sesion-tecnico" />
+            </div>
+          </div>
+          <div class="form-group-full">
+            <label for="edit-sesion-observacion">Observación:</label>
+            <textarea id="edit-sesion-observacion" rows="3"></textarea>
+          </div>
+          <div class="modal-buttons">
+            <button type="button" id="btn-editar-sesion-cancelar" class="btn-secondary modal-cancel-btn button-with-icon">
+              <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+              <span class="button-label">Cancelar</span>
+            </button>
+            <button type="submit" class="btn-principal button-with-icon">
+              <span class="icon icon--sm icon-save" aria-hidden="true"></span>
+              <span class="button-label">
+                <span class="label-desktop">Guardar Cambios</span>
+                <span class="label-mobile">Aplicar</span>
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+    <!-- Toast -->
+  <div id="toast-notification" class="toast">
+    <span id="toast-message"></span>
+  </div>
+
+  <!-- Libs -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="js/scanbot/ScanbotSDK.min.js"></script>
+  <script src="js/scanbot/ScanbotSDK.ui2.min.js"></script>
+
+  <!-- App -->
+  <script src="js/config.js"></script>
+  <script src="js/common.js" defer></script>
+  <script src="js/consultar.js" defer></script>
+
+  <!-- Script toggle para sesiones (compacto en móvil) -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.addEventListener("click", (e) => {
+        if (e.target.classList.contains("toggle-detalles")) {
+          const card = e.target.closest(".sesion-card");
+          card.classList.toggle("open");
+          e.target.textContent = card.classList.contains("open")
+            ? "Ocultar"
+            : "Ver detalles";
+        }
+      });
+    });
+  </script>
+</body>
+</html>

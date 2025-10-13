@@ -1,0 +1,337 @@
+/* --- Estilos para la Página de Login --- */
+
+/* Utilidades */
+.is-hidden {
+    display: none !important;
+}
+
+/* Contenedor principal de la página de login */
+.login-page-main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100svh;
+    min-height: 100dvh;
+    padding: 20px;
+    padding-bottom: 140px;
+}
+
+/* Título principal sobre la cápsula */
+.page-main-title {
+    text-align: center;
+    color: var(--text-color);
+    margin-bottom: 60px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+/* La cápsula de login */
+.login-container {
+    display: flex;
+    max-width: 950px;
+    width: 100%;
+    background-color: var(--card-bg-color);
+    border-radius: 16px;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
+}
+
+body.dark-mode .login-container {
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+}
+
+/* Columna izquierda con contenido centrado y padding ajustado */
+.login-info {
+    flex-basis: 45%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-color: var(--input-bg-color);
+    padding: 50px;
+}
+
+/* Logo más grande y visible */
+.login-logo {
+    width: 250px;
+    height: 250px;
+}
+
+/* Columna derecha con formulario */
+.login-form-wrapper {
+    flex-basis: 55%;
+    padding: 40px;
+}
+
+/* AHORA EL FORMULARIO CONTROLA EL CENTRADO DE SUS PASOS */
+#login-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+}
+
+/* CADA PASO USA FLEX Y GAP PARA SU ESPACIADO INTERNO */
+#step-email,
+#step-password {
+    display: flex;
+    flex-direction: column;
+    gap: 25px; /* <-- ÚNICA FUENTE DE ESPACIADO VERTICAL. AJUSTA ESTE VALOR SI QUIERES MÁS O MENOS ESPACIO. */
+}
+
+/* ETIQUETAS: Se elimina el margen y se asegura el centrado */
+.login-form-wrapper label {
+    display: block;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--text-color);
+    margin-bottom: 0; /* CAMBIO: Eliminado el margen conflictivo */
+}
+
+/* Estilos para el contenedor de los botones finales */
+.form-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 0; /* CAMBIO: Eliminado el margen conflictivo */
+}
+
+/* Estilos generales para los botones */
+.btn-primary,
+#login-form button {
+    width: auto;
+    flex-grow: 1;
+    padding: 12px 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--button-radius);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.2s;
+    margin-top: 0; /* CAMBIO: Eliminado el margen conflictivo */
+}
+
+#step-email #next-btn {
+    width: 100%;
+}
+
+.btn-primary:hover,
+#login-form button:hover:not(.btn-secondary) {
+    background-color: var(--primary-hover-color);
+}
+
+.btn-secondary {
+    width: auto;
+    flex-grow: 1;
+    padding: 12px 20px;
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    border-radius: var(--button-radius);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.2s, color 0.2s;
+    margin-top: 0; /* CAMBIO: Eliminado el margen conflictivo */
+}
+
+.btn-secondary:hover {
+    background-color: color-mix(in srgb, var(--primary-color) 10%, transparent);
+}
+
+/* Estilos para la Pantalla de Carga (Overlay) */
+.loading-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(25, 35, 50, 0.85); backdrop-filter: blur(5px);
+    z-index: 10000; display: flex; justify-content: center; align-items: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+}
+
+.loading-overlay.visible { opacity: 1; pointer-events: auto; }
+.loading-content { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+.loading-content .spinner {
+    width: 60px; height: 60px; border: 5px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #FFFFFF; border-radius: 50%; animation: spin 1s linear infinite;
+}
+.loading-content p { color: #FFFFFF; font-size: 1.2rem; font-family: 'Poppins', sans-serif; font-weight: 400; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .login-page-main {
+        min-height: auto;
+        height: auto;
+        justify-content: flex-start;
+        align-items: stretch;
+        padding: calc(4.5rem + env(safe-area-inset-top, 0px)) 1.5rem calc(7rem + env(safe-area-inset-bottom, 0px));
+        gap: 1rem;
+    }
+    .page-main-title { font-size: 1.3rem; margin-bottom: 1.5rem; }
+    .login-container {
+        flex-direction: column;
+        align-items: center;
+        max-width: 420px;
+        padding: 1.5rem 1.25rem;
+        gap: 1.25rem;
+    }
+    .login-form-wrapper {
+        order: 2;
+        width: 100%;
+        padding: 0;
+        flex: 1 1 auto;
+    }
+    #login-form {
+        justify-content: flex-start;
+        gap: 1.25rem;
+    }
+    .login-info {
+        order: 1;
+        text-align: center;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        width: 100%;
+        gap: 0.75rem;
+    }
+    .login-info h1 {
+        font-size: 1.6rem;
+        margin-bottom: 0.25rem;
+    }
+    #step-email,
+    #step-password {
+        gap: 1rem;
+    }
+    .login-logo { width: 120px; height: 120px; }
+}
+
+/* REGLAS PARA ESCRITORIO */
+@media (min-width: 769px) {
+    .login-form-wrapper label {
+        font-size: 1.6rem;
+        /* CAMBIO: Se eliminó el 'margin-bottom' de aquí */
+    }
+    .login-form-wrapper input {
+        padding: 14px;
+        text-align: center;
+    }
+    .login-form-wrapper .btn-primary,
+    .login-form-wrapper .btn-secondary,
+    .login-form-wrapper #step-email button {
+        padding: 14px;
+        /* CAMBIO: Se eliminó el 'margin-top' de aquí */
+    }
+}
+
+/* --- Pantalla de Bienvenida (Splash Screen) --- */
+#welcome-screen {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: #2563EB;
+    z-index: 10001;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    gap: 25px;
+    transition: opacity 0.7s ease-out, visibility 0.7s;
+}
+
+.welcome-logo { width: 180px; height: 180px; }
+.welcome-title {
+    font-family: 'Poppins', sans-serif; font-size: 2rem;
+    color: #FFFFFF; font-weight: 700; text-align: center;
+}
+
+#welcome-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* === AJUSTES FINALES PARA LOGIN.HTML === */
+
+body {
+    padding-top: 0;
+}
+
+.header-buttons {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 1000;
+}
+
+#theme-toggle.theme-btn {
+    width: 40px;
+    height: 40px;
+}
+
+.login-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--card-bg-color);
+    border-top: 1px solid color-mix(in srgb, var(--border-color, #CBD5F5) 60%, transparent);
+    box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.08);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: center;
+    z-index: 800;
+}
+
+body.dark-mode .login-footer {
+    border-top-color: color-mix(in srgb, var(--card-border-color, rgba(148, 163, 184, 0.35)) 65%, transparent);
+    box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.35);
+}
+
+.login-footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.login-footer-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 12px 22px;
+    border-radius: var(--button-radius);
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.login-footer-link:hover,
+.login-footer-link:focus-visible {
+    background-color: var(--primary-hover-color);
+    transform: translateY(-1px);
+}
+
+.login-footer-link:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--primary-color) 45%, transparent);
+    outline-offset: 4px;
+}
+
+.login-footer-icon {
+    width: 24px;
+    height: 24px;
+    color: currentColor;
+}
+
+@media (max-width: 768px) {
+    .login-footer {
+        padding: 14px 1.5rem;
+    }
+    .login-footer-link {
+        width: 100%;
+        justify-content: center;
+    }
+}

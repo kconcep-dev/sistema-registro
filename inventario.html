@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventario de Equipos - Sistema de Registro</title>
+
+  <script>
+    (function () {
+      try {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'dark') document.documentElement.classList.add('dark-mode');
+      } catch (e) {}
+    })();
+  </script>
+
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/inventario.css" />
+  <link rel="icon" href="assets/icons/icon-192.png" />
+</head>
+<body class="page-inventario">
+  <div id="navbar-placeholder"></div>
+
+  <div id="loader" class="loader-wrapper">
+    <div class="loader"></div>
+  </div>
+
+  <main id="main-content" style="display:none;">
+    <div class="inventory-container">
+      <header class="inventory-header">
+        <div class="inventory-heading page-heading page-heading--left">
+          <h1>
+            <span class="text-variant--desktop text-variant--block">Inventario de Equipos</span>
+            <span class="text-variant--mobile text-variant--block">Inventario</span>
+          </h1>
+          <p class="page-description">
+            <span class="text-variant--desktop text-variant--block">Control y Seguimiento del Inventario.</span>
+            <span class="text-variant--mobile text-variant--block">Controla equipos y estados.</span>
+          </p>
+        </div>
+        <div class="inventory-header-actions">
+          <button id="btn-toggle-totales" class="btn-secondary button-with-icon btn-toggle-totales" type="button" aria-expanded="false">
+            <span class="icon icon--sm icon-stats" aria-hidden="true"></span>
+            <span class="button-label">Totales</span>
+          </button>
+          <button id="btn-nuevo" class="btn-principal button-with-icon" type="button">
+            <span class="icon icon--sm icon-plus" aria-hidden="true"></span>
+            <span class="button-label">Nuevo</span>
+          </button>
+        </div>
+      </header>
+
+      <section class="stats-overview" aria-live="polite">
+        <article class="stat-card stat-card--total-general">
+          <span class="stat-label">Total</span>
+          <span id="stat-total-general" class="stat-value">0</span>
+        </article>
+        <article class="stat-card stat-card--total-ip">
+          <span class="stat-label">Total con IPs</span>
+          <span id="stat-total-ip" class="stat-value">0</span>
+        </article>
+        <article class="stat-card stat-card--libre">
+          <span class="stat-label">Libres</span>
+          <span id="stat-libres" class="stat-value">0</span>
+        </article>
+        <article class="stat-card stat-card--asignada">
+          <span class="stat-label">Asignadas</span>
+          <span id="stat-asignadas" class="stat-value">0</span>
+        </article>
+        <article class="stat-card stat-card--revision">
+          <span class="stat-label">En revisión</span>
+          <span id="stat-revision" class="stat-value">0</span>
+        </article>
+      </section>
+
+      <section class="filters-bar" aria-label="Filtros del inventario" data-active-panel="">
+        <div class="filters-toolbar" role="group" aria-label="Accesos rápidos a filtros">
+          <button type="button" class="filter-chip button-with-icon" data-filter-target="search" aria-expanded="false" aria-controls="filters-panel-search">
+            <span class="icon icon--sm icon-search" aria-hidden="true"></span>
+            <span class="button-label">Buscar</span>
+          </button>
+          <button type="button" class="filter-chip button-with-icon" data-filter-target="estado" aria-expanded="false" aria-controls="filters-panel-estado">
+            <span class="icon icon--sm icon-filter" aria-hidden="true"></span>
+            <span class="button-label">Estado</span>
+          </button>
+          <button type="button" class="filter-chip button-with-icon" data-filter-target="departamento" aria-expanded="false" aria-controls="filters-panel-departamento">
+            <span class="icon icon--sm icon-building" aria-hidden="true"></span>
+            <span class="button-label">Departamento</span>
+          </button>
+        </div>
+
+        <div class="filters-body">
+          <div class="filters-group" data-filter-panel="search" id="filters-panel-search">
+            <label class="sr-only" for="filter-search">Buscar</label>
+            <input
+              id="filter-search"
+              type="search"
+              placeholder="Buscar por dispositivo, RVE, IP, departamento o propietario"
+              autocomplete="off"
+            />
+          </div>
+          <div class="filters-group" data-filter-panel="estado" id="filters-panel-estado">
+            <label class="sr-only" for="filter-estado">Estado</label>
+            <select id="filter-estado">
+              <option value="">Todos los estados</option>
+              <option value="libre">Libre</option>
+              <option value="asignada">Asignada</option>
+              <option value="en_revision">En revisión</option>
+            </select>
+          </div>
+          <div class="filters-group" data-filter-panel="departamento" id="filters-panel-departamento">
+            <label class="sr-only" for="filter-departamento">Departamento</label>
+            <select id="filter-departamento">
+              <option value="">Todos los departamentos</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filters-actions">
+          <button id="btn-actualizar" class="btn-secondary button-with-icon" type="button">
+            <span class="icon icon--sm icon-refresh" aria-hidden="true"></span>
+            <span class="button-label">Actualizar</span>
+          </button>
+          <button id="btn-exportar" class="btn-export button-with-icon" type="button">
+            <span class="icon icon--sm icon-export" aria-hidden="true"></span>
+            <span class="button-label">Exportar a Excel</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="table-wrapper">
+        <div class="table-container">
+          <table id="tabla-inventario">
+            <thead>
+              <tr>
+                <th scope="col" data-sort="dispositivo">Dispositivo</th>
+                <th scope="col" data-sort="tipo">Tipo</th>
+                <th scope="col" data-sort="departamento">Departamento</th>
+                <th scope="col" data-sort="propietario">Propietario</th>
+                <th scope="col" data-sort="ip">Dirección IP</th>
+                <th scope="col" data-sort="estado">Estado</th>
+                <th scope="col" class="acciones">Acciones</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p id="empty-state" class="empty-state" hidden>No hay registros que coincidan con los filtros seleccionados.</p>
+      </section>
+    </div>
+  </main>
+
+  <div id="toast-notification" class="toast" role="status" aria-live="polite">
+    <span id="toast-message"></span>
+  </div>
+
+  <div id="modal-confirmacion" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+    <div class="modal-content">
+      <button class="modal-close-btn" type="button" aria-label="Cerrar" data-close-confirm>
+        <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+      </button>
+      <h2 id="confirm-title">Confirmación</h2>
+      <p id="confirm-message">¿Deseas continuar?</p>
+      <div class="modal-buttons">
+        <button id="btn-confirmar-cancelar" class="btn-secondary button-with-icon" type="button">
+          <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+          <span class="button-label">Cancelar</span>
+        </button>
+        <button id="btn-confirmar-aceptar" class="btn-danger button-with-icon" type="button">
+          <span class="icon icon--sm icon-check" aria-hidden="true"></span>
+          <span class="button-label">Aceptar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-ip" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-ip-title">
+    <div class="modal-content modal-large">
+      <button class="modal-close-btn" type="button" aria-label="Cerrar" data-close-modal>
+        <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+      </button>
+      <h2 id="modal-ip-title">Nuevo registro</h2>
+      <div class="modal-form-container">
+        <form id="form-ip">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="input-dispositivo">Dispositivo</label>
+              <input id="input-dispositivo" name="dispositivo" type="text" placeholder="Ej. RVE-123-456" autocomplete="off" />
+              <p
+                id="input-dispositivo-feedback"
+                class="form-input-feedback"
+                role="alert"
+                hidden
+              ></p>
+            </div>
+            <div class="form-group">
+              <label for="input-tipo">Tipo</label>
+              <select id="input-tipo" name="tipo">
+                <option value="">Selecciona un tipo</option>
+                <option value="pc">PC</option>
+                <option value="router">Router</option>
+                <option value="impresora">Impresora</option>
+                <option value="switch">Switch</option>
+                <option value="otro">Otro</option>
+              </select>
+              <input
+                id="input-tipo-custom"
+                class="tipo-custom-input"
+                type="text"
+                placeholder="Especifica el tipo"
+                autocomplete="off"
+                hidden
+              />
+            </div>
+            <div class="form-group">
+              <label for="input-departamento">Departamento</label>
+              <select id="input-departamento" name="departamento">
+                <option value="">Selecciona un departamento</option>
+              </select>
+              <input
+                id="input-departamento-custom"
+                class="departamento-custom-input"
+                type="text"
+                placeholder="Especifica el departamento"
+                autocomplete="off"
+                hidden
+              />
+              <p
+                id="input-departamento-feedback"
+                class="form-input-feedback"
+                role="alert"
+                hidden
+              ></p>
+            </div>
+            <div class="form-group">
+              <label for="input-propietario">Propietario</label>
+              <input id="input-propietario" name="propietario" type="text" placeholder="Nombre del propietario" autocomplete="off" />
+            </div>
+            <div class="form-group">
+              <label for="input-usuario">Usuario de Windows</label>
+              <input id="input-usuario" name="usuario" type="text" placeholder="Usuario asignado" autocomplete="off" />
+            </div>
+            <fieldset class="form-group form-group-inline" role="radiogroup" aria-labelledby="label-tiene-ip">
+              <legend id="label-tiene-ip">¿Tiene dirección IP?</legend>
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input type="radio" name="tiene_ip" id="radio-tiene-ip-si" value="si" checked />
+                  <span>Sí</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="tiene_ip" id="radio-tiene-ip-no" value="no" />
+                  <span>No</span>
+                </label>
+              </div>
+            </fieldset>
+            <div class="form-group ip-field-group">
+              <label for="input-ip">Dirección IP</label>
+              <input id="input-ip" name="ip" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej. 10.106.113.25" />
+              <div id="available-ip-list" class="available-ip-dropdown" hidden></div>
+            </div>
+            <div id="ip-details-container" class="ip-details-container">
+              <div class="form-group">
+                <label for="input-mascara">Máscara</label>
+                <input id="input-mascara" name="mascara" type="text" />
+              </div>
+              <div class="form-group">
+                <label for="input-gateway">Gateway</label>
+                <input id="input-gateway" name="gateway" type="text" />
+              </div>
+              <div class="form-group">
+                <label for="input-dns1">DNS 1</label>
+                <input id="input-dns1" name="dns1" type="text" />
+              </div>
+              <div class="form-group">
+                <label for="input-dns2">DNS 2</label>
+                <input id="input-dns2" name="dns2" type="text" />
+              </div>
+            </div>
+            <div class="form-group" id="estado-field-group">
+              <label for="input-estado">Estado</label>
+              <select id="input-estado" name="estado">
+                <option value="libre">Libre</option>
+                <option value="asignada">Asignada</option>
+                <option value="en_revision">En revisión</option>
+              </select>
+            </div>
+            <div class="form-group form-group-full">
+              <label for="input-notas">Notas</label>
+              <textarea id="input-notas" name="notas" rows="3" placeholder="Comentarios adicionales"></textarea>
+            </div>
+          </div>
+          <div class="modal-buttons">
+            <button id="modal-cancel-btn" class="btn-secondary button-with-icon" type="button">
+              <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+              <span class="button-label">Cancelar</span>
+            </button>
+            <button id="modal-submit-btn" class="btn-principal button-with-icon" type="submit">
+              <span class="icon icon--sm icon-save" aria-hidden="true"></span>
+              <span class="button-label">Guardar</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/common.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+  <script src="js/inventario.js"></script>
+</body>
+</html>
