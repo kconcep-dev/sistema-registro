@@ -1,6 +1,9 @@
-/* --- Estilos de la Página de Registro --- */
+/*
+ * Hoja de estilos para la página de registro de visitantes. Se detallan los bloques
+ * principales: lector de QR, formulario y componentes auxiliares.
+ */
 
-/* Aplica el estilo de "cápsula" a la sección del QR y al formulario */
+/* Secciones principales (QR y formulario) con apariencia de tarjeta elevada. */
 #qr-section, #registro-form {
     background-color: var(--card-bg-color);
     padding: 25px;
@@ -14,7 +17,7 @@
     z-index: 10;
 }
 
-/* Estilo para el texto de ayuda debajo del título de la sección */
+/* Texto auxiliar que contextualiza la sección actual. */
 .section-subtitle {
     font-size: 0.9rem;
     color: var(--border-color);
@@ -23,7 +26,7 @@
     margin-bottom: 20px;
 }
 
-/* Estilo base para los botones principales de la página */
+/* Botón principal reutilizado en diferentes acciones dentro del registro. */
 .btn-principal {
     width: 100%;
     padding: 12px 20px;
@@ -48,7 +51,7 @@
     background-color: var(--primary-hover-color);
 }
 
-/* Estilo para mostrar el nombre del archivo seleccionado */
+/* Área que muestra el nombre del archivo cargado para el lector de QR. */
 .file-name-display {
     display: block;
     margin-top: 15px;
@@ -61,7 +64,7 @@
     background-color: var(--input-bg-color);
 }
 
-/* Estilo para el recuadro que muestra el resultado del QR */
+/* Recuadro donde se imprimen los datos leídos del código QR. */
 .qr-result-box {
     background-color: var(--input-bg-color);
     color: var(--input-text-color);
@@ -76,6 +79,7 @@
     overflow-y: auto;
 }
 
+/* Tarjeta que destaca los datos del último visitante registrado. */
 .card-ultimo-visitante {
     background-color: var(--card-bg-color);
     border-left: 5px solid var(--primary-color);
@@ -95,7 +99,7 @@
     margin: 8px 0;
 }
 
-/* --- Responsivo --- */
+/* Distribución en escritorio: formulario y QR se muestran en columnas. */
 @media (min-width: 768px) {
     .container {
         max-width: 1000px;
@@ -111,33 +115,32 @@
     }
 }
 
-/* --- Estilos solo para Escritorio --- */
+/* Ajuste adicional para compensar encabezados fijos en escritorio. */
 @media (min-width: 768px) {
     #main-content {
         padding-top: 50px;
     }
 }
 
-
-/* 🔥 --- ESTILOS ACTUALIZADOS PARA LA SECCIÓN DE IMAGEN --- 🔥 */
+/* Contenedor para acciones relacionadas con la fotografía del visitante. */
 .botones-imagen-wrapper {
-    display: flex; /* Coloca los botones uno al lado del otro */
-    gap: 15px;     /* Añade un espacio entre los botones */
+    display: flex;
+    gap: 15px;
     margin-top: 20px;
     width: 100%;
-    justify-content: center; /* Centra los botones dentro del contenedor */
+    justify-content: center;
 }
 
-/* Ajuste para que los botones dentro del wrapper compartan el espacio */
 .botones-imagen-wrapper .btn-principal {
-    margin-top: 0; /* Quitamos el margen superior que ya no es necesario */
-    flex: 1 1 0;   /* Hacemos que ambos botones crezcan por igual para ocupar el espacio */
+    margin-top: 0;
+    flex: 1 1 0;
     max-width: 100%;
-    font-size: 1rem; /* Reducimos un poco la fuente para que el texto quepa mejor */
-    padding: 12px 10px; /* Ajustamos el padding para que no se vea apretado */
+    font-size: 1rem;
+    padding: 12px 10px;
 }
 
 @media (max-width: 600px) {
+    /* En móviles pequeños se reduce aún más el tamaño de los botones de imagen. */
     .botones-imagen-wrapper {
         gap: 10px;
     }

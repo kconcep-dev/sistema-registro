@@ -1,4 +1,8 @@
-/* --- Estilos de Página de Inicio (Dashboard) --- */
+/*
+ * Sección principal del dashboard: define un contenedor flexible que distribuye
+ * el contenido en columnas con un acolchado responsivo que se adapta a distintas
+ * alturas de pantalla.
+ */
 .page-inicio #main-content {
     display: flex;
     flex-direction: column;
@@ -9,6 +13,9 @@
     gap: clamp(28px, 5vh, 40px);
 }
 
+/* Ajustes para dispositivos táctiles: reduce el espaciado vertical y permite
+ * que el contenido crezca con la altura natural del viewport.
+ */
 @media (pointer: coarse) {
     .page-inicio #main-content {
         justify-content: flex-start;
@@ -19,11 +26,17 @@
     }
 }
 
+/* Los contenedores internos ocupan todo el ancho para maximizar el espacio
+ * disponible dentro del tablero.
+ */
 .page-inicio #main-content .container {
     width: 100%;
     max-width: none;
 }
 
+/* Subtítulo que contextualiza la vista de inicio y tarjetas que presentan accesos
+ * directos; se enfatiza la interactividad mediante animaciones en hover.
+ */
 .subtitle { text-align: center; margin-bottom: 40px; font-size: 1.1rem; color: var(--border-color); }
 .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: clamp(20px, 3vw, 32px); }
 .card { background-color: var(--primary-color); padding: 40px 25px; border-radius: 10px; box-shadow: 0 4px 12px var(--shadow-color); text-decoration: none; color: rgba(255, 255, 255, 0.9); transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
@@ -33,7 +46,9 @@
 .card.disabled:hover { transform: none; box-shadow: 0 4px 12px var(--shadow-color); }
 .card.disabled h2 { color: var(--border-color); }
 
-/* --- Responsivo --- */
+/* Vista móvil para títulos de tarjetas: apila icono y texto para conservar la
+ * legibilidad cuando hay poco ancho disponible.
+ */
 @media (max-width: 640px) {
     .card h2 {
         flex-direction: column;
@@ -43,13 +58,19 @@
     }
 }
 
+/*
+ * Ajustes de escritorio: limita el ancho máximo de los contenedores y aumenta
+ * el tamaño mínimo de las tarjetas para aprovechar pantallas más amplias.
+ */
 @media (min-width: 768px) {
     .container { max-width: 1000px; }
     .page-inicio #main-content .container { max-width: none; }
     .dashboard-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 }
 
-/* --- Estilos solo para Escritorio --- */
+/* En escritorio se incrementa el margen superior para compensar la altura del
+ * encabezado fijo y mejorar el equilibrio visual.
+ */
 @media (min-width: 768px) {
     .page-inicio #main-content {
         padding-top: clamp(88px, 14vh, 140px);

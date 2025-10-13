@@ -1,9 +1,15 @@
-/* --- Inventario de IPs --- */
-
+/*
+ * Configuración general de la página de inventario: el contenedor principal del
+ * contenido prioriza el crecimiento vertical para dejar espacio al encabezado fijo.
+ */
 .page-inventario main {
   justify-content: flex-start;
 }
 
+/*
+ * Contenedor maestro del inventario. Usa flexbox para apilar cabecera, filtros y
+ * tabla, mientras mantiene un ancho fluido en pantallas pequeñas.
+ */
 .inventory-container {
   width: 100%;
   margin: 0 auto;
@@ -19,6 +25,9 @@
   }
 }
 
+/* Cabecera del inventario: alinea el título, las descripciones y los controles
+ * de acciones (nuevo registro y totales) en una banda flexible.
+ */
 .inventory-header {
   display: flex;
   align-items: flex-start;
@@ -27,6 +36,9 @@
   flex-wrap: wrap;
 }
 
+/* Bloque de botones de la cabecera; agrupa el disparador de totales y el botón
+ * de creación para mantenerlos alineados.
+ */
 .inventory-header-actions {
   display: flex;
   align-items: center;
@@ -37,6 +49,9 @@
   display: none;
 }
 
+/* Estados interactivos para mostrar los totales; se resalta cuando el panel
+ * está activo y se ajusta para modo claro y oscuro.
+ */
 #btn-toggle-totales.is-active {
   background-color: color-mix(in srgb, var(--primary-color) 18%, transparent);
   border-color: color-mix(in srgb, var(--primary-color) 35%, transparent);
@@ -48,6 +63,9 @@ html.dark-mode #btn-toggle-totales.is-active {
   color: #fff;
 }
 
+/* Botón "Nuevo": se diseña como una llamada de acción prominente para crear
+ * registros desde la cabecera.
+ */
 #btn-nuevo {
   display: inline-flex;
   align-items: center;
@@ -57,6 +75,9 @@ html.dark-mode #btn-toggle-totales.is-active {
   font-size: 1.2rem;
 }
 
+/* Título principal del inventario con separación mínima para acercarlo a la
+ * descripción contextual.
+ */
 .inventory-heading h1 {
   margin-bottom: 8px;
 }
@@ -65,6 +86,10 @@ html.dark-mode #btn-toggle-totales.is-active {
   text-align: inherit;
 }
 
+/*
+ * Variables específicas del inventario usadas para colorear tarjetas, etiquetas y
+ * bordes. Se redefinen en modo oscuro para mantener el contraste.
+ */
 :root {
   --inventario-total-general-color: #1d4ed8;
   --inventario-total-ip-color: #4338ca;
@@ -83,12 +108,19 @@ html.dark-mode {
   --inventario-table-border-color: color-mix(in srgb, var(--border-color) 50%, transparent);
 }
 
+/*
+ * Tarjetas de resumen: se renderizan en una cuadrícula adaptativa que muestra
+ * totales y estados agregados del inventario.
+ */
 .stats-overview {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 12px;
 }
 
+/* Diseño base de cada tarjeta de estadísticas; se apoya en una variable local
+ * para adaptar colores según el tipo de métrica.
+ */
 .stat-card {
   --stat-color: var(--inventario-total-general-color);
   background-color: color-mix(in srgb, var(--stat-color) 24%, var(--card-bg-color));
@@ -148,6 +180,9 @@ html.dark-mode .stat-value {
 }
 
 
+/* Barra de filtros principal: agrupa controles de búsqueda y filtros dentro de
+ * una cápsula con sombra para destacar la interacción.
+ */
 .filters-bar {
   display: flex;
   flex-wrap: wrap;
@@ -159,6 +194,9 @@ html.dark-mode .stat-value {
   box-shadow: 0 4px 12px var(--shadow-color);
 }
 
+/* Conjunto de chips que se muestran en móviles para alternar paneles de filtros
+ * individuales.
+ */
 .filters-toolbar {
   display: none;
   gap: 12px;
@@ -186,12 +224,18 @@ html.dark-mode .filter-chip.is-active {
   align-items: center;
 }
 
+/* Grupos individuales de filtros (búsqueda, estado, departamento) estructurados
+ * en columnas para alinear etiqueta, campo y ayuda.
+ */
 .filters-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
+/* Campos de filtro: estilos compartidos para inputs y selects, con transiciones
+ * suaves al enfocarse.
+ */
 .filters-group input,
 .filters-group select {
   min-width: 220px;
@@ -215,6 +259,9 @@ html.dark-mode .filter-chip.is-active {
   padding-right: 3rem;
 }
 
+/* Acciones de filtros: contiene botones de exportar y restablecer alineados a la
+ * derecha en escritorio y apilados en dispositivos pequeños.
+ */
 .filters-actions {
   display: flex;
   flex-wrap: wrap;
@@ -222,6 +269,9 @@ html.dark-mode .filter-chip.is-active {
   margin-left: auto;
 }
 
+/* Botón de exportación: resaltado con el color de éxito para diferenciarlo del
+ * resto de controles.
+ */
 .btn-export {
   height: 44px;
   padding: 0 20px;
@@ -246,6 +296,9 @@ html.dark-mode .btn-export:hover {
   background-color: #1a5d2a;
 }
 
+/* Contenedor de la tabla: añade un fondo elevado y bordes redondeados para
+ * enfatizar el bloque de datos.
+ */
 .table-wrapper {
   background-color: var(--card-bg-color);
   border-radius: 24px;
@@ -254,11 +307,18 @@ html.dark-mode .btn-export:hover {
   width: 100%;
 }
 
+/* Hace la tabla desplazable horizontalmente cuando el ancho mínimo supera al
+ * de la ventana.
+ */
 .table-container {
   overflow-x: auto;
   width: 100%;
 }
 
+/*
+ * Reglas móviles para reorganizar la cabecera, alternar la vista de totales y
+ * presentar filtros en paneles desplegables.
+ */
 @media (max-width: 768px) {
   .inventory-header {
     align-items: center;
@@ -337,6 +397,9 @@ html.dark-mode .btn-export:hover {
   }
 }
 
+/* Tabla principal del inventario: usa separación de bordes para simular celdas
+ * elevadas y asegura un ancho mínimo para evitar solapamientos.
+ */
 #tabla-inventario {
   width: 100%;
   border-collapse: separate;
@@ -347,6 +410,9 @@ html.dark-mode .btn-export:hover {
   overflow: hidden;
 }
 
+/* Celdas de la tabla: comparten acolchado, bordes y fondo para mantener
+ * consistencia visual.
+ */
 #tabla-inventario th,
 #tabla-inventario td {
   padding: 16px 20px;
@@ -382,14 +448,17 @@ html.dark-mode .btn-export:hover {
   word-break: break-word;
 }
 
+/* Resalta las filas interactuables mientras se pasa el cursor sobre ellas. */
 #tabla-inventario tbody tr.inventory-row:hover > td {
   background-color: color-mix(in srgb, var(--primary-color) 12%, var(--card-bg-color));
 }
 
+/* Las filas de detalle mantienen el fondo neutro incluso al interactuar. */
 #tabla-inventario tbody tr.inventory-row-details:hover > td {
   background-color: var(--card-bg-color);
 }
 
+/* Cabecera pegajosa: permanece fija durante el desplazamiento vertical. */
 #tabla-inventario thead {
   position: sticky;
   top: 0;
@@ -397,6 +466,7 @@ html.dark-mode .btn-export:hover {
   z-index: 1;
 }
 
+/* Estilos del encabezado de columnas con soporte para indicadores de orden. */
 #tabla-inventario th {
   font-size: 0.95rem;
   font-weight: 700;
@@ -431,6 +501,7 @@ html.dark-mode .btn-export:hover {
   transform: translateY(-50%) rotate(180deg);
 }
 
+/* Filas clicables: al pasar o enfocar se destaca el registro seleccionado. */
 .inventory-row {
   cursor: pointer;
   transition: background-color 0.18s ease, border-color 0.18s ease;
@@ -445,6 +516,7 @@ html.dark-mode .btn-export:hover {
   background-color: color-mix(in srgb, var(--primary-color) 14%, var(--card-bg-color));
 }
 
+/* Pastillas de estado: representan visualmente el estado asignado a cada IP. */
 .estado-pill {
   display: inline-flex;
   align-items: center;
@@ -457,6 +529,7 @@ html.dark-mode .btn-export:hover {
   border: 1px solid transparent;
 }
 
+/* Modificadores de color según el estado del registro. */
 .estado-pill--libre {
   background-color: color-mix(in srgb, var(--inventario-libre-color) 28%, var(--card-bg-color));
   border-color: color-mix(in srgb, var(--inventario-libre-color) 70%, transparent);
@@ -493,6 +566,9 @@ html.dark-mode .estado-pill--en_revision {
   color: color-mix(in srgb, var(--inventario-revision-color) 35%, #ffffff);
 }
 
+/* Contenedor de acciones rápidas: coloca los botones en una cuadrícula de dos
+ * columnas para optimizar espacio.
+ */
 .action-buttons {
   display: grid;
   grid-template-columns: repeat(2, max-content);
@@ -503,11 +579,13 @@ html.dark-mode .estado-pill--en_revision {
   justify-items: start;
 }
 
+/* Asegura espacio horizontal suficiente para las acciones. */
 .acciones-cell {
   min-width: 260px;
   width: auto;
 }
 
+/* Botones de acción por fila: comparten estilos de resaltado y sombra. */
 .btn-action {
   border: none;
   background-color: color-mix(in srgb, var(--primary-color) 35%, var(--card-bg-color));
@@ -677,16 +755,19 @@ html.dark-mode #tabla-inventario tbody tr.row-estado-en_revision.inventory-row-d
   text-overflow: ellipsis;
 }
 
+/* Columna de estado con ancho mínimo para evitar saltos de línea excesivos. */
 .estado-cell {
   min-width: 150px;
 }
 
+/* En modo oscuro se incrementan las sombras para compensar el fondo oscuro. */
 html.dark-mode .filters-bar,
 html.dark-mode .table-wrapper,
 html.dark-mode .stat-card {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
 }
 
+/* Utilidad de accesibilidad para contenido solo visible por lectores de pantalla. */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -699,6 +780,7 @@ html.dark-mode .stat-card {
   border: 0;
 }
 
+/* Campos compuestos para capturar direcciones IP con prefijo fijo. */
 .ip-input-wrapper {
   display: flex;
   align-items: center;
@@ -727,6 +809,7 @@ html.dark-mode .stat-card {
   outline: none;
 }
 
+/* Listado emergente de IP disponibles que se muestra debajo del campo principal. */
 .available-ip-dropdown {
   margin-top: 10px;
   background-color: var(--card-bg-color);
@@ -738,6 +821,7 @@ html.dark-mode .stat-card {
   gap: 6px;
 }
 
+/* Opción individual dentro del listado de IP disponibles. */
 .available-ip-item {
   display: flex;
   justify-content: space-between;
@@ -757,6 +841,7 @@ html.dark-mode .stat-card {
   outline: none;
 }
 
+/* Mensaje mostrado cuando no existen IP sugeridas. */
 .available-ip-empty {
   text-align: center;
   padding: 12px;
@@ -764,22 +849,26 @@ html.dark-mode .stat-card {
   font-size: 0.95rem;
 }
 
+/* Modales anchos utilizados para formularios extendidos del inventario. */
 .modal-large {
   max-width: 720px;
 }
 
+/* Distribuye los campos del formulario en columnas adaptativas. */
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
 }
 
+/* Agrupación base de cada campo con etiqueta, control y retroalimentación. */
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
+/* Estados de error para campos de formulario, resaltando bordes y sombras. */
 .form-group.has-error select,
 .form-group.has-error input[type="text"],
 .form-group.has-error textarea {
@@ -787,22 +876,26 @@ html.dark-mode .stat-card {
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--error-color) 55%, transparent);
 }
 
+/* Mensajes de retroalimentación para los campos, visibles cuando hay errores. */
 .form-input-feedback {
   font-size: 0.85rem;
   color: color-mix(in srgb, var(--error-color) 85%, #1d1d1d);
   line-height: 1.3;
 }
 
+/* Oculta completamente el mensaje cuando no es necesario. */
 .form-input-feedback[hidden] {
   display: none !important;
 }
 
+/* Asegura que los elementos con atributo hidden no ocupen espacio. */
 .form-group[hidden],
 .form-group-inline[hidden],
 .ip-details-container[hidden] {
   display: none !important;
 }
 
+/* Sección de campos alineados horizontalmente dentro del formulario principal. */
 .form-group-inline {
   grid-column: 1 / -1;
   padding: 16px;
@@ -811,12 +904,14 @@ html.dark-mode .stat-card {
   background-color: color-mix(in srgb, var(--card-bg-color) 92%, transparent);
 }
 
+/* Encabezado del bloque inline para describir los controles agrupados. */
 .form-group-inline legend {
   font-size: 0.95rem;
   font-weight: 600;
   padding: 0 8px;
 }
 
+/* Conjunto de radios dispuesto en fila con envoltura automática. */
 .radio-group {
   display: flex;
   flex-wrap: wrap;
@@ -824,6 +919,7 @@ html.dark-mode .stat-card {
   align-items: center;
 }
 
+/* Opción de radio individual con etiqueta y control alineados. */
 .radio-option {
   display: inline-flex;
   align-items: center;
@@ -832,33 +928,40 @@ html.dark-mode .stat-card {
   cursor: pointer;
 }
 
+/* Ajusta tamaño y color de acento para los radios personalizados. */
 .radio-option input[type="radio"] {
   width: 18px;
   height: 18px;
   accent-color: var(--primary-color);
 }
 
+/* Contiene campos adicionales que se muestran cuando la IP está asignada. */
 .ip-details-container {
   display: contents;
 }
 
+/* Oculta el bloque de detalles cuando no es necesario. */
 .ip-details-container[hidden] {
   display: none !important;
 }
 
+/* Campos de IP de solo lectura: se sombrean para indicar que no son editables. */
 .ip-field-group input[readonly] {
   background-color: color-mix(in srgb, var(--border-color) 22%, var(--input-bg-color));
   cursor: not-allowed;
 }
 
+/* Permite que un grupo ocupe todo el ancho de la rejilla. */
 .form-group-full {
   grid-column: 1 / -1;
 }
 
+/* Habilita el ajuste vertical de los campos de texto multilínea. */
 .form-group textarea {
   resize: vertical;
 }
 
+/* Ajustes de filtros y tabla para tablets en orientación vertical. */
 @media (max-width: 768px) {
   .filters-group input,
   .filters-group select {
@@ -875,6 +978,7 @@ html.dark-mode .stat-card {
   }
 }
 
+/* Adaptaciones para móviles pequeños: centra cabecera y expande botones. */
 @media (max-width: 540px) {
   .inventory-header {
     align-items: stretch;
