@@ -1,18 +1,25 @@
-// js/login.js (Versión Corregida)
-
+/**
+ * Controla la secuencia de bienvenida y el formulario de acceso en dos pasos.
+ * Se ejecuta cuando el DOM está listo para asegurar que todos los nodos existen.
+ */
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // --- LÓGICA DE LA PANTALLA DE BIENVENIDA ---
+
+    /*
+     * La pantalla de bienvenida se oculta tras un breve retraso para simular
+     * una introducción animada antes de mostrar el formulario principal.
+     */
     const welcomeScreen = document.getElementById('welcome-screen');
     const mainContent = document.getElementById('login-main-content');
 
-    // Esperamos un tiempo y luego intercambiamos la visibilidad
     setTimeout(() => {
         welcomeScreen.classList.add('hidden');
         mainContent.style.visibility = 'visible';
-    }, 2500); // 2.5 segundos de duración
+    }, 2500);
 
-    // --- ELEMENTOS DEL DOM DEL FORMULARIO ---
+    /*
+     * Referencias a los elementos del formulario para evitar búsquedas
+     * repetidas y centralizar cualquier cambio de estructura futura.
+     */
     const loginForm = document.getElementById('login-form');
     const loginError = document.getElementById('login-error');
     const loadingOverlay = document.getElementById('loading-overlay');
@@ -25,6 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginBtn = document.getElementById('login-btn');
     const loginBtnLabel = loginBtn ? loginBtn.querySelector('.button-label') : null;
 
+    /**
+     * Asegura que un campo dado reciba el foco visual y de teclado sin
+     * provocar saltos bruscos en pantallas móviles o de escritorio.
+     */
     const focusField = (field) => {
         requestAnimationFrame(() => {
             const isMobileView = window.matchMedia('(max-width: 768px)').matches ||
@@ -47,18 +58,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    /**
+     * Cambia entre las vistas del formulario multi-paso y orienta al usuario
+     * enfocando el campo adecuado en el paso mostrado.
+     */
     const toggleStepVisibility = (stepToHide, stepToShow, fieldToFocus) => {
         stepToHide.classList.add('is-hidden');
         stepToShow.classList.remove('is-hidden');
         focusField(fieldToFocus);
     };
 
+    /**
+     * Simula un clic únicamente cuando el botón objetivo está habilitado.
+     * Útil para reutilizar la lógica de los botones desde eventos de teclado.
+     */
     const clickIfEnabled = (button) => {
         if (!button || button.disabled) return;
         button.click();
     };
 
-    // --- LÓGICA DEL FORMULARIO MULTI-PASO ---
+    /*
+     * Paso 1: validar correo electrónico y avanzar al paso de contraseña.
+     * Paso 2: permitir volver atrás y manejar accesos por teclado.
+     */
     nextBtn.addEventListener('click', () => {
         const email = emailInput.value.trim();
         if (email === '' || !email.includes('@')) {
@@ -86,7 +108,11 @@ document.addEventListener('DOMContentLoaded', () => {
         clickIfEnabled(loginBtn);
     });
 
-    // --- LÓGICA DE ENVÍO FINAL ---
+    /*
+     * Envío final: bloquea la interfaz, muestra retroalimentación visual y
+     * realiza la autenticación contra Supabase. Restablece el estado ante
+     * errores y dirige al usuario al panel principal cuando tiene éxito.
+     */
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = emailInput.value.trim();
