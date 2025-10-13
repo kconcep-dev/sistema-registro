@@ -815,6 +815,9 @@ function getUserProfile(user) {
 
     const userMappings = {
         'concepcion.kelieser@gmail.com': { name: 'Kevin', role: 'Técnico' },
+        'adalberto.fernandez@meduca.gob.pa': { name: 'Adalberto', role: 'Técnico' },
+        'ronnie.diaz@meduca.gob.pa': { name: 'Ronnie', role: 'Técnico' },
+        'edgar.moran@meduca.gob.pa': { name: 'Edgar', role: 'Técnico' },
         'usuario2@empresa.com': { name: 'Ana', role: 'Técnico' },
         'jefe.departamento@empresa.com': { name: 'Carlos', role: 'Supervisor' }
     };
