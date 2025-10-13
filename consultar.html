@@ -6,12 +6,14 @@
   <title>Consultar - Sistema de Registro</title>
 
   <script>
-    // Evitar “flash” del tema oscuro
+    /* Aplica el modo oscuro almacenado antes de mostrar contenido para mantener la coherencia visual. */
     (function () {
       try {
         const theme = localStorage.getItem('theme');
         if (theme === 'dark') document.documentElement.classList.add('dark-mode');
-      } catch (e) {}
+      } catch (e) {
+        /* Si no se puede acceder al almacenamiento, continuamos con el tema por defecto. */
+      }
     })();
   </script>
 
@@ -22,6 +24,7 @@
 </head>
 
 <body>
+  <!-- Punto de inserción para la barra de navegación reutilizable -->
   <div id="navbar-placeholder"></div>
 
   <div id="loader" class="loader-wrapper">
@@ -41,7 +44,7 @@
         </p>
       </div>
 
-      <!-- Pestañas -->
+      <!-- Selector de vistas entre registros de visitantes y sesiones de descarte -->
       <div class="tabs-nav">
         <button class="tab-btn active" data-tab="visitantes" aria-label="Registros de Visitantes">
           <span class="icon icon--sm icon-nav-registrar" aria-hidden="true"></span>
@@ -59,7 +62,7 @@
         </button>
       </div>
 
-      <!-- Tab: Visitantes -->
+      <!-- Panel principal con las herramientas de búsqueda para visitantes -->
       <div class="tab-content active">
         <div class="controls-area" data-controls="visitantes">
           <div class="controls-count">
@@ -116,9 +119,9 @@
         </div>
       </div>
 
-            <!-- Tab: Descartes (Lista de sesiones) -->
+      <!-- Panel con los listados y filtros para sesiones de descartes -->
       <div class="tab-content">
-        <!-- Lista de sesiones -->
+        <!-- Vista que agrupa todas las sesiones registradas -->
         <section id="sesiones-lista">
           <div class="controls-area" data-controls="descartes">
             <div class="controls-count">
@@ -171,10 +174,10 @@
           </div>
         </section>
 
-        <!-- Detalle de una sesión (oculto inicialmente) -->
+        <!-- Vista detallada para administrar los equipos de una sesión concreta -->
         <section id="sesion-detalle" style="display:none;">
           <div class="detalle-header">
-            <!-- Botón de volver: en móvil se verá más compacto -->
+            <!-- Botón de retorno para abandonar la vista de detalle en móviles -->
             <button id="btn-volver-sesiones" class="btn-secondary btn-volver button-with-icon" type="button">
               <span class="icon icon--sm icon-arrow-left" aria-hidden="true"></span>
               <span class="button-label">Volver a Sesiones</span>
@@ -187,13 +190,13 @@
                 <p class="detalle-card-value" id="detalle-unidad">—</p>
               </article>
 
-              <!-- Botón toggle SOLO para móvil -->
+              <!-- Control para expandir información adicional en pantallas pequeñas -->
               <button id="btn-toggle-detalles" class="btn-secondary btn-toggle button-with-icon" type="button" data-expanded="false">
                 <span class="icon icon--sm icon-arrow-down" aria-hidden="true"></span>
                 <span class="button-label">Ver más detalles</span>
               </button>
 
-              <!-- Bloque de detalles extra -->
+              <!-- Contenedor con datos complementarios de la sesión -->
               <div id="detalle-extra" class="detalle-extra">
                 <article class="detalle-card">
                   <p class="detalle-card-label">Código SIACE</p>
@@ -210,7 +213,7 @@
               </div>
             </div>
 
-            <!-- 🔥 Observación aparte, siempre debajo -->
+            <!-- Área que resalta la observación general asociada a la sesión -->
             <div id="detalle-observacion" class="detalle-observacion"></div>
           </div>
 
@@ -263,7 +266,7 @@
     </div>
   </main>
 
-    <!-- Modal genérico de confirmación -->
+    <!-- Modal reutilizable para confirmar acciones irreversibles -->
   <div id="modal-confirmacion" class="modal-overlay">
     <div class="modal-content">
       <h2 id="confirm-title">¿Estás seguro?</h2>
@@ -281,7 +284,7 @@
     </div>
   </div>
 
-  <!-- Modal: Editar visitante -->
+  <!-- Modal destinado a actualizar los datos de un visitante existente -->
   <div id="modal-editar-visitante" class="modal-overlay">
     <div class="modal-content">
       <button class="modal-close-btn" type="button" aria-label="Cerrar modal">
@@ -328,7 +331,7 @@
     </div>
   </div>
 
-  <!-- Modal: Editar equipo (para detalle de sesión) -->
+  <!-- Modal para modificar la información de un equipo registrado en una sesión -->
   <div id="modal-editar-equipo" class="modal-overlay">
     <div class="modal-content">
       <button id="btn-cerrar-modal-editar-equipo" class="modal-close-btn" type="button" aria-label="Cerrar modal">
@@ -405,7 +408,7 @@
     </div>
   </div>
 
-  <!-- Modal: Agregar equipo (nuevo) -->
+  <!-- Modal para incorporar un nuevo equipo a la sesión seleccionada -->
   <div id="modal-agregar-equipo" class="modal-overlay">
     <div class="modal-content">
       <button id="btn-cerrar-modal-agregar-equipo" class="modal-close-btn" type="button" aria-label="Cerrar modal">
@@ -479,7 +482,7 @@
     </div>
   </div>
 
-  <!-- Modal: Editar sesión de descarte -->
+  <!-- Modal que centraliza la edición de los datos generales de una sesión -->
   <div id="modal-editar-sesion" class="modal-overlay">
     <div class="modal-content">
       <button id="btn-cerrar-modal-editar-sesion" class="modal-close-btn" type="button" aria-label="Cerrar modal">
@@ -528,7 +531,7 @@
     </div>
   </div>
 
-    <!-- Toast -->
+    <!-- Contenedor de notificaciones breves -->
   <div id="toast-notification" class="toast">
     <span id="toast-message"></span>
   </div>
@@ -545,7 +548,7 @@
   <script src="js/common.js" defer></script>
   <script src="js/consultar.js" defer></script>
 
-  <!-- Script toggle para sesiones (compacto en móvil) -->
+  <!-- Ajuste rápido para los botones de detalle en tarjetas compactas -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       document.addEventListener("click", (e) => {
