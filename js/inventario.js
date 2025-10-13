@@ -1,9 +1,12 @@
-// js/inventario.js
-
+/**
+ * Pantalla de inventario de direcciones IP: coordina filtros, estadísticas,
+ * formularios de alta/edición y exportaciones para el equipo de soporte.
+ */
 document.addEventListener('DOMContentLoaded', async () => {
   const loader = document.getElementById('loader');
   const mainContent = document.getElementById('main-content');
 
+  /* Referencias a controles principales y componentes interactivos de la vista */
   const searchInput = document.getElementById('filter-search');
   const estadoSelect = document.getElementById('filter-estado');
   const departamentoSelect = document.getElementById('filter-departamento');
@@ -62,12 +65,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const confirmCloseBtn = confirmModal?.querySelector('[data-close-confirm]');
   const confirmCancelBtn = document.getElementById('btn-confirmar-cancelar');
 
+  /* Constantes base que modelan la red y mensajes de validación */
   const IP_PREFIX = '10.106.113.';
   const NO_IP_LABEL = 'Sin Dirección IP';
   const NO_IP_LABEL_LOWER = NO_IP_LABEL.toLowerCase();
   const LAST_OCTET_MIN = 0;
   const LAST_OCTET_MAX = 254;
 
+  /* Estado local que sincroniza formularios, filtros y procesos en curso */
   let sessionUserId = null;
   let allRecords = [];
   let filteredRecords = [];
@@ -82,6 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   let lastKnownEstadoValue = null;
   let skipClearDeviceFieldsOnNextEstadoApply = false;
 
+  /* Catálogos y valores por defecto reutilizados en la UI */
   const STATE_LABELS = {
     libre: 'Libre',
     asignada: 'Asignada',
@@ -146,6 +152,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const MESSAGE_DUPLICATE_RECORD = 'Este registro ya existe en el inventario. Búscalo en la tabla y edítalo en lugar de duplicarlo.';
   const MESSAGE_DUPLICATE_DEVICE_INLINE = 'Este dispositivo ya existe en la base de datos. Edita el registro existente desde la tabla.';
 
+  /* Utilidades de normalización para comparar valores aunque tengan variaciones */
   function hasIpValue(value) {
     if (!value) return false;
     return String(value).toLowerCase() !== NO_IP_LABEL_LOWER;
@@ -322,6 +329,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const OTHER_TIPO_KEY = createTipoKey(OTHER_TIPO_VALUE);
 
+  /* Manejo de departamentos: unifica ortografía, sugiere correcciones y detecta duplicados */
   function normalizeDepartment(value) {
     if (typeof value !== 'string') return '';
     return value.trim().replace(/\s+/g, ' ');
@@ -435,6 +443,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     PREDEFINED_DEPARTAMENTOS.map((dept) => [createDepartmentKey(dept), formatDepartmentLabel(dept)])
   );
 
+  /* Validaciones adicionales para departamentos escritos manualmente */
   function detectOrthographyIssue(value) {
     const normalized = normalizeDepartment(value);
     if (!normalized) return null;
@@ -1076,6 +1085,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setTieneIpState(true, { preserveValue: false });
   }
 
+  /* Prepara el modal para crear o editar registros reutilizando los mismos campos */
   function openModal({ mode = 'create', record = null } = {}) {
     if (!modalOverlay) return;
     isModalOpen = true;
@@ -1146,6 +1156,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     applyEstadoRules();
   }
 
+  /* Permite reservar rápidamente una IP libre cuando se asigna desde el modal */
   function populateAvailableIpList() {
     if (!availableIpList) return;
     if (!getTieneIpSelection()) {
@@ -1700,6 +1711,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateDepartamentoFormOptions(departmentOptions);
   }
 
+  /* Obtiene los registros desde Supabase y refresca los catálogos dependientes */
   async function fetchRecords({ showLoader = false } = {}) {
     if (showLoader) toggleLoader(true);
     try {
@@ -1912,6 +1924,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  /* Centraliza el envío del formulario del modal, validando duplicados y errores */
   async function handleFormSubmit(event) {
     event.preventDefault();
     if (isSubmitting) return;
@@ -1962,6 +1975,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  /* Inserta un nuevo registro en Supabase incluyendo la trazabilidad del usuario */
   async function createRecord(payload) {
     const insertPayload = {
       ...payload,
@@ -1980,6 +1994,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  /* Actualiza un registro existente conservando la validación de claves únicas */
   async function updateRecord(id, payload) {
     const { error } = await supabaseClient
       .from('inventario_ip')
@@ -1994,6 +2009,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  /* Elimina definitivamente un registro seleccionado del inventario */
   async function deleteRecord(id) {
     const { error } = await supabaseClient
       .from('inventario_ip')
@@ -2008,6 +2024,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  /* Solicita confirmación al usuario antes de borrar y refresca la tabla */
   async function handleDelete(id) {
     const record = allRecords.find((item) => item.id === id);
     if (!record) return;
@@ -2037,6 +2054,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  /* Construye un archivo de Excel con los resultados filtrados actuales */
   async function exportToExcel() {
     if (typeof ExcelJS === 'undefined') {
       showToast('La librería ExcelJS no está disponible.', 'error');
@@ -2175,6 +2193,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  /* Agrupa todos los listeners de la vista para mantener un único punto de control */
   function attachEventListeners() {
     searchInput?.addEventListener('input', () => applyFilters());
     estadoSelect?.addEventListener('change', () => applyFilters());
@@ -2312,6 +2331,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  /* Antes de mostrar la vista se asegura que haya sesión y se precarga la data */
   const session = await ensureSession();
   if (!session) {
     window.location.href = 'login.html';
@@ -2328,3 +2348,4 @@ document.addEventListener('DOMContentLoaded', async () => {
   await fetchRecords({ showLoader: false });
   toggleLoader(false);
 });
+
