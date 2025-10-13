@@ -1,4 +1,8 @@
-/* --- 1. Variables de Color y Tema --- */
+/* ================================================================
+   Variables globales de color y comportamiento del tema
+   Estas variables alimentan todos los estilos del sistema y se
+   adaptan dinámicamente cuando se activa el modo oscuro.
+   ================================================================ */
 :root {
     --bg-color: #F8F9FA;
     --card-bg-color: #FFFFFF;
@@ -21,15 +25,18 @@ html.dark-mode {
     --input-bg-color: #111827;
     --text-color: #E5E7EB;
     --input-text-color: #FFFFFF;
-    --primary-color: #2563EB; 
-    --primary-hover-color: #3B82F6; 
+    --primary-color: #2563EB;
+    --primary-hover-color: #3B82F6;
     --border-color: #9CA3AF;
     --shadow-color: rgba(0, 0, 0, 0.2);
-    --success-color: #166534; /* Verde más oscuro para dark mode */
+    /* Verde de confirmación con mayor contraste para fondos oscuros */
+    --success-color: #166534;
     --warning-color: #FBBF24;
 }
 
-/* --- 2. Estilos Generales y Cargador --- */
+/* ================================================================
+   Ajustes globales, tipografía base y capa de carga inicial
+   ================================================================ */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -156,7 +163,9 @@ button {
     }
 }
 
-/* --- 3. Notificación Toast --- */
+/* ================================================================
+   Notificaciones tipo toast que aparecen centradas en pantalla
+   ================================================================ */
 .toast {
     position: fixed;
     top: 50%;
@@ -196,7 +205,9 @@ button {
     color: #111827;
 }
 
-/* --- 4. Contenido Principal y Formularios Base --- */
+/* ================================================================
+   Contenedor principal y estilos base de formularios reutilizables
+   ================================================================ */
 main {
     width: 100%;
     min-height: 100vh;
@@ -247,11 +258,12 @@ label {
     font-weight: bold;
 }
 
+/* Campos de texto y selects comparten tipografía y espaciado */
 input[type="text"],
 input[type="file"],
 input[type="email"],
 input[type="password"],
-select, /* <-- Añadido 'select' para que herede los estilos base */
+select,
 textarea {
     width: 100%;
     padding: 12px;
@@ -264,7 +276,7 @@ textarea {
 
 input:focus,
 textarea:focus,
-select:focus { /* <-- Añadido 'select:focus' */
+select:focus {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent);
@@ -275,6 +287,7 @@ button:disabled {
     cursor: not-allowed;
 }
 
+/* Desplegables con icono personalizado para mantener consistencia visual */
 select {
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -291,7 +304,9 @@ html.dark-mode select {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239CA3AF'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
 }
 
-/* --- 5. Barra de Navegación --- */
+/* ================================================================
+   Barra de navegación principal y comportamiento responsivo
+   ================================================================ */
 .navbar {
     background-color: transparent;
     box-shadow: none;
@@ -494,7 +509,7 @@ html.dark-mode .theme-btn {
         border-bottom-left-radius: 50px;
     }
 
-    /* Ajuste: el quinto elemento (Inventario) es ahora el último botón visible */
+    /* Mantiene el remate redondeado en el último enlace visible del menú */
     .nav-links .nav-item:nth-child(5) .nav-link.active {
         border-top-right-radius: 50px;
         border-bottom-right-radius: 50px;
@@ -544,7 +559,9 @@ html.dark-mode .theme-btn {
     color: #FFFFFF;
 }
 
-/* --- 6. Iconos Personalizados --- */
+/* ================================================================
+   Sistema de iconos mediante máscaras SVG reutilizables
+   ================================================================ */
 .icon {
     display: inline-block;
     width: 26px;
@@ -764,9 +781,9 @@ body.nav-open .icon-close { display: block; }
 body.nav-open .icon-menu { display: none; }
 
 
-/* ======================================================= */
-/* 🔥 --- ESTILOS GLOBALES PARA MODALES --- 🔥              */
-/* ======================================================= */
+/* ================================================================
+   Estilos globales para overlays modales y sus controles
+   ================================================================ */
 
 .modal-overlay {
     position: fixed;
@@ -970,20 +987,19 @@ body.nav-open .icon-menu { display: none; }
     }
 }
 
-/* ▼ INICIO DEL CAMBIO: Estilos para hacer el formulario del modal desplazable ▼ */
+/* Contenedor desplazable que evita cortes en formularios modales extensos */
 .modal-form-container {
     flex: 1 1 auto;
     width: 100%;
-    max-height: 70vh; /* Fallback para navegadores antiguos */
+    max-height: 70vh;
     max-height: 70svh;
-    max-height: 70dvh; /* Mantiene el modal visible con teclados virtuales */
-    overflow-y: auto;   /* Magia: Muestra una barra de scroll vertical SÓLO si es necesario */
-    padding-right: 15px;  /* Espacio extra a la derecha para que el contenido no quede pegado a la barra de scroll */
-    margin-right: -15px; /* Compensa el padding para mantener el centrado visual del contenido */
+    max-height: 70dvh;
+    overflow-y: auto;
+    padding-right: 15px;
+    margin-right: -15px;
 }
-/* ▲ FIN DEL CAMBIO ▲ */
 
-/* --------- CONTROLES DE CONSULTAR: SEARCH + DATE --------- */
+/* Controles de búsqueda y fecha dentro de los paneles de consulta */
 .controls-area input[type="search"],
 .controls-area input[type="date"] {
     background-color: var(--input-bg-color);
@@ -993,12 +1009,12 @@ body.nav-open .icon-menu { display: none; }
     height: 42px;
 }
 
-/* Placeholder más tenue */
+/* Atenúa el placeholder para diferenciarlo del texto ingresado */
 .controls-area input::placeholder {
     color: color-mix(in srgb, var(--input-text-color) 50%, transparent);
 }
 
-/* Ajustes específicos para modo oscuro (evitar blancos del control nativo) */
+/* Ajustes en modo oscuro para evitar bordes claros del control nativo */
 html.dark-mode .controls-area input[type="search"],
 html.dark-mode .controls-area input[type="date"] {
     background-color: var(--input-bg-color) !important;
@@ -1006,20 +1022,20 @@ html.dark-mode .controls-area input[type="date"] {
     border-color: var(--border-color) !important;
 }
 
-/* Icono del datepicker y botón de limpiar del search en dark */
+/* Iconos internos de los controles en modo oscuro */
 html.dark-mode input[type="date"]::-webkit-calendar-picker-indicator,
 html.dark-mode input[type="search"]::-webkit-search-cancel-button {
     filter: invert(1) brightness(0.9);
 }
 
-/* Autocompletado del navegador (Chrome) en dark */
+/* Ajusta el autocompletado de Chrome para integrarlo con el modo oscuro */
 html.dark-mode input:-webkit-autofill {
     -webkit-text-fill-color: var(--input-text-color) !important;
     -webkit-box-shadow: 0 0 0 1000px var(--input-bg-color) inset !important;
     caret-color: var(--input-text-color) !important;
 }
 
-/* Botón primario global (para modales y formularios) */
+/* Botón primario reutilizable en formularios y modales */
 .btn-principal {
   padding: 10px 25px;
   border: none;
@@ -1034,35 +1050,37 @@ html.dark-mode input:-webkit-autofill {
 .btn-principal:hover { background-color: var(--primary-hover-color); }
 .btn-principal:disabled { opacity: .7; cursor: not-allowed; }
 
-/* Indica al navegador que pinte controles en dark cuando toque */
+/* Permite que los navegadores apliquen estilos apropiados al modo oscuro */
 html.dark-mode { color-scheme: dark; }
 
-/* Base del select en dark (cerrado) */
+/* Apariencia base de los selects cuando el tema es oscuro */
 html.dark-mode select {
   background-color: var(--input-bg-color);
   color: var(--input-text-color);
   border-color: var(--border-color);
 }
 
-/* Estilos del desplegable (puede variar por navegador/OS) */
+/* Estilos aproximados del desplegable para navegadores que permiten personalización */
 html.dark-mode select option {
   background-color: var(--card-bg-color);
   color: var(--text-color);
 }
 
-/* Opción resaltada (seleccionada) en el dropdown: texto oscuro sobre fondo claro */
+/* Color de selección que aporta contraste dentro del menú desplegable */
 html.dark-mode select option:checked {
-  background-color: #E5E7EB;   /* claro para resaltar */
-  color: #111827;              /* texto oscuro para contraste */
+  background-color: #E5E7EB;
+  color: #111827;
 }
 
-/* Hover opcional dentro del dropdown (cuando el navegador lo soporta) */
+/* Realce opcional cuando el navegador soporta hover en el menú */
 html.dark-mode select option:hover {
   background-color: #374151;
   color: #ffffff;
 }
 
-/* --- Controles reutilizables con botón de escáner --- */
+/* ================================================================
+   Campos combinados con botones de escaneo y acciones auxiliares
+   ================================================================ */
 .input-with-button {
   display: flex;
   align-items: stretch;
@@ -1213,7 +1231,9 @@ html.dark-mode .btn-scan.btn-scan--disabled {
   }
 }
 
-/* --- Scanbot Overlay --- */
+/* ================================================================
+   Superposición utilizada por la integración de Scanbot
+   ================================================================ */
 .scanbot-overlay {
   position: fixed;
   inset: 0;

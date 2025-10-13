@@ -1,14 +1,18 @@
-/* --- 1) Estructura Principal y Pestañas --- */
+/* ================================================================
+   Layout general de la vista de consulta y navegación por pestañas
+   Se prepara un contenedor a ancho completo y una barra de pestañas
+   tipo cápsula para alternar entre las distintas secciones.
+   ================================================================ */
 .container {
-  max-width: 100%; /* contenedor ancho para tablas */
+  max-width: 100%;
 }
 
-/* Píldora de pestañas centrada (similar a la barra de navegación) */
+/* Barra de pestañas alineada al centro con apariencia de cápsula */
 .tabs-nav{
   display: flex;
-  width: -moz-fit-content;       /* Firefox */
-  width: fit-content;            /* resto */
-  margin: 0 auto 25px;           /* centra horizontal */
+  width: -moz-fit-content;
+  width: fit-content;
+  margin: 0 auto 25px;
   align-items: center;
   gap: 10px;
   padding: 6px;
@@ -19,8 +23,7 @@
 html.dark-mode .tabs-nav{
   box-shadow: 0 0 0 1px rgba(255,255,255,0.2);
 }
-
-/* Botones de pestaña dentro de la cápsula */
+/* Botones que actúan como pestañas individuales */
 .tab-btn {
   padding: 10px 18px;
   border: none;
@@ -38,16 +41,24 @@ html.dark-mode .tabs-nav{
 .tab-btn .label-short {
   display: none;
 }
-.tab-btn:hover { background-color: var(--input-bg-color); }
+
+.tab-btn:hover {
+  background-color: var(--input-bg-color);
+}
 .tab-btn.active {
   background-color: var(--primary-color);
   color: #fff;
 }
+/* La pestaña activa muestra su contenido y oculta el resto */
+.tab-content {
+  display: none;
+}
 
-/* Contenidos por pestaña */
-.tab-content { display: none; }
-.tab-content.active { display: block; }
+.tab-content.active {
+  display: block;
+}
 
+/* Adaptaciones móviles para la navegación por pestañas */
 @media (max-width: 768px) {
   .tabs-nav.is-hidden-mobile {
     display: none;
@@ -67,8 +78,11 @@ html.dark-mode .tabs-nav{
   }
 }
 
-
-/* --- 2) Barra de Controles (Búsqueda, Filtros, Exportar) --- */
+/* ================================================================
+   Panel de controles superior (búsqueda, filtros y acciones rápidas)
+   El bloque agrupa entradas, contadores y botones reutilizados en
+   todas las vistas de la sección de consulta.
+   ================================================================ */
 .controls-area {
   position: relative;
   display: flex;
@@ -86,6 +100,7 @@ html.dark-mode .tabs-nav{
   margin-left: auto;
 }
 
+/* Indicador numérico que resume los elementos listados en la vista */
 .count-pill {
   display: inline-flex;
   align-items: center;
@@ -106,7 +121,14 @@ html.dark-mode .count-pill {
   color: #fff;
 }
 
-/* Inputs principales */
+/* Disposición alternativa cuando el panel se divide en filas apiladas */
+.controls-area[data-controls] {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+/* Campo principal de búsqueda que comparte diseño con el resto de controles */
 .controls-area input[type="search"] {
   height: 42px;
   padding: 0 14px;
@@ -130,7 +152,7 @@ html.dark-mode .count-pill {
   color: color-mix(in srgb, var(--input-text-color) 50%, transparent);
 }
 
-/* Botón export con misma altura/cápsula */
+/* Acción de exportación alineada visualmente con los campos de entrada */
 .btn-export{
   height: 42px;
   padding: 0 16px;
@@ -149,17 +171,11 @@ html.dark-mode .count-pill {
 .btn-export:hover { background-color: #1f7b34; }
 html.dark-mode .btn-export:hover { background-color: #1a5d2a; }
 
-/* Coherencia en dark */
+/* Ajustes para conservar contraste en modo oscuro */
 html.dark-mode .controls-area input[type="search"]{
   background-color: var(--input-bg-color) !important;
   color: var(--input-text-color) !important;
   border-color: var(--border-color) !important;
-}
-
-.controls-area[data-controls] {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 10px;
 }
 
 .controls-area[data-controls] .controls-row {
@@ -575,7 +591,7 @@ html.dark-mode .controls-area .date-field {
   }
 }
 
-/* Botón Agregar Equipo: estilo pill como Exportar */
+/* Botón para registrar equipos desde el panel de control */
 #btn-agregar-equipo{
   height: 42px;
   padding: 0 16px;
@@ -588,22 +604,22 @@ html.dark-mode .controls-area .date-field {
   transition: background-color .2s;
   display: inline-flex;
   align-items: center;
-  gap: 8px;                 /* espacio entre icono y texto */
+  gap: 8px;
   box-shadow: 0 2px 6px var(--shadow-color);
 }
 
-/* Botón Añadir Equipo en móvil acompaña al contador */
+/* Resalta el botón al pasar el cursor para indicar interacción */
 #btn-agregar-equipo:hover{
   background-color: var(--primary-hover-color);
 }
 
-/* --- Ajuste de grilla en móvil para filtros existentes --- */
+/* Distribución del panel de control cuando se reduce el espacio disponible */
 @media (max-width: 768px) {
   .controls-area:not([data-controls]) {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
-    border-radius: 16px; /* menos exagerado en móvil */
+    border-radius: 16px;
   }
 
   .controls-area:not([data-controls]) input[type="search"] {
@@ -636,9 +652,13 @@ html.dark-mode .controls-area .date-field {
 }
 
 
-/* --- 3) Estilos de la Tabla --- */
+/* ================================================================
+   Tablas de resultados: configuración, bordes y acciones
+   Las tablas muestran visitantes, descartes y equipos con cabeceras
+   fijas y controles de acción consistentes.
+   ================================================================ */
 .table-container {
-  position: relative;                 /* necesario para sticky right */
+  position: relative;
   overflow-x: auto;
   background-color: var(--card-bg-color);
   padding: 20px;
@@ -646,17 +666,17 @@ html.dark-mode .controls-area .date-field {
   box-shadow: 0 4px 12px var(--shadow-color);
 }
 
-/* Bordes visibles en tablas */
+/* Mantiene bordes individuales sin perder la capacidad sticky */
 #table-visitantes,
 #table-descartes,
 #table-equipos-sesion {
   width: 100%;
-  border-collapse: separate;          /* para sticky + bordes */
+  border-collapse: separate;
   border-spacing: 0;
   table-layout: auto;
 }
 
-/* Color de borde */
+/* Variable compartida para el color de los bordes */
 :root { --table-border-color: color-mix(in srgb, var(--border-color) 60%, transparent); }
 html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50%, transparent); }
 
@@ -667,7 +687,7 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   text-align: left;
   border: 1px solid var(--table-border-color);
   white-space: nowrap;
-  background-color: var(--card-bg-color); /* asegura fondo sólido para sticky */
+  background-color: var(--card-bg-color);
 }
 
 #table-visitantes th,
@@ -687,7 +707,7 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   background-color: color-mix(in srgb, var(--primary-color) 8%, transparent);
 }
 
-/* Acciones como chips */
+/* Acciones rápidas con botones compactos tipo chip */
 .table-actions {
   display: inline-flex;
   align-items: center;
@@ -738,7 +758,7 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   min-width: 120px;
 }
 
-/* Variantes */
+/* Estados de color para cada tipo de acción */
 .btn-editar         { background-color: #4B5563; }
 .btn-editar:hover   { background-color: #374151; }
 .btn-eliminar,
@@ -748,7 +768,7 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
 .btn-view-equipos   { background-color: var(--primary-color); }
 .btn-view-equipos:hover { background-color: var(--primary-hover-color); }
 
-/* Fallback */
+/* Color por defecto cuando no se especifica un estado */
 .table-actions button:not(.btn-editar):not(.btn-eliminar):not(.btn-view-equipos):not(.btn-eliminar-sesion){
   background-color: var(--primary-color);
 }
@@ -761,8 +781,9 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   }
 }
 
-/* --- 4) Detalle de Sesión --- */
-
+/* ================================================================
+   Panel detallado de una sesión: cabecera y tarjetas informativas
+   ================================================================ */
 .detalle-header {
   background-color: var(--card-bg-color);
   padding: 18px;
@@ -773,7 +794,6 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   gap: 16px;
 }
 
-/* Título limpio */
 .detalle-header h2 {
   margin: 0;
   border-bottom: none;
@@ -787,6 +807,7 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   align-items: stretch;
 }
 
+/* Tarjetas que muestran cada dato relevante dentro del panel */
 .detalle-card {
   position: relative;
   padding: 16px 18px;
@@ -835,6 +856,7 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   word-break: break-word;
 }
 
+/* Versiones en modo oscuro para preservar profundidad y contraste */
 html.dark-mode .detalle-card {
   background: linear-gradient(135deg, color-mix(in srgb, var(--primary-color) 28%, transparent) 0%, color-mix(in srgb, var(--card-bg-color) 88%, transparent) 60%);
   box-shadow: 0 6px 18px color-mix(in srgb, #000000 65%, transparent);
@@ -873,7 +895,7 @@ html.dark-mode .detalle-card-value {
   color: var(--text-color);
 }
 
-/* Botón toggle oculto en escritorio */
+/* Botón que controla la visibilidad de detalles adicionales */
 #btn-toggle-detalles {
   display: none;
 }
@@ -889,9 +911,8 @@ html.dark-mode .detalle-card-value {
   line-height: 1.5;
 }
 
-/* --- En móvil: toggle activo --- */
+/* Organización específica para pantallas pequeñas */
 @media (max-width: 768px) {
-  /* Botón toggle visible */
   #btn-toggle-detalles {
     display: inline-flex;
     align-items: center;
@@ -909,7 +930,6 @@ html.dark-mode .detalle-card-value {
     background-color: var(--primary-hover-color);
   }
 
-  /* Layout móvil restaurado */
   .detalle-info-grid {
     display: flex;
     flex-direction: column;
@@ -956,7 +976,6 @@ html.dark-mode .detalle-card-value {
     grid-column: auto;
   }
 
-  /* Detalles ocultos por defecto */
   .detalle-info-grid {
     display: flex;
     flex-direction: column;
@@ -1000,12 +1019,12 @@ html.dark-mode .detalle-card-value {
   }
 }
 
-/* Botón volver */
+/* Botón para regresar a la lista de sesiones */
 #btn-volver-sesiones {
   justify-self: start;
 }
 
-/* Botón volver más compacto en móvil */
+/* El botón de regreso se ajusta en tamaño en móviles */
 @media (max-width: 768px) {
   #btn-volver-sesiones {
     padding: 6px 12px;
@@ -1023,19 +1042,23 @@ html.dark-mode .detalle-card-value {
   }
 }
 
-/* --- 5) Modal: Editar Equipo (grid dentro del modal) --- */
+/* ================================================================
+   Formularios modales para crear o editar equipos registrados
+   ================================================================ */
 #modal-editar-equipo .modal-content,
 #modal-agregar-equipo .modal-content {
   width: min(90vw, 860px);
   max-width: 860px;
 }
 
+/* La cuadrícula del formulario se expande a tres columnas en escritorio */
 #modal-editar-equipo .form-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
   margin-bottom: 12px;
 }
+/* Cada grupo del formulario mantiene alineación vertical de etiqueta y campo */
 #modal-editar-equipo .form-group,
 #modal-editar-equipo .form-group-full {
   display: flex;
@@ -1052,7 +1075,7 @@ html.dark-mode .detalle-card-value {
   #modal-editar-equipo .form-group:nth-child(5) { grid-column: 2 / 3; }
 }
 
-/* Select en dark: despliegue legible */
+/* Asegura legibilidad de las opciones en modo oscuro */
 html.dark-mode select option {
   background-color: var(--card-bg-color);
   color: var(--text-color);
@@ -1062,7 +1085,7 @@ html.dark-mode select option:checked {
   color: #111827;
 }
 
-/* --- 6) Modal: Agregar Equipo (igual que Editar Equipo) --- */
+/* Configuración equivalente para el modal de alta de equipos */
 #modal-agregar-equipo .form-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -1085,7 +1108,9 @@ html.dark-mode select option:checked {
   #modal-agregar-equipo .form-group:nth-child(5) { grid-column: 2 / 3; }
 }
 
-/* --- 7) Tarjetas de sesiones --- */
+/* ================================================================
+   Tarjetas compactas para el listado de sesiones registradas
+   ================================================================ */
 .sesion-card {
   border: 1px solid var(--border-color);
   border-radius: 12px;
@@ -1129,7 +1154,9 @@ html.dark-mode select option:checked {
   .sesion-card.open .sesion-detalles { display: block; }
 }
 
-/* --- 8) Media Queries para Escritorio --- */
+/* Ajuste final de anchura para pantallas amplias */
 @media (min-width: 992px) {
-  .container { max-width: 1200px; }
+  .container {
+    max-width: 1200px;
+  }
 }
