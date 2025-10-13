@@ -754,6 +754,18 @@ document.addEventListener('DOMContentLoaded', () => {
         document.onkeydown = handleUserActivity;
         document.onclick = handleUserActivity;
     }
+
+    if ('serviceWorker' in navigator) {
+        const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+        const isSecureContext = window.location.protocol === 'https:';
+        if (isSecureContext || isLocalhost) {
+            navigator.serviceWorker
+                .register('./sw.js')
+                .catch((error) => {
+                    console.error('Error al registrar el service worker:', error);
+                });
+        }
+    }
 });
 
 function getUserProfile(user) {
