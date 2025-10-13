@@ -328,10 +328,22 @@ body.dark-mode .login-footer {
 
 @media (max-width: 768px) {
     .login-footer {
-        padding: 14px 1.5rem;
+        padding: 12px 1.5rem 16px;
+    }
+    .login-footer-links {
+        gap: 1rem;
     }
     .login-footer-link {
-        width: 100%;
+        width: auto;
         justify-content: center;
+        padding: 0.75rem;
+        border-radius: 999px;
+    }
+    .login-footer-label {
+        display: none;
+    }
+    .login-footer-icon {
+        width: 28px;
+        height: 28px;
     }
 }
