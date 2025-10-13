@@ -5,14 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Devuelve 'YYYY-MM-DD' (en-CA) según hora local de Panamá
     return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Panama' }).format(new Date());
   }
-  // Si en el futuro necesitas hora local: 
-  // function getLocalPaTime24h() {
-  //   const t = new Intl.DateTimeFormat('es-PA', {
-  //     timeZone: 'America/Panama',
-  //     hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-  //   }).format(new Date());
-  //   return t.replace(/\./g, ':').replace(/\s/g, '');
-  // }
 
   // --- 1. ELEMENTOS DEL DOM ---
   const inicioSection = document.getElementById('inicio-descarte-section');
@@ -636,7 +628,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       } catch (e) {
         console.error('Error al inicializar Scanbot SDK:', e);
-        showToast('No se pudo iniciar el escáner.', 'error');
         closeActiveScanner();
       } finally {
         if (scannerOpeningContext && scannerOpeningContext.cancelled) {
