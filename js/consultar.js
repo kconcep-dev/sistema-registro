@@ -1,26 +1,35 @@
-// js/consultar.js — vista sesiones + detalle sesiones (equipos) + visitantes
+/*
+ * Pantalla de consulta: reúne visitantes, sesiones y el detalle de equipos en una sola vista.
+ * Gestiona pestañas, filtros, modales y herramientas de exportación apoyándose en Supabase.
+ */
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // --- 0) Protección de ruta y carga inicial ---
+  /*
+   * Asegura que la ruta sólo sea accesible para usuarios autenticados antes de continuar
+   * con la carga de la página.
+   */
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) {
     window.location.href = 'login.html';
     return;
   }
 
-  // --- 1) Elementos del DOM ---
+  /*
+   * Referencias a los elementos clave de la interfaz: navegación por pestañas, filtros,
+   * tablas de resultados y modales de edición.
+   */
   const tabsNav = document.querySelector('.tabs-nav');
   const tabContents = document.querySelectorAll('.tab-content');
   const controlAreas = Array.from(document.querySelectorAll('.controls-area[data-controls]'));
 
-  // Visitantes
+  // Elementos del panel de visitantes.
   const searchVisitantesInput    = document.getElementById('search-visitantes');
   const dateStartVisitantesInput = document.getElementById('date-start-visitantes');
   const dateEndVisitantesInput   = document.getElementById('date-end-visitantes');
   const exportVisitantesBtn      = document.getElementById('export-visitantes-btn');
   const tableVisitantesBody      = document.querySelector('#table-visitantes tbody');
 
-  // Sesiones (lista)
+  // Elementos del panel de sesiones.
   const searchDescartesInput     = document.getElementById('search-descartes');
   const dateStartDescartesInput  = document.getElementById('date-start-descartes');
   const dateEndDescartesInput    = document.getElementById('date-end-descartes');
@@ -28,7 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const clearDescartesBtn        = document.getElementById('clear-descartes-filters');
   const tableDescartesBody       = document.querySelector('#table-descartes tbody');
 
-  // Vista detalle de sesión
+  // Elementos del detalle de sesión seleccionado.
   const sesionesListaSection     = document.getElementById('sesiones-lista');
   const sesionDetalleSection     = document.getElementById('sesion-detalle');
   const btnVolverSesiones        = document.getElementById('btn-volver-sesiones');
@@ -44,29 +53,28 @@ document.addEventListener('DOMContentLoaded', async () => {
   const tableEquiposSesionBody   = document.querySelector('#table-equipos-sesion tbody');
   const exportSesionDescartesBtn = document.getElementById('export-sesion-descartes-btn');
 
-  // Modales visitantes
+  // Modales para gestionar visitantes y equipos.
   const modalEditarVisitante     = document.getElementById('modal-editar-visitante');
   const formEditarVisitante      = document.getElementById('form-editar-visitante');
 
-  // Modal editar equipo (ids `editq-*`)
   const modalEditarEquipo        = document.getElementById('modal-editar-equipo');
   const formEditarEquipo         = document.getElementById('form-editar-equipo');
   const btnCerrarModalEditarEq   = document.getElementById('btn-cerrar-modal-editar-equipo');
   const btnCancelarEditarEq      = document.getElementById('btn-editar-equipo-cancelar');
 
-  // --- NUEVO: Modal agregar equipo ---
+  // Modal para agregar equipos directamente desde la vista.
   const btnAgregarEquipo         = document.getElementById('btn-agregar-equipo');
   const modalAgregarEquipo       = document.getElementById('modal-agregar-equipo');
   const formAgregarEquipo        = document.getElementById('form-agregar-equipo');
   const btnCerrarModalAgregarEq  = document.getElementById('btn-cerrar-modal-agregar-equipo');
   const btnCancelarAgregarEq     = document.getElementById('btn-agregar-equipo-cancelar');
 
-  // Contadores
+  // Tarjetas que muestran conteos globales de cada pestaña.
   const visitantesTotalEl        = document.getElementById('visitantes-total');
   const sesionesTotalEl          = document.getElementById('sesiones-total');
   const equiposTotalEl           = document.getElementById('equipos-total');
 
-  // Modal editar sesión
+  // Elementos para editar la cabecera de una sesión.
   const modalEditarSesion        = document.getElementById('modal-editar-sesion');
   const formEditarSesion         = document.getElementById('form-editar-sesion');
   const btnCerrarModalEditarSes  = document.getElementById('btn-cerrar-modal-editar-sesion');
@@ -77,11 +85,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const editSesionTecnicoInput   = document.getElementById('edit-sesion-tecnico');
   const editSesionObservacionInput = document.getElementById('edit-sesion-observacion');
 
-  // Toast
+  // Contenedor del sistema de notificaciones.
   const toastEl        = document.getElementById('toast-notification');
   const toastMessageEl = document.getElementById('toast-message');
 
-  // --- 2) Estado ---
+  /*
+   * Estado en memoria que respalda los filtros, datos cargados y elementos seleccionados.
+   * Se comparte entre pestañas para sincronizar la experiencia del usuario.
+   */
   let currentVisitorData    = [];
   let currentDescartesData  = [];
   let currentEquiposData    = [];
@@ -228,7 +239,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // --- 3) Utilidades ---
+  /*
+   * Utilidades compartidas: notificaciones, gestión del escáner y sincronización del
+   * estado en la barra de direcciones para permitir navegación con el historial.
+   */
   function showToast(message, type = 'success', duration = 5000) {
     clearTimeout(toastTimeout);
     toastMessageEl.textContent = message;
@@ -326,7 +340,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Cache del logo para exportación
+  /*
+   * Se reutiliza el logo del MEDUCA en múltiples exportaciones. Estas funciones lo cargan
+   * una sola vez y almacenan tanto la imagen como sus dimensiones en memoria.
+   */
   let cachedLogoMeducaBase64;
   let cachedLogoMeducaDimensions;
 
@@ -521,7 +538,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       return null;
     }
 
-    // Alinear el logo con el borde derecho del rango disponible
+    /* El logo se posiciona pegado al borde derecho del encabezado sin deformarlo. */
     const horizontalOffset = Math.max(0, availableSpace.width - imageSize.width);
     const verticalOffset = Math.max(0, (availableSpace.height - imageSize.height) / 2);
 
@@ -549,7 +566,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
   }
 
-  // dd-mm-aaaa
+  /* Formatea fechas ISO a la notación dd-mm-aaaa utilizada en los reportes. */
   function formatDate(isoString) {
     if (!isoString) return '-';
     const [y, m, d] = isoString.includes('T')
@@ -558,7 +575,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     return `${d.padStart(2,'0')}-${m.padStart(2,'0')}-${y}`;
   }
 
-  // hora 12h AM/PM
+  /* Convierte marcas de tiempo a formato local de 12 horas para los reportes. */
   function formatTime(isoString) {
     if (!isoString) return '-';
     const timePart = isoString.split('T')[1] ? isoString : `1970-01-01T${isoString}`;
@@ -894,9 +911,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // --- 4) Datos y render ---
+  /*
+   * Carga de datos y renderizado: cada pestaña tiene sus propios métodos de obtención y
+   * pintado en tabla, pero comparten las utilidades de formato y conteo definidas arriba.
+   */
 
-  // Visitantes
+  // Bloque de visitantes.
   async function fetchVisitantes() {
     const searchTerm = searchVisitantesInput?.value.trim() || '';
     const startDate  = dateStartVisitantesInput?.value || '';
@@ -957,7 +977,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Sesiones (lista)
+  // Bloque de sesiones principales.
   async function fetchDescartes() {
     const searchTerm = searchDescartesInput?.value.trim() || '';
     const startDate  = dateStartDescartesInput?.value || '';
@@ -1022,7 +1042,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Equipos por sesión
+  // Bloque de equipos asociados a una sesión.
   async function fetchEquiposBySession(sessionId, searchTerm = '') {
     let query = supabaseClient
       .from('equipos_descartados')
@@ -1211,9 +1231,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   pushHistoryState(initialHistoryState, { replace: true });
 
-  // --- 5) Eventos ---
+  /*
+   * Eventos de la interfaz: escuchas para pestañas, filtros, acciones de tablas y modales.
+   * Mantienen sincronizados los datos en pantalla con el estado de Supabase.
+   */
 
-  // Tabs
+  // Control de pestañas.
   if (tabsNav) {
     tabsNav.addEventListener('click', (e) => {
       const button = e.target.closest('.tab-btn');
@@ -1224,14 +1247,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Filtros visitantes
+  // Búsqueda y filtros del listado de visitantes.
   if (searchVisitantesInput) {
     searchVisitantesInput.addEventListener('input', () => {
       clearTimeout(searchDebounceTimeout);
       searchDebounceTimeout = setTimeout(fetchVisitantes, 300);
     });
   }
-  // Filtros sesiones
+  // Búsqueda y filtros del listado de sesiones.
   if (searchDescartesInput) {
     searchDescartesInput.addEventListener('input', () => {
       clearTimeout(searchDebounceTimeout);
@@ -1239,7 +1262,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Acciones tabla visitantes
+  // Acciones disparadas desde la tabla de visitantes.
   if (tableVisitantesBody) {
     tableVisitantesBody.addEventListener('click', async (e) => {
       const target = e.target;
@@ -1361,7 +1384,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Acciones tabla sesiones
+  // Acciones disparadas desde la tabla de sesiones.
   if (tableDescartesBody) {
     tableDescartesBody.addEventListener('click', async (e) => {
       const btnOpen = e.target.closest('.btn-view-equipos');
@@ -1427,7 +1450,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Buscar en equipos de la sesión
+  // Búsqueda dentro del detalle de equipos.
   if (searchEquiposInput) {
     searchEquiposInput.addEventListener('input', async () => {
       if (!currentSessionId) return;
@@ -1440,7 +1463,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Acciones en equipos
+  // Acciones sobre equipos individuales en el detalle.
   if (tableEquiposSesionBody) {
     tableEquiposSesionBody.addEventListener('click', async (e) => {
       const btnEdit = e.target.closest('.btn-editar');
@@ -1601,7 +1624,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-    // Toggle de detalles extra (solo móvil)
+  // Interacción del acordeón móvil para la información extra de la sesión.
   if (btnToggleDetalles && detalleExtra) {
     btnToggleDetalles.setAttribute('aria-controls', 'detalle-extra');
     updateMobileDetailsToggle(false);
@@ -1611,7 +1634,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // --- NUEVO: Lógica para agregar equipo ---
+  /*
+   * Flujo para agregar equipos desde el modal correspondiente: valida el contexto y
+   * actualiza la tabla en pantalla tras la inserción.
+   */
   if (btnAgregarEquipo && modalAgregarEquipo) {
     btnAgregarEquipo.addEventListener('click', () => {
       if (!currentSessionId) {
@@ -1667,7 +1693,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     btnCancelarAgregarEq.addEventListener('click', () => modalAgregarEquipo?.classList.remove('visible'));
   }
 
-  // --- 6) Exportar a Excel ---
+  /*
+   * Generación de reportes en Excel: utiliza ExcelJS para exportar los datos visibles
+   * respetando estilos y encabezados institucionales.
+   */
   function getVisibleVisitorData() {
     if (!tableVisitantesBody) return currentVisitorData;
 
@@ -2062,12 +2091,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     exportSesionDescartesBtn.addEventListener('click', exportCurrentSessionToExcel);
   }
 
-  // --- 7) Inicialización ---
+  /*
+   * Arranque inicial: se obtiene el primer conjunto de datos y se muestra la interfaz una
+   * vez que termina la carga asíncrona.
+   */
   await fetchVisitantes();
   document.getElementById('loader').style.display = 'none';
   document.getElementById('main-content').style.display = 'flex';
 
-  // --- 8) Datepicker UX ---
+  /*
+   * Mejora de experiencia para los campos de fecha: alterna estilos según si hay valor y
+   * sincroniza los iconos personalizados con el picker nativo.
+   */
   const dateInputs = [
     dateStartVisitantesInput,
     dateEndVisitantesInput,

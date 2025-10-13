@@ -1,6 +1,7 @@
-// js/common.js
-
-// --- 1. CONFIGURACIÓN Y CLIENTE SUPABASE ---
+/*
+ * Configuración compartida para todo el sitio: inicializa Supabase y expone utilidades
+ * comunes a las distintas vistas.
+ */
 const supabaseConfig = window.__SUPABASE_CONFIG__ || {};
 
 if (!supabaseConfig.url || !supabaseConfig.key) {
@@ -11,7 +12,10 @@ const supabaseUrl = supabaseConfig.url;
 const supabaseKey = supabaseConfig.key;
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-// --- 2. INYECTOR DE BARRA DE NAVEGACIÓN ---
+/*
+ * Plantilla HTML reutilizable para la barra de navegación. Se inserta en cualquier
+ * página que incluya un contenedor con id="navbar-placeholder".
+ */
 const navbarHTML = `
     <nav class="navbar">
         <div class="nav-container">
@@ -83,17 +87,25 @@ if (navbarPlaceholder) {
     navbarPlaceholder.innerHTML = navbarHTML;
 }
 
-// --- 3. FUNCIONES Y LÓGICA COMÚN ---
-
-// Variable global para rastrear trabajo sin guardar
+/*
+ * Estado global utilizado para saber si el usuario tiene cambios pendientes.
+ * Las vistas específicas lo actualizan según sus propias reglas.
+ */
 window.isWorkInProgress = false;
 
-// Función global para limpiar el estado de trabajo (será definida en las páginas específicas)
+/*
+ * Cada vista puede redefinir esta función para limpiar sus propios formularios.
+ * Si no se redefine, al menos reinicia la marca de trabajo en progreso.
+ */
 window.clearWorkInProgress = () => {
     window.isWorkInProgress = false;
 };
 
-// Gestor para preservar formularios antes de recargar la página por el escáner
+/*
+ * Crea un pequeño gestor encargado de conservar los valores de uno o varios formularios
+ * cuando el flujo del escáner obliga a recargar la página. Devuelve métodos para guardar
+ * y restaurar automáticamente desde sessionStorage.
+ */
 window.createScannerReloadPersistence = (storageKey, formIds = []) => {
     const resolveForms = () => formIds
         .map((formRef) => {
@@ -180,7 +192,10 @@ window.createScannerReloadPersistence = (storageKey, formIds = []) => {
     };
 };
 
-// Controlador del tiempo de vida del escáner en modo de prueba
+/*
+ * Controla la caducidad del escáner en modo de prueba. Gestiona botones, avisos,
+ * cuenta regresiva y recarga de la página cuando termina la sesión de escaneo.
+ */
 window.createScannerSessionGuard = ({
     buttons = [],
     reloadButtons = [],
@@ -361,10 +376,15 @@ window.createScannerSessionGuard = ({
     resetCountdown();
 };
 
-// ✅ FUNCIÓN GLOBAL PARA MOSTRAR MODAL DE CONFIRMACIÓN: CORREGIDA
+/*
+ * Presenta el modal de confirmación y resuelve una promesa con la elección del usuario.
+ * Si la página no define el modal, se asume aceptación automática para no bloquear flujos.
+ */
 window.showConfirmationModal = (title, message) => {
     const modal = document.getElementById('modal-confirmacion');
-    if (!modal) return Promise.resolve(true); // Si no hay modal, se asume confirmación
+    if (!modal) {
+        return Promise.resolve(true);
+    }
 
     const confirmTitle = document.getElementById('confirm-title');
     const confirmMessage = document.getElementById('confirm-message');
@@ -373,12 +393,11 @@ window.showConfirmationModal = (title, message) => {
 
     confirmTitle.textContent = title;
     confirmMessage.textContent = message;
-    modal.classList.add('visible'); // <-- Usamos la clase para mostrarlo
+    modal.classList.add('visible');
 
     return new Promise((resolve) => {
         const closeModal = (value) => {
-            modal.classList.remove('visible'); // <-- Usamos la clase para ocultarlo
-            // Removemos los event listeners para evitar fugas de memoria
+            modal.classList.remove('visible');
             btnAceptar.onclick = null;
             btnCancelar.onclick = null;
             resolve(value);
@@ -390,8 +409,10 @@ window.showConfirmationModal = (title, message) => {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-
-   // --- LÓGICA DEL TEMA ---
+    /*
+     * Cambia el tema del sitio y recuerda la preferencia en localStorage. También ajusta
+     * la accesibilidad del botón según el estado actual.
+     */
     const themeToggleBtn = document.getElementById('theme-toggle');
     if (themeToggleBtn) {
         const updateThemeToggleLabels = (isDarkMode) => {
@@ -410,14 +431,19 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('theme', theme);
         });
     }
-    
-    // --- LÓGICA DE NAVEGACIÓN (HAMBURGUESA) ---
+
+    /*
+     * La versión móvil usa una hamburguesa que añade o elimina la clase nav-open sobre el body.
+     */
     const hamburgerBtn = document.getElementById('hamburger-btn');
     if (hamburgerBtn) {
         hamburgerBtn.addEventListener('click', () => document.body.classList.toggle('nav-open'));
     }
 
-    // --- FUNCIÓN GENÉRICA PARA SALIR DE FORMA SEGURA ---
+    /*
+     * Antes de abandonar la página (logout o navegación manual) se confirma si hay cambios
+     * sin guardar. Las vistas pueden limpiar su estado mediante clearWorkInProgress.
+     */
     async function safeExit(exitFunction) {
         if (window.isWorkInProgress) {
             const confirmed = await window.showConfirmationModal(
@@ -435,7 +461,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- LÓGICA DE LOGOUT ---
+    /*
+     * El botón de cierre de sesión comparte la lógica de confirmación y delega en Supabase
+     * el cierre de la sesión. Siempre redirige al formulario de login al terminar.
+     */
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
@@ -446,7 +475,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- LÓGICA PARA MARCAR ENLACE ACTIVO Y GUARDIÁN DE NAVEGACIÓN ---
+    /*
+     * Mantiene actualizado el enlace activo en la barra y canaliza la navegación para
+     * respetar la confirmación de salida cuando hay cambios pendientes.
+     */
     const currentPage = window.location.pathname.split('/').pop();
     const navLinks = document.querySelectorAll('.nav-link');
 
@@ -461,14 +493,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 return;
             }
-            e.preventDefault(); // Siempre prevenimos la navegación inmediata
+            e.preventDefault();
             safeExit(() => {
                 window.location.href = link.href;
             });
         });
     });
 
-    // --- ORDENAMIENTO DE TABLAS ---
+    /*
+     * Habilita el ordenamiento accesible en tablas que no hayan definido un comportamiento
+     * personalizado mediante atributos data-sort.
+     */
     const NUMERIC_PATTERN = /^-?\d+(?:[.,]\d+)?$/;
 
     const extractSortableValue = (row, columnIndex) => {
@@ -526,7 +561,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return a.value.localeCompare(b.value, 'es', { sensitivity: 'base', numeric: true }) * dir;
         }
 
-        // Priorizamos números sobre fechas y texto, y fechas sobre texto
         const typeRank = { number: 0, date: 1, text: 2 };
         const rankA = typeRank[a.type] ?? 3;
         const rankB = typeRank[b.type] ?? 3;
@@ -579,7 +613,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const headerCells = Array.from(table.tHead.querySelectorAll('th'));
             if (!headerCells.length) return;
 
-            // Si la tabla ya define data-sort en los encabezados, asumimos que tiene una lógica personalizada (ej. inventario)
             const hasCustomSort = headerCells.some((th) => th.hasAttribute('data-sort'));
             if (hasCustomSort) {
                 table.dataset.sortableInitialized = 'custom';
@@ -616,9 +649,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initializeSortableTables();
 
-    // --- TEMPORIZADOR DE INACTIVIDAD ---
-    const INACTIVITY_WARNING_TIMEOUT = 10 * 60 * 1000; // 10 minutos para aviso
-    const FORCED_LOGOUT_DELAY = 5 * 60 * 1000; // 5 minutos adicionales para cierre forzado
+    /*
+     * Vigila la inactividad del usuario: primero muestra un aviso y después cierra sesión.
+     * Los intervalos están expresados en milisegundos para facilitar ajustes.
+     */
+    const INACTIVITY_WARNING_TIMEOUT = 10 * 60 * 1000;
+    const FORCED_LOGOUT_DELAY = 5 * 60 * 1000;
 
     let inactivityWarningTimer;
     let forcedLogoutTimer;
@@ -769,28 +805,26 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function getUserProfile(user) {
-    // Si por alguna razón no hay un usuario, devolvemos un perfil genérico.
+    /*
+     * Traductor entre el email del usuario autenticado y los datos visibles en la interfaz.
+     * Si no hay coincidencia, se genera un perfil básico a partir del correo.
+     */
     if (!user) {
         return { name: 'Desconocido', role: 'Invitado' };
     }
 
-    // MAPA CENTRAL DE USUARIOS
     const userMappings = {
-        // email: { name: 'Nombre para mostrar', role: 'Rol del usuario' }
         'concepcion.kelieser@gmail.com': { name: 'Kevin', role: 'Técnico' },
         'usuario2@empresa.com': { name: 'Ana', role: 'Técnico' },
         'jefe.departamento@empresa.com': { name: 'Carlos', role: 'Supervisor' }
-        // ...agrega los demás usuarios aquí
     };
 
     const userEmail = user.email;
     const profile = userMappings[userEmail];
 
-    // Si encontramos el email en nuestro mapa, devolvemos su perfil.
     if (profile) {
         return profile;
-    } 
-    
-    // Si no, creamos un perfil por defecto usando la parte local del email.
+    }
+
     return { name: userEmail.split('@')[0], role: 'Usuario' };
 }
