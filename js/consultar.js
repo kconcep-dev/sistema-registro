@@ -813,7 +813,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       return scanbotInstance;
     } catch (error) {
       console.error('Error al inicializar Scanbot SDK:', error);
-      showToast('No se pudo iniciar el escáner.', 'error');
       scanbotInstance = null;
       return null;
     }
@@ -885,7 +884,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           }
         } catch (error) {
           console.error('Error al inicializar el escáner:', error);
-          showToast('No se pudo iniciar el escáner.', 'error');
           closeActiveScanner();
         } finally {
           if (scannerOpeningContext && scannerOpeningContext.cancelled) {
