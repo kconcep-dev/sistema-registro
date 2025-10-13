@@ -1,24 +1,35 @@
-// js/script.js
-
-// --- Helpers de fecha/hora en zona 'America/Panama' ---
+/**
+ * Gestiona el flujo completo del módulo de registro: autenticación de sesión,
+ * captura de datos manuales, lectura de códigos QR por archivo o cámara y
+ * sincronización con la base de datos de Supabase.
+ */
 function getLocalPaDateISO() {
-  // Devuelve 'YYYY-MM-DD' (formato en-CA) según la hora local de Panamá
+  /**
+   * Devuelve la fecha actual en formato ISO corto (YYYY-MM-DD) ajustada a la
+   * zona horaria de Panamá, garantizando coherencia con la base de datos.
+   */
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Panama' }).format(new Date());
 }
+
 function getLocalPaTime24h() {
-  // Devuelve 'HH:mm:ss' en 24h según la hora local de Panamá
-  const t = new Intl.DateTimeFormat('es-PA', {
+  /**
+   * Obtiene la hora local panameña en formato de 24 horas y normaliza la salida
+   * para evitar separadores específicos de cada navegador.
+   */
+  const formatted = new Intl.DateTimeFormat('es-PA', {
     timeZone: 'America/Panama',
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
     hour12: false
   }).format(new Date());
-  // Algunos navegadores pueden devolver con puntos o espacios, normalizamos a HH:mm:ss
-  return t.replace(/\./g, ':').replace(/\s/g, '');
+  return formatted.replace(/\./g, ':').replace(/\s/g, '');
 }
 
-// --- 0. PROTECCIÓN DE RUTA INICIAL ---
+/**
+ * Bloque inicial: impide el acceso a la aplicación si la sesión de Supabase
+ * no está activa y muestra el contenido solo cuando se confirma la autenticación.
+ */
 (async function checkSession() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) {
@@ -30,16 +41,18 @@ function getLocalPaTime24h() {
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
-
-  // --- 1. ELEMENTOS DEL DOM ---
+  /*
+   * Elementos del DOM utilizados en la pantalla principal. Agruparlos evita
+   * múltiples búsquedas y ofrece una visión clara de la estructura requerida.
+   */
   const mainForm = document.getElementById('registro-form');
   const mainFormInputs = mainForm.querySelectorAll('input[type="text"], select');
   const qrCaptureInput = document.getElementById('qr-captura');
   const qrChooseInput = document.getElementById('qr-elegir');
   const qrFileNameDisplay = document.getElementById('qr-file-name');
   const imageResultBox = document.getElementById('image-result-box');
-  const qrCanvasElement = document.getElementById("qr-canvas");
-  const qrCanvas = qrCanvasElement.getContext("2d");
+  const qrCanvasElement = document.getElementById('qr-canvas');
+  const qrCanvas = qrCanvasElement.getContext('2d');
   const btnScanLive = document.getElementById('btn-scan-live');
   const scanbotResultBox = document.getElementById('scanbot-result-box');
   const modalRegistro = document.getElementById('modal-registro-qr');
@@ -51,7 +64,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const toastMessageEl = document.getElementById('toast-message');
   const ultimoVisitanteCard = document.getElementById('ultimo-visitante-card');
 
-  // --- 2. ESTADO Y PERSISTENCIA ---
+  /*
+   * Variables de estado utilizadas por distintos módulos: control del escáner,
+   * temporizadores de notificaciones y banderas de navegación.
+   */
   let toastTimeout;
   let scanbotSDK;
   let activeBarcodeScanner;
@@ -66,6 +82,10 @@ document.addEventListener('DOMContentLoaded', () => {
   let scannerOpeningContext = null;
   let scannerGuard = null;
 
+  /**
+   * Elimina la entrada de historial asociada al escáner y, si es necesario,
+   * navega hacia atrás para restaurar la URL original sin reabrir el escáner.
+   */
   function detachScannerHistory({ triggeredByPopState } = {}) {
     if (scannerPopStateHandler) {
       window.removeEventListener('popstate', scannerPopStateHandler);
@@ -81,6 +101,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  /**
+   * Cierra cualquier instancia activa del escáner, limpia la interfaz
+   * superpuesta y actualiza las protecciones de sesión relacionadas.
+   */
   function closeActiveScanner({ triggeredByPopState, reason } = {}) {
     if (scannerOpeningContext) {
       scannerOpeningContext.cancelled = true;
@@ -104,6 +128,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  /**
+   * Construye la superposición reutilizable del escáner si aún no existe y
+   * devuelve el contenedor donde se insertará la vista del SDK.
+   */
   function ensureScannerOverlay() {
     if (!scannerOverlayEl) {
       scannerOverlayEl = document.createElement('div');
@@ -143,6 +171,10 @@ document.addEventListener('DOMContentLoaded', () => {
     return scannerViewEl;
   }
 
+  /**
+   * Inserta una entrada en el historial del navegador que permite cerrar el
+   * escáner con el botón "atrás" y registra un manejador para revertir cambios.
+   */
   function attachScannerHistory() {
     if (hasScannerHistoryEntry) return;
 
@@ -163,7 +195,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('popstate', scannerPopStateHandler);
   }
 
-  // --- 3. FUNCIONES AUXILIARES ---
+  /**
+   * Muestra un mensaje emergente en pantalla y programa su desaparición
+   * automática para mantener la interfaz limpia.
+   */
   function showToast(message, type = 'success', duration = 5000) {
     clearTimeout(toastTimeout);
     toastMessageEl.textContent = message;
@@ -173,6 +208,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }, duration);
   }
 
+  /*
+   * Persistencia opcional de recargas: guarda el estado del formulario cuando
+   * se solicita recargar la página tras usar el escáner.
+   */
   const reloadButtons = Array.from(document.querySelectorAll('.btn-reload-scan'));
   const reloadPersistence = window.createScannerReloadPersistence('scannerReloadRegistro', ['registro-form', 'modal-form-registro']);
   reloadPersistence.restore();
@@ -185,8 +224,11 @@ document.addEventListener('DOMContentLoaded', () => {
     timeoutMessage: 'El escáner se desactivó tras permanecer abierto un minuto. Recarga la página para volver a usarlo.',
     countdownDisplay: () => scannerCountdownEl
   });
-  
-  // Esta función es el "interruptor de apagado" para la advertencia
+
+  /**
+   * Restablece todos los campos y oculta resultados cuando se completa un flujo
+   * de registro, evitando estados residuales en la interfaz.
+   */
   window.clearWorkInProgress = () => {
     window.isWorkInProgress = false;
     console.log('Work in progress: DESACTIVADO');
@@ -197,6 +239,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (scanbotResultBox) scanbotResultBox.style.display = 'none';
   };
 
+  /**
+   * Presenta la información del último visitante registrado en la tarjeta
+   * resumen o un mensaje alternativo cuando no hay datos disponibles.
+   */
   function displayLastVisitor(visitor) {
     if (visitor) {
       document.getElementById('ultimo-nombre').textContent = visitor.nombre;
@@ -211,6 +257,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  /**
+   * Recupera el visitante más reciente desde Supabase para mantener la tarjeta
+   * de resumen sincronizada con los datos almacenados.
+   */
   async function fetchLastVisitor() {
     try {
       const { data, error } = await supabaseClient
@@ -221,59 +271,63 @@ document.addEventListener('DOMContentLoaded', () => {
       if (error) throw error;
       displayLastVisitor(data.length > 0 ? data[0] : null);
     } catch (error) {
-      console.error("Error fetching last visitor:", error);
+      console.error('Error fetching last visitor:', error);
       ultimoVisitanteCard.innerHTML = '<h4>No se pudo cargar el último registro.</h4>';
     }
   }
 
-  // --- 4. LÓGICA DEL FORMULARIO PRINCIPAL (MANUAL) ---
-  mainForm.addEventListener("submit", async (e) => {
+  /*
+   * Gestión del formulario principal: valida los campos requeridos, envía los
+   * datos a Supabase y actualiza la interfaz según el resultado del proceso.
+   */
+  mainForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const nombre   = document.getElementById("nombre").value.trim();
-    const apellido = document.getElementById("apellido").value.trim();
-    const cedula   = document.getElementById("cedula").value.trim();
-    const sexo     = document.getElementById("sexo").value;
-    const motivo   = document.getElementById("motivo").value.trim();
+    const nombre = document.getElementById('nombre').value.trim();
+    const apellido = document.getElementById('apellido').value.trim();
+    const cedula = document.getElementById('cedula').value.trim();
+    const sexo = document.getElementById('sexo').value;
+    const motivo = document.getElementById('motivo').value.trim();
 
     if (!nombre || !apellido || !cedula || !sexo || !motivo) {
-      showToast("Por favor, completa todos los campos.", "error");
+      showToast('Por favor, completa todos los campos.', 'error');
       return;
     }
-    
+
     const submitBtn = document.getElementById('submit-btn');
     submitBtn.disabled = true;
-    submitBtn.textContent = "Registrando...";
+    submitBtn.textContent = 'Registrando...';
     try {
-      // ⬇️ FECHA/HORA corregidas a zona de Panamá
-      const fechaActual = getLocalPaDateISO();     // 'YYYY-MM-DD'
-      const horaActual  = getLocalPaTime24h();     // 'HH:mm:ss'
+      const fechaActual = getLocalPaDateISO();
+      const horaActual = getLocalPaTime24h();
       const { data: nuevoVisitante, error } = await supabaseClient
         .from('visitantes')
         .insert([{ nombre, apellido, cedula, sexo, motivo, fecha: fechaActual, hora: horaActual }])
         .select()
         .single();
       if (error) throw error;
-      
-      showToast("¡Registro exitoso!", "success");
+
+      showToast('¡Registro exitoso!', 'success');
       displayLastVisitor(nuevoVisitante);
-      // Al tener éxito, reseteamos todo, incluyendo la bandera.
       clearWorkInProgress();
     } catch (err) {
-      showToast("Error al registrar los datos.", "error");
-      console.error("Supabase insert error:", err);
+      showToast('Error al registrar los datos.', 'error');
+      console.error('Supabase insert error:', err);
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = "Registrar";
+      submitBtn.textContent = 'Registrar';
     }
   });
 
-  // --- 5. LÓGICA DEL MODAL DE REGISTRO ---
+  /**
+   * Abre y cierra el modal de registro cuando los datos provienen de un código
+   * QR, precargando la información leída antes de solicitar el motivo de visita.
+   */
   function abrirModalRegistro(datos) {
-    document.getElementById('modal-nombre').value   = datos.nombre   || '';
+    document.getElementById('modal-nombre').value = datos.nombre || '';
     document.getElementById('modal-apellido').value = datos.apellido || '';
-    document.getElementById('modal-cedula').value   = datos.cedula   || '';
-    document.getElementById('modal-sexo').value     = datos.sexo     || '';
-    document.getElementById('modal-motivo').value   = '';
+    document.getElementById('modal-cedula').value = datos.cedula || '';
+    document.getElementById('modal-sexo').value = datos.sexo || '';
+    document.getElementById('modal-motivo').value = '';
     document.getElementById('modal-motivo').focus();
     modalRegistro.classList.add('visible');
   }
@@ -285,58 +339,64 @@ document.addEventListener('DOMContentLoaded', () => {
   btnCerrarModal.addEventListener('click', cerrarModalRegistro);
   btnCancelarModal.addEventListener('click', cerrarModalRegistro);
 
+  /*
+   * El envío del formulario en el modal replica la lógica del formulario
+   * principal, reutilizando las utilidades de fecha/hora y limpieza de estado.
+   */
   modalForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const nombre   = document.getElementById("modal-nombre").value.trim();
-    const apellido = document.getElementById("modal-apellido").value.trim();
-    const cedula   = document.getElementById("modal-cedula").value.trim();
-    const sexo     = document.getElementById("modal-sexo").value;
-    const motivo   = document.getElementById("modal-motivo").value.trim();
+    const nombre = document.getElementById('modal-nombre').value.trim();
+    const apellido = document.getElementById('modal-apellido').value.trim();
+    const cedula = document.getElementById('modal-cedula').value.trim();
+    const sexo = document.getElementById('modal-sexo').value;
+    const motivo = document.getElementById('modal-motivo').value.trim();
 
     if (!nombre || !apellido || !cedula || !sexo || !motivo) {
-      showToast("Por favor, completa el motivo de la visita.", "error");
+      showToast('Por favor, completa el motivo de la visita.', 'error');
       return;
     }
-    
+
     btnSubmitModal.disabled = true;
-    btnSubmitModal.textContent = "Registrando...";
+    btnSubmitModal.textContent = 'Registrando...';
 
     try {
-      // ⬇️ FECHA/HORA corregidas a zona de Panamá
-      const fechaActual = getLocalPaDateISO();   // 'YYYY-MM-DD'
-      const horaActual  = getLocalPaTime24h();   // 'HH:mm:ss'
+      const fechaActual = getLocalPaDateISO();
+      const horaActual = getLocalPaTime24h();
       const { data: nuevoVisitante, error } = await supabaseClient
         .from('visitantes')
         .insert([{ nombre, apellido, cedula, sexo, motivo, fecha: fechaActual, hora: horaActual }])
         .select()
         .single();
       if (error) throw error;
-      
-      showToast("¡Registro exitoso!", "success");
+
+      showToast('¡Registro exitoso!', 'success');
       displayLastVisitor(nuevoVisitante);
       cerrarModalRegistro();
-      clearWorkInProgress(); // También reseteamos al enviar desde el modal
+      clearWorkInProgress();
     } catch (err) {
-      showToast("Error al registrar los datos.", "error");
-      console.error("Supabase insert error:", err);
+      showToast('Error al registrar los datos.', 'error');
+      console.error('Supabase insert error:', err);
     } finally {
       btnSubmitModal.disabled = false;
-      btnSubmitModal.textContent = "Registrar";
+      btnSubmitModal.textContent = 'Registrar';
     }
   });
 
-  // --- 6. LÓGICA DEL LECTOR DE QR POR IMAGEN ---
+  /**
+   * Procesa archivos de imagen seleccionados o capturados, decodifica el código
+   * QR y abre el modal con la información obtenida.
+   */
   const handleImageFile = (file) => {
     if (!file) {
       qrFileNameDisplay.textContent = 'Ningún archivo seleccionado';
       imageResultBox.style.display = 'none';
       return;
     }
-    
+
     qrFileNameDisplay.textContent = file.name;
     imageResultBox.textContent = 'Procesando...';
     imageResultBox.style.display = 'block';
-    showToast("Procesando imagen...", "success");
+    showToast('Procesando imagen...', 'success');
 
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -345,10 +405,10 @@ document.addEventListener('DOMContentLoaded', () => {
         qrCanvasElement.width = img.width;
         qrCanvasElement.height = img.height;
         qrCanvas.drawImage(img, 0, 0, img.width, img.height);
-        
+
         const imageData = qrCanvas.getImageData(0, 0, qrCanvasElement.width, qrCanvasElement.height);
         const code = jsQR(imageData.data, imageData.width, imageData.height);
-        
+
         if (code) {
           const decodedData = new TextDecoder('utf-8').decode(new Uint8Array(code.binaryData));
           imageResultBox.textContent = decodedData;
@@ -356,19 +416,19 @@ document.addEventListener('DOMContentLoaded', () => {
           if (parts.length >= 5) {
             const sexoChar = parts[4].trim().toUpperCase();
             const sexo = sexoChar === 'M' ? 'Masculino' : (sexoChar === 'F' ? 'Femenino' : '');
-            const datos = { 
-              cedula: parts[0].trim(), 
-              nombre: parts[1].trim(), 
+            const datos = {
+              cedula: parts[0].trim(),
+              nombre: parts[1].trim(),
               apellido: parts[2].trim(),
               sexo: sexo
             };
             abrirModalRegistro(datos);
           } else {
-            showToast("Formato del QR no esperado.", "error");
+            showToast('Formato del QR no esperado.', 'error');
           }
         } else {
           imageResultBox.textContent = 'No se detectó ningún código QR en la imagen.';
-          showToast("No se encontró un QR en la imagen.", "error");
+          showToast('No se encontró un QR en la imagen.', 'error');
         }
       };
       img.src = e.target.result;
@@ -386,7 +446,10 @@ document.addEventListener('DOMContentLoaded', () => {
     event.target.value = '';
   });
 
-  // --- 7. LÓGICA PARA SCANBOT (Cámara en Vivo) ---
+  /**
+   * Inicializa el escáner en vivo con Scanbot SDK cuando está disponible,
+   * gestiona el ciclo de vida del componente y procesa los códigos detectados.
+   */
   if (btnScanLive) {
     btnScanLive.addEventListener('click', async () => {
       if (activeBarcodeScanner || scannerOpeningContext) return;
@@ -428,7 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
                 abrirModalRegistro(datos);
               } else {
-                showToast("Formato del QR no esperado.", "error");
+                showToast('Formato del QR no esperado.', 'error');
               }
 
               closeActiveScanner();
@@ -440,11 +503,11 @@ document.addEventListener('DOMContentLoaded', () => {
             closeActiveScanner();
           },
           style: {
-            window: { backgroundColor: "rgba(0,0,0,0.7)" },
-            viewfinder: { borderColor: "white", borderWidth: 2, cornerRadius: 4 }
+            window: { backgroundColor: 'rgba(0,0,0,0.7)' },
+            viewfinder: { borderColor: 'white', borderWidth: 2, cornerRadius: 4 }
           },
           text: {
-            scanningHint: "Apunte al código QR de la cédula"
+            scanningHint: 'Apunte al código QR de la cédula'
           }
         };
 
@@ -471,7 +534,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- 8. INICIALIZACIÓN FINAL ---
+  /*
+   * Inicialización final: carga el último visitante, marca cambios en los
+   * formularios y advierte antes de abandonar la página si hay trabajo pendiente.
+   */
   fetchLastVisitor();
 
   const setWorkInProgress = () => {
@@ -480,7 +546,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('Work in progress: ACTIVADO');
     }
   };
-  
+
   mainFormInputs.forEach(input => {
     input.addEventListener('input', setWorkInProgress);
   });
