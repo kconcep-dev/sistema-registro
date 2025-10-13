@@ -1034,9 +1034,6 @@ html.dark-mode input:-webkit-autofill {
 .btn-principal:hover { background-color: var(--primary-hover-color); }
 .btn-principal:disabled { opacity: .7; cursor: not-allowed; }
 
-/* Indica al navegador que pinte controles en dark cuando toque */
-html.dark-mode { color-scheme: dark; }
-
 /* Base del select en dark (cerrado) */
 html.dark-mode select {
   background-color: var(--input-bg-color);
