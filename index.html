@@ -6,7 +6,7 @@
     <title>Registrar - Sistema de Registro</title>
 
     <script>
-        // Script to prevent dark mode flash
+        /* Sincroniza el tema almacenado antes de que el DOM sea visible para evitar parpadeos. */
         (function() {
             try {
                 const theme = localStorage.getItem('theme');
@@ -14,7 +14,7 @@
                     document.documentElement.classList.add('dark-mode');
                 }
             } catch (e) {
-                // Do nothing if localStorage is unavailable
+                /* Si el almacenamiento falla, continuamos sin aplicar el modo oscuro anticipado. */
             }
         })();
     </script>
@@ -25,6 +25,7 @@
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
+    <!-- Contenedor dinámico para la barra de navegación compartida -->
     <div id="navbar-placeholder"></div>
 
     <div id="loader" class="loader-wrapper">
@@ -32,7 +33,7 @@
     </div>
 
     <main id="main-content" style="display: none;">
-        
+
         <div class="container">
             <div class="page-heading page-heading--left">
                 <h1>
@@ -45,10 +46,12 @@
                 </p>
             </div>
 
+            <!-- Distribución general de las herramientas de registro -->
             <div class="layout-wrapper">
 
                 <div id="qr-section" class="qr-section">
-                    
+
+                    <!-- Panel dedicado a la captura de datos mediante código QR -->
                     <h2>Escanear Código QR</h2>
                     <p class="section-subtitle">Usa la cámara para un llenado automático e instantáneo.</p>
                     <div class="scanner-action-row">
@@ -87,6 +90,7 @@
                     <canvas id="qr-canvas" style="display: none;"></canvas>
                 </div>
 
+                <!-- Formulario manual de registro de visitantes -->
                 <form id="registro-form" novalidate>
                     <h2>Datos del Visitante</h2>
                     <label for="nombre">Nombre:</label>
@@ -115,6 +119,7 @@
                 </form>
             </div>
 
+            <!-- Resumen del último registro almacenado en la sesión -->
             <div id="ultimo-visitante-card" class="card-ultimo-visitante">
                 <h4>Último Visitante Registrado</h4>
                 <p><strong>Nombre:</strong> <span id="ultimo-nombre"></span></p>
@@ -127,29 +132,32 @@
             </div>
         </div>
 
+        <!-- Notificaciones breves para confirmar acciones del usuario -->
         <div id="toast-notification" class="toast">
             <span id="toast-message"></span>
         </div>
     </main>
 
+    <!-- Diálogo reutilizable para confirmar operaciones críticas -->
     <div id="modal-confirmacion" class="modal-overlay">
-    <div class="modal-content">
-        <h2 id="confirm-title">¿Estás seguro?</h2>
-        <p id="confirm-message">Esta acción no se puede deshacer.</p>
-        <div class="modal-buttons">
-            <button id="btn-confirmar-cancelar" class="btn-secondary button-with-icon">
-                <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
-                <span class="button-label">Cancelar</span>
-            </button>
-            <button id="btn-confirmar-aceptar" class="btn-danger button-with-icon">
-                <span class="icon icon--sm icon-check" aria-hidden="true"></span>
-                <span class="button-label">Aceptar</span>
-            </button>
+        <div class="modal-content">
+            <h2 id="confirm-title">¿Estás seguro?</h2>
+            <p id="confirm-message">Esta acción no se puede deshacer.</p>
+            <div class="modal-buttons">
+                <button id="btn-confirmar-cancelar" class="btn-secondary button-with-icon">
+                    <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
+                    <span class="button-label">Cancelar</span>
+                </button>
+                <button id="btn-confirmar-aceptar" class="btn-danger button-with-icon">
+                    <span class="icon icon--sm icon-check" aria-hidden="true"></span>
+                    <span class="button-label">Aceptar</span>
+                </button>
+            </div>
         </div>
     </div>
-</div>
 
-    <div id="modal-registro-qr" class="modal-overlay"> 
+    <!-- Diálogo que permite revisar y completar la información capturada desde un QR -->
+    <div id="modal-registro-qr" class="modal-overlay">
         <div class="modal-content">
             <button id="btn-cerrar-modal-registro" class="modal-close-btn" type="button" aria-label="Cerrar modal">
                 <span class="icon icon--sm icon-close-cancel" aria-hidden="true"></span>
