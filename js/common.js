@@ -83,6 +83,15 @@ if (navbarPlaceholder) {
     navbarPlaceholder.innerHTML = navbarHTML;
 }
 
+// --- 2.1 REGISTRO DEL SERVICE WORKER PARA PWA ---
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch((error) => {
+            console.error('No se pudo registrar el Service Worker:', error);
+        });
+    });
+}
+
 // --- 3. FUNCIONES Y LÓGICA COMÚN ---
 
 // Variable global para rastrear trabajo sin guardar
