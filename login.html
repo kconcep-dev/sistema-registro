@@ -6,7 +6,7 @@
     <title>Iniciar Sesión - Sistema de Registro</title>
 
     <script>
-        // Script para prevenir el "flash" del tema oscuro
+        // Aplica el tema previamente guardado antes de que el contenido sea visible.
         (function() {
             try {
                 const theme = localStorage.getItem('theme');
@@ -14,7 +14,7 @@
                     document.documentElement.classList.add('dark-mode');
                 }
             } catch (e) {
-                // No hacer nada si localStorage no está disponible
+                // Si el acceso a localStorage falla, se continúa con el tema por defecto.
             }
         })();
     </script>
@@ -28,6 +28,7 @@
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
+    <!-- Pantalla de bienvenida mostrada durante la carga inicial -->
     <div id="welcome-screen">
         <img src="assets/images/logo.png" alt="Logo del Sistema" class="welcome-logo">
         <h2 class="welcome-title">Sistema de Registro<br>Soporte Técnico</h2>
@@ -40,6 +41,7 @@
         </button>
     </div>
 
+    <!-- Contenido principal con el formulario paso a paso -->
     <main class="login-page-main" id="login-main-content" style="visibility: hidden;">
         <h2 class="page-main-title">Sistema de Registro - Soporte Técnico</h2>
 
@@ -51,9 +53,11 @@
 
             <div class="login-form-wrapper">
                 <form id="login-form" novalidate>
+                    <!-- Contenedor para mensajes de error provenientes de la validación o autenticación -->
                     <div id="login-error" class="feedback error" style="display: none;"></div>
 
                     <div id="step-email">
+                        <!-- Paso 1: captura del correo para verificar existencia de cuenta -->
                         <label for="email">Correo Electrónico:</label>
                         <input type="email" id="email" required autocomplete="email">
                         <button type="button" id="next-btn" class="btn-primary button-with-icon">
@@ -63,6 +67,7 @@
                     </div>
 
                     <div id="step-password" class="is-hidden">
+                        <!-- Paso 2: ingreso de la contraseña cuando el correo ha sido validado -->
                         <label for="password">Contraseña:</label>
                         <input type="password" id="password" required>
                         <div class="form-buttons">
@@ -81,6 +86,7 @@
         </div>
     </main>
 
+    <!-- Información de contacto y enlaces externos -->
     <footer class="login-footer">
         <div class="login-footer-links" role="navigation" aria-label="Enlaces de contacto">
             <a class="login-footer-link" href="https://github.com/kconcep-dev" target="_blank" rel="noopener noreferrer">
@@ -94,6 +100,7 @@
         </div>
     </footer>
 
+    <!-- Superposición utilizada durante el proceso de autenticación -->
     <div id="loading-overlay" class="loading-overlay">
         <div class="loading-content">
             <div class="spinner"></div>
@@ -101,6 +108,7 @@
         </div>
     </div>
 
+    <!-- Librerías requeridas: SDK de Supabase, configuración global y lógica específica de login -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
     <script src="js/common.js"></script>

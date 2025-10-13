@@ -6,11 +6,14 @@
   <title>Inventario de Equipos - Sistema de Registro</title>
 
   <script>
+    // Activa el modo oscuro antes de que carguen los estilos para evitar parpadeos.
     (function () {
       try {
         const theme = localStorage.getItem('theme');
         if (theme === 'dark') document.documentElement.classList.add('dark-mode');
-      } catch (e) {}
+      } catch (e) {
+        // Si localStorage falla no se interrumpe la experiencia del usuario.
+      }
     })();
   </script>
 
@@ -20,14 +23,18 @@
   <link rel="manifest" href="manifest.json" />
 </head>
 <body class="page-inventario">
+  <!-- Zona destinada a insertar la navegación compartida entre módulos -->
   <div id="navbar-placeholder"></div>
 
+  <!-- Animación de carga mientras se sincronizan datos y filtros -->
   <div id="loader" class="loader-wrapper">
     <div class="loader"></div>
   </div>
 
+  <!-- Panel principal que se muestra cuando el inventario está listo -->
   <main id="main-content" style="display:none;">
     <div class="inventory-container">
+      <!-- Encabezado con resumen de la vista y acciones rápidas -->
       <header class="inventory-header">
         <div class="inventory-heading page-heading page-heading--left">
           <h1>
@@ -51,6 +58,7 @@
         </div>
       </header>
 
+      <!-- Tarjetas de métricas agregadas del inventario -->
       <section class="stats-overview" aria-live="polite">
         <article class="stat-card stat-card--total-general">
           <span class="stat-label">Total</span>
@@ -74,6 +82,7 @@
         </article>
       </section>
 
+      <!-- Barra superior que agrupa los filtros disponibles -->
       <section class="filters-bar" aria-label="Filtros del inventario" data-active-panel="">
         <div class="filters-toolbar" role="group" aria-label="Accesos rápidos a filtros">
           <button type="button" class="filter-chip button-with-icon" data-filter-target="search" aria-expanded="false" aria-controls="filters-panel-search">
@@ -90,6 +99,7 @@
           </button>
         </div>
 
+        <!-- Contenedores desplegables según el filtro seleccionado -->
         <div class="filters-body">
           <div class="filters-group" data-filter-panel="search" id="filters-panel-search">
             <label class="sr-only" for="filter-search">Buscar</label>
@@ -129,6 +139,7 @@
         </div>
       </section>
 
+      <!-- Tabla dinámica con los equipos registrados -->
       <section class="table-wrapper">
         <div class="table-container">
           <table id="tabla-inventario">
@@ -151,10 +162,12 @@
     </div>
   </main>
 
+  <!-- Toast reutilizable para mostrar confirmaciones o errores -->
   <div id="toast-notification" class="toast" role="status" aria-live="polite">
     <span id="toast-message"></span>
   </div>
 
+  <!-- Modal genérico para confirmar acciones críticas -->
   <div id="modal-confirmacion" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message">
     <div class="modal-content">
       <button class="modal-close-btn" type="button" aria-label="Cerrar" data-close-confirm>
@@ -175,6 +188,7 @@
     </div>
   </div>
 
+  <!-- Formulario modal para crear o editar registros del inventario -->
   <div id="modal-ip" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-ip-title">
     <div class="modal-content modal-large">
       <button class="modal-close-btn" type="button" aria-label="Cerrar" data-close-modal>
@@ -305,6 +319,7 @@
     </div>
   </div>
 
+  <!-- Orden de scripts: dependencias externas, configuración general y lógica del inventario -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
   <script src="js/common.js"></script>

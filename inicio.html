@@ -6,7 +6,7 @@
     <title>Inicio - Sistema de Registro</title>
 
     <script>
-        // Script para prevenir el "flash" del tema oscuro
+        // Sincroniza la preferencia de tema almacenada antes de que se renderice la interfaz.
         (function() {
             try {
                 const theme = localStorage.getItem('theme');
@@ -14,7 +14,7 @@
                     document.documentElement.classList.add('dark-mode');
                 }
             } catch (e) {
-                // No hacer nada si localStorage no está disponible
+                // Ignora errores cuando localStorage no está disponible (por ejemplo, navegación privada).
             }
         })();
     </script>
@@ -26,18 +26,22 @@
     <link rel="manifest" href="manifest.json">
 </head>
 <body class="page-inicio">
+    <!-- Contenedor donde se inserta dinámicamente la barra de navegación global -->
     <div id="navbar-placeholder"></div>
 
+    <!-- Indicador mostrado mientras se consultan datos iniciales -->
     <div id="loader" class="loader-wrapper">
         <div class="loader"></div>
     </div>
 
+    <!-- Contenido principal que se revela después de cargar la sesión del usuario -->
     <main id="main-content" style="display: none;">
         <div class="container">
             <h1 id="welcome-message">Bienvenido</h1>
             <p class="subtitle">Selecciona una opción para comenzar.</p>
 
             <div class="dashboard-grid">
+                <!-- Cada tarjeta dirige a un flujo principal del sistema -->
                 <a href="index.html" class="card">
                     <h2>
                         <span class="icon icon--sm icon-nav-registrar" aria-hidden="true"></span>
@@ -70,6 +74,7 @@
         </div>
     </main>
 
+    <!-- Secuencia de scripts: primero dependencias externas y luego lógica específica de la página -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
     <script src="js/common.js"></script>
