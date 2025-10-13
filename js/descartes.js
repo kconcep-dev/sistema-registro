@@ -1,12 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-  // --- Helpers de fecha/hora en zona 'America/Panama' ---
+  /**
+   * Genera la fecha actual con la zona horaria oficial del proyecto para
+   * garantizar que los descartes queden registrados con la misma referencia.
+   */
   function getLocalPaDateISO() {
-    // Devuelve 'YYYY-MM-DD' (en-CA) según hora local de Panamá
     return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Panama' }).format(new Date());
   }
 
-  // --- 1. ELEMENTOS DEL DOM ---
+  /*
+   * Referencias reutilizadas a lo largo de la página. Se extraen una sola vez
+   * para evitar queries repetidas y asegurar que la UI se mantenga sincronizada
+   * con el estado local de la sesión de descarte.
+   */
   const inicioSection = document.getElementById('inicio-descarte-section');
   const registroSection = document.getElementById('registro-equipos-section');
   const btnIniciar = document.getElementById('btn-iniciar-descarte');
@@ -16,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const iconButtons = document.querySelectorAll('.button-with-icon');
   const mobileLabelQuery = window.matchMedia('(max-width: 600px)');
 
-  // Modales
+  /* Componentes de modales para crear sesiones y editar equipos */
   const modalSesion = document.getElementById('modal-nueva-sesion');
   const btnCerrarModalSesion = document.getElementById('btn-cerrar-modal');
   const formNuevaSesion = document.getElementById('form-nueva-sesion');
@@ -42,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCerrarModalEditar = document.getElementById('btn-cerrar-modal-editar');
   const btnCancelarEdicion = document.getElementById('btn-editar-cancelar');
 
-  // Formularios y tabla
+  /* Controles principales de formularios, tabla y notificaciones */
   const formEquipo = document.getElementById('form-equipo');
   const tablaEquiposBody = document.querySelector('#tabla-equipos tbody');
   const contadorEquiposSpan = document.getElementById('contador-equipos');
@@ -82,6 +88,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   applyResponsiveLabels();
 
+  /**
+   * Cambia la etiqueta de un botón durante operaciones asíncronas para que el
+   * usuario entienda en qué estado se encuentra la acción.
+   */
   function setButtonLoading(button, isLoading, loadingLabel) {
     const labelSpan = button.querySelector('.button-label');
     if (!labelSpan) return;
@@ -96,12 +106,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- 2. ESTADO DE LA APLICACIÓN ---
+  /* Variables que mantienen el estado en memoria de la sesión abierta */
   let equiposCounter = 0;
   let toastTimeout;
   let equipoActualEditandoId = null;
   const SESSION_STORAGE_KEY = 'activeDescarteSessionId';
 
+  /**
+   * Determina si la navegación actual permite restaurar los datos en progreso.
+   * Evita reaperturas accidentales cuando el usuario llega desde otra sección.
+   */
   function shouldRestoreActiveSession() {
     const navigationEntry = performance.getEntriesByType('navigation')[0];
     const navigationType = navigationEntry?.type || 'navigate';
@@ -132,6 +146,10 @@ document.addEventListener('DOMContentLoaded', () => {
   let scannerOpeningContext = null;
   let scannerGuard = null;
 
+  /**
+   * Limpia la sobreposición del escáner y el historial asociado cuando el
+   * usuario cierra manualmente o mediante navegación.
+   */
   function detachScannerHistory({ triggeredByPopState } = {}) {
     if (scannerPopStateHandler) {
       window.removeEventListener('popstate', scannerPopStateHandler);
@@ -147,6 +165,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  /**
+   * Cierra el escáner activo notificando al guardián de sesiones y liberando
+   * recursos de la instancia de Scanbot.
+   */
   function closeActiveScanner({ triggeredByPopState, reason } = {}) {
     if (scannerOpeningContext) {
       scannerOpeningContext.cancelled = true;
@@ -170,6 +192,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  /**
+   * Crea bajo demanda la capa flotante usada por Scanbot y devuelve el
+   * contenedor donde se monta el visor del escáner.
+   */
   function ensureScannerOverlay() {
     if (!scannerOverlayEl) {
       scannerOverlayEl = document.createElement('div');
@@ -209,6 +235,10 @@ document.addEventListener('DOMContentLoaded', () => {
     return scannerViewEl;
   }
 
+  /**
+   * Sincroniza el estado del historial del navegador con la superposición del
+   * escáner para permitir que el botón «atrás» cierre el visor.
+   */
   function attachScannerHistory() {
     if (hasScannerHistoryEntry) return;
 
@@ -229,6 +259,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('popstate', scannerPopStateHandler);
   }
 
+  /**
+   * Renumera la tabla después de cada inserción/eliminación para mantener la
+   * secuencia correlativa visible para la persona usuaria.
+   */
   function recalcularNumeracionTabla() {
     const filas = Array.from(tablaEquiposBody.rows);
     filas.forEach((fila, index) => {
@@ -240,7 +274,10 @@ document.addEventListener('DOMContentLoaded', () => {
     contadorEquiposSpan.textContent = equiposCounter;
   }
 
-  // --- 3. FUNCIONES AUXILIARES ---
+  /**
+   * Muestra un toast reutilizable. Se centraliza para garantizar consistencia
+   * en mensajes de éxito y error a lo largo del flujo.
+   */
   function showToast(message, type = 'success', duration = 5000) {
     clearTimeout(toastTimeout);
     toastMessageEl.textContent = message;
@@ -255,6 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const reloadPersistence = window.createScannerReloadPersistence('scannerReloadDescartes', ['form-equipo', 'form-nueva-sesion', 'form-editar-equipo']);
   reloadPersistence.restore();
 
+  /* Guardián encargado de evitar múltiples escáneres y manejar tiempos límite */
   scannerGuard = window.createScannerSessionGuard({
     buttons: scannerLaunchButtons,
     reloadButtons,
@@ -285,6 +323,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  /**
+   * Inserta un registro en la tabla principal aplicando los valores recibidos
+   * desde la base de datos o los formularios locales.
+   */
   function renderEquipoEnTabla(equipo, numero) {
     const tr = document.createElement('tr');
     tr.setAttribute('data-id', equipo.id);
@@ -311,6 +353,9 @@ document.addEventListener('DOMContentLoaded', () => {
     tablaEquiposBody.appendChild(tr);
   }
 
+  /**
+   * Refresca los campos de una fila existente después de editarla en Supabase.
+   */
   function updateFilaEnTabla(equipoActualizado) {
     const fila = document.querySelector(`tr[data-id='${equipoActualizado.id}']`);
     if (fila) {
@@ -324,6 +369,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  /**
+   * Cambia la interfaz a modo de captura cuando una sesión está activa.
+   */
   function showRegistroUI(sessionId) {
     activeSessionIdSpan.textContent = sessionId;
     inicioSection.style.display = 'none';
@@ -335,7 +383,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   
-  // --- 4. LÓGICA DE SESIÓN Y RESTAURACIÓN ---
+  /**
+   * Restaura desde Supabase los equipos asociados a la sesión almacenada en el
+   * navegador cuando la navegación indica que se trata del mismo flujo.
+   */
   async function restoreSession(sessionId) {
     try {
       const { data: equiposData, error } = await supabaseClient
@@ -358,7 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- 5. MANEJADORES DE EVENTOS (CRUD Y SESIÓN) ---
+  /* Eventos principales que orquestan la creación de sesiones y el CRUD */
   btnIniciar.addEventListener('click', () => modalSesion.classList.add('visible'));
   btnCerrarModalSesion.addEventListener('click', () => modalSesion.classList.remove('visible'));
 
@@ -384,8 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
         unidad_administrativa: unidadAdministrativa,
         codigo_siace: codigoSiace,
         tecnico_encargado: userProfile.name,
-        // ⬇️ FECHA corregida a zona de Panamá
-        fecha: getLocalPaDateISO(),            // 'YYYY-MM-DD' local Panamá
+        fecha: getLocalPaDateISO(),
         user_id: user.id
       };
 
@@ -566,7 +616,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // --- LÓGICA DEL ESCÁNER CON SCANBOT SDK ---
+  /*
+   * Habilita el escáner de códigos de barras reutilizando la superposición y
+   * aplicando validaciones que impiden aperturas simultáneas.
+   */
   document.querySelectorAll('.btn-scan').forEach(button => {
     button.addEventListener('click', async () => {
       if (activeBarcodeScanner || scannerOpeningContext) return;
@@ -637,7 +690,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // --- 6. GUARDIANES E INICIALIZACIÓN ---
+  /* Previene la pérdida de datos cuando la persona sale de la página */
   window.addEventListener('beforeunload', (event) => {
     if (window.isWorkInProgress) {
       event.preventDefault();
@@ -645,6 +698,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  /**
+   * Flujo principal de arranque: valida sesión, restaura avances y muestra la
+   * interfaz solo cuando la información necesaria está lista.
+   */
   (async function initializePage() {
     try {
       const { data: { session }, error } = await supabaseClient.auth.getSession();

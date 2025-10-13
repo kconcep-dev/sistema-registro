@@ -1,9 +1,10 @@
-// js/inicio.js
-
-// --- PROTECCIÓN DE RUTA Y BIENVENIDA ---
+/**
+ * Comprueba que exista una sesión válida antes de mostrar el panel de inicio
+ * y personaliza el mensaje de bienvenida con los datos del perfil.
+ */
 async function checkSession() {
     const { data: { session }, error } = await supabaseClient.auth.getSession();
-    
+
     if (error) {
         console.error("Error al obtener la sesión:", error);
         window.location.href = 'login.html';
@@ -13,25 +14,17 @@ async function checkSession() {
     if (!session) {
         window.location.href = 'login.html';
     } else {
-        
-        // --- LÓGICA DEL MENSAJE DE BIENVENIDA PERSONALIZADO ---
-
-        // 1. Obtenemos el perfil completo del usuario desde nuestra función centralizada.
         const userProfile = getUserProfile(session.user);
-
-        // 2. Actualizamos el mensaje en la página usando el nombre del perfil.
+        /* Inserta el nombre del perfil en la vista para reforzar la identidad */
         const welcomeMessage = document.getElementById('welcome-message');
         if (welcomeMessage) {
-            welcomeMessage.textContent = `Bienvenido, ${userProfile.name}`;     
+            welcomeMessage.textContent = `Bienvenido, ${userProfile.name}`;
         }
-        
-        // --- FIN DE LA LÓGICA ---
-        
-        // Mostrar contenido principal de la página
+        /* Una vez validada la sesión, se muestra el contenido protegido */
         document.getElementById('loader').style.display = 'none';
         document.getElementById('main-content').style.display = 'flex';
     }
 }
 
-// Ejecutamos la función al cargar la página
+/* Arranca la comprobación inmediatamente para evitar parpadeos de contenido */
 checkSession();
