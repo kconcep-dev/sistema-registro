@@ -650,16 +650,14 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeSortableTables();
 
     /*
-     * Vigila la inactividad del usuario: primero muestra un aviso y después cierra sesión.
-     * Los intervalos están expresados en milisegundos para facilitar ajustes.
+     * Vigila la inactividad del usuario usando un Web Worker para evitar que el navegador
+     * congele los temporizadores en pestañas de segundo plano.
      */
-    const INACTIVITY_WARNING_TIMEOUT = 10 * 60 * 1000;
-    const FORCED_LOGOUT_DELAY = 5 * 60 * 1000;
+    const FORCED_LOGOUT_DELAY = 5 * 60 * 1000; // 5 minutes, must match worker
 
-    let inactivityWarningTimer;
-    let forcedLogoutTimer;
     let countdownInterval;
     let isInactivityModalOpen = false;
+    let inactivityWorker;
 
     const formatCountdown = (totalSeconds) => {
         const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
@@ -668,15 +666,16 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const cleanupInactivityCountdown = () => {
-        clearTimeout(forcedLogoutTimer);
         clearInterval(countdownInterval);
-        forcedLogoutTimer = null;
         countdownInterval = null;
     };
 
     const logoutAndRedirect = async () => {
-        clearTimeout(inactivityWarningTimer);
         cleanupInactivityCountdown();
+
+        if (inactivityWorker) {
+            inactivityWorker.terminate(); // Clean up the worker
+        }
 
         if (typeof window.clearWorkInProgress === 'function') {
             window.clearWorkInProgress();
@@ -696,8 +695,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const btnAceptar = document.getElementById('btn-confirmar-aceptar');
         const btnCancelar = document.getElementById('btn-confirmar-cancelar');
 
-        if (!modal || !confirmTitle || !confirmMessage || !btnAceptar || !btnCancelar) {
-            forcedLogoutTimer = setTimeout(logoutAndRedirect, FORCED_LOGOUT_DELAY);
+        if (!modal || !confirmTitle || !confirmMessage || !btnAceptar || !btnCancelar || isInactivityModalOpen) {
             return;
         }
 
@@ -740,7 +738,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         btnCancelar.onclick = () => {
             closeModal();
-            resetInactivityTimer();
+            handleUserActivity(); // Reset timer by sending message to worker
         };
 
         isInactivityModalOpen = true;
@@ -757,24 +755,18 @@ document.addEventListener('DOMContentLoaded', () => {
             countdownInterval = setInterval(() => {
                 remainingSeconds -= 1;
                 if (remainingSeconds < 0) {
-                    clearInterval(countdownInterval);
-                    countdownInterval = null;
+                    cleanupInactivityCountdown();
                     return;
                 }
                 updateCountdown();
             }, 1000);
         }
-
-        forcedLogoutTimer = setTimeout(() => {
-            closeModal();
-            logoutAndRedirect();
-        }, FORCED_LOGOUT_DELAY);
     };
 
     function resetInactivityTimer() {
-        cleanupInactivityCountdown();
-        clearTimeout(inactivityWarningTimer);
-        inactivityWarningTimer = setTimeout(showInactivityWarning, INACTIVITY_WARNING_TIMEOUT);
+        if (inactivityWorker) {
+            inactivityWorker.postMessage('reset');
+        }
     }
 
     const handleUserActivity = () => {
@@ -785,10 +777,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const pagesWithInactivityTimer = ['index.html', 'inicio.html', 'descartes.html', 'consultar.html', 'inventario.html'];
     if (pagesWithInactivityTimer.some(page => window.location.pathname.includes(page))) {
-        window.addEventListener('load', resetInactivityTimer);
-        document.onmousemove = handleUserActivity;
-        document.onkeydown = handleUserActivity;
-        document.onclick = handleUserActivity;
+        if (window.Worker) {
+            inactivityWorker = new Worker('./js/inactivity-worker.js');
+
+            inactivityWorker.onmessage = (event) => {
+                if (event.data === 'showWarning') {
+                    showInactivityWarning();
+                } else if (event.data === 'logout') {
+                    logoutAndRedirect();
+                }
+            };
+
+            window.addEventListener('load', resetInactivityTimer);
+            document.onmousemove = handleUserActivity;
+            document.onkeydown = handleUserActivity;
+            document.onclick = handleUserActivity;
+            
+            // Start the timer for the first time
+            resetInactivityTimer();
+
+        } else {
+            console.warn('Web Workers no son soportados en este navegador. El cierre de sesión automático por inactividad puede no funcionar correctamente.');
+        }
     }
 
     if ('serviceWorker' in navigator) {
