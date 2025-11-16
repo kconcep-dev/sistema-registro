@@ -68,6 +68,13 @@
     .dashboard-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 }
 
+/* En pantallas grandes, aumenta la altura de las tarjetas para un mejor impacto visual. */
+@media (min-width: 768px) {
+    .card {
+        padding: 100px 25px; /* Aumenta el padding vertical de 40px a 60px */
+    }
+}
+
 /* En escritorio se incrementa el margen superior para compensar la altura del
  * encabezado fijo y mejorar el equilibrio visual.
  */
