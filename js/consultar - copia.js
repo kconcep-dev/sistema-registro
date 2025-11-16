@@ -1735,19 +1735,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const headers = ["Nombre", "Apellido", "Cédula", "Sexo", "Motivo", "Fecha", "Hora"];
       const dataRows = exportData.map(v => [
-        (v.nombre || '').toUpperCase(),
-        (v.apellido || '').toUpperCase(),
-        (v.cedula || '').toUpperCase(),
-        (v.sexo || '').toUpperCase(),
-        (v.motivo || '').toUpperCase(),
-        formatDate(v.fecha),
-        (formatTime(v.hora) || '').toUpperCase()
-      ]);
-
-      const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('Visitantes');
-      const borderAll = {
-        top:    { style: 'thin', color: { argb: 'FF000000' } },
+        v.nombre,
+        v.apellido,
+        v.cedula,
+        v.sexo,
+        v.motivo,
+        nst worksheet = work
+        op:    { style: 't'FF000000' } },
         left:   { style: 'thin', color: { argb: 'FF000000' } },
         bottom: { style: 'thin', color: { argb: 'FF000000' } },
         right:  { style: 'thin', color: { argb: 'FF000000' } }
@@ -1774,15 +1768,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const row = worksheet.addRow(rowValues);
         row.eachCell((cell, colNumber) => {
           cell.alignment = {
-            horizontal: 'center',
+            horizontal: colNumber >= 6 ? 'center' : 'left',
             vertical: 'top',
             wrapText: true
           };
           cell.border = borderAll;
         });
       });
-
-      const columnWidths = headers.map((header, columnIndex) => {
+columnWidths = headers.map((header, columnIndex) => {
         const maxCellLength = Math.max(
           header.length,
           ...dataRows.map(row => (row[columnIndex] ? row[columnIndex].toString().length : 0))
@@ -1961,27 +1954,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         worksheet.getCell(excelRow, 1).value = consecutiveNumber;
 
         if (equipo) {
-          worksheet.getCell(excelRow, 2).value = (equipo.descripcion || '').toUpperCase();
-          worksheet.getCell(excelRow, 3).value = (equipo.marbete || '').toUpperCase();
-          worksheet.getCell(excelRow, 4).value = (equipo.serie || '').toUpperCase();
-          worksheet.getCell(excelRow, 5).value = (equipo.marca || '').toUpperCase();
-          worksheet.getCell(excelRow, 6).value = (equipo.modelo || '').toUpperCase();
-          worksheet.getCell(excelRow, 7).value = (equipo.estado_equipo || '').toUpperCase();
-          worksheet.getCell(excelRow, 10).value = (equipo.motivo_descarte || '').toUpperCase();
-        } else {
-          worksheet.getCell(excelRow, 2).value = '';
-          worksheet.getCell(excelRow, 3).value = '';
-          worksheet.getCell(excelRow, 4).value = '';
-          worksheet.getCell(excelRow, 5).value = '';
-          worksheet.getCell(excelRow, 6).value = '';
-          worksheet.getCell(excelRow, 7).value = '';
-          worksheet.getCell(excelRow, 10).value = '';
+          worksheet.getCell(excelRow, 2).value = equipo.descripcion || '';
+          worksheet.getCell(excelRow, 3).value = equipo.marbete || '';
+          worksheet.getCell(excelRow, 4).value = equipo.serie || '';
+          worksheet.getCell(excelRow, 5).value = equipo.marca || '';
+          worksheet.getCell(excelRow, 6).value = equipo.modelo || '';
+          worksheet.getCell(excelRow, 7).value = equipo.estado_equipo || '';
+          worksheet.g
+          worksheet.getCell(excelRow, 10).value ='';
         }
 
-        worksheet.getCell(excelRow, 1).alignment  = { horizontal: 'center', vertical: 'middle' };
-        worksheet.getCell(excelRow, 2).alignment  = { horizontal: 'center', vertical: 'middle', wrapText: true };
-        worksheet.getCell(excelRow, 3).alignment  = { horizontal: 'center', vertical: 'middle', wrapText: true };
-        worksheet.getCell(excelRow, 4).alignment  = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        worksheet.getCell(excelRow, 1).alignment = { horizontal: 'cl: 'middle' };
+        worksheet.getCell(excelRow, 2).alignment = { horizontal: 'ce: 'middle', wrapText: true };
+        worksheet.getCell(excelRow, 3).alignment = { horizontal: 'center', le', wrapText: true };
+        worksheet.getCell(excelRow, 4).alignment   { horizontal: 'center', ver, wrapText: true };
         worksheet.getCell(excelRow, 5).alignment  = { horizontal: 'center', vertical: 'middle', wrapText: true };
         worksheet.getCell(excelRow, 6).alignment  = { horizontal: 'center', vertical: 'middle', wrapText: true };
         worksheet.getCell(excelRow, 7).alignment  = { horizontal: 'center', vertical: 'middle', wrapText: true };
