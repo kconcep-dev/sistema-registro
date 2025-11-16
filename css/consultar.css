@@ -686,7 +686,7 @@ html.dark-mode { --table-border-color: color-mix(in srgb, var(--border-color) 50
   padding: 12px 15px;
   text-align: left;
   border: 1px solid var(--table-border-color);
-  white-space: nowrap;
+  white-space: normal;
   background-color: var(--card-bg-color);
 }
 
